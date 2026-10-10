@@ -4,6 +4,7 @@
 // running water, and now and then a slow minor-second swell.
 
 let ctx = null, master = null, musicBus = null, sfxBus = null, wet = null;
+let amb = null, storyBus = null, storyTimer = null, storySoul = null;  // ambient layers can be ducked under a Soul's theme
 let musicOn = true, sfxOn = true, started = false, timers = [];
 
 const NOTE = n => 440 * Math.pow(2, (n - 69) / 12);
@@ -56,6 +57,11 @@ function init() {
   musicBus.gain.value = musicOn ? 1 : 0;
   musicBus.connect(master);
   musicBus.connect(wet);
+  amb = ctx.createGain();
+  amb.connect(musicBus);
+  storyBus = ctx.createGain();
+  storyBus.gain.value = 0;
+  storyBus.connect(musicBus);
   sfxBus = ctx.createGain();
   sfxBus.gain.value = sfxOn ? 0.8 : 0;
   sfxBus.connect(master);
@@ -86,7 +92,7 @@ function drone() {
     o.connect(g).connect(lp);
     o.start();
   });
-  lp.connect(out).connect(musicBus);
+  lp.connect(out).connect(amb);
 }
 
 function river() {
@@ -104,11 +110,11 @@ function river() {
   amt.gain.value = 0.05;
   lfo.connect(amt).connect(g.gain);
   lfo.start();
-  src.connect(bp).connect(g).connect(musicBus);
+  src.connect(bp).connect(g).connect(amb);
   src.start();
 }
 
-function bell(freq, when, vol = 0.08, bus = musicBus, length = 5) {
+function bell(freq, when, vol = 0.08, bus = amb, length = 5) {
   const g = ctx.createGain();
   g.gain.setValueAtTime(0, when);
   g.gain.linearRampToValueAtTime(vol, when + 0.01);
@@ -160,7 +166,7 @@ function swell() {
       o.stop(t + dur + 0.2);
     }
   }
-  lp.connect(g).connect(musicBus);
+  lp.connect(g).connect(amb);
   timers.push(setTimeout(swell, 22000 + Math.random() * 26000));
 }
 
@@ -178,7 +184,7 @@ function whisper() {
   g.gain.setValueAtTime(0, t);
   g.gain.linearRampToValueAtTime(0.05, t + 1.6);
   g.gain.linearRampToValueAtTime(0, t + 3.8);
-  src.connect(bp).connect(g).connect(musicBus);
+  src.connect(bp).connect(g).connect(amb);
   src.start();
   timers.push(setTimeout(whisper, 30000 + Math.random() * 40000));
 }
@@ -208,6 +214,92 @@ export function setSfx(on) {
   save();
   if (on) init();
   if (sfxBus) sfxBus.gain.setTargetAtTime(on ? 0.8 : 0, ctx.currentTime, 0.1);
+}
+
+// ---------------------------------------------------------------- the Souls' themes (played while the Book is open)
+// Each Soul has a short music-box melody over a soft drone; the river soundtrack sinks beneath it.
+// Melodies are [midi note, beats]; 0 is a rest.
+const THEMES = {
+  open: { bpm: 66, notes: [[74, 1], [77, 1], [81, 2], [79, 1], [77, 1], [76, 2], [74, 1], [72, 1], [74, 3], [0, 1]], bass: [50, 45] },
+  child: { bpm: 80, notes: [[69, 1], [74, 2], [76, 1], [77, 2], [76, 1], [74, 2], [72, 1], [74, 3], [69, 1], [72, 1], [74, 1], [76, 3], [0, 2]], bass: [50, 57] },
+  garland: { bpm: 76, notes: [[74, .5], [76, .5], [77, 1], [81, 1], [79, .5], [77, .5], [76, 1], [72, 1], [74, 2], [77, .5], [76, .5], [74, 1], [69, 1], [74, 2], [0, 1]], bass: [50, 53] },
+  king: { bpm: 54, notes: [[62, 2], [69, 2], [67, 1], [65, 1], [64, 2], [62, 2], [60, 1], [62, 3], [0, 1]], bass: [38, 45], low: true },
+  bride: { bpm: 58, notes: [[69, 1.5], [70, .5], [69, 1], [65, 1], [64, 1.5], [65, .5], [62, 2], [61, 1], [62, 3], [0, 1]], bass: [50, 46] },
+};
+
+function musicBox(freq, when, vol, len) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(vol, when + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, when + len);
+  [[1, 1], [3.01, 0.18], [6.1, 0.05], [2, 0.12]].forEach(([r, a]) => {
+    const o = ctx.createOscillator(), og = ctx.createGain();
+    o.type = "sine";
+    o.frequency.value = freq * r;
+    og.gain.value = a;
+    o.connect(og).connect(g);
+    o.start(when);
+    o.stop(when + len + 0.1);
+  });
+  g.connect(storyBus);
+}
+
+function pad(freq, when, dur) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(0.03, when + dur * 0.4);
+  g.gain.linearRampToValueAtTime(0, when + dur);
+  const lp = ctx.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.value = 600;
+  for (const det of [-6, 6]) {
+    const o = ctx.createOscillator();
+    o.type = "triangle";
+    o.frequency.value = freq;
+    o.detune.value = det;
+    o.connect(lp);
+    o.start(when);
+    o.stop(when + dur + 0.1);
+  }
+  lp.connect(g).connect(storyBus);
+}
+
+function themePhrase() {
+  const th = THEMES[storySoul];
+  if (!th || !ctx) return;
+  const beat = 60 / th.bpm;
+  let t = ctx.currentTime + 0.15, total = 0;
+  for (const [n, b] of th.notes) {
+    if (n) {
+      musicBox(NOTE(n), t, th.low ? 0.075 : 0.06, Math.max(1.6, b * beat * 2.2));
+      if (th.low) musicBox(NOTE(n - 12), t, 0.035, b * beat * 2);
+    }
+    t += b * beat;
+    total += b;
+  }
+  const len = total * beat;
+  pad(NOTE(th.bass[0]), ctx.currentTime + 0.15, len / 2 + 0.6);
+  pad(NOTE(th.bass[1]), ctx.currentTime + 0.15 + len / 2, len / 2 + 0.6);
+  storyTimer = setTimeout(themePhrase, (len + beat * 2) * 1000);
+}
+
+// soul: a Soul key to play its theme, or null to return to the river.
+export function storyTheme(soul) {
+  if (!ctx) return;
+  clearTimeout(storyTimer);
+  storyTimer = null;
+  const now = ctx.currentTime;
+  if (soul && musicOn) {
+    storySoul = soul;
+    amb.gain.setTargetAtTime(0.22, now, 0.8);
+    storyBus.gain.cancelScheduledValues(now);
+    storyBus.gain.setTargetAtTime(1, now, 0.5);
+    themePhrase();
+  } else {
+    storySoul = null;
+    amb.gain.setTargetAtTime(1, now, 1.2);
+    storyBus.gain.setTargetAtTime(0, now, 0.4);
+  }
 }
 
 // ---------------------------------------------------------------- sound effects
@@ -258,6 +350,7 @@ export function sfx(kind) {
     case "inscribe": [74, 77, 81, 86].forEach((n, i) => bell(NOTE(n), t + i * 0.16, 0.05, sfxBus, 3.5)); break;
     case "summon": [50, 57, 62, 69].forEach((n, i) => bell(NOTE(n), t + i * 0.11, 0.06, sfxBus, 4)); break;
     case "turn": bell(NOTE(81), t, 0.035, sfxBus, 2.5); break;
+    case "chime": bell(NOTE(86), t, 0.025, sfxBus, 3); break;
     case "win": [62, 66, 69, 74, 78, 81].forEach((n, i) => bell(NOTE(n), t + i * 0.25, 0.07, sfxBus, 6)); break;
     case "loss": [62, 61, 58, 57, 50].forEach((n, i) => bell(NOTE(n), t + i * 0.45, 0.07, sfxBus, 6)); thump(45, 0.5, 3); break;
   }

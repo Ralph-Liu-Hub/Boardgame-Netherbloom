@@ -2,6 +2,8 @@
 // Spread 0 is the title and contents, spreads 1–3 are the chapters (one per Reach), and an epilogue follows once the game ends.
 import { CARDS, BOOK_FRAMES, SOULS, REACH_NAMES, SLOTS } from "./cards.js";
 import { keyMemoryFate } from "./engine.js";
+import { mountReplay } from "./replay.js";
+import { storyTheme } from "./audio.js";
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const ROMAN = ["I", "II", "III"];
@@ -10,6 +12,8 @@ const use = (id, cls = "", style = "") => `<svg class="${cls}" style="${style}" 
 const TITLES = BOOK_FRAMES.map(([t]) => t.split(" · ")[1]);
 
 let S = null, at = 0, seen = new Set(), turning = false, onKey = null;
+let shown = { left: null, right: null }, pageStops = [], bandStop = null, bandFocus = undefined;
+const REACH_SPAN = [[1, 4], [5, 8], [9, 11]];
 
 // Corner ornaments and a double rule, drawn over each page.
 const frame = () => `<svg class="bk-frame" viewBox="0 0 100 140" preserveAspectRatio="none" aria-hidden="true">
@@ -54,7 +58,7 @@ function leftPage(i) {
     return `<div class="bk-chapter">
       <div class="bk-kicker">Epilogue</div>
       <h2 class="bk-script">${win ? "The Far Shore" : "Into the Mist"}</h2>
-      <div class="bk-illum ${win ? "" : "dim"}">${use("nb-light")}</div>
+      <div class="bk-scene" data-lo="1" data-hi="11"></div>
       <p class="bk-centre">${win ? "The soul set down its last memory on the bank and walked on into the light." : { Faded: "So much was forgotten that nothing was left to cross.", Shattered: "Broken three times, the soul could carry itself no further.", Deluge: "The black river rose, and there was nothing left to hold it back.", Stalled: "The river grew still, and the crossing was abandoned." }[S.cause]}</p>
       <div class="bk-imprint">${S.turn} turns · ${S.stats.inscribed} memories inscribed · ${S.forgotten.length} forgotten</div>
     </div>`;
@@ -64,8 +68,8 @@ function leftPage(i) {
     <div class="bk-kicker">Chapter ${ROMAN[r]}</div>
     <h2 class="bk-script">${TITLES[r]}</h2>
     <div class="bk-reach">${REACH_NAMES[r]}</div>
-    <div class="bk-illum">${use("nb-bloom")}<span class="bk-numeral">${ROMAN[r]}</span></div>
-    <div class="bk-status">${here ? "The soul walks here now" : done ? "The soul has passed this way" : "Not yet reached"}</div>
+    <div class="bk-scene" data-lo="${REACH_SPAN[r][0]}" data-hi="${REACH_SPAN[r][1]}"></div>
+    <div class="bk-status">${here ? "The soul walks here now" : done ? "The soul has passed this way" : S.result ? "The soul never came this way" : "Not yet reached"}</div>
     <ul class="bk-slots">${SLOTS.map(slot => {
       const cid = S.book[r][slot];
       return `<li class="${cid === undefined ? "" : "on"}">${use(SLOT_ICON[slot])}<span>${slot}</span><em>${cid === undefined ? "unwritten" : "inscribed"}</em></li>`;
@@ -125,10 +129,24 @@ function rightPage(i) {
 
 const pageNo = (i, side) => `<span class="bk-pno">${i * 2 + side + 1}</span>`;
 
-function render() {
+// Pages are only rebuilt when their content changes, so a running replay is not restarted by every game update.
+function render(force = false) {
   const book = document.getElementById("bk-book");
-  book.querySelector(".bk-left .bk-inner").innerHTML = leftPage(at) + pageNo(at, 0);
-  book.querySelector(".bk-right .bk-inner").innerHTML = rightPage(at) + pageNo(at, 1);
+  const L = leftPage(at) + pageNo(at, 0), R = rightPage(at) + pageNo(at, 1);
+  let changed = false;
+  if (force || L !== shown.left) { book.querySelector(".bk-left .bk-inner").innerHTML = L; shown.left = L; changed = true; }
+  if (force || R !== shown.right) { book.querySelector(".bk-right .bk-inner").innerHTML = R; shown.right = R; changed = true; }
+  if (changed) {
+    pageStops.forEach(stop => stop());
+    pageStops = [...book.querySelectorAll(".bk-page .bk-scene")].map(host =>
+      mountReplay(host, S, { lo: +host.dataset.lo, hi: +host.dataset.hi, look: "ink" }));
+  }
+  const focus = at >= 1 && at <= 3 ? at - 1 : null;
+  if (focus !== bandFocus) {
+    bandFocus = focus;
+    if (bandStop) bandStop();
+    bandStop = mountReplay(document.getElementById("bk-band"), S, { lo: 1, hi: 11, look: "night", focus });
+  }
   document.getElementById("bk-dots").innerHTML = spreads().map(i =>
     `<button type="button" class="${i === at ? "on" : ""}" data-go="${i}" aria-label="Spread ${i + 1}"></button>`).join("");
   document.getElementById("bk-prev").disabled = at === 0;
@@ -154,10 +172,10 @@ function go(to) {
   at = to;
   const keepSide = fwd ? ".bk-left" : ".bk-right";
   const kept = book.querySelector(`${keepSide} .bk-inner`).innerHTML;
-  render();
+  render(true);
   book.querySelector(`${keepSide} .bk-inner`).innerHTML = kept;
   book.appendChild(leaf);
-  leaf.addEventListener("animationend", () => { leaf.remove(); turning = false; render(); }, { once: true });
+  leaf.addEventListener("animationend", () => { leaf.remove(); turning = false; render(true); }, { once: true });
 }
 
 export function openBook(state, spread = null) {
@@ -175,6 +193,7 @@ export function openBook(state, spread = null) {
         <div class="bk-page bk-right"><div class="bk-inner"></div>${frame()}</div>
         <div class="bk-spine"></div>
       </div>
+      <div class="bk-band"><div class="bk-band-h">The Crossing <span>replayed from your game</span></div><div id="bk-band"></div></div>
       <div class="bk-nav">
         <button type="button" id="bk-prev" aria-label="Previous page">‹</button>
         <div class="bk-dots" id="bk-dots"></div>
@@ -193,13 +212,22 @@ export function openBook(state, spread = null) {
     if (e.key === "ArrowLeft") go(at - 1);
   };
   document.addEventListener("keydown", onKey);
+  shown = { left: null, right: null };
+  bandFocus = undefined;
   render();
+  storyTheme(S.cfg.soul);
   document.getElementById("bk-next").focus({ preventScroll: true });
   v.scrollTop = 0;
 }
 
 export function closeBook() {
+  const wasOpen = !!document.getElementById("bk-veil");
   document.getElementById("bk-veil")?.remove();
+  pageStops.forEach(stop => stop());
+  pageStops = [];
+  if (bandStop) bandStop();
+  bandStop = null;
+  if (wasOpen) storyTheme(null);
   if (onKey) document.removeEventListener("keydown", onKey);
   onKey = null;
   turning = false;

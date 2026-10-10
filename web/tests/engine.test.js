@@ -61,6 +61,14 @@ for (const players of [1, 2, 3, 4]) for (const soul of ["open", "child", "garlan
   games++; turns += s.turn;
   if (s.result === "win") wins++; else causes[s.cause] = (causes[s.cause] || 0) + 1;
 }
+// The journey log replays to where the soul really is, and records how every game ended.
+for (const soul of ["open", "bride", "child"]) for (let seed = 1; seed <= 25; seed++) {
+  const s = await play(2, soul, 3, seed);
+  let pos = 0;
+  for (const e of s.trail) if (e.k === "m" || e.k === "p") { assert.equal(e.f, pos, "trail is continuous"); pos = e.to; }
+  assert.equal(pos, s.soul, "trail ends where the soul is");
+  assert.equal(s.trail.at(-1).k, s.result === "win" ? "win" : "end");
+}
 const a = await play(3, "open", 3, 42), b = await play(3, "open", 3, 42);
 assert.equal(JSON.stringify(a), JSON.stringify(b), "same seed gives the same game");
 assert.deepEqual(copy(a), a);

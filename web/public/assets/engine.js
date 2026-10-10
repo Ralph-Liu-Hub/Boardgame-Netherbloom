@@ -105,11 +105,19 @@ export function newGame(cfg, seed = (Math.random() * 2 ** 31) | 0, names = []) {
   s.cause = null;
   s.lastMist = null;
   s.stats = { resonances: 0, inscribed: 0, blessings: 0, backlashes: 0, lingers: 0, burns: 0, summons: 0 };
+  s.trail = [];  // the soul's journey, replayed in the Book of Remembrance
   note(s, "start", `The soul wakes at the near shore. ${REACH_NAMES[0]} lies ahead.`);
   return s;
 }
 
 export const copy = s => JSON.parse(JSON.stringify(s));
+
+// One entry per thing the soul did: m(ove), w(ait), l(inger and forget), p(ulled back), x (Fracture),
+// i(nscribed memory), win, end. Games saved before the trail existed simply have none.
+function trail(s, entry) {
+  if (!s.trail) s.trail = [];
+  s.trail.push({ t: s.turn, ...entry });
+}
 
 // ---------------------------------------------------------------- events (for animation, sound and the log)
 export function note(s, kind, msg, data = {}) {
@@ -128,6 +136,7 @@ export const passable = (s, sp) => sp >= FAR || (lit(s, sp) && !s.flooded[sp]);
 
 function lose(s, cause) {
   if (s.result === null) {
+    trail(s, { k: "end", cause });
     s.result = "loss";
     s.cause = cause;
     note(s, "loss", { Faded: "Too much was forgotten. The soul fades into the mist.",
@@ -139,6 +148,7 @@ function lose(s, cause) {
 }
 function win(s) {
   if (s.result === null) {
+    trail(s, { k: "win" });
     s.result = "win";
     note(s, "win", "The soul reaches the Far Shore.");
   }
@@ -207,6 +217,7 @@ function addFracture(s) {
     return;
   }
   s.fract += 1;
+  trail(s, { k: "x", at: s.soul });
   note(s, "fracture", `Fracture ${s.fract} of ${s.cfg.fractureLimit}.`);
   if (s.cfg.soul === "king") {
     for (const m in s.mantles) if (s.mantles[m] === s.cur) {
@@ -486,6 +497,7 @@ export async function playCard(s, cid, mode, ch) {
   if ((resonated || card.key) && s.cfg.useBook && card.slot && s.reach < 3 && !(card.slot in s.book[s.reach])
       && await ch.wantInscribe(s, cid)) {
     s.book[s.reach][card.slot] = cid;
+    trail(s, { k: "i", at: s.soul, r: s.reach, cid });
     s.stats.inscribed += 1;
     note(s, "inscribe", `Inscribed in the Book (${card.slot}): “${card.band}”`, { cid, reach: s.reach, slot: card.slot });
     const filled = Object.keys(s.book[s.reach]).length;
@@ -533,15 +545,17 @@ export function bringerBloom(s, k) {
 function moveSoul(s, steps) {
   for (let i = 0; i < steps; i++) {
     const old = s.soul;
+    let blooms = 0;
     if (old >= 1 && old <= 11) {
       for (const b of [0, 1]) {
         const k = old * 2 + b;
-        if (s.tok[k] === BLOOM) s.light += 1;
+        if (s.tok[k] === BLOOM) { s.light += 1; blooms += 1; }
         s.tok[k] = NONE;
         s.griev[k] = false;
       }
     }
     s.soul += 1;
+    trail(s, { k: "m", f: old, to: s.soul, b: blooms });
     note(s, "move", "", { from: old, to: s.soul });
     if (s.soul >= FAR) win(s);
     const nr = reachOf(s.soul);
@@ -584,24 +598,28 @@ function soulStep(s) {
 }
 
 function linger(s, force) {
-  if (!force && s.hold) { note(s, "info", "Holding fast, the soul waits without forgetting."); return; }
+  if (!force && s.hold) { trail(s, { k: "w", at: s.soul }); note(s, "info", "Holding fast, the soul waits without forgetting."); return; }
   if (!force && s.mantles.warden >= 0 && s.wardenReady) {
     s.wardenReady = false;
+    trail(s, { k: "w", at: s.soul });
     note(s, "shield", "The Spirit Warden steadies the soul.");
     return;
   }
   s.stats.lingers += 1;
   if (!force && s.soul >= 1 && lit(s, s.soul)) {
+    trail(s, { k: "w", at: s.soul });
     note(s, "linger", "The way ahead is dark. The soul waits beside its own light.");
     return;
   }
   if (s.cfg.soul === "bride" && !force && s.soul >= 1 && !s.bridePulled) {
     s.bridePulled = true;
     s.soul -= 1;
+    trail(s, { k: "p", f: s.soul + 1, to: s.soul });
     note(s, "move", "", { from: s.soul + 1, to: s.soul });
     note(s, "linger", "In the dark she looks back, and is pulled one space toward the living.");
     return;
   }
+  trail(s, { k: "l", at: s.soul });
   note(s, "linger", "The soul Lingers in the dark, and forgets.");
   forgetTop(s, 1);
 }

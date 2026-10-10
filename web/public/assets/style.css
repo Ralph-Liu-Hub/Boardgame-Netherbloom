@@ -521,3 +521,51 @@ mark { background: rgba(215,38,61,.45); color: var(--paper); border-radius: 2px;
 .firsttag { justify-self: start; font-family: var(--mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink);
   background: var(--bone); border-radius: 9px; padding: 1px 7px; margin: 1px 0 2px; white-space: nowrap; }
 .rsuggest { border: 1px solid var(--bone); border-radius: 8px; padding: 8px 10px; background: rgba(230,211,163,.06); }
+
+/* ================================================================ v3: replays in the Book */
+.bk-stage { gap: 10px; }
+.bk-book { max-height: calc(100vh - 250px); }
+.bk-scene { width: 100%; margin: 2px 0 0; }
+.bk-scene .rp { width: 100%; height: auto; display: block; }
+.bk-chapter .bk-scene { width: 108%; margin-left: -4%; }
+.bk-band { width: min(1180px, 100%); border: 1px solid rgba(138,106,62,.55); border-radius: 10px; padding: 6px 12px 2px;
+  background: linear-gradient(180deg, rgba(36,16,20,.75), rgba(14,12,18,.85)); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+.bk-band-h { font-family: var(--display); color: var(--bone); font-size: .95rem; letter-spacing: .04em; }
+.bk-band-h span { font-family: var(--serif); font-style: italic; color: var(--mist); font-size: .85rem; margin-left: 6px; }
+#bk-band .rp { width: 100%; height: 104px; display: block; }
+.rp-soul { transition: transform .9s cubic-bezier(.45,.05,.35,1); }
+.rp-soul .rp-glow { animation: rpglow 2.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes rpglow { 50% { opacity: .15; transform: scale(1.35); } }
+.rp-soul.rp-pulse { animation: rppulse 1s ease-in-out; }
+@keyframes rppulse { 50% { opacity: .55; } }
+.rp-soul.rp-flicker { animation: rpflicker 1.1s steps(2, jump-none) 2; }
+@keyframes rpflicker { 50% { opacity: .25; } }
+.rp-soul.rp-crack { animation: rpcrack .7s ease-out; }
+@keyframes rpcrack { 20% { filter: drop-shadow(0 0 6px #D7263D); } 40% { transform-origin: center; } }
+.rp-soul.rp-home .rp-glow { fill: #E6D3A3; opacity: .7; animation: rphome 2s ease-in-out infinite; }
+@keyframes rphome { 50% { opacity: .2; } }
+.rp-soul.rp-gone { opacity: .25; transition: opacity 1.6s, transform .9s; }
+.rp-lily { animation: rplily 1.1s cubic-bezier(.2,1.4,.3,1) both; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes rplily { from { transform: scale(.1); opacity: 0; } }
+.rp-word { animation: rpword 3s ease-out both; }
+@keyframes rpword { 0% { opacity: 0; transform: translateY(8px); } 20% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-12px); } }
+.rp-flow { stroke-dasharray: 2 18; animation: flow 4s linear infinite; }
+.rp.rp-fadeout { transition: opacity .8s; opacity: .15; }
+.rp { transition: opacity .6s; }
+.rp-waiting { opacity: .55; }
+.rp-focus { animation: rpfocus 3s ease-in-out infinite; }
+@keyframes rpfocus { 50% { opacity: .11; } }
+@media (max-width: 760px) {
+  .bk-band { order: -1; }
+  #bk-band .rp { height: 84px; }
+}
+/* v3.1: taller ink scene on chapter pages, wide night band, drifting mist and twinkling stars */
+.bk-chapter { align-content: center; gap: 4px; }
+.bk-chapter .bk-scene { width: 112%; margin: -4px 0 -6px -6%; }
+#bk-band .rp { height: auto; max-height: 128px; }
+.rp-mist { animation: rpmist 14s ease-in-out infinite alternate; }
+.rp-mist.m1 { animation-duration: 19s; } .rp-mist.m2 { animation-duration: 23s; }
+@keyframes rpmist { to { transform: translateX(46px); } }
+.rp-star { animation: glow 3.5s ease-in-out infinite; }
+.rp-ink-label { font-family: "IM Fell English", serif; font-style: italic; font-size: 15px; }
+@media (max-width: 760px) { .bk-book { max-height: none; } }
