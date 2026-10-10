@@ -16,6 +16,19 @@ npm test                                           # engine fuzz (400 games) + l
 python3 -m http.server 8765 --directory public     # local play without login
 ```
 
+## Deploying
+
+Live at **https://netherbloom.vercel.app** (Vercel project `netherbloom`, team ralph-liu-hub). The project serves `public/`, has no install step, and needs `NB_USER`, `NB_PASS` and `NB_SECRET` set in its environment.
+
+The production upload is a minified bundle:
+
+```bash
+npx esbuild@0.23.1 public/assets/app.js --bundle --minify --format=esm --target=es2020 --outfile=dist/app.js
+npx esbuild@0.23.1 public/assets/style.css --minify --outfile=dist/style.css
+```
+
+The Vercel GitHub app does not yet have access to this repository. Once it does, linking the project to the repo (root directory `web`) will deploy every push automatically.
+
 | Path | What it does |
 |---|---|
 | `middleware.js` | Sends anyone without a valid session cookie to `/login` |
