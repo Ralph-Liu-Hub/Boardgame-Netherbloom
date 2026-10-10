@@ -6,6 +6,8 @@ A playable browser version of Netherbloom for publisher previews, hosted on Verc
 - **Same Screen**: 2–4 players in one window. A cover screen keeps hands hidden while the device is passed.
 - **Online**: 2–4 players, each on their own computer. The host's browser holds the game and other players join with a five-letter code. Browsers connect directly to each other over WebRTC (PeerJS), so no game data is stored on a server.
 - **Login**: every page and asset sits behind `/login`. The account, password and cookie-signing secret are Vercel environment variables (`NB_USER`, `NB_PASS`, `NB_SECRET`), never source code.
+- **Help while playing**: a *Player Aid* and a searchable *Rulebook* slide in from the side. A turn guide beside the board lights up the current step and follows the Soul Step and the Mist as they play out.
+- **Book of Remembrance**: click the Book on the table to open the illustrated two-page edition, with chapter pages, wax-seal blessings and an epilogue at the end of the game.
 - **Music**: an original soundtrack generated live with the Web Audio API: a drone, the river, Aeolian bells and the occasional minor-second swell. Nothing is sampled, so there is no licence to clear.
 
 The rules engine `public/assets/engine.js` is a port of `simulator/netherbloom/engine.py`, using the tuned defaults from the balance report. Keep the two in step.
@@ -34,6 +36,8 @@ The Vercel GitHub app does not yet have access to this repository. Once it does,
 | `middleware.js` | Sends anyone without a valid session cookie to `/login` |
 | `api/login.js`, `api/logout.js`, `api/_session.js` | Sign-in and the signed HttpOnly cookie |
 | `public/assets/cards.js`, `engine.js` | Card data and rules |
-| `public/assets/app.js` | Menus, board, hand, animations and the three play modes |
+| `public/assets/app.js` | Menus, board, hand, the turn guide, the rules drawer, animations and the three play modes |
+| `public/assets/rules.js` | The searchable Rulebook and the Player Aid sheet (card and Mist tables are built from `cards.js`) |
+| `public/assets/book.js` | The full illustrated Book of Remembrance, with page turns |
 | `public/assets/audio.js` | Generative music and sound effects |
 | `public/assets/net.js` | Online play over WebRTC |
