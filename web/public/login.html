@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Netherbloom · Sign in</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --ink: #17161B; --ink-2: #211E25; --ash: #4A4642; --mist: #9A948C; --bone: #E6D3A3;
+  --crimson: #D7263D; --cyan: #8FD6E1; --paper: #EFE7D6;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: radial-gradient(ellipse at 50% 120%, #2a1218 0%, var(--ink) 55%) fixed, var(--ink); color: var(--paper);
+  font-family: "Alegreya Sans", system-ui, sans-serif; display: grid; place-items: center; padding: 16px; overflow: hidden; }
+.fog { position: fixed; inset: -20%; pointer-events: none; opacity: .5; }
+.fog span { position: absolute; width: 60vmax; height: 30vmax; border-radius: 50%; background: radial-gradient(closest-side, rgba(154,148,140,.16), transparent);
+  filter: blur(10px); animation: drift 38s linear infinite; }
+.fog span:nth-child(2) { top: 50%; animation-duration: 52s; animation-delay: -20s; }
+.fog span:nth-child(3) { top: 25%; animation-duration: 64s; animation-delay: -40s; }
+@keyframes drift { from { transform: translateX(-60vmax); } to { transform: translateX(120vw); } }
+.card { position: relative; width: min(400px, 100%); background: rgba(33,30,37,.88); border: 1px solid var(--ash); border-radius: 10px;
+  padding: 34px 28px 28px; display: grid; gap: 16px; box-shadow: 0 30px 80px rgba(0,0,0,.6); animation: rise 1.4s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } }
+.lily { width: 92px; height: 92px; margin: -6px auto 0; color: var(--crimson); filter: drop-shadow(0 0 14px rgba(215,38,61,.55)); animation: breathe 5s ease-in-out infinite; }
+@keyframes breathe { 50% { filter: drop-shadow(0 0 26px rgba(215,38,61,.85)); transform: scale(1.04) rotate(2deg); } }
+h1 { font-family: "IM Fell English SC", Georgia, serif; font-weight: 400; font-size: 2.4rem; margin: 0; text-align: center; letter-spacing: .02em; }
+.sub { font-family: "IM Fell English", Georgia, serif; font-style: italic; text-align: center; color: var(--mist); margin: -8px 0 6px; }
+label { display: grid; gap: 6px; font-family: "IBM Plex Mono", monospace; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--mist); }
+input { font: inherit; font-family: "Alegreya Sans", sans-serif; font-size: 1rem; letter-spacing: 0; text-transform: none; color: var(--paper);
+  background: var(--ink); border: 1px solid var(--ash); border-radius: 6px; padding: 10px 12px; }
+input:focus-visible, button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+button { font: inherit; font-family: "IM Fell English SC", serif; font-size: 1.15rem; color: var(--ink); background: var(--bone); border: 0;
+  border-radius: 6px; padding: 10px; cursor: pointer; transition: transform .15s, box-shadow .3s; }
+button:hover { box-shadow: 0 0 22px rgba(230,211,163,.35); }
+button:active { transform: scale(.98); }
+button[disabled] { opacity: .6; cursor: wait; }
+.err { min-height: 1.3em; color: var(--crimson); font-size: .95rem; text-align: center; }
+.err.shake { animation: shake .4s; }
+@keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.note { font-size: .8rem; color: var(--mist); text-align: center; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="fog" aria-hidden="true"><span></span><span></span><span></span></div>
+<form class="card" id="f" autocomplete="on">
+  <svg class="lily" viewBox="0 0 48 48" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M24 26 C30 22 33 15 31 9"/><path d="M24 26 C30 22 33 15 31 9" transform="rotate(60 24 26)"/><path d="M24 26 C30 22 33 15 31 9" transform="rotate(120 24 26)"/><path d="M24 26 C30 22 33 15 31 9" transform="rotate(180 24 26)"/><path d="M24 26 C30 22 33 15 31 9" transform="rotate(240 24 26)"/><path d="M24 26 C30 22 33 15 31 9" transform="rotate(300 24 26)"/></g><g stroke="currentColor" stroke-width="1.2" fill="none"><path d="M24 26 L19 4"/><path d="M24 26 L42 13"/><path d="M24 26 L44 34"/><path d="M24 26 L6 36"/><path d="M24 26 L4 14"/><path d="M24 26 L30 47"/></g><g fill="currentColor"><circle cx="19" cy="4" r="1.8"/><circle cx="42" cy="13" r="1.8"/><circle cx="44" cy="34" r="1.8"/><circle cx="6" cy="36" r="1.8"/><circle cx="4" cy="14" r="1.8"/><circle cx="30" cy="47" r="1.8"/><circle cx="24" cy="26" r="3"/></g></svg>
+  <h1>Netherbloom</h1>
+  <p class="sub">A silent crossing of the river of forgetting</p>
+  <label>Account<input name="user" autocomplete="username" required></label>
+  <label>Password<input name="pass" type="password" autocomplete="current-password" required></label>
+  <button id="go" type="submit">Enter the Mist</button>
+  <div class="err" id="err" role="alert"></div>
+  <p class="note">Publisher preview. Please do not share.</p>
+</form>
+<script>
+const f = document.getElementById("f"), err = document.getElementById("err"), go = document.getElementById("go");
+f.addEventListener("submit", async e => {
+  e.preventDefault();
+  go.disabled = true; err.textContent = ""; err.classList.remove("shake");
+  try {
+    const r = await fetch("/api/login", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user: f.user.value.trim(), pass: f.pass.value }) });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.ok) { document.body.style.transition = "opacity .8s"; document.body.style.opacity = 0; setTimeout(() => location.href = "/", 700); return; }
+    err.textContent = j.error || "Sign-in failed.";
+  } catch { err.textContent = "Network error. Try again."; }
+  void err.offsetWidth; err.classList.add("shake"); go.disabled = false;
+});
+</script>
+</body>
+</html>
