@@ -1,0 +1,484 @@
+<title>Netherbloom Visual Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single dark "river" column; sections read like plates in an engraved field guide. Deliberately dark-only: the game itself is printed on ink. */
+:root {
+  --ink: #17161B;        /* board / card ground */
+  --ink-2: #211E25;      /* raised surface */
+  --ash: #4A4642;        /* lines, empty slots */
+  --mist: #9A948C;       /* secondary text */
+  --bone: #E6D3A3;       /* Acceptance, rims, body text on ink */
+  --crimson: #D7263D;    /* Netherbloom, Obsession */
+  --cyan: #8FD6E1;       /* spectral: Oblivion, Grievances, Ghost */
+  --paper: #EFE7D6;      /* primary text */
+  --water: #0B0B10;      /* Black Water fill */
+  --display: "IM Fell English SC", "Cormorant SC", Georgia, serif;
+  --serif: "IM Fell English", Georgia, "Times New Roman", serif;
+  --body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--ink); color: var(--paper); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; gap: 64px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; text-wrap: balance; margin: 0; letter-spacing: .02em; }
+h1 { font-size: clamp(2.4rem, 6vw, 4rem); line-height: 1.05; }
+h2 { font-size: 1.9rem; color: var(--bone); }
+h3 { font-size: 1.15rem; color: var(--bone); }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--mist); font-size: 1.05rem; }
+.eyebrow { font-family: var(--mono); font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; color: var(--crimson); }
+section { display: grid; gap: 20px; }
+.sec-head { display: grid; gap: 8px; border-top: 1px solid var(--ash); padding-top: 20px; }
+code, .mono { font-family: var(--mono); font-size: .8rem; }
+.muted { color: var(--mist); }
+
+/* hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 32px; align-items: center; }
+.hero svg.bloom-hero { width: 100%; max-width: 320px; justify-self: center; color: var(--crimson); filter: drop-shadow(0 0 18px rgba(215, 38, 61, .45)); }
+@media (max-width: 760px) { .hero { grid-template-columns: 1fr; } }
+
+/* palette */
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.sw { background: var(--ink-2); border: 1px solid var(--ash); border-radius: 6px; overflow: hidden; display: grid; }
+.sw .chip { height: 72px; }
+.sw .meta { padding: 10px 12px; display: grid; gap: 2px; font-size: .85rem; }
+.sw .meta b { font-family: var(--serif); font-weight: 400; font-size: 1.05rem; color: var(--paper); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--ash); vertical-align: top; }
+th { font-family: var(--mono); font-weight: 500; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mist); }
+td { font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+
+/* type */
+.typespec { display: grid; gap: 16px; }
+.typespec .row { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 16px; align-items: baseline; border-bottom: 1px solid var(--ash); padding-bottom: 14px; }
+@media (max-width: 640px) { .typespec .row { grid-template-columns: 1fr; gap: 4px; } }
+
+/* icons */
+.icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px; }
+.ic { display: grid; justify-items: center; gap: 6px; padding: 14px 8px 10px; background: var(--ink-2); border: 1px solid var(--ash); border-radius: 6px; text-align: center; }
+.ic svg { width: 48px; height: 48px; }
+.ic .n { font-family: var(--serif); font-size: .95rem; line-height: 1.2; }
+.ic code { color: var(--mist); font-size: .68rem; }
+.grey svg { filter: grayscale(1); }
+.knots { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+.knot-opt { display: grid; gap: 8px; align-content: start; padding: 16px; background: var(--ink-2); border: 1px solid var(--ash); border-radius: 6px; font-size: .9rem; }
+.knot-row { display: flex; gap: 14px; align-items: center; }
+.knot-row svg { width: 64px; height: 64px; }
+.knot-row svg:nth-child(2), .knot-row svg:nth-child(3) { width: 34px; height: 34px; }
+.knot-opt .n { font-family: var(--serif); font-size: 1.05rem; }
+.knot-opt .n b { font-weight: 400; }
+.pick { font-family: var(--mono); font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--cyan); margin-left: 6px; }
+.c-obs { color: var(--crimson); } .c-acc { color: var(--bone); } .c-obl { color: var(--cyan); }
+.c-bone { color: var(--bone); } .c-cyan { color: var(--cyan); } .c-crimson { color: var(--crimson); } .c-mist { color: var(--mist); }
+
+/* cards: 63 x 88 mm poker size */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; }
+.card { aspect-ratio: 63 / 88; max-width: 100%; background: var(--ink-2); border: 1.5px solid var(--bone); border-radius: 10px; display: grid; grid-template-rows: auto auto 1fr auto; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,.45); position: relative; }
+.card .top { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 10px 10px 4px; }
+.card .top svg { width: 30px; height: 30px; }
+.card .name { font-family: var(--serif); font-size: 1.05rem; line-height: 1.1; }
+.card .id { font-family: var(--mono); font-size: .62rem; color: var(--mist); }
+.card .rules { padding: 2px 12px 8px; font-size: .86rem; line-height: 1.35; display: grid; gap: 3px; }
+.card .rules .res { color: var(--mist); }
+.card .rules .res b { color: var(--bone); font-weight: 500; }
+.card .art { margin: 0 12px; border: 1px solid var(--ash); border-radius: 4px; background: radial-gradient(ellipse at 50% 70%, rgba(215,38,61,.18), transparent 60%), repeating-linear-gradient(170deg, #1b1920 0 6px, #1e1b22 6px 12px); display: grid; place-items: center; min-height: 60px; }
+.card .art svg { width: 56%; max-width: 110px; height: auto; opacity: .9; }
+.card .band { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: center; margin: 8px 0 0; padding: 9px 12px 11px; background: var(--bone); color: var(--ink); font-family: var(--serif); font-style: italic; font-size: .92rem; line-height: 1.2; }
+.card .band svg { width: 22px; height: 22px; color: var(--ink); }
+.card .seal { position: absolute; right: 10px; bottom: 54px; width: 30px; height: 30px; color: var(--crimson); }
+.card.obl .band { background: transparent; color: var(--cyan); border-top: 1px dashed var(--ash); font-size: .85rem; }
+.card.mist { border-color: var(--cyan); }
+.card.mist .band { background: var(--cyan); }
+.card.keep { border-color: var(--ash); background: #1d1a21; }
+.card.keep .band { background: transparent; color: var(--bone); border-top: 1px solid var(--ash); }
+.card.ghost { border-style: dashed; border-color: var(--cyan); }
+.card .stamp { font-family: var(--mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--cyan); }
+
+/* boards */
+.board { background: var(--ink-2); border: 1px solid var(--ash); border-radius: 8px; padding: 16px; display: grid; gap: 12px; }
+.river { overflow-x: auto; }
+.river svg { min-width: 760px; width: 100%; height: auto; display: block; }
+.boards2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.loom { display: grid; gap: 10px; }
+.thread { display: grid; grid-template-columns: 34px 110px repeat(5, 28px) minmax(0, 1fr); gap: 8px; align-items: center; }
+.thread svg { width: 28px; height: 28px; }
+.thread .lbl { font-family: var(--serif); }
+.knot { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--ash); display: grid; place-items: center; }
+.knot.on { border-color: currentColor; background: color-mix(in srgb, currentColor 25%, transparent); }
+.knot svg { width: 18px; height: 18px; }
+.backlash { font-size: .78rem; color: var(--mist); }
+.track { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 4px; }
+.track .cell { aspect-ratio: 1; border: 1px solid var(--ash); border-radius: 3px; display: grid; place-items: center; font-family: var(--mono); font-size: .66rem; color: var(--mist); }
+.track .cell.mark { border-color: var(--cyan); color: var(--cyan); }
+.track .cell.end { border-color: var(--crimson); color: var(--crimson); }
+.track .cell.fill { background: color-mix(in srgb, var(--bone) 22%, transparent); color: var(--paper); }
+.frac { display: flex; gap: 10px; align-items: center; }
+.frac svg { width: 34px; height: 34px; }
+.book { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.page { background: #241f1a; border: 1px solid #5a4c3a; border-radius: 4px; padding: 14px; display: grid; gap: 8px; font-family: var(--serif); color: var(--bone); }
+.page h3 { font-size: 1rem; }
+.page .slot { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; align-items: center; padding: 6px 8px; border: 1px dashed #5a4c3a; border-radius: 3px; font-style: italic; font-size: .9rem; }
+.page .slot.filled { border-style: solid; background: var(--bone); color: var(--ink); }
+.page .slot svg { width: 18px; height: 18px; }
+.page .fallback { color: #8d7d66; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .82rem; color: var(--mist); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.legend svg { width: 18px; height: 18px; }
+a { color: var(--cyan); }
+:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference) {
+  .hero svg.bloom-hero { animation: breathe 6s ease-in-out infinite; }
+  @keyframes breathe { 50% { filter: drop-shadow(0 0 28px rgba(215, 38, 61, .7)); } }
+}
+</style>
+
+<!-- ===== Symbol library: every icon the simulator viewer and prototype use. Colour comes from currentColor. ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Threads / tags -->
+    <symbol id="nb-obsession" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="miter" stroke-linecap="square"><path d="M24 24 L31 5 L17 5 Z"/><path d="M24 24 L31 5 L17 5 Z" transform="rotate(120 24 24)"/><path d="M24 24 L31 5 L17 5 Z" transform="rotate(240 24 24)"/></g><g fill="currentColor"><path d="M31 5 l5 -3 -2 5z"/><path d="M31 5 l5 -3 -2 5z" transform="rotate(120 24 24)"/><path d="M31 5 l5 -3 -2 5z" transform="rotate(240 24 24)"/></g></symbol>
+    <symbol id="nb-acceptance" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="2.6"><ellipse cx="24" cy="11" rx="5.5" ry="8.5"/><ellipse cx="24" cy="11" rx="5.5" ry="8.5" transform="rotate(60 24 24)"/><ellipse cx="24" cy="11" rx="5.5" ry="8.5" transform="rotate(120 24 24)"/><ellipse cx="24" cy="11" rx="5.5" ry="8.5" transform="rotate(180 24 24)"/><ellipse cx="24" cy="11" rx="5.5" ry="8.5" transform="rotate(240 24 24)"/><ellipse cx="24" cy="11" rx="5.5" ry="8.5" transform="rotate(300 24 24)"/></g></symbol>
+    <symbol id="nb-oblivion" viewBox="0 0 48 48"><path d="M37.9 13.6 A17 17 0 1 0 39.5 31" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M39.5 31 A17 17 0 0 0 41 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="1.5 4"/></symbol>
+    <!-- Book slot types -->
+    <symbol id="nb-slot-place" viewBox="0 0 48 48"><path d="M10 44 V22 A14 14 0 0 1 38 22 V44" fill="none" stroke="currentColor" stroke-width="3.2"/><path d="M17 44 V25 A7 7 0 0 1 31 25 V44" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M6 44 H42" stroke="currentColor" stroke-width="3.2"/></symbol>
+    <symbol id="nb-slot-person" viewBox="0 0 48 48"><circle cx="24" cy="15" r="8" fill="currentColor"/><path d="M8 44 C8 32 15 26 24 26 C33 26 40 32 40 44 Z" fill="currentColor"/></symbol>
+    <symbol id="nb-slot-deed" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 44 V26 M14 26 V12 M20 25 V7 M26 25 V8 M32 26 V12"/><path d="M14 26 C14 40 18 44 26 44 C33 44 37 39 37 32 V24 M37 24 L42 18"/><path d="M14 30 H32"/></g></symbol>
+    <symbol id="nb-slot-feeling" viewBox="0 0 48 48"><path d="M24 4 C30 14 38 20 38 30 A14 14 0 0 1 10 30 C10 24 14 20 17 16 C18 22 21 24 23 24 C21 16 22 10 24 4 Z" fill="currentColor"/></symbol>
+    <!-- Board pieces -->
+    <symbol id="nb-bloom" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M24 26 C30 22 33 15 31 9"/><path d="M24 26 C30 22 33 15 31 9" transform="rotate(60 24 26)"/><path d="M24 26 C30 22 33 15 31 9" transform="rotate(120 24 26)"/><path d="M24 26 C30 22 33 15 31 9" transform="rotate(180 24 26)"/><path d="M24 26 C30 22 33 15 31 9" transform="rotate(240 24 26)"/><path d="M24 26 C30 22 33 15 31 9" transform="rotate(300 24 26)"/></g><g stroke="currentColor" stroke-width="1.2" fill="none"><path d="M24 26 L19 4"/><path d="M24 26 L42 13"/><path d="M24 26 L44 34"/><path d="M24 26 L6 36"/><path d="M24 26 L4 14"/><path d="M24 26 L30 47"/></g><g fill="currentColor"><circle cx="19" cy="4" r="1.8"/><circle cx="42" cy="13" r="1.8"/><circle cx="44" cy="34" r="1.8"/><circle cx="6" cy="36" r="1.8"/><circle cx="4" cy="14" r="1.8"/><circle cx="30" cy="47" r="1.8"/><circle cx="24" cy="26" r="3"/></g></symbol>
+    <symbol id="nb-root" viewBox="0 0 48 48"><path d="M24 6 C31 10 33 18 30 24 H18 C15 18 17 10 24 6 Z" fill="currentColor"/><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 24 C16 30 12 34 8 36"/><path d="M23 24 C22 32 19 38 16 44"/><path d="M26 24 C27 32 31 38 34 43"/><path d="M28 24 C33 29 37 32 41 33"/></g></symbol>
+    <symbol id="nb-blackwater" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M4 16 C10 10 14 22 20 16 S30 10 36 16 S44 20 44 16"/><path d="M4 26 C10 20 14 32 20 26 S30 20 36 26 S44 30 44 26"/><path d="M4 36 C10 30 14 42 20 36 S30 30 36 36 S44 40 44 36"/></g></symbol>
+    <symbol id="nb-grievance" viewBox="0 0 48 48"><path d="M24 4 C35 4 40 13 40 23 C40 35 33 44 24 44 C15 44 8 35 8 23 C8 13 13 4 24 4 Z" fill="currentColor"/><path d="M14 21 C16 18 20 18 21 22 C19 24 16 24 14 21 Z M34 21 C32 18 28 18 27 22 C29 24 32 24 34 21 Z M19 34 C22 31 26 31 29 34" fill="#17161B" stroke="#17161B" stroke-width="1.5"/></symbol>
+    <symbol id="nb-light" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><path d="M18 8 C18 3 30 3 30 8"/><path d="M15 12 H33 L35 38 H13 Z"/><path d="M11 42 H37"/></g><path d="M24 17 C27 22 29 25 29 29 A5 5 0 0 1 19 29 C19 25 21 22 24 17 Z" fill="currentColor"/></symbol>
+    <symbol id="nb-fracture" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke="currentColor" stroke-width="3"/><path d="M22 6 L27 16 L19 22 L28 30 L22 42" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="bevel"/></symbol>
+    <!-- Karma knot, option A (base box): the Fates' Knot. Three interlaced loops = the three threads, bound by a ring, tied on a cord. -->
+    <symbol id="nb-knot" viewBox="0 0 48 48"><g fill="none" stroke-linecap="round"><path d="M1 38 C6 37 9 35 11 33 M47 38 C42 37 39 35 37 33" stroke="currentColor" stroke-width="2"/><g id="nb-lobe-halo"><path d="M24 26 A12 12 0 0 1 24 5 A12 12 0 0 1 24 26" stroke="#17161B" stroke-width="5.5"/><path d="M24 26 A12 12 0 0 1 24 5 A12 12 0 0 1 24 26" stroke="currentColor" stroke-width="2.4"/></g><g transform="rotate(120 24 26)"><path d="M24 26 A12 12 0 0 1 24 5 A12 12 0 0 1 24 26" stroke="#17161B" stroke-width="5.5"/><path d="M24 26 A12 12 0 0 1 24 5 A12 12 0 0 1 24 26" stroke="currentColor" stroke-width="2.4"/></g><g transform="rotate(240 24 26)"><path d="M24 26 A12 12 0 0 1 24 5 A12 12 0 0 1 24 26" stroke="#17161B" stroke-width="5.5"/><path d="M24 26 A12 12 0 0 1 24 5 A12 12 0 0 1 24 26" stroke="currentColor" stroke-width="2.4"/></g><path d="M31.5 19 A10 10 0 0 1 32 31" stroke="#17161B" stroke-width="5.5"/><circle cx="24" cy="26" r="10" stroke="currentColor" stroke-width="2"/><path d="M31.5 19 A10 10 0 0 1 32 31" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="26" r="2.2" fill="currentColor" stroke="none"/></g></symbol>
+    <!-- Karma knot, option B (The Other Shore expansion): the tai chi bead. Two threads turning around each other. -->
+    <symbol id="nb-knot-taichi" viewBox="0 0 48 48"><path d="M1 24 H8 M40 24 H47" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="24" cy="24" r="15" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M24 9 A7.5 7.5 0 0 1 24 24 A7.5 7.5 0 0 0 24 39 A15 15 0 0 1 24 9 Z" fill="currentColor"/><circle cx="24" cy="16.5" r="2.4" fill="#17161B"/><circle cx="24" cy="31.5" r="2.4" fill="currentColor"/><g fill="none" stroke="currentColor" stroke-width="1.2" opacity=".7"><path d="M24 4 A20 20 0 0 1 44 24"/><path d="M24 44 A20 20 0 0 1 4 24"/></g></symbol>
+    <!-- Karma knot, option C: the carved totem bead. A wooden bead threaded on a cord, with a spiral of fate cut into it. -->
+    <symbol id="nb-knot-totem" viewBox="0 0 48 48"><path d="M24 0 V7 M24 41 V48" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="13" y="7" width="22" height="34" rx="9" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M14 13 H34 M14 35 H34" stroke="currentColor" stroke-width="1.6"/><path d="M24 24 a1.8 1.8 0 1 1 1.8 1.8 a3.8 3.8 0 1 1 -3.8 -3.8 a5.8 5.8 0 1 1 5.8 5.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><g fill="currentColor"><path d="M17 9.5 l2 2 -2 2 -2 -2z"/><path d="M31 9.5 l2 2 -2 2 -2 -2z"/><path d="M17 34.5 l2 2 -2 2 -2 -2z"/><path d="M31 34.5 l2 2 -2 2 -2 -2z"/></g></symbol>
+    <symbol id="nb-soul" viewBox="0 0 48 48"><path d="M24 4 C30 4 33 9 33 14 C33 18 31 21 29 22 L38 44 H10 L19 22 C17 21 15 18 15 14 C15 9 18 4 24 4 Z" fill="currentColor"/><circle cx="24" cy="14" r="4.5" fill="#17161B"/></symbol>
+    <symbol id="nb-echo" viewBox="0 0 48 48"><path d="M2 24 C12 14 36 14 46 24 C36 34 12 34 2 24 Z" fill="none" stroke="currentColor" stroke-width="3"/><rect x="16" y="20" width="16" height="8" rx="2" fill="currentColor"/><path d="M8 24 H16 M32 24 H40" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="nb-seal" viewBox="0 0 48 48"><path d="M24 2 L28 7 L34 4 L35 11 L42 11 L40 18 L46 22 L41 27 L44 33 L37 35 L36 42 L30 40 L26 46 L22 41 L16 44 L14 37 L7 36 L9 30 L3 25 L8 20 L5 14 L12 12 L13 5 L19 7 Z" fill="currentColor"/><path d="M24 14 L27 21 L34 21 L28 26 L30 33 L24 29 L18 33 L20 26 L14 21 L21 21 Z" fill="#17161B"/></symbol>
+    <!-- Mist tiles -->
+    <symbol id="nb-fog" viewBox="0 0 48 48"><rect x="3" y="3" width="42" height="42" rx="6" fill="none" stroke="currentColor" stroke-width="2.4"/><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M10 18 C16 14 22 22 28 18 S36 14 38 16"/><path d="M10 26 C16 22 22 30 28 26 S36 22 38 24"/><path d="M10 34 C16 30 22 38 28 34 S36 30 38 32"/></g></symbol>
+    <symbol id="nb-stony" viewBox="0 0 48 48"><path d="M4 42 L12 24 L22 30 L28 14 L38 22 L44 42 Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M22 30 L20 42 M28 14 L30 30" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="nb-memorysite" viewBox="0 0 48 48"><path d="M12 44 V22 L24 10 L36 22 V44 Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M24 26 C27 30 28 32 28 34 A4 4 0 0 1 20 34 C20 32 21 30 24 26 Z" fill="currentColor"/></symbol>
+    <symbol id="nb-grave" viewBox="0 0 48 48"><path d="M13 42 V18 A11 11 0 0 1 35 18 V42 Z" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 16 V32 M18 22 H30" stroke="currentColor" stroke-width="3"/><path d="M6 42 H42" stroke="currentColor" stroke-width="3"/></symbol>
+    <symbol id="nb-fertile" viewBox="0 0 48 48"><path d="M6 36 C14 30 34 30 42 36" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 33 V18 M24 22 C18 20 16 15 17 11 C22 12 25 16 24 22 M24 20 C29 17 32 13 31 9 C26 10 23 14 24 20" fill="none" stroke="currentColor" stroke-width="2.4"/></symbol>
+  </defs>
+</svg>
+
+<main class="wrap">
+
+  <header class="hero">
+    <div style="display:grid;gap:14px">
+      <div class="eyebrow">Art direction · Visual kit v0.1</div>
+      <h1>Netherbloom Visual Kit</h1>
+      <p class="lede">The palette, type, icons, cards and boards for the Western base box. The simulator's game viewer draws from exactly this kit, so what you see in a simulated game is what a prototype on the table will look like. Final art replaces the placeholder artwork; the colours, icons and layouts stay.</p>
+      <p class="muted mono">Card size 63 × 88 mm · Icons 48-unit grid · Minimum print size 8 mm</p>
+    </div>
+    <svg class="bloom-hero" viewBox="0 0 48 48" role="img" aria-label="Netherbloom flower icon"><use href="#nb-bloom"/></svg>
+  </header>
+
+  <!-- PALETTE -->
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">01 · Palette</div>
+      <h2>Ink, bone and one living red</h2>
+      <p class="muted">About 70% of every surface is ink and ash. Crimson is reserved for the Netherbloom and the Obsession thread; spectral cyan for everything from beyond (Oblivion, Grievances, the Ghost). Colour is never the only signal: every thread and threat also has its own shape.</p>
+    </div>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:var(--ink);border-bottom:1px solid var(--ash)"></div><div class="meta"><b>Ink</b><code>#17161B</code><span class="muted">Boards, card ground</span></div></div>
+      <div class="sw"><div class="chip" style="background:var(--ash)"></div><div class="meta"><b>Ash</b><code>#4A4642</code><span class="muted">Lines, empty slots</span></div></div>
+      <div class="sw"><div class="chip" style="background:var(--bone)"></div><div class="meta"><b>Bone</b><code>#E6D3A3</code><span class="muted">Acceptance, rims, story bands</span></div></div>
+      <div class="sw"><div class="chip" style="background:var(--crimson)"></div><div class="meta"><b>Netherbloom</b><code>#D7263D</code><span class="muted">Blooms, Obsession</span></div></div>
+      <div class="sw"><div class="chip" style="background:var(--cyan)"></div><div class="meta"><b>Spectral</b><code>#8FD6E1</code><span class="muted">Oblivion, Grievances, Ghost</span></div></div>
+      <div class="sw"><div class="chip" style="background:var(--paper)"></div><div class="meta"><b>Paper</b><code>#EFE7D6</code><span class="muted">Rules text on ink</span></div></div>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Pair</th><th>Normal</th><th>Protan</th><th>Deutan</th><th>Tritan</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td>Netherbloom / Spectral</td><td>103</td><td>53</td><td>61</td><td>124</td><td>Safe for every vision type</td></tr>
+          <tr><td>Netherbloom / Bone</td><td>77</td><td>47</td><td>36</td><td>82</td><td>Safe; shapes back it up</td></tr>
+          <tr><td>Netherbloom / Ink</td><td>84</td><td>36</td><td>62</td><td>98</td><td>Always add the bone rim on blooms</td></tr>
+          <tr><td>Netherbloom / Ash</td><td>74</td><td><b>16</b></td><td>43</td><td>87</td><td>Never place crimson on ash</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted mono">Simulated contrast, CIELAB ΔE (Machado 2009, full severity). Higher is easier to tell apart.</p>
+  </section>
+
+  <!-- TYPE -->
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">02 · Type</div>
+      <h2>Engraved titles, plain rules</h2>
+      <p class="muted">Titles borrow from 19th-century engraving and memorial printing. Rules text is a humanist sans for reading at 7 pt across a table. Story bands are set in italic serif, so the Book reads like handwriting in an album.</p>
+    </div>
+    <div class="typespec">
+      <div class="row"><code>Display · titles</code><span style="font-family:var(--display);font-size:2rem">The Banks of Lethe</span></div>
+      <div class="row"><code>Serif · names, Book</code><span style="font-family:var(--serif);font-size:1.4rem">Deep Roots · <i>the gate I swore never to leave</i></span></div>
+      <div class="row"><code>Sans · rules text</code><span style="font-size:1.05rem">Root 2. <span class="muted">Resonance:</span> +1 Root. Minimum 7 pt on cards, 9 pt in the rulebook.</span></div>
+      <div class="row"><code>Mono · IDs, simulator</code><span class="mono" style="font-size:.95rem">C01 · M23 · K04 · turn 17 · forgotten 6/12</span></div>
+    </div>
+  </section>
+
+  <!-- ICONS -->
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">03 · Icons</div>
+      <h2>Original icon set</h2>
+      <p class="muted">Every icon is drawn for Netherbloom, with no stock glyphs or emoji. Each passes the silhouette test at 8 mm. The second row of the threads shows them in greyscale, as a colour-blind player would rely on them. The ID under each icon is the name the simulator viewer uses.</p>
+    </div>
+    <h3>Threads (card tags)</h3>
+    <div class="icons">
+      <div class="ic c-obs"><svg aria-hidden="true"><use href="#nb-obsession"/></svg><span class="n">Obsession · the Knot</span><code>nb-obsession</code></div>
+      <div class="ic c-acc"><svg aria-hidden="true"><use href="#nb-acceptance"/></svg><span class="n">Acceptance · the Open Lily</span><code>nb-acceptance</code></div>
+      <div class="ic c-obl"><svg aria-hidden="true"><use href="#nb-oblivion"/></svg><span class="n">Oblivion · the Hollow Moon</span><code>nb-oblivion</code></div>
+      <div class="ic grey c-obs"><svg aria-hidden="true"><use href="#nb-obsession"/></svg><span class="n">Greyscale check</span><code>sharp</code></div>
+      <div class="ic grey c-acc"><svg aria-hidden="true"><use href="#nb-acceptance"/></svg><span class="n">Greyscale check</span><code>round</code></div>
+      <div class="ic grey c-obl"><svg aria-hidden="true"><use href="#nb-oblivion"/></svg><span class="n">Greyscale check</span><code>hollow</code></div>
+    </div>
+    <h3>Book slots</h3>
+    <div class="icons">
+      <div class="ic c-bone"><svg aria-hidden="true"><use href="#nb-slot-place"/></svg><span class="n">Place · a gate</span><code>nb-slot-place</code></div>
+      <div class="ic c-bone"><svg aria-hidden="true"><use href="#nb-slot-person"/></svg><span class="n">Person · a silhouette</span><code>nb-slot-person</code></div>
+      <div class="ic c-bone"><svg aria-hidden="true"><use href="#nb-slot-deed"/></svg><span class="n">Deed · a hand</span><code>nb-slot-deed</code></div>
+      <div class="ic c-bone"><svg aria-hidden="true"><use href="#nb-slot-feeling"/></svg><span class="n">Feeling · a flame</span><code>nb-slot-feeling</code></div>
+      <div class="ic c-crimson"><svg aria-hidden="true"><use href="#nb-seal"/></svg><span class="n">Key Memory seal</span><code>nb-seal</code></div>
+    </div>
+    <h3>Pieces and threats</h3>
+    <div class="icons">
+      <div class="ic c-crimson"><svg aria-hidden="true"><use href="#nb-bloom"/></svg><span class="n">Bloom</span><code>nb-bloom</code></div>
+      <div class="ic c-bone"><svg aria-hidden="true"><use href="#nb-root"/></svg><span class="n">Root</span><code>nb-root</code></div>
+      <div class="ic c-paper" style="color:var(--paper)"><svg aria-hidden="true"><use href="#nb-soul"/></svg><span class="n">Soul pawn</span><code>nb-soul</code></div>
+      <div class="ic c-cyan"><svg aria-hidden="true"><use href="#nb-grievance"/></svg><span class="n">Grievance</span><code>nb-grievance</code></div>
+      <div class="ic c-mist"><svg aria-hidden="true"><use href="#nb-blackwater"/></svg><span class="n">Black Water</span><code>nb-blackwater</code></div>
+      <div class="ic c-bone"><svg aria-hidden="true"><use href="#nb-light"/></svg><span class="n">Light</span><code>nb-light</code></div>
+      <div class="ic c-crimson"><svg aria-hidden="true"><use href="#nb-fracture"/></svg><span class="n">Fracture</span><code>nb-fracture</code></div>
+      <div class="ic c-bone"><svg aria-hidden="true"><use href="#nb-knot"/></svg><span class="n">Karma knot</span><code>nb-knot</code></div>
+      <div class="ic c-cyan"><svg aria-hidden="true"><use href="#nb-echo"/></svg><span class="n">Echo shuttle</span><code>nb-echo</code></div>
+    </div>
+    <h3>Karma knot · three options</h3>
+    <p class="muted">The knot tied on a Loom thread each time a card is played. The physical piece is a wooden bead, so the icon is drawn as something threaded on a cord.</p>
+    <div class="knots">
+      <div class="knot-opt">
+        <div class="knot-row"><svg class="c-crimson" aria-hidden="true"><use href="#nb-knot"/></svg><svg class="c-bone" aria-hidden="true"><use href="#nb-knot"/></svg><svg class="c-cyan" aria-hidden="true"><use href="#nb-knot"/></svg></div>
+        <span class="n"><b>A · The Fates' Knot</b> <span class="pick">Recommended for the base box</span></span>
+        <span class="muted">Three interlaced loops, one for each thread of the Loom, bound by a ring. Echoes old Northern European knotwork. It ties the icon to the game's three threads.</span>
+        <code>nb-knot</code>
+      </div>
+      <div class="knot-opt">
+        <div class="knot-row"><svg class="c-crimson" aria-hidden="true"><use href="#nb-knot-taichi"/></svg><svg class="c-bone" aria-hidden="true"><use href="#nb-knot-taichi"/></svg><svg class="c-cyan" aria-hidden="true"><use href="#nb-knot-taichi"/></svg></div>
+        <span class="n"><b>B · The Turning Bead</b> <span class="pick">For The Other Shore</span></span>
+        <span class="muted">Tai chi style: two threads turning around each other, light inside dark. Strongly Eastern, so it fits the expansion's Three-Lives Stone rather than the base box.</span>
+        <code>nb-knot-taichi</code>
+      </div>
+      <div class="knot-opt">
+        <div class="knot-row"><svg class="c-crimson" aria-hidden="true"><use href="#nb-knot-totem"/></svg><svg class="c-bone" aria-hidden="true"><use href="#nb-knot-totem"/></svg><svg class="c-cyan" aria-hidden="true"><use href="#nb-knot-totem"/></svg></div>
+        <span class="n"><b>C · The Totem Bead</b></span>
+        <span class="muted">A carved wooden bead with a spiral of fate cut into it. Culture-neutral, so one piece could serve both boxes, and it matches the real wooden component.</span>
+        <code>nb-knot-totem</code>
+      </div>
+    </div>
+    <h3>Mist tiles</h3>
+    <div class="icons">
+      <div class="ic c-mist"><svg aria-hidden="true"><use href="#nb-fog"/></svg><span class="n">Fog (tile back)</span><code>nb-fog</code></div>
+      <div class="ic c-bone"><svg aria-hidden="true"><use href="#nb-fertile"/></svg><span class="n">Fertile</span><code>nb-fertile</code></div>
+      <div class="ic c-mist"><svg aria-hidden="true"><use href="#nb-stony"/></svg><span class="n">Stony</span><code>nb-stony</code></div>
+      <div class="ic c-bone"><svg aria-hidden="true"><use href="#nb-memorysite"/></svg><span class="n">Memory Site</span><code>nb-memorysite</code></div>
+      <div class="ic c-cyan"><svg aria-hidden="true"><use href="#nb-grave"/></svg><span class="n">Grave</span><code>nb-grave</code></div>
+    </div>
+  </section>
+
+  <!-- CARDS -->
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">04 · Cards</div>
+      <h2>Card templates</h2>
+      <p class="muted">Every Memory card has the same four zones: thread and name at the top, effect and Resonance, artwork, and the story band at the bottom. Cards overlap in the Book so that only the bone-coloured story band shows. Oblivion cards carry a fading fragment instead of a band, because they are always forgotten.</p>
+    </div>
+    <div class="cards">
+      <article class="card" aria-label="Memory card C01 Deep Roots">
+        <div class="top"><svg class="c-obs" aria-hidden="true"><use href="#nb-obsession"/></svg><span class="name">Deep Roots</span><span class="id">C01</span></div>
+        <div class="rules"><span><b>Root 2.</b></span><span class="res"><b>Resonance:</b> +1 Root.</span></div>
+        <div class="art"><svg class="c-bone" viewBox="0 0 48 48" aria-hidden="true"><use href="#nb-root"/></svg></div>
+        <div class="band"><svg aria-hidden="true"><use href="#nb-slot-place"/></svg><span>the gate I swore never to leave</span></div>
+      </article>
+      <article class="card" aria-label="Key Memory card K04">
+        <div class="top"><svg class="c-acc" aria-hidden="true"><use href="#nb-acceptance"/></svg><span class="name">The Hand from the Lake</span><span class="id">K04</span></div>
+        <div class="rules"><span><b>Bloom 1, then Root 1.</b></span><span class="res"><b>Resonance:</b> Bloom 1.</span></div>
+        <div class="art"><svg class="c-crimson" viewBox="0 0 48 48" aria-hidden="true"><use href="#nb-bloom"/></svg></div>
+        <svg class="seal" aria-label="Key Memory"><use href="#nb-seal"/></svg>
+        <div class="band"><svg aria-hidden="true"><use href="#nb-slot-person"/></svg><span>the hand that rose from the lake to give me a sword</span></div>
+      </article>
+      <article class="card obl" aria-label="Oblivion card C25 Unremember">
+        <div class="top"><svg class="c-obl" aria-hidden="true"><use href="#nb-oblivion"/></svg><span class="name">Unremember</span><span class="id">C25</span></div>
+        <div class="rules"><span><b>Banish 1 or Drain 1.</b> This card is forgotten.</span><span class="res"><b>Resonance:</b> do both.</span></div>
+        <div class="art"><svg class="c-cyan" viewBox="0 0 48 48" aria-hidden="true"><use href="#nb-grievance"/></svg></div>
+        <div class="band"><span></span><span>"Whose banner was it?"</span></div>
+      </article>
+      <article class="card mist" aria-label="Mist card M25 Twin Grievances">
+        <div class="top"><svg class="c-cyan" aria-hidden="true"><use href="#nb-fog"/></svg><span class="name">Twin Grievances</span><span class="id">M25</span></div>
+        <div class="rules"><span class="stamp">Mist · Reach III</span><span>Grievances on <b>both banks</b> of S+2.</span></div>
+        <div class="art"><svg class="c-cyan" viewBox="0 0 48 48" aria-hidden="true"><use href="#nb-grievance"/></svg></div>
+        <div class="band"><svg aria-hidden="true"><use href="#nb-grievance"/></svg><span>They wait on either side.</span></div>
+      </article>
+      <article class="card keep" aria-label="Keepsake card">
+        <div class="top"><svg class="c-bone" aria-hidden="true"><use href="#nb-memorysite"/></svg><span class="name">An Apple from an Orchard Island</span><span class="id">K-R3</span></div>
+        <div class="rules"><span class="stamp" style="color:var(--bone)">Keepsake · Reach III</span><span class="muted">Place in this page's Keepsake slot. It may change the ending.</span></div>
+        <div class="art"><svg class="c-bone" viewBox="0 0 48 48" aria-hidden="true"><use href="#nb-fertile"/></svg></div>
+        <div class="band"><span></span><span>It still smells of summer.</span></div>
+      </article>
+      <article class="card ghost" aria-label="Ghost Ferryman card">
+        <div class="top"><svg class="c-acc" aria-hidden="true"><use href="#nb-acceptance"/></svg><span class="name">The Ghost Blooms</span><span class="id">GH05</span></div>
+        <div class="rules"><span class="stamp">Ghost Ferryman · solo</span><span>Tie 1 Acceptance knot. Move the Echo. <b>Bloom the Root nearest ahead of the soul.</b></span></div>
+        <div class="art"><svg class="c-cyan" viewBox="0 0 48 48" aria-hidden="true"><use href="#nb-soul"/></svg></div>
+        <div class="band"><svg aria-hidden="true"><use href="#nb-echo"/></svg><span>It does not look at you.</span></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- BOARDS -->
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">05 · Boards</div>
+      <h2>Boards, in a mid-game state</h2>
+      <p class="muted">This is the layout the simulator viewer renders after every turn. The example shows turn 11: the soul waits on space 3, with a Grievance and Black Water ahead and the fog not yet cleared beyond space 6.</p>
+    </div>
+
+    <div class="board river">
+      <h3>River board · the Lethe</h3>
+      <svg viewBox="0 0 1040 250" role="img" aria-label="River board example: soul on space 3, blooms on spaces 4 and 5, Grievance on space 4 lower bank, Black Water on space 6, fog beyond">
+        <rect x="0" y="0" width="1040" height="250" fill="#17161B"/>
+        <!-- river band -->
+        <rect x="0" y="95" width="1040" height="60" fill="#0B0B10"/>
+        <path d="M0 125 C80 115 160 135 240 125 S400 115 480 125 S640 135 720 125 S880 115 1040 125" stroke="#2a2830" stroke-width="2" fill="none"/>
+        <!-- reach dividers + labels -->
+        <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#9A948C" letter-spacing="1.5">
+          <text x="80" y="18">REACH I · THE ASPHODEL ROAD</text>
+          <text x="410" y="18">REACH II · THE FIELDS OF MOURNING</text>
+          <text x="770" y="18">REACH III · BANKS OF LETHE</text>
+        </g>
+        <g stroke="#4A4642" stroke-dasharray="4 5"><path d="M392 26 V240"/><path d="M752 26 V240"/></g>
+        <!-- spaces 0..12, 80px apart starting x=40 -->
+        <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#9A948C" text-anchor="middle">
+          <text x="40" y="245">0</text><text x="120" y="245">1</text><text x="200" y="245">2</text><text x="280" y="245">3</text><text x="360" y="245">4</text><text x="440" y="245">5</text><text x="520" y="245">6</text><text x="600" y="245">7</text><text x="680" y="245">8</text><text x="760" y="245">9</text><text x="840" y="245">10</text><text x="920" y="245">11</text><text x="1000" y="245">12</text>
+        </g>
+        <!-- bank slots: upper y=40..86, lower y=164..210 ; spaces 1..11 -->
+        <g fill="none" stroke="#4A4642" stroke-width="1.5">
+          <rect x="97" y="40" width="46" height="46" rx="5"/><rect x="177" y="40" width="46" height="46" rx="5"/><rect x="257" y="40" width="46" height="46" rx="5"/><rect x="337" y="40" width="46" height="46" rx="5"/><rect x="417" y="40" width="46" height="46" rx="5"/><rect x="497" y="40" width="46" height="46" rx="5"/><rect x="577" y="40" width="46" height="46" rx="5"/><rect x="657" y="40" width="46" height="46" rx="5"/><rect x="737" y="40" width="46" height="46" rx="5"/><rect x="817" y="40" width="46" height="46" rx="5"/><rect x="897" y="40" width="46" height="46" rx="5"/>
+          <rect x="97" y="164" width="46" height="46" rx="5"/><rect x="177" y="164" width="46" height="46" rx="5"/><rect x="257" y="164" width="46" height="46" rx="5"/><rect x="337" y="164" width="46" height="46" rx="5"/><rect x="417" y="164" width="46" height="46" rx="5"/><rect x="497" y="164" width="46" height="46" rx="5"/><rect x="577" y="164" width="46" height="46" rx="5"/><rect x="657" y="164" width="46" height="46" rx="5"/><rect x="737" y="164" width="46" height="46" rx="5"/><rect x="817" y="164" width="46" height="46" rx="5"/><rect x="897" y="164" width="46" height="46" rx="5"/>
+        </g>
+        <!-- pieces -->
+        <g color="#E6D3A3"><use href="#nb-root" x="261" y="44" width="38" height="38"/><use href="#nb-root" x="421" y="168" width="38" height="38"/><use href="#nb-root" x="501" y="44" width="38" height="38"/></g>
+        <g color="#D7263D"><circle cx="360" cy="63" r="22" fill="none" stroke="#E6D3A3" stroke-width="1.5"/><use href="#nb-bloom" x="341" y="44" width="38" height="38"/><circle cx="440" cy="63" r="22" fill="none" stroke="#E6D3A3" stroke-width="1.5"/><use href="#nb-bloom" x="421" y="44" width="38" height="38"/></g>
+        <g color="#8FD6E1"><use href="#nb-grievance" x="341" y="168" width="38" height="38"/></g>
+        <g color="#9A948C"><use href="#nb-fog" x="581" y="44" width="38" height="38"/><use href="#nb-fog" x="581" y="168" width="38" height="38"/><use href="#nb-fog" x="661" y="44" width="38" height="38"/><use href="#nb-fog" x="661" y="168" width="38" height="38"/><use href="#nb-fog" x="741" y="44" width="38" height="38"/><use href="#nb-fog" x="741" y="168" width="38" height="38"/><use href="#nb-fog" x="821" y="44" width="38" height="38"/><use href="#nb-fog" x="821" y="168" width="38" height="38"/><use href="#nb-fog" x="901" y="44" width="38" height="38"/><use href="#nb-fog" x="901" y="168" width="38" height="38"/></g>
+        <g color="#E6D3A3"><use href="#nb-stony" x="501" y="168" width="38" height="38"/></g>
+        <!-- black water on space 6 -->
+        <rect x="496" y="99" width="48" height="52" rx="6" fill="#000" stroke="#E6D3A3" stroke-width="1.5"/>
+        <g color="#9A948C"><use href="#nb-blackwater" x="502" y="107" width="36" height="36"/></g>
+        <!-- soul on space 3 -->
+        <circle cx="280" cy="125" r="24" fill="none" stroke="#EFE7D6" stroke-width="1.2" stroke-dasharray="3 4"/>
+        <g color="#EFE7D6"><use href="#nb-soul" x="262" y="106" width="36" height="38"/></g>
+        <!-- far shore -->
+        <g color="#E6D3A3"><use href="#nb-light" x="982" y="106" width="36" height="38"/></g>
+        <text x="1000" y="92" font-family="IM Fell English SC, serif" font-size="13" fill="#E6D3A3" text-anchor="middle">Far Shore</text>
+      </svg>
+      <div class="legend">
+        <span><svg class="c-crimson"><use href="#nb-bloom"/></svg>Bloom (lit)</span>
+        <span><svg class="c-bone"><use href="#nb-root"/></svg>Root</span>
+        <span><svg class="c-cyan"><use href="#nb-grievance"/></svg>Grievance</span>
+        <span><svg class="c-mist"><use href="#nb-blackwater"/></svg>Black Water (flooded)</span>
+        <span><svg class="c-mist"><use href="#nb-fog"/></svg>Fog</span>
+        <span><svg style="color:var(--paper)"><use href="#nb-soul"/></svg>Soul</span>
+      </div>
+    </div>
+
+    <div class="boards2">
+      <div class="board">
+        <h3>The Loom of the Fates</h3>
+        <div class="loom">
+          <div class="thread c-obs"><svg aria-hidden="true"><use href="#nb-obsession"/></svg><span class="lbl">Obsession</span><span class="knot on"><svg><use href="#nb-knot"/></svg></span><span class="knot on"><svg><use href="#nb-knot"/></svg></span><span class="knot on"><svg><use href="#nb-knot"/></svg></span><span class="knot"></span><span class="knot"></span><span class="backlash">5th: Grasping</span></div>
+          <div class="thread c-acc"><svg aria-hidden="true"><use href="#nb-acceptance"/></svg><span class="lbl">Acceptance</span><span class="knot on"><svg><use href="#nb-knot"/></svg></span><span class="knot"></span><span class="knot"></span><span class="knot"></span><span class="knot"></span><span class="backlash">5th: Resignation</span></div>
+          <div class="thread c-obl"><svg aria-hidden="true"><use href="#nb-oblivion"/></svg><span class="lbl">Oblivion</span><span class="knot on"><svg><use href="#nb-knot"/></svg></span><span class="knot on"><svg><use href="#nb-knot"/></svg></span><span class="knot"></span><span class="knot"></span><span class="knot"></span><span class="backlash">5th: The Tide Rises</span></div>
+          <div class="legend"><span><svg class="c-cyan"><use href="#nb-echo"/></svg>Echo is on <b style="color:var(--crimson)">Obsession</b>: the next player Resonates with an Obsession card.</span></div>
+        </div>
+      </div>
+      <div class="board">
+        <h3>Soul board</h3>
+        <div style="display:grid;gap:6px">
+          <span class="muted" style="font-size:.85rem">Forgotten · 6 of 12 · <span class="c-cyan">Light as Ash at 4</span> · <span class="c-cyan">Adrift at 8</span></span>
+          <div class="track">
+            <span class="cell fill">0</span><span class="cell fill">1</span><span class="cell fill">2</span><span class="cell fill">3</span><span class="cell fill mark">4</span><span class="cell fill">5</span><span class="cell fill">6</span><span class="cell">7</span><span class="cell mark">8</span><span class="cell">9</span><span class="cell">10</span><span class="cell">11</span><span class="cell end">12</span>
+          </div>
+        </div>
+        <div style="display:grid;gap:6px">
+          <span class="muted" style="font-size:.85rem">Fractures · 1 of 3</span>
+          <div class="frac"><svg class="c-crimson"><use href="#nb-fracture"/></svg><svg style="color:var(--ash)"><use href="#nb-fracture"/></svg><svg style="color:var(--ash)"><use href="#nb-fracture"/></svg></div>
+        </div>
+        <div style="display:grid;gap:6px">
+          <span class="muted" style="font-size:.85rem">Black Water supply · 3 of 5 left · Light pool · 4</span>
+          <div class="frac"><svg class="c-mist"><use href="#nb-blackwater"/></svg><svg class="c-mist"><use href="#nb-blackwater"/></svg><svg class="c-mist"><use href="#nb-blackwater"/></svg><span style="width:12px"></span><svg class="c-bone"><use href="#nb-light"/></svg><span class="mono">× 4</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="board">
+      <h3>Book of Remembrance · after Reach I</h3>
+      <div class="book">
+        <div class="page">
+          <h3>I · Who I Was</h3>
+          <div class="slot filled"><svg><use href="#nb-slot-place"/></svg><span>I was born near <b>the hill where I buried my anger</b>.</span></div>
+          <div class="slot filled"><svg><use href="#nb-slot-person"/></svg><span>I loved <b>my mother, humming at the loom</b>.</span></div>
+          <div class="slot"><svg><use href="#nb-slot-deed"/></svg><span class="fallback">I once… but this, the river has taken.</span></div>
+          <div class="slot filled"><svg><use href="#nb-slot-feeling"/></svg><span>and ever since I have carried <b>a debt I swore to repay</b>.</span></div>
+        </div>
+        <div class="page">
+          <h3>II · What I Did</h3>
+          <div class="slot"><svg><use href="#nb-slot-place"/></svg><span class="fallback">At [Place]</span></div>
+          <div class="slot"><svg><use href="#nb-slot-person"/></svg><span class="fallback">before [Person]</span></div>
+          <div class="slot"><svg><use href="#nb-slot-deed"/></svg><span class="fallback">I [Deed].</span></div>
+          <div class="slot"><svg><use href="#nb-slot-feeling"/></svg><span class="fallback">The price was [Feeling].</span></div>
+        </div>
+        <div class="page">
+          <h3>III · What I Carry</h3>
+          <div class="slot"><svg><use href="#nb-slot-place"/></svg><span class="fallback">I go now, leaving [Place],</span></div>
+          <div class="slot"><svg><use href="#nb-slot-person"/></svg><span class="fallback">forgiving [Person],</span></div>
+          <div class="slot"><svg><use href="#nb-slot-deed"/></svg><span class="fallback">unable to undo the day I [Deed],</span></div>
+          <div class="slot"><svg><use href="#nb-slot-feeling"/></svg><span class="fallback">holding only [Feeling].</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIM MANIFEST -->
+  <section>
+    <div class="sec-head">
+      <div class="eyebrow">06 · For the simulator</div>
+      <h2>What the simulator uses from this kit</h2>
+      <p class="muted">The simulator runs thousands of games without drawing them. When you want to watch one, its game viewer draws each turn with the parts below, so every replay looks like a real table.</p>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Simulator view</th><th>Uses</th><th>Shows</th></tr></thead>
+        <tbody>
+          <tr><td>River board</td><td><code>nb-bloom</code> <code>nb-root</code> <code>nb-soul</code> <code>nb-grievance</code> <code>nb-blackwater</code> <code>nb-fog</code> and the tile icons</td><td>Every bank slot, the soul's space and every threat, after each turn</td></tr>
+          <tr><td>Loom</td><td><code>nb-obsession</code> <code>nb-acceptance</code> <code>nb-oblivion</code> <code>nb-knot</code> <code>nb-echo</code></td><td>Knots on each thread, the Echo, Resonance and Backlash events</td></tr>
+          <tr><td>Soul board</td><td><code>nb-fracture</code> <code>nb-light</code> <code>nb-blackwater</code> and the Forgotten track</td><td>The three loss tracks: how close each came to the end</td></tr>
+          <tr><td>Hands and plays</td><td>Card template, with thread icon, effect, Resonance and story band</td><td>Each player's hand and the two cards they chose, with Resonance marked</td></tr>
+          <tr><td>Book</td><td>Slot icons, <code>nb-seal</code>, page frames</td><td>The finished story, word for word, for the grammar check</td></tr>
+          <tr><td>Summary charts</td><td>Palette only: Netherbloom, Spectral, Bone</td><td>Win rate, loss causes, game length and tension curve</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>

@@ -1,0 +1,251 @@
+<title>Netherbloom Replay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single replay table. Board on top, Loom + Soul board + turn log in a row, the Book below. Dark-only by design: it is the game table. */
+:root {
+  --ink: #17161B; --ink-2: #211E25; --ash: #4A4642; --mist: #9A948C; --bone: #E6D3A3;
+  --crimson: #D7263D; --cyan: #8FD6E1; --paper: #EFE7D6;
+  --display: "IM Fell English SC", Georgia, serif; --serif: "IM Fell English", Georgia, serif;
+  --body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--ink); color: var(--paper); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 18px; padding-block: 28px 60px; display: grid; gap: 22px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 400; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; }
+h2 { font-size: 1.25rem; color: var(--bone); }
+.eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--crimson); }
+.muted { color: var(--mist); }
+.mono { font-family: var(--mono); font-size: .8rem; }
+.panel { background: var(--ink-2); border: 1px solid var(--ash); border-radius: 8px; padding: 14px; display: grid; gap: 10px; min-width: 0; }
+.head { display: grid; gap: 8px; }
+.summary { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: .95rem; }
+.summary b { font-weight: 500; color: var(--bone); }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--ink); padding-block: 8px; border-bottom: 1px solid var(--ash); }
+button { font: inherit; font-size: .9rem; background: var(--ink-2); color: var(--paper); border: 1px solid var(--bone); border-radius: 5px; padding: 6px 12px; cursor: pointer; }
+button:hover { background: #2b2730; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+input[type=range] { flex: 1 1 200px; accent-color: var(--crimson); min-width: 0; }
+.turnlabel { font-family: var(--mono); font-size: .85rem; min-width: 9ch; }
+.river { overflow-x: auto; }
+.river svg { min-width: 760px; width: 100%; height: auto; display: block; }
+.row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 900px) { .row3 { grid-template-columns: 1fr; } }
+.thread { display: grid; grid-template-columns: 26px 92px repeat(5, 22px); gap: 6px; align-items: center; }
+.thread svg { width: 24px; height: 24px; }
+.kn { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--ash); display: grid; place-items: center; }
+.kn.on { border-color: currentColor; }
+.kn svg { width: 18px; height: 18px; }
+.kn.off { opacity: .25; border-style: dashed; }
+.c-obs { color: var(--crimson); } .c-acc { color: var(--bone); } .c-obl { color: var(--cyan); }
+.track { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 3px; }
+.cell { aspect-ratio: 1; border: 1px solid var(--ash); border-radius: 3px; display: grid; place-items: center; font-family: var(--mono); font-size: .62rem; color: var(--mist); }
+.cell.fill { background: rgba(230, 211, 163, .25); color: var(--paper); }
+.cell.mark { border-color: var(--cyan); }
+.cell.end { border-color: var(--crimson); color: var(--crimson); }
+.icons { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.icons svg { width: 28px; height: 28px; }
+.dim { opacity: .22; }
+.log { display: grid; gap: 6px; font-size: .92rem; }
+.log .k { font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mist); }
+.result { font-family: var(--display); font-size: 1.3rem; }
+.result.win { color: var(--bone); } .result.loss { color: var(--crimson); }
+.book { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .book { grid-template-columns: 1fr; } }
+.page { background: #241f1a; border: 1px solid #5a4c3a; border-radius: 4px; padding: 12px 14px; font-family: var(--serif); color: var(--bone); line-height: 1.55; }
+.page h3 { font-size: 1rem; margin-bottom: 6px; }
+.page b { font-weight: 400; background: var(--bone); color: var(--ink); padding: 0 4px; border-radius: 2px; font-style: italic; }
+.page .gone { color: #8d7d66; font-style: italic; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: .8rem; color: var(--mist); }
+.legend span { display: inline-flex; gap: 5px; align-items: center; }
+.legend svg { width: 16px; height: 16px; }
+</style>
+
+<!--SYMBOLS-->
+
+<main class="wrap">
+  <header class="head">
+    <div class="eyebrow">Simulator replay · Echo-following AI</div>
+    <h1>Netherbloom Replay</h1>
+    <div class="summary" id="summary"></div>
+    <p class="muted" style="max-width:70ch">One simulated game, turn by turn, drawn with the visual kit. Each step shows the board after a player's turn: their two cards, the Soul Step and the Mist card that followed.</p>
+  </header>
+
+  <div class="controls">
+    <button id="first" type="button" aria-label="First turn">First</button>
+    <button id="prev" type="button" aria-label="Previous turn">Previous</button>
+    <button id="play" type="button">Play</button>
+    <button id="next" type="button" aria-label="Next turn">Next</button>
+    <input id="scrub" type="range" min="0" value="0" aria-label="Turn">
+    <span class="turnlabel" id="turnlabel"></span>
+  </div>
+
+  <section class="panel river">
+    <h2>The Lethe</h2>
+    <svg id="river" viewBox="0 0 1040 250" role="img" aria-label="River board"></svg>
+    <div class="legend">
+      <span><svg style="color:var(--crimson)"><use href="#nb-bloom"/></svg>Bloom</span>
+      <span><svg style="color:var(--bone)"><use href="#nb-root"/></svg>Root</span>
+      <span><svg style="color:var(--cyan)"><use href="#nb-grievance"/></svg>Grievance</span>
+      <span><svg style="color:var(--mist)"><use href="#nb-blackwater"/></svg>Black Water</span>
+      <span><svg style="color:var(--mist)"><use href="#nb-fog"/></svg>Fog</span>
+      <span><svg style="color:var(--paper)"><use href="#nb-soul"/></svg>Soul</span>
+    </div>
+  </section>
+
+  <div class="row3">
+    <section class="panel">
+      <h2>Loom of the Fates</h2>
+      <div id="loom" style="display:grid;gap:8px"></div>
+      <div class="legend"><span><svg style="color:var(--cyan)"><use href="#nb-echo"/></svg><span id="echo"></span></span></div>
+    </section>
+    <section class="panel">
+      <h2>Soul board</h2>
+      <div class="muted mono" id="forgotlabel"></div>
+      <div class="track" id="forgot"></div>
+      <div class="muted mono">Fractures</div>
+      <div class="icons" id="fract"></div>
+      <div class="muted mono">Black Water supply · Light</div>
+      <div class="icons" id="bw"></div>
+      <div class="muted mono" id="mantles"></div>
+    </section>
+    <section class="panel log">
+      <h2 id="turnhead">Turn</h2>
+      <div><div class="k">Cards played</div><div id="plays"></div></div>
+      <div><div class="k">Mist</div><div id="mist"></div></div>
+      <div id="result"></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Book of Remembrance</h2>
+    <div class="book" id="book"></div>
+  </section>
+</main>
+
+<script>
+const GAME = /*GAME*/null;
+const FRAMES = [
+  ["I · Who I Was", "I was born near {Place}. I loved {Person}. I once {Deed}, and ever since I have carried {Feeling}."],
+  ["II · What I Did", "At {Place}, before {Person}, I {Deed}. The price was {Feeling}."],
+  ["III · What I Carry", "I go now, leaving {Place}, forgiving {Person}, unable to undo the day I {Deed}, holding only {Feeling}."]
+];
+const TAGS = [["Obsession", "nb-obsession", "c-obs"], ["Acceptance", "nb-acceptance", "c-acc"], ["Oblivion", "nb-oblivion", "c-obl"]];
+const NS = "http://www.w3.org/2000/svg";
+const $ = id => document.getElementById(id);
+const snaps = GAME.snaps;
+let i = 0, timer = null;
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs || {})) e.setAttribute(k, v);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function use(id, x, y, w, h, color, parent) {
+  const g = el("g", { color }, parent);
+  el("use", { href: "#" + id, x, y, width: w, height: h }, g);
+}
+function esc(s) { return String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]); }
+
+function drawRiver(s) {
+  const svg = $("river");
+  svg.innerHTML = "";
+  el("rect", { x: 0, y: 0, width: 1040, height: 250, fill: "#17161B" }, svg);
+  el("rect", { x: 0, y: 95, width: 1040, height: 60, fill: "#0B0B10" }, svg);
+  const lbl = el("g", { "font-family": "IBM Plex Mono, monospace", "font-size": 11, fill: "#9A948C", "letter-spacing": 1.5 }, svg);
+  [["REACH I · THE ASPHODEL ROAD", 80], ["REACH II · THE FIELDS OF MOURNING", 410], ["REACH III · BANKS OF LETHE", 770]].forEach(([t, x]) => { const e = el("text", { x, y: 18 }, lbl); e.textContent = t; });
+  el("path", { d: "M392 26 V240 M752 26 V240", stroke: "#4A4642", "stroke-dasharray": "4 5" }, svg);
+  const nums = el("g", { "font-family": "IBM Plex Mono, monospace", "font-size": 11, fill: "#9A948C", "text-anchor": "middle" }, svg);
+  for (let sp = 0; sp <= 12; sp++) { const e = el("text", { x: 40 + sp * 80, y: 245 }, nums); e.textContent = sp; }
+  for (const sl of s.slots) {
+    const x = 40 + sl.space * 80 - 23, y = sl.bank === 0 ? 40 : 164;
+    el("rect", { x, y, width: 46, height: 46, rx: 5, fill: "none", stroke: "#4A4642", "stroke-width": 1.5 }, svg);
+    const cx = x + 4, cy = y + 4;
+    if (sl.grievance) use("nb-grievance", cx, cy, 38, 38, "#8FD6E1", svg);
+    else if (sl.token === "bloom") { el("circle", { cx: x + 23, cy: y + 23, r: 21, fill: "none", stroke: "#E6D3A3", "stroke-width": 1.4 }, svg); use("nb-bloom", cx, cy, 38, 38, "#D7263D", svg); }
+    else if (sl.token === "root") use("nb-root", cx, cy, 38, 38, "#E6D3A3", svg);
+    else if (sl.tile === "fog") use("nb-fog", cx, cy, 38, 38, "#9A948C", svg);
+    else if (sl.tile === "Stony") use("nb-stony", cx + 6, cy + 6, 26, 26, "#9A948C", svg);
+    else if (sl.tile === "Grave") use("nb-grave", cx + 6, cy + 6, 26, 26, "#8FD6E1", svg);
+    else if (sl.tile === "Memory Site") use("nb-memorysite", cx + 6, cy + 6, 26, 26, "#E6D3A3", svg);
+  }
+  for (const sp of s.flooded) {
+    const x = 40 + sp * 80;
+    el("rect", { x: x - 24, y: 99, width: 48, height: 52, rx: 6, fill: "#000", stroke: "#E6D3A3", "stroke-width": 1.5 }, svg);
+    use("nb-blackwater", x - 18, 107, 36, 36, "#9A948C", svg);
+  }
+  const sx = 40 + Math.min(s.soul, 12) * 80;
+  el("circle", { cx: sx, cy: 125, r: 24, fill: "none", stroke: "#EFE7D6", "stroke-width": 1.2, "stroke-dasharray": "3 4" }, svg);
+  use("nb-soul", sx - 18, 106, 36, 38, "#EFE7D6", svg);
+  if (s.soul < 12) use("nb-light", 982, 106, 36, 38, "#E6D3A3", svg);
+  const fs = el("text", { x: 1000, y: 92, "font-family": "IM Fell English SC, serif", "font-size": 13, fill: "#E6D3A3", "text-anchor": "middle" }, svg);
+  fs.textContent = "Far Shore";
+}
+
+function render() {
+  const s = snaps[i];
+  $("scrub").value = i;
+  $("turnlabel").textContent = i === 0 ? "Setup" : `Turn ${s.turn} / ${snaps[snaps.length - 1].turn}`;
+  drawRiver(s);
+  const cap = GAME.karma_cap;
+  $("loom").innerHTML = TAGS.map(([name, icon, cls], t) => {
+    let knots = "";
+    for (let k = 0; k < 5; k++) {
+      const on = k < s.karma[t], off = k >= cap;
+      knots += `<span class="kn ${on ? "on" : ""} ${off ? "off" : ""}">${on ? '<svg><use href="#nb-knot"/></svg>' : ""}</span>`;
+    }
+    return `<div class="thread ${cls}"><svg><use href="#${icon}"/></svg><span>${name}</span>${knots}</div>`;
+  }).join("");
+  $("echo").textContent = s.echo >= 0 ? `Echo on ${TAGS[s.echo][0]}` : "Echo off the Loom";
+  const lim = GAME.forgotten_limit;
+  $("forgotlabel").textContent = `Forgotten ${s.forgotten} of ${lim}`;
+  let cells = "";
+  for (let n = 0; n <= lim; n++) {
+    const cls = [n <= s.forgotten && n > 0 ? "fill" : "", n === GAME.ash_at || n === GAME.adrift_at ? "mark" : "", n === lim ? "end" : ""].join(" ");
+    cells += `<span class="cell ${cls}">${n}</span>`;
+  }
+  $("forgot").style.gridTemplateColumns = `repeat(${lim + 1}, minmax(0, 1fr))`;
+  $("forgot").innerHTML = cells;
+  $("fract").innerHTML = [0, 1, 2].map(n => `<svg class="${n < s.fractures ? "" : "dim"}" style="color:var(--crimson)"><use href="#nb-fracture"/></svg>`).join("");
+  let bw = "";
+  for (let n = 0; n < GAME.bw_supply; n++) bw += `<svg class="${n < s.bw_supply ? "" : "dim"}" style="color:var(--mist)"><use href="#nb-blackwater"/></svg>`;
+  bw += `<span style="width:10px"></span><svg style="color:var(--bone)"><use href="#nb-light"/></svg><span class="mono">× ${s.light}</span>`;
+  $("bw").innerHTML = bw;
+  const m = Object.entries(s.mantles);
+  $("mantles").textContent = m.length ? "Mantles: " + m.map(([k, v]) => `${k} (P${v})`).join(", ") : "No Mantles summoned yet";
+  $("turnhead").textContent = i === 0 ? "Setup" : `Turn ${s.turn} · Player ${s.player}`;
+  $("plays").innerHTML = s.plays.length ? s.plays.map(p => `<div>${esc(p)}</div>`).join("") : '<span class="muted">—</span>';
+  $("mist").textContent = s.mist || "—";
+  $("result").innerHTML = s.result ? `<div class="result ${s.result}">${s.result === "win" ? "The soul reaches the Far Shore." : "Lost: " + esc(s.cause)}</div>` : "";
+  $("book").innerHTML = FRAMES.map(([title, frame], r) => {
+    const page = s.book[r] || {};
+    const text = frame.replace(/\{(\w+)\}/g, (_, slot) => page[slot] ? `<b>${esc(page[slot])}</b>` : `<span class="gone">[${slot.toLowerCase()}]</span>`);
+    return `<div class="page"><h3>${title}</h3>${text}</div>`;
+  }).join("");
+}
+
+function go(n) { i = Math.max(0, Math.min(snaps.length - 1, n)); render(); }
+$("scrub").max = snaps.length - 1;
+$("first").onclick = () => go(0);
+$("prev").onclick = () => go(i - 1);
+$("next").onclick = () => go(i + 1);
+$("scrub").oninput = e => go(+e.target.value);
+$("play").onclick = () => {
+  if (timer) { clearInterval(timer); timer = null; $("play").textContent = "Play"; return; }
+  if (i >= snaps.length - 1) go(0);
+  $("play").textContent = "Pause";
+  timer = setInterval(() => { if (i >= snaps.length - 1) { $("play").click(); } else go(i + 1); }, 1400);
+};
+document.addEventListener("keydown", e => { if (e.key === "ArrowRight") go(i + 1); if (e.key === "ArrowLeft") go(i - 1); });
+const last = snaps[snaps.length - 1];
+$("summary").innerHTML = [
+  `<span><b>${GAME.players}</b> players</span>`, `<span>Mode <b>${GAME.soul === "open" ? "Open Crossing" : GAME.soul}</b></span>`,
+  `<span>Lantern <b>${GAME.lantern}</b></span>`, `<span>Seed <b>${GAME.seed}</b></span>`,
+  `<span>Result <b>${last.result === "win" ? "Win" : "Loss (" + last.cause + ")"}</b> in ${last.turn} turns</span>`
+].join("");
+go(snaps.length - 1);
+</script>
