@@ -124,9 +124,12 @@ pack("child", [
   ["L08", "Lethe's Gift", OBL, LETHE],
 ]);
 
+// The Soul suggested for a first game. Souls differ in challenge, but the game never labels them with a rating.
+export const FIRST_SOUL = "child";
+
 export const SOULS = {
   open: { name: "Open Crossing", blurb: "A nameless soul. The Echo deck joins the core. Memory Sites give 2 Light.", twist: "Memory Sites give +2 Light." },
-  child: { name: "Child of the Last Flame", blurb: "The gentle first crossing.", twist: "Starts with 3 Light. The first Fracture in each Reach is ignored. Never drifts Adrift. No harsh Mist." },
+  child: { name: "Child of the Last Flame", blurb: "One more little light, struck against the cold.", twist: "Starts with 3 Light. The first Fracture in each Reach is ignored. Never drifts Adrift. No harsh Mist." },
   garland: { name: "The Garland Girl", blurb: "She wove a flower for everyone but herself.", twist: "The Chapter Blessing comes after only 2 inscribed memories." },
   king: { name: "The King on the Barge", blurb: "A crown carried long after the kingdom fell.", twist: "Mantles cost 2 Light. A Fracture strips the Mantle of the player who caused it." },
   bride: { name: "The Bride Who Stayed Below", blurb: "Almost saved, once.", twist: "The first time she would Linger in the dark, she is pulled one space back instead of forgetting." },

@@ -2,11 +2,13 @@
 // (solo against the Ghost, everyone at one screen, or online with each player on their own device).
 import * as E from "./engine.js";
 import {
-  CARDS, TAG_NAMES, TAG_ICONS, SOULS, MANTLES, BOOK_FRAMES, REACH_NAMES, TILE_NAMES, LANTERN, HARSH, MIST_TEXT,
+  CARDS, TAG_NAMES, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, BOOK_FRAMES, REACH_NAMES, TILE_NAMES, LANTERN, HARSH, MIST_TEXT,
   STONY, MEMORY, GRAVE, FERTILE, opsText,
 } from "./cards.js";
 import * as A from "./audio.js";
 import * as N from "./net.js";
+import { RULEBOOK, playerAid } from "./rules.js";
+import { openBook, closeBook, refreshBook, resetBookMemory } from "./book.js";
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -32,6 +34,7 @@ let prevHand = [];
 let prevBookIds = new Set();
 let passOpen = false, endShown = false;
 let net = null;            // online session
+let guideStep = null;      // set while the end-of-turn animations play, so the guide can follow them
 const setup = load("nb-setup", { players: 3, soul: "child", lantern: 2, names: ["", "", "", ""], name: "" });
 
 function load(key, dflt) {
@@ -61,7 +64,9 @@ async function boot() {
   document.addEventListener("pointerdown", () => { if (A.isMusicOn()) A.start(); else A.setSfx(A.isSfxOn()); }, { once: true });
   $("btn-music").onclick = () => { A.setMusic(!A.isMusicOn()); topbar(); };
   $("btn-sfx").onclick = () => { A.setSfx(!A.isSfxOn()); topbar(); };
-  $("btn-rules").onclick = rules;
+  buildDrawer();
+  $("btn-rules").onclick = () => openDrawer("rules");
+  $("btn-aid").onclick = () => openDrawer("aid");
   $("btn-menu").onclick = () => {
     if (S && !S.result && !confirm("Leave this game and return to the menu?")) return;
     leaveGame();
@@ -75,6 +80,7 @@ function topbar() {
   $("btn-music").textContent = `Music: ${A.isMusicOn() ? "on" : "off"}`;
   $("btn-sfx").textContent = `Sound: ${A.isSfxOn() ? "on" : "off"}`;
   $("btn-menu").classList.toggle("hidden", !S && !net);
+  $("aid-tab").classList.toggle("hidden", !S);
   $("modelabel").textContent = mode ? { solo: "Solo · against the Ghost", local: "Same screen", online: `Online${net?.code ? " · table " + net.code : ""}` }[mode] : "";
 }
 
@@ -86,6 +92,7 @@ function leaveGame() {
   pending = null;
   busy = false;
   closeVeil();
+  closeBook();
   topbar();
 }
 
@@ -94,7 +101,7 @@ function menu(which = "solo") {
   S = null;
   topbar();
   const soulBtns = Object.entries(SOULS).map(([k, v]) =>
-    `<button type="button" class="soulopt ${setup.soul === k ? "on" : ""}" data-soul="${k}"><b>${esc(v.name)}</b><small>${esc(v.twist)}</small></button>`).join("");
+    `<button type="button" class="soulopt ${setup.soul === k ? "on" : ""}" data-soul="${k}"><b>${esc(v.name)}</b>${k === FIRST_SOUL ? '<span class="firsttag" title="Suggested for your first crossing">Suggested first</span>' : ""}<small>${esc(v.twist)}</small></button>`).join("");
   const lan = [1, 2, 3, 4, 5].map(l => `<button type="button" data-lantern="${l}" class="${setup.lantern === l ? "on" : ""}">${"◆".repeat(l)}${"◇".repeat(5 - l)}</button>`).join("");
   $("app").innerHTML = `
   <div class="screen">
@@ -118,7 +125,7 @@ function menu(which = "solo") {
     <section class="panel" id="modepanel"></section>
     <p class="muted" style="text-align:center;margin:0">New to the river? Read <button type="button" class="ghost" id="howto">How to play</button></p>
   </div>`;
-  $("howto").onclick = rules;
+  $("howto").onclick = () => openDrawer("rules");
   document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => menu(b.dataset.mode));
   document.querySelectorAll("[data-soul]").forEach(b => b.onclick = () => { setup.soul = b.dataset.soul; store("nb-setup", setup); menu(which); });
   document.querySelectorAll("[data-lantern]").forEach(b => b.onclick = () => { setup.lantern = +b.dataset.lantern; store("nb-setup", setup); menu(which); });
@@ -187,7 +194,10 @@ function beginGame(s) {
   prevHand = [];
   prevBookIds = new Set();
   lastEv = Math.max(0, S.evn - 1);
+  guideStep = null;
+  resetBookMemory();
   closeVeil();
+  closeBook();
   topbar();
   buildTable();
   refresh();
@@ -462,26 +472,17 @@ function buildTable() {
       <div class="status" id="status"></div>
       <div class="boardwrap" id="boardwrap">
         <div class="boardscroll"><svg id="board" viewBox="0 0 1120 400" role="img" aria-label="The river"></svg></div>
-        <div class="legend">
-          <span>${svgUse("nb-bloom", "", "color:#D7263D")}Bloom (lights its space)</span>
-          <span>${svgUse("nb-root", "", "color:#E6D3A3")}Root</span>
-          <span>${svgUse("nb-grievance", "", "color:#8FD6E1")}Grievance</span>
-          <span>${svgUse("nb-blackwater", "", "color:#9A948C")}Black Water</span>
-          <span>${svgUse("nb-fog", "", "color:#9A948C")}Fog</span>
-          <span>${svgUse("nb-stony", "", "color:#9A948C")}Stony</span>
-          <span>${svgUse("nb-memorysite", "", "color:#E6D3A3")}Memory Site</span>
-          <span>${svgUse("nb-grave", "", "color:#8FD6E1")}Grave</span>
-        </div>
       </div>
       <div class="prompt" id="prompt"></div>
       <div class="hand" id="hand"></div>
-      <section class="panel"><h2>Book of Remembrance</h2><div class="book" id="book"></div></section>
+      <section class="panel"><h2>Book of Remembrance <button type="button" class="link openbook" id="openbook">${svgUse("nb-seal")}Open the Book</button></h2>
+        <div class="bookstrip" id="book" title="Open the Book of Remembrance"></div></section>
     </div>
     <aside class="side">
-      <section class="panel"><h2>Loom of the Fates</h2><div class="loom" id="loom"></div>
-        <small class="muted">A first card on the Echo's thread Resonates. A full thread snaps in a Backlash.</small></section>
-      <section class="panel"><h2>The Soul</h2><div id="soulboard" style="display:grid;gap:8px"></div></section>
-      <section class="panel"><h2>Chronicle</h2><div class="log" id="log"></div></section>
+      <section class="panel guide" id="guide" aria-live="polite"></section>
+      <section class="panel"><h2>Loom of the Fates</h2><div class="loom" id="loom"></div></section>
+      <section class="panel"><h2>The Soul</h2><div id="soulboard"></div></section>
+      <section class="panel chron"><h2>Chronicle</h2><div class="log" id="log"></div></section>
     </aside>
   </div>`;
   drawBoardStatic();
@@ -491,6 +492,11 @@ function buildTable() {
     const k = +g.dataset.k;
     if (pending.targets?.includes(k)) answer(k);
   });
+  $("openbook").onclick = () => openBook(S);
+  $("book").onclick = e => {
+    const pg = e.target.closest("[data-page]");
+    openBook(S, pg ? +pg.dataset.page + 1 : null);
+  };
 }
 
 // ---------------------------------------------------------------- the board
@@ -627,16 +633,15 @@ function drawSoulboard() {
   for (let n = 0; n < c.bwSupply; n++) bw += svgUse("nb-blackwater", n < S.bw ? "" : "dim", "color:#9A948C");
   const fr = [0, 1, 2].map(n => svgUse("nb-fracture", n < S.fract ? "" : "dim", "color:#D7263D")).join("");
   const mantles = Object.entries(MANTLES).map(([m, info]) =>
-    `<div title="${esc(info.text)}"><span class="${TAGCLS[info.tag]}">${esc(info.name)}</span><b>${S.mantles[m] >= 0 ? esc(S.names[S.mantles[m]]) : '<span class="muted">free</span>'}</b></div>`).join("");
-  $("soulboard").innerHTML = `
-    <div class="lbl">Forgotten ${f} of ${c.forgottenLimit}</div>
-    <div class="track" style="grid-template-columns:repeat(${c.forgottenLimit},minmax(0,1fr))">${cells}</div>
-    <small class="muted">At ${c.ashAt} the soul is Light as Ash and glides faster.${c.adriftAt < 99 ? ` At ${c.adriftAt} it may drift Adrift into the dark.` : ""}</small>
-    <div class="lbl">Fractures</div><div class="icons">${fr}</div>
-    <div class="lbl">Black Water supply</div><div class="icons">${bw}</div>
-    <div class="lbl">Light</div><div class="icons">${svgUse("nb-light", "", "color:#E6D3A3")}<span style="font-family:var(--display);font-size:1.3rem;color:var(--bone)">${S.light}</span>
-      <small class="muted">Mantles cost ${c.mantleCost}</small></div>
-    <div class="lbl">Mantles</div><div class="mantles">${mantles}</div>`;
+    `<div title="${esc(info.text)}"><span class="${TAGCLS[info.tag]}">${esc(info.name.replace("The ", ""))}</span><b>${S.mantles[m] >= 0 ? esc(S.names[S.mantles[m]]) : '<span class="muted">free</span>'}</b></div>`).join("");
+  $("soulboard").innerHTML = `<div class="soulgrid">
+    <div class="lbl wide">Forgotten ${f} of ${c.forgottenLimit} <span class="muted" style="text-transform:none;letter-spacing:0">· Ash ${c.ashAt}${c.adriftAt < 99 ? ` · Adrift ${c.adriftAt}` : ""}</span></div>
+    <div class="track wide" style="grid-template-columns:repeat(${c.forgottenLimit},minmax(0,1fr))">${cells}</div>
+    <div><div class="lbl">Fractures</div><div class="icons">${fr}</div></div>
+    <div><div class="lbl">Light</div><div class="icons">${svgUse("nb-light", "", "color:#E6D3A3")}<span style="font-family:var(--display);font-size:1.25rem;color:var(--bone)">${S.light}</span></div></div>
+    <div class="wide"><div class="lbl">Black Water supply</div><div class="icons">${bw}</div></div>
+    <div class="wide"><div class="lbl">Mantles · cost ${c.mantleCost} Light</div><div class="mantles">${mantles}</div></div>
+  </div>`;
 }
 
 function drawBook() {
@@ -649,7 +654,9 @@ function drawBook() {
       ids.add(`${r}-${slot}`);
       return `<b class="${prevBookIds.has(`${r}-${slot}`) ? "" : "new"}">${esc(CARDS[cid].band)}</b>`;
     });
-    return `<div class="page ${S.blessed[r] ? "blessed" : ""}"><h3><span>${title}</span><span>${S.blessed[r] ? svgUse("nb-seal", "", "width:18px;height:18px;color:#E6D3A3") : ""}</span></h3>${text}</div>`;
+    const n = Object.keys(page).length;
+    return `<div class="page ${S.blessed[r] ? "blessed" : ""}" data-page="${r}"><h3><span>${title}</span><span>${S.blessed[r] ? svgUse("nb-seal", "", "width:16px;height:16px;color:#E6D3A3") : ""}</span></h3>${text}
+      <div class="meter">${[0, 1, 2, 3].map(i => `<i class="${i < n ? "on" : ""}"></i>`).join("")}</div></div>`;
   }).join("");
   prevBookIds = ids;
 }
@@ -777,6 +784,144 @@ function flyCard(cid) {
     { duration: 750, easing: "cubic-bezier(.3,.6,.2,1)" }).onfinish = () => clone.remove();
 }
 
+// ---------------------------------------------------------------- the turn guide
+// Lights the step the active player is on. While the end-of-turn animations play, it follows them
+// (Soul Step, then the Mist, then the draw) before moving on to the next player's first card.
+const GUIDE = [
+  ["summon", "Summon", "optional · before your first card"],
+  ["card1", "First card", "match the Echo to Resonate"],
+  ["card2", "Second card", ""],
+  ["bringer", "Bloom-Bringer", "free Bloom"],
+  ["soul", "Soul Step", "move if the next space is Lit"],
+  ["mist", "The Mist", "one card from this Reach"],
+  ["draw", "Settle and draw", "refill your hand"],
+];
+
+function guideState() {
+  const order = GUIDE.map(g => g[0]);
+  let now;
+  if (guideStep && S.played === 0 && !pending && !busy) now = guideStep;
+  else if (S.result) now = null;
+  else if (pending?.type === "bringer") now = "bringer";
+  else if (S.phase !== "play") now = "card1";
+  else now = (busy || pending) ? (S.played <= 1 ? "card1" : "card2") : (S.played === 0 ? "card1" : "card2");
+  const idx = now ? order.indexOf(now) : order.length;
+  const hasBringer = S.mantles.bringer === S.cur;
+  return GUIDE.map(([id, title, sub], i) => {
+    let cls = i < idx ? "done" : i === idx ? "now" : "";
+    if (id === "summon") cls = (!(guideStep && S.played === 0) && S.phase === "play" && S.played === 0 && E.canSummon(S) && canAct()) ? "avail" : (i < idx ? "skip" : "");
+    if (id === "bringer" && !hasBringer) cls = "skip";
+    return { id, title, sub, cls };
+  });
+}
+
+function guideHint() {
+  if (S.result) return S.result === "win" ? "The crossing is complete. Open the Book to read the soul's story." : "The crossing has failed. Open the Book to read what was kept.";
+  const anim = guideStep && S.played === 0 && !pending && !busy;
+  if (anim && guideStep === "soul") return "The soul tries to step onto the next Lit space. In the dark, it Lingers.";
+  if (anim && guideStep === "mist") return "The Mist turns a card for this Reach.";
+  if (anim && guideStep === "draw") return "The river settles and hands are refilled.";
+  const who = esc(S.names[S.cur]);
+  if (!canAct()) return mode === "local" ? `Pass the device to <b>${who}</b>.` : `Waiting for <b>${who}</b>…`;
+  if (pending?.type === "root") return `Click a <b>glowing bank</b> on the river to place Root ${pending.i} of ${pending.n}.`;
+  if (pending?.type === "bloom") return "Click one of your <b>Roots</b> to open it into a Bloom.";
+  if (pending?.type === "bringer") return "Click a <b>Root</b> to bloom it for free, or skip.";
+  if (pending?.type === "inscribe") return "Write this memory into the <b>Book</b>, or keep the card in the deck.";
+  const echo = S.echo >= 0 && S.played === 0 ? ` A <b class="${TAGCLS[S.echo]}">${TAG_NAMES[S.echo]}</b> card will Resonate.` : "";
+  return `Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b> or <b>Burn</b>.${echo}`;
+}
+
+function drawGuide() {
+  const el = $("guide");
+  if (!el) return;
+  const steps = guideState();
+  el.innerHTML = `<h2><span>Turn ${S.turn || 1} <span class="muted" style="font-family:var(--body);font-size:.85rem">${esc(S.names[S.cur])}${S.n === 1 ? " · then the Ghost" : ""}</span></span>
+    <button type="button" class="link" data-aid>Player Aid</button></h2>
+    <ol class="gsteps">${steps.map((g, i) => `<li class="${g.cls}"><span class="gi"><span>${i + 1}</span></span><div><b>${g.title}</b>${g.sub ? `<small>${g.sub}</small>` : ""}</div></li>`).join("")}</ol>
+    <div class="ghint">${guideHint()}</div>`;
+  el.querySelector("[data-aid]").onclick = () => openDrawer("aid");
+}
+function setGuide(step) { guideStep = step; if (S && $("guide")) drawGuide(); }
+
+// ---------------------------------------------------------------- Player Aid and Rulebook drawer
+let drawerTab = "aid";
+function buildDrawer() {
+  const d = document.createElement("aside");
+  d.className = "drawer";
+  d.id = "drawer";
+  d.setAttribute("aria-label", "Player Aid and Rulebook");
+  d.innerHTML = `<header><div class="tabs"><button type="button" data-tab="aid">Player Aid</button><button type="button" data-tab="rules">Rulebook</button></div>
+      <button type="button" id="drawer-x">Close</button></header>
+    <div class="search" id="dsearch"><input type="search" id="dq" placeholder="Search the rules… e.g. Backlash, Stony, Linger" aria-label="Search the rules"><span class="count" id="dcount"></span></div>
+    <div class="body" id="dbody"></div>`;
+  document.body.appendChild(d);
+  const tab = document.createElement("button");
+  tab.type = "button";
+  tab.className = "drawer-tab hidden";
+  tab.id = "aid-tab";
+  tab.textContent = "Player Aid · Rules";
+  tab.onclick = () => openDrawer(drawerTab);
+  document.body.appendChild(tab);
+  d.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => openDrawer(b.dataset.tab));
+  $("drawer-x").onclick = closeDrawer;
+  $("dq").addEventListener("input", () => searchRules($("dq").value));
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && d.classList.contains("open")) closeDrawer(); });
+}
+
+function openDrawer(tab) {
+  drawerTab = tab;
+  const d = $("drawer");
+  d.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
+  $("dsearch").classList.toggle("hidden", tab !== "rules");
+  if (tab === "aid") $("dbody").innerHTML = playerAid(S?.cfg);
+  else {
+    $("dbody").innerHTML = `<nav class="toc">${RULEBOOK.map(r => `<a href="#r-${r.id}">${esc(r.title.replace(/^\d+\. /, ""))}</a>`).join("")}</nav>` +
+      RULEBOOK.map(r => `<section class="rsec" id="r-${r.id}" data-keys="${esc(r.keys || "")}"><h3>${r.title}</h3>${r.body}</section>`).join("");
+    $("dbody").querySelectorAll(".toc a").forEach(a => a.onclick = e => {
+      e.preventDefault();
+      document.getElementById(a.getAttribute("href").slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    searchRules($("dq").value);
+  }
+  d.classList.add("open");
+  $("aid-tab").classList.add("hidden");
+  if (tab === "rules") setTimeout(() => $("dq").focus(), 300);
+}
+
+function closeDrawer() {
+  $("drawer").classList.remove("open");
+  $("aid-tab").classList.toggle("hidden", !S);
+}
+
+function searchRules(q) {
+  const body = $("dbody");
+  body.querySelectorAll("mark").forEach(m => m.replaceWith(document.createTextNode(m.textContent)));
+  body.normalize();
+  const terms = q.toLowerCase().split(/\s+/).filter(t => t.length > 1);
+  let hits = 0, shown = 0, first = null;
+  body.querySelectorAll(".rsec").forEach(sec => {
+    const text = (sec.textContent + " " + sec.dataset.keys).toLowerCase();
+    const match = !terms.length || terms.every(t => text.includes(t));
+    sec.classList.toggle("hide", !match);
+    if (!match) return;
+    shown += 1;
+    if (!terms.length) return;
+    const re = new RegExp(`(${terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "gi");
+    const walker = document.createTreeWalker(sec, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) if (re.test(walker.currentNode.nodeValue)) nodes.push(walker.currentNode);
+    for (const node of nodes) {
+      const span = document.createElement("span");
+      span.innerHTML = esc(node.nodeValue).replace(re, m => { hits += 1; return `<mark>${m}</mark>`; });
+      node.replaceWith(...span.childNodes);
+    }
+    first = first || sec.querySelector("mark");
+  });
+  body.querySelector(".toc")?.classList.toggle("hidden", terms.length > 0);
+  $("dcount").textContent = terms.length ? (shown ? `${hits} match${hits === 1 ? "" : "es"} · ${shown} section${shown === 1 ? "" : "s"}` : "No matches") : "";
+  if (first) first.scrollIntoView({ block: "center" });
+}
+
 // ---------------------------------------------------------------- refresh everything
 function refresh() {
   if (!S || !$("board")) return;
@@ -789,8 +934,10 @@ function refresh() {
   drawLog();
   drawPrompt();
   drawHand();
+  drawGuide();
   topbar();
   animateEvents();
+  refreshBook(S);
   prev = { tok: [...S.tok], griev: [...S.griev], revealed: [...S.revealed], flooded: [...S.flooded], soul: S.soul, karma: [...S.karma], forgotten: S.forgotten.length };
 }
 
@@ -808,6 +955,7 @@ async function runQueue() {
     await new Promise(r => setTimeout(r, ms));
   }
   running = false;
+  if (guideStep) setGuide(null);
   idleWaiters.splice(0).forEach(r => r());
 }
 const idle = () => (running || queue.length ? new Promise(r => idleWaiters.push(r)) : Promise.resolve());
@@ -817,7 +965,13 @@ function animateEvents() {
   if (!evs.length) return;
   lastEv = evs[evs.length - 1].id;
   const sounds = new Set();
+  const endOfTurn = evs.some(e => e.kind === "mist");
+  let soulShown = false;
   for (const ev of evs) {
+    if (endOfTurn && !soulShown && (ev.kind === "move" || ev.kind === "linger" || ev.kind === "adrift" || ev.kind === "mist")) {
+      soulShown = true;
+      enqueue(() => { setGuide("soul"); return 1100; });
+    }
     switch (ev.kind) {
       case "root": sounds.add("root"); break;
       case "bloom": sounds.add("bloom"); break;
@@ -836,7 +990,7 @@ function animateEvents() {
       case "inscribe": toast(ev.msg, 1); if (!seats.has(S.cur)) sounds.add("inscribe"); break;
       case "blessing": enqueue(() => { A.sfx("inscribe"); return banner("Chapter Blessing", ev.msg.replace("Chapter Blessing: ", ""), "good"); }); break;
       case "summon": enqueue(() => { A.sfx("summon"); return banner(ev.msg, MANTLES[ev.mantle].text, ["obs", "acc", "obl"][MANTLES[ev.mantle].tag]); }); break;
-      case "mist": enqueue(() => mistCard(ev.name)); break;
+      case "mist": enqueue(() => { setGuide("mist"); return mistCard(ev.name); }); enqueue(() => { setGuide("draw"); return 700; }); break;
       case "backlash": enqueue(() => { A.sfx("backlash"); shake(); return banner(`Backlash · ${TAG_NAMES[ev.tag]}`, ev.msg.split("! ")[1] || "", ["obs", "acc", "obl"][ev.tag]); }); break;
       case "fracture": enqueue(() => { A.sfx("fracture"); flash(); shake(); return 900; }); break;
       case "reach": enqueue(() => { A.sfx("summon"); return banner(`Reach ${ROMAN[ev.reach]}`, REACH_NAMES[ev.reach], "good"); }); break;
@@ -934,10 +1088,12 @@ async function showEnd() {
     <h3 style="color:var(--bone)">The Book of Remembrance</h3>
     <div class="book">${pages}</div>
     <div class="row">${canRestart ? '<button type="button" class="primary" id="again">Cross again</button>' : '<span class="muted">The host can start another crossing.</span>'}
+      <button type="button" id="readbook" class="openbook">${svgUse("nb-seal")}Open the Book</button>
       <button type="button" id="tomenu">Back to the menu</button><button type="button" id="stay">Look at the board</button></div>
   </div>`);
   $("tomenu").onclick = () => { leaveGame(); menu(); };
   $("stay").onclick = closeVeil;
+  $("readbook").onclick = () => { closeVeil(); openBook(S, 4); };
   if (canRestart) $("again").onclick = () => {
     if (mode === "online") {
       const names = S.names;
@@ -948,36 +1104,6 @@ async function showEnd() {
       beginGame(s);
     } else startLocal(mode, S.n);
   };
-}
-
-function rules() {
-  veil(`<div class="dialog wide">
-    <div class="eyebrow">How to play</div>
-    <h2>Carry the soul across</h2>
-    <p>A soul has woken on the near shore of the river of forgetting. Together you must grow a path of spider lilies (Netherbloom) for it to follow to the Far Shore at space 12. The game is <b>silent</b>: never tell the others what is in your hand. The cards you play are your only voice.</p>
-    <h3 style="color:var(--bone)">Your turn</h3>
-    <ul>
-      <li><b>Summon (optional).</b> Before your first card you may pay Light and discard a matching card to take a Mantle with a lasting power.</li>
-      <li><b>Play 2 cards</b>, each in one of three ways:
-        <ul><li><b>Face up</b>: do its effect, tie a knot on its thread in the Loom, and it becomes the new <b>Echo</b>.</li>
-        <li><b>Face down</b>: just place 1 Root. No knot, no Echo.</li>
-        <li><b>Burn</b>: do its effect twice, then forget the card and the top card of the deck.</li></ul></li>
-      <li><b>Resonance.</b> If your <i>first</i> card is on the same thread as the Echo, it also does its Resonance effect, and you may inscribe its memory in the Book of Remembrance.</li>
-      <li><b>Soul Step.</b> If the next space is <b>Lit</b> (a Bloom on either bank) and not flooded, the soul moves forward and gains 1 Light for each Bloom it leaves behind. If not, it <b>Lingers</b>: beside its own light it simply waits; in the dark it forgets a card.</li>
-      <li><b>The Mist</b> then turns a card: Black Water, Grievances, Withering, Fog or cold winds.</li>
-    </ul>
-    <h3 style="color:var(--bone)">The river</h3>
-    <ul>
-      <li><b>Roots</b> must touch the network: next to the soul, or beside another token on the same or opposite bank. Fog hides each bank until a Root reveals it: <b>Stony</b> ground refuses ordinary Roots, a <b>Grave</b> raises a Grievance, and a <b>Memory Site</b> rewards you.</li>
-      <li><b>Black Water</b> blocks a space. Roots on both banks drink it away. If water must rise and the supply is empty: <b>Deluge</b>.</li>
-      <li>A <b>Grievance</b> beside the soul feeds on it and causes a <b>Fracture</b>. A Grievance with Blooms on both sides along its bank dissolves in the light.</li>
-      <li><b>The Loom.</b> A thread that fills snaps in a Backlash: Obsession brings a Grievance, Acceptance makes the soul sit down and Linger, Oblivion raises Black Water. The Loom clears at each new Reach.</li>
-      <li><b>Forgetting</b> is not all bad: at 6 forgotten the soul is Light as Ash and glides faster. At 9 it may drift Adrift into the dark and Fracture.</li>
-    </ul>
-    <h3 style="color:var(--bone)">The end</h3>
-    <p>You win when the soul reaches the Far Shore. You lose if too much is forgotten (<b>Faded</b>), at the third Fracture (<b>Shattered</b>), or in a <b>Deluge</b>. In solo play the <b>Ghost</b> plays a card from its own small deck after each of your turns.</p>
-    <div class="row"><button type="button" class="primary" id="ok">Into the Mist</button></div></div>`);
-  $("ok").onclick = closeVeil;
 }
 
 boot();
