@@ -489,3 +489,31 @@ mark { background: rgba(215,38,61,.45); color: var(--paper); border-radius: 2px;
 .bk-margin li b { font-family: var(--display); font-weight: 400; font-size: .85em; letter-spacing: .08em; }
 .bk-vignette { width: 78%; margin: 4px auto 0; color: #8a6a3e; opacity: .85; }
 .bk-vignette svg { width: 100%; height: auto; display: block; }
+
+/* v2.1: ink fades in (clip-path breaks on wrapped lines); the aid opener lives in the guide header */
+.bk-ink.write { animation: ink-fade 1.8s ease-out both; animation-delay: var(--d); }
+@keyframes ink-fade { from { opacity: 0; filter: blur(2.5px); color: #a32a30; } 60% { opacity: 1; } }
+.drawer-tab { display: none !important; }
+.guide h2 .link { font-size: .74rem; padding: 2px 8px; }
+/* narrow screens: one column, nothing sticky (must stay last so it wins over the desktop rules above) */
+@media (max-width: 1000px) {
+  .table { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; max-height: none; display: grid; }
+  .side > .chron .log { max-height: 260px; }
+}
+@media (max-width: 560px) {
+  .topbar { gap: 6px; padding: 8px 10px; }
+  .topbar button { padding: 4px 8px; font-size: .8rem; }
+  .brand { font-size: 1.1rem; } #modelabel { display: none; }
+  .gsteps li small { display: none; }
+  .gsteps li { padding: 3px 6px; }
+  .table { padding: 8px 10px 16px; }
+}
+/* v2.2: use wide screens fully, cards share the row, compact guide so the side column fits one screen */
+.table { max-width: 1880px; }
+.hand { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.gsteps li small { display: none; }
+.gsteps li.now small, .gsteps li.avail small { display: block; }
+.gsteps li { padding: 4px 8px; }
+.side { overflow-y: auto; scrollbar-width: thin; }
+@media (max-width: 1000px) { .side { overflow: visible; } }

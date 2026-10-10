@@ -835,9 +835,11 @@ function drawGuide() {
   const el = $("guide");
   if (!el) return;
   const steps = guideState();
-  el.innerHTML = `<h2>Turn ${S.turn || 1} <span class="muted" style="font-family:var(--body);font-size:.85rem">${esc(S.names[S.cur])}${S.n === 1 ? " · then the Ghost" : ""}</span></h2>
+  el.innerHTML = `<h2><span>Turn ${S.turn || 1} <span class="muted" style="font-family:var(--body);font-size:.85rem">${esc(S.names[S.cur])}${S.n === 1 ? " · then the Ghost" : ""}</span></span>
+    <button type="button" class="link" data-aid>Player Aid</button></h2>
     <ol class="gsteps">${steps.map((g, i) => `<li class="${g.cls}"><span class="gi"><span>${i + 1}</span></span><div><b>${g.title}</b>${g.sub ? `<small>${g.sub}</small>` : ""}</div></li>`).join("")}</ol>
     <div class="ghint">${guideHint()}</div>`;
+  el.querySelector("[data-aid]").onclick = () => openDrawer("aid");
 }
 function setGuide(step) { guideStep = step; if (S && $("guide")) drawGuide(); }
 

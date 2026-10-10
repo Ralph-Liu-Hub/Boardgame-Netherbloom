@@ -194,7 +194,8 @@ export function openBook(state, spread = null) {
   };
   document.addEventListener("keydown", onKey);
   render();
-  document.getElementById("bk-next").focus();
+  document.getElementById("bk-next").focus({ preventScroll: true });
+  v.scrollTop = 0;
 }
 
 export function closeBook() {
