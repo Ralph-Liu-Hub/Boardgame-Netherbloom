@@ -589,3 +589,4 @@ mark { background: rgba(215,38,61,.45); color: var(--paper); border-radius: 2px;
 @keyframes ppwater { to { stroke-dashoffset: -112; } }
 .pp-shore { animation: glow 5s ease-in-out infinite; }
 @media (max-width: 760px) { .bk-theatre .pp { max-height: none; } .bk-theatre.portrait .pp { max-height: 240px; } }
+.bk-wax { bottom: auto; top: 3%; right: 3%; }
