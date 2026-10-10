@@ -569,3 +569,23 @@ mark { background: rgba(215,38,61,.45); color: var(--paper); border-radius: 2px;
 .rp-star { animation: glow 3.5s ease-in-out infinite; }
 .rp-ink-label { font-family: "IM Fell English", serif; font-style: italic; font-size: 15px; }
 @media (max-width: 760px) { .bk-book { max-height: none; } }
+
+/* ================================================================ v4: shadow-theatre puppets in the Book */
+.bk-theatre { width: 112%; margin: -2px 0 -4px -6%; }
+.bk-theatre .pp { width: 100%; height: auto; display: block; max-height: 50vh; }
+.bk-theatre.portrait { width: 86%; margin: 0 auto; }
+.bk-theatre.portrait .pp { max-height: 30vh; }
+.bk-chapter .bk-slots { margin-top: 0; }
+.pp { transition: opacity 1.2s; }
+.pp.pp-fade { opacity: .1; }
+.pp.pp-crack { animation: ppcrack .7s ease-out; }
+@keyframes ppcrack { 15% { filter: drop-shadow(0 0 0 #a32a30) drop-shadow(0 0 8px rgba(163,42,48,.8)); } }
+.pp-word { animation: rpword 3.4s ease-out both; }
+.pp-lily { animation: rplily 1.2s cubic-bezier(.2,1.4,.3,1) both; transform-box: fill-box; transform-origin: 50% 100%; }
+.pp-drift { animation: ppdrift 3s ease-out both; transform-box: fill-box; }
+@keyframes ppdrift { from { opacity: 1; } to { opacity: 0; transform: translate(90px, -60px) rotate(140deg); } }
+.pp-water { stroke-dasharray: 18 10; animation: ppwater 6s linear infinite; }
+.pp-water.w1 { animation-duration: 8s; } .pp-water.w2 { animation-duration: 11s; }
+@keyframes ppwater { to { stroke-dashoffset: -112; } }
+.pp-shore { animation: glow 5s ease-in-out infinite; }
+@media (max-width: 760px) { .bk-theatre .pp { max-height: none; } .bk-theatre.portrait .pp { max-height: 240px; } }

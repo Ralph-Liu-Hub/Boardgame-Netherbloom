@@ -3,6 +3,7 @@
 import { CARDS, BOOK_FRAMES, SOULS, REACH_NAMES, SLOTS } from "./cards.js";
 import { keyMemoryFate } from "./engine.js";
 import { mountReplay } from "./replay.js";
+import { mountPuppet } from "./puppet.js";
 import { storyTheme } from "./audio.js";
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -46,7 +47,7 @@ function leftPage(i) {
     return `<div class="bk-title">
       <div class="bk-kicker">Here is written</div>
       <h1>The Book of<br>Remembrance</h1>
-      <div class="bk-lily">${use("nb-bloom")}</div>
+      <div class="bk-theatre portrait" data-mode="portrait"></div>
       <div class="bk-of">of</div>
       <h2>${esc(soul.name)}</h2>
       <p class="bk-blurb">${esc(soul.blurb)}</p>
@@ -58,7 +59,7 @@ function leftPage(i) {
     return `<div class="bk-chapter">
       <div class="bk-kicker">Epilogue</div>
       <h2 class="bk-script">${win ? "The Far Shore" : "Into the Mist"}</h2>
-      <div class="bk-scene" data-lo="1" data-hi="11"></div>
+      <div class="bk-theatre" data-mode="epilogue" data-lo="1" data-hi="11"></div>
       <p class="bk-centre">${win ? "The soul set down its last memory on the bank and walked on into the light." : { Faded: "So much was forgotten that nothing was left to cross.", Shattered: "Broken three times, the soul could carry itself no further.", Deluge: "The black river rose, and there was nothing left to hold it back.", Stalled: "The river grew still, and the crossing was abandoned." }[S.cause]}</p>
       <div class="bk-imprint">${S.turn} turns · ${S.stats.inscribed} memories inscribed · ${S.forgotten.length} forgotten</div>
     </div>`;
@@ -68,7 +69,7 @@ function leftPage(i) {
     <div class="bk-kicker">Chapter ${ROMAN[r]}</div>
     <h2 class="bk-script">${TITLES[r]}</h2>
     <div class="bk-reach">${REACH_NAMES[r]}</div>
-    <div class="bk-scene" data-lo="${REACH_SPAN[r][0]}" data-hi="${REACH_SPAN[r][1]}"></div>
+    <div class="bk-theatre" data-mode="chapter" data-lo="${REACH_SPAN[r][0]}" data-hi="${REACH_SPAN[r][1]}"></div>
     <div class="bk-status">${here ? "The soul walks here now" : done ? "The soul has passed this way" : S.result ? "The soul never came this way" : "Not yet reached"}</div>
     <ul class="bk-slots">${SLOTS.map(slot => {
       const cid = S.book[r][slot];
@@ -138,8 +139,8 @@ function render(force = false) {
   if (force || R !== shown.right) { book.querySelector(".bk-right .bk-inner").innerHTML = R; shown.right = R; changed = true; }
   if (changed) {
     pageStops.forEach(stop => stop());
-    pageStops = [...book.querySelectorAll(".bk-page .bk-scene")].map(host =>
-      mountReplay(host, S, { lo: +host.dataset.lo, hi: +host.dataset.hi, look: "ink" }));
+    pageStops = [...book.querySelectorAll(".bk-page .bk-theatre")].map(host =>
+      mountPuppet(host, S, { lo: +host.dataset.lo || 1, hi: +host.dataset.hi || 11, mode: host.dataset.mode }));
   }
   const focus = at >= 1 && at <= 3 ? at - 1 : null;
   if (focus !== bandFocus) {

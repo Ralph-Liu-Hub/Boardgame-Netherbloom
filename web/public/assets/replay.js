@@ -19,7 +19,7 @@ function use(id, x, y, w, h, style, parent) {
 }
 
 // Steps for a stretch of river [lo, hi]. The scene starts with the soul at lo - 1.
-function stepsFor(S, lo, hi) {
+export function stepsFor(S, lo, hi) {
   const t = S.trail || [];
   const inRange = p => p >= lo - 1 && p <= hi;
   const out = [];

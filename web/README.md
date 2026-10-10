@@ -39,5 +39,7 @@ The Vercel GitHub app does not yet have access to this repository. Once it does,
 | `public/assets/app.js` | Menus, board, hand, the turn guide, the rules drawer, animations and the three play modes |
 | `public/assets/rules.js` | The searchable Rulebook and the Player Aid sheet (card and Mist tables are built from `cards.js`) |
 | `public/assets/book.js` | The full illustrated Book of Remembrance, with page turns |
+| `public/assets/puppet.js` | Shadow-theatre silhouettes of each Soul for the Book: jointed, sketched puppets whose gestures replay the soul's journey |
+| `public/assets/replay.js` | The small journey replay on the night river under the Book |
 | `public/assets/audio.js` | Generative music and sound effects |
 | `public/assets/net.js` | Online play over WebRTC |
