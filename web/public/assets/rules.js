@@ -1,7 +1,7 @@
 // The searchable Rulebook and the Player Aid sheet. Card and Mist tables are built from cards.js,
 // so the reference always matches the cards the engine plays.
 import {
-  CARDS, TAG_NAMES, TAG_ICONS, MANTLES, SOULS, LANTERN, MIST, HARSH, MIST_TEXT, opsText, GHOST,
+  CARDS, TAG_NAMES, TAG_ICONS, MANTLES, SOULS, FIRST_SOUL, LANTERN, MIST, HARSH, MIST_TEXT, opsText, GHOST,
 } from "./cards.js";
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -122,9 +122,10 @@ export const RULEBOOK = [
   { id: "mantles", title: "12. Mantles and Light", keys: "mantle summon light weaver warden bringer breaker", body: `
     <p>Before your first card you may <b>summon</b> a free Mantle: pay Light (3, or 2 for the King) and discard a card of the Mantle's thread. Each player holds at most one Mantle.</p>
     <ul>${Object.values(MANTLES).map(m => `<li>${ico(TAG_ICONS[m.tag], TAGCOL[m.tag])}<b>${esc(m.name)}</b>: ${esc(m.text)}</li>`).join("")}</ul>` },
-  { id: "souls", title: "13. The Souls", keys: "child king garland bride open crossing twist", body: `
+  { id: "souls", title: "13. The Souls", keys: "child king garland bride open crossing twist first game new players suggested", body: `
     <ul>${Object.values(SOULS).map(s => `<li><b>${esc(s.name)}</b>: ${esc(s.twist)}</li>`).join("")}</ul>
-    <p>Each named Soul adds its own 8-card pack, including one <b>Key Memory</b>. The Open Crossing adds the 8 Echo cards instead.</p>` },
+    <p>Each named Soul adds its own 8-card pack, including one <b>Key Memory</b>. The Open Crossing adds the 8 Echo cards instead.</p>
+    <p class="rsuggest">${ico("nb-light", "#E6D3A3")}<b>Your first crossing:</b> we suggest <b>${esc(SOULS[FIRST_SOUL].name)}</b> at Lantern 1 or 2. Its twists let a new table learn the river, the Loom and the Book before meeting the other Souls.</p>` },
   { id: "mist", title: "14. The Mist", keys: "mist harsh card deck rising water withering cold wind fog returns severed", body: `
     <p>At the end of every turn the top card of the current Reach's Mist deck is turned. Each deck also holds 2 extra cards (Rising Water and Grievance Drawn Near) and, at higher Lanterns, some <b>harsh</b> cards.</p>${mistTable()}` },
   { id: "lantern", title: "15. Lantern levels", keys: "difficulty lantern level", body: `<p>The Lantern sets the difficulty.</p>${lanternTable()}` },

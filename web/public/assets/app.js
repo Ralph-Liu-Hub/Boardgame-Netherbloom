@@ -2,7 +2,7 @@
 // (solo against the Ghost, everyone at one screen, or online with each player on their own device).
 import * as E from "./engine.js";
 import {
-  CARDS, TAG_NAMES, TAG_ICONS, SOULS, MANTLES, BOOK_FRAMES, REACH_NAMES, TILE_NAMES, LANTERN, HARSH, MIST_TEXT,
+  CARDS, TAG_NAMES, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, BOOK_FRAMES, REACH_NAMES, TILE_NAMES, LANTERN, HARSH, MIST_TEXT,
   STONY, MEMORY, GRAVE, FERTILE, opsText,
 } from "./cards.js";
 import * as A from "./audio.js";
@@ -101,7 +101,7 @@ function menu(which = "solo") {
   S = null;
   topbar();
   const soulBtns = Object.entries(SOULS).map(([k, v]) =>
-    `<button type="button" class="soulopt ${setup.soul === k ? "on" : ""}" data-soul="${k}"><b>${esc(v.name)}</b><small>${esc(v.twist)}</small></button>`).join("");
+    `<button type="button" class="soulopt ${setup.soul === k ? "on" : ""}" data-soul="${k}"><b>${esc(v.name)}</b>${k === FIRST_SOUL ? '<span class="firsttag" title="Suggested for your first crossing">Suggested first</span>' : ""}<small>${esc(v.twist)}</small></button>`).join("");
   const lan = [1, 2, 3, 4, 5].map(l => `<button type="button" data-lantern="${l}" class="${setup.lantern === l ? "on" : ""}">${"◆".repeat(l)}${"◇".repeat(5 - l)}</button>`).join("");
   $("app").innerHTML = `
   <div class="screen">

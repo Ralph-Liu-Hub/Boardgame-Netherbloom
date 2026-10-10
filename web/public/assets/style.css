@@ -517,3 +517,7 @@ mark { background: rgba(215,38,61,.45); color: var(--paper); border-radius: 2px;
 .gsteps li { padding: 4px 8px; }
 .side { overflow-y: auto; scrollbar-width: thin; }
 @media (max-width: 1000px) { .side { overflow: visible; } }
+
+.firsttag { justify-self: start; font-family: var(--mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink);
+  background: var(--bone); border-radius: 9px; padding: 1px 7px; margin: 1px 0 2px; white-space: nowrap; }
+.rsuggest { border: 1px solid var(--bone); border-radius: 8px; padding: 8px 10px; background: rgba(230,211,163,.06); }
