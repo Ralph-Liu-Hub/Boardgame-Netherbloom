@@ -940,6 +940,7 @@ function openDrawer(tab) {
   const d = $("drawer");
   d.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
   $("dsearch").classList.toggle("hidden", tab !== "rules");
+  d.classList.toggle("wide", tab === "rules");
   if (tab === "aid") $("dbody").innerHTML = playerAid(S?.cfg);
   else {
     const book = rulebook();
