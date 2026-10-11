@@ -1,14 +1,15 @@
 // Netherbloom web table: menus, the board, the hand, animations and the three ways to play
 // (solo against the Ghost, everyone at one screen, or online with each player on their own device).
 import * as E from "./engine.js";
-import {
-  CARDS, TAG_NAMES, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, BOOK_FRAMES, REACH_NAMES, TILE_NAMES, LANTERN, HARSH, MIST_TEXT,
-  STONY, MEMORY, GRAVE, FERTILE, opsText,
-} from "./cards.js";
+import { CARDS, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, LANTERN, HARSH, STONY, MEMORY, GRAVE, FERTILE } from "./cards.js";
 import * as A from "./audio.js";
 import * as N from "./net.js";
-import { RULEBOOK, playerAid } from "./rules.js";
-import { openBook, closeBook, refreshBook, resetBookMemory } from "./book.js";
+import { rulebook, playerAid } from "./rules.js";
+import { openBook, closeBook, refreshBook, resetBookMemory, relangBook } from "./book.js";
+import {
+  LANGS, lang, zh, setLang, onLang, hasChosenLang, say, backlashText, causeName, cardName, cardBand, tagName, slotLabel, tileName,
+  reachName, soulInfo, mantleInfo, mistName, mistText, bookFrames, ops, pname,
+} from "./i18n.js";
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -17,7 +18,10 @@ const TAGCLS = ["c-obs", "c-acc", "c-obl"];
 const TAGCOL = ["#D7263D", "#E6D3A3", "#8FD6E1"];
 const SLOT_ICON = { Place: "nb-slot-place", Person: "nb-slot-person", Deed: "nb-slot-deed", Feeling: "nb-slot-feeling" };
 const HARSH_NAMES = new Set(HARSH.map(h => h[0]));
-const ROMAN = ["I", "II", "III"];
+const ROMAN = ["I", "II", "III"], ZHNUM = ["一", "二", "三"];
+// Inline bilingual text: L("English", "中文").
+const L = (en, zhText) => (zh() ? zhText : en);
+const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
 
 // ---------------------------------------------------------------- app state
 let S = null;              // the game
@@ -35,6 +39,7 @@ let prevBookIds = new Set();
 let passOpen = false, endShown = false;
 let net = null;            // online session
 let guideStep = null;      // set while the end-of-turn animations play, so the guide can follow them
+let screen = null;         // what fills the window, so a language change can redraw it: ["menu", which] | ["lobby", note] | ["game"]
 const setup = load("nb-setup", { players: 3, soul: "child", lantern: 2, names: ["", "", "", ""], name: "" });
 
 function load(key, dflt) {
@@ -67,21 +72,57 @@ async function boot() {
   buildDrawer();
   $("btn-rules").onclick = () => openDrawer("rules");
   $("btn-aid").onclick = () => openDrawer("aid");
+  $("btn-lang").onclick = () => setLang(zh() ? "en" : "zh");
+  onLang(relang);
   $("btn-menu").onclick = () => {
-    if (S && !S.result && !confirm("Leave this game and return to the menu?")) return;
+    if (S && !S.result && !confirm(L("Leave this game and return to the menu?", "要離開這場遊戲並回到主選單嗎？"))) return;
     leaveGame();
     menu();
   };
   topbar();
-  menu();
+  if (hasChosenLang()) menu(); else chooseLanguage();
+}
+
+// The first visit asks for a language; afterwards the top-bar button switches at any time.
+function chooseLanguage() {
+  $("app").innerHTML = `<div class="screen langpick">
+    <div class="hero"><svg class="lily" aria-hidden="true"><use href="#nb-bloom"/></svg><h1>Netherbloom</h1><p>Choose your language · 請選擇語言</p></div>
+    <div class="langopts">${Object.entries(LANGS).map(([k, v]) => `<button type="button" data-lang="${k}" class="${k === lang() ? "on" : ""}">${v}</button>`).join("")}</div>
+  </div>`;
+  document.querySelectorAll("[data-lang]").forEach(b => b.onclick = () => { setLang(b.dataset.lang); menu(); });
+}
+
+// Redraw everything on screen in the new language. The game itself is unchanged.
+function relang() {
+  topbar();
+  rebuildDrawer();
+  if (screen?.[0] === "menu") menu(screen[1]);
+  else if (screen?.[0] === "lobby" && net) lobby(screen[1]);
+  else if (S && $("board")) {
+    const kind = $("veil")?.dataset.kind;
+    buildTable();
+    refresh();
+    if (kind === "end") { endShown = false; showEnd(true); }
+    else if (kind === "pass") showPass();
+    else if (kind === "summon") summonDialog();
+  }
+  relangBook();
 }
 
 function topbar() {
-  $("btn-music").textContent = `Music: ${A.isMusicOn() ? "on" : "off"}`;
-  $("btn-sfx").textContent = `Sound: ${A.isSfxOn() ? "on" : "off"}`;
+  $("btn-music").textContent = L(`Music: ${A.isMusicOn() ? "on" : "off"}`, `音樂：${A.isMusicOn() ? "開" : "關"}`);
+  $("btn-sfx").textContent = L(`Sound: ${A.isSfxOn() ? "on" : "off"}`, `音效：${A.isSfxOn() ? "開" : "關"}`);
+  $("btn-lang").textContent = zh() ? "English" : "中文";
+  $("btn-lang").title = L("Switch to Traditional Chinese", "切換為英文");
+  $("btn-aid").textContent = L("Player Aid", "玩家輔助卡");
+  $("btn-rules").textContent = L("Rulebook", "規則書");
+  $("btn-menu").textContent = L("Menu", "主選單");
+  $("btn-out").textContent = L("Sign out", "登出");
   $("btn-menu").classList.toggle("hidden", !S && !net);
   $("aid-tab").classList.toggle("hidden", !S);
-  $("modelabel").textContent = mode ? { solo: "Solo · against the Ghost", local: "Same screen", online: `Online${net?.code ? " · table " + net.code : ""}` }[mode] : "";
+  $("modelabel").textContent = mode ? (zh()
+    ? { solo: "單人 · 與幽靈同行", local: "同一螢幕", online: `線上${net?.code ? " · 桌號 " + net.code : ""}` }
+    : { solo: "Solo · against the Ghost", local: "Same screen", online: `Online${net?.code ? " · table " + net.code : ""}` })[mode] : "";
 }
 
 function leaveGame() {
@@ -99,69 +140,72 @@ function leaveGame() {
 // ---------------------------------------------------------------- menu
 function menu(which = "solo") {
   S = null;
+  screen = ["menu", which];
   topbar();
-  const soulBtns = Object.entries(SOULS).map(([k, v]) =>
-    `<button type="button" class="soulopt ${setup.soul === k ? "on" : ""}" data-soul="${k}"><b>${esc(v.name)}</b>${k === FIRST_SOUL ? '<span class="firsttag" title="Suggested for your first crossing">Suggested first</span>' : ""}<small>${esc(v.twist)}</small></button>`).join("");
+  const soulBtns = Object.keys(SOULS).map(k => [k, soulInfo(k)]).map(([k, v]) =>
+    `<button type="button" class="soulopt ${setup.soul === k ? "on" : ""}" data-soul="${k}"><b>${esc(v.name)}</b>${k === FIRST_SOUL ? `<span class="firsttag" title="${L("Suggested for your first crossing", "建議第一次渡河時選擇")}">${L("Suggested first", "新手推薦")}</span>` : ""}<small>${esc(v.twist)}</small></button>`).join("");
   const lan = [1, 2, 3, 4, 5].map(l => `<button type="button" data-lantern="${l}" class="${setup.lantern === l ? "on" : ""}">${"◆".repeat(l)}${"◇".repeat(5 - l)}</button>`).join("");
   $("app").innerHTML = `
   <div class="screen">
     <div class="hero">
       <svg class="lily" aria-hidden="true"><use href="#nb-bloom"/></svg>
-      <div class="eyebrow">Publisher preview</div>
-      <h1>Netherbloom</h1>
-      <p>Grow a path of spider lilies across the river of forgetting, and carry one soul to the Far Shore before it forgets who it was. A silent co-operative game for 1 to 4.</p>
+      <div class="eyebrow">${L("Publisher preview", "出版社試玩版")}</div>
+      <h1>Netherbloom${zh() ? '<span class="zhtitle">彼岸花渡</span>' : ""}</h1>
+      <p>${L("Grow a path of spider lilies across the river of forgetting, and carry one soul to the Far Shore before it forgets who it was. A silent co-operative game for 1 to 4.",
+        "在遺忘之河上種出一條彼岸花小徑，趕在亡魂忘記自己是誰之前，護送它抵達彼岸。一款1至4人的無聲合作遊戲。")}</p>
     </div>
     <div class="modes">
-      <button type="button" class="mode ${which === "solo" ? "on" : ""}" data-mode="solo"><h3>Solo</h3><p>You and the Ghost, an automated companion who plays a card after each of your turns.</p></button>
-      <button type="button" class="mode ${which === "local" ? "on" : ""}" data-mode="local"><h3>Same Screen</h3><p>2 to 4 players share this window. Hands stay hidden while you pass the device.</p></button>
-      <button type="button" class="mode ${which === "online" ? "on" : ""}" data-mode="online"><h3>Online</h3><p>2 to 4 players, each on their own computer. Host a table and share its code.</p></button>
+      <button type="button" class="mode ${which === "solo" ? "on" : ""}" data-mode="solo"><h3>${L("Solo", "單人模式")}</h3><p>${L("You and the Ghost, an automated companion who plays a card after each of your turns.", "你與幽靈同行。幽靈是自動夥伴，會在你每個回合結束後打出一張牌。")}</p></button>
+      <button type="button" class="mode ${which === "local" ? "on" : ""}" data-mode="local"><h3>${L("Same Screen", "同一螢幕")}</h3><p>${L("2 to 4 players share this window. Hands stay hidden while you pass the device.", "2至4名玩家共用這個視窗。傳遞裝置時，手牌會保持隱藏。")}</p></button>
+      <button type="button" class="mode ${which === "online" ? "on" : ""}" data-mode="online"><h3>${L("Online", "線上模式")}</h3><p>${L("2 to 4 players, each on their own computer. Host a table and share its code.", "2至4名玩家，各自使用自己的電腦。開一張桌子並分享桌號。")}</p></button>
     </div>
     <section class="panel">
-      <h2>The soul to carry</h2>
+      <h2>${L("The soul to carry", "要護送的亡魂")}</h2>
       <div class="souls">${soulBtns}</div>
-      <div class="field"><span>Lantern (difficulty)</span><div class="lanterns">${lan}</div>
+      <div class="field"><span>${L("Lantern (difficulty)", "燈籠（難度）")}</span><div class="lanterns">${lan}</div>
         <small class="muted" id="lanhelp"></small></div>
     </section>
     <section class="panel" id="modepanel"></section>
-    <p class="muted" style="text-align:center;margin:0">New to the river? Read <button type="button" class="ghost" id="howto">How to play</button></p>
+    <p class="muted" style="text-align:center;margin:0">${L("New to the river? Read", "第一次來到這條河？閱讀")} <button type="button" class="ghost" id="howto">${L("How to play", "遊戲說明")}</button></p>
   </div>`;
   $("howto").onclick = () => openDrawer("rules");
   document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => menu(b.dataset.mode));
   document.querySelectorAll("[data-soul]").forEach(b => b.onclick = () => { setup.soul = b.dataset.soul; store("nb-setup", setup); menu(which); });
   document.querySelectorAll("[data-lantern]").forEach(b => b.onclick = () => { setup.lantern = +b.dataset.lantern; store("nb-setup", setup); menu(which); });
   const [bw, lim, harsh] = LANTERN[setup.lantern];
-  $("lanhelp").textContent = `Lantern ${setup.lantern}: ${bw} Black Water in the supply, Faded at ${lim} forgotten, ${harsh} harsh Mist card${harsh === 1 ? "" : "s"} per Reach.`;
+  $("lanhelp").textContent = L(`Lantern ${setup.lantern}: ${bw} Black Water in the supply, Faded at ${lim} forgotten, ${harsh} harsh Mist card${harsh === 1 ? "" : "s"} per Reach.`,
+    `燈籠${setup.lantern}：黑水供應${bw}個，遺忘${lim}張時消散，每個河段${harsh}張凶霧。`);
   const mp = $("modepanel");
   if (which === "solo") {
-    mp.innerHTML = `<h2>Solo</h2><div class="form"><label class="field"><span>Your name</span><input id="nm0" maxlength="18" value="${esc(setup.names[0])}" placeholder="Player 1"></label></div>
-      <div class="row"><button type="button" class="primary" id="go">Begin the crossing</button></div>`;
+    mp.innerHTML = `<h2>${L("Solo", "單人模式")}</h2><div class="form"><label class="field"><span>${L("Your name", "你的名字")}</span><input id="nm0" maxlength="18" value="${esc(setup.names[0])}" placeholder="${L("Player 1", "玩家1")}"></label></div>
+      <div class="row"><button type="button" class="primary" id="go">${L("Begin the crossing", "開始渡河")}</button></div>`;
     $("go").onclick = () => {
       setup.names[0] = $("nm0").value.trim();
       store("nb-setup", setup);
       startLocal("solo", 1);
     };
   } else if (which === "local") {
-    const counts = [2, 3, 4].map(n => `<button type="button" data-n="${n}" class="${setup.players === n ? "on" : ""}">${n} players</button>`).join("");
-    mp.innerHTML = `<h2>Same Screen</h2><div class="lanterns">${counts}</div>
+    const counts = [2, 3, 4].map(n => `<button type="button" data-n="${n}" class="${setup.players === n ? "on" : ""}">${L(`${n} players`, `${n}人`)}</button>`).join("");
+    mp.innerHTML = `<h2>${L("Same Screen", "同一螢幕")}</h2><div class="lanterns">${counts}</div>
       <div class="names">${[0, 1, 2, 3].slice(0, Math.max(2, setup.players)).map(i =>
-        `<label class="field"><span>Player ${i + 1}</span><input id="nm${i}" maxlength="18" value="${esc(setup.names[i])}" placeholder="Player ${i + 1}"></label>`).join("")}</div>
-      <div class="row"><button type="button" class="primary" id="go">Begin the crossing</button></div>`;
+        `<label class="field"><span>${L(`Player ${i + 1}`, `玩家${i + 1}`)}</span><input id="nm${i}" maxlength="18" value="${esc(setup.names[i])}" placeholder="${L(`Player ${i + 1}`, `玩家${i + 1}`)}"></label>`).join("")}</div>
+      <div class="row"><button type="button" class="primary" id="go">${L("Begin the crossing", "開始渡河")}</button></div>`;
     mp.querySelectorAll("[data-n]").forEach(b => b.onclick = () => { saveNames(); setup.players = +b.dataset.n; store("nb-setup", setup); menu("local"); });
     if (setup.players < 2) { setup.players = 3; }
     $("go").onclick = () => { saveNames(); startLocal("local", setup.players); };
   } else {
-    mp.innerHTML = `<h2>Online</h2>
+    mp.innerHTML = `<h2>${L("Online", "線上模式")}</h2>
       <div class="form">
-        <label class="field"><span>Your name</span><input id="nmo" maxlength="18" value="${esc(setup.name)}" placeholder="Your name"></label>
-        <label class="field"><span>Table code (to join)</span><input id="code" maxlength="5" placeholder="e.g. K7QXM" style="text-transform:uppercase;letter-spacing:.2em"></label>
+        <label class="field"><span>${L("Your name", "你的名字")}</span><input id="nmo" maxlength="18" value="${esc(setup.name)}" placeholder="${L("Your name", "你的名字")}"></label>
+        <label class="field"><span>${L("Table code (to join)", "桌號（加入時填寫）")}</span><input id="code" maxlength="5" placeholder="${L("e.g. K7QXM", "例如 K7QXM")}" style="text-transform:uppercase;letter-spacing:.2em"></label>
       </div>
-      <div class="row"><button type="button" class="primary" id="hostbtn">Host a new table</button><button type="button" id="joinbtn">Join a table</button><span class="muted" id="neterr"></span></div>
-      <p class="muted" style="margin:0;font-size:.88rem">Players connect browser to browser. Everyone signs in with the publisher account, then the host shares the five-letter code.</p>`;
+      <div class="row"><button type="button" class="primary" id="hostbtn">${L("Host a new table", "開新桌")}</button><button type="button" id="joinbtn">${L("Join a table", "加入牌桌")}</button><span class="muted" id="neterr"></span></div>
+      <p class="muted" style="margin:0;font-size:.88rem">${L("Players connect browser to browser. Everyone signs in with the publisher account, then the host shares the five-letter code.", "玩家之間以瀏覽器直接連線。所有人都用出版社帳號登入，再由主持人分享5個字母的桌號。")}</p>`;
     const nm = () => { setup.name = $("nmo").value.trim() || "Player"; store("nb-setup", setup); return setup.name; };
     $("hostbtn").onclick = () => hostTable(nm());
     $("joinbtn").onclick = () => {
       const code = $("code").value.trim().toUpperCase();
-      if (code.length !== 5) { $("neterr").textContent = "Enter the five-letter code."; return; }
+      if (code.length !== 5) { $("neterr").textContent = L("Enter the five-letter code.", "請輸入5個字母的桌號。"); return; }
       joinTable(code, nm());
     };
   }
@@ -184,6 +228,7 @@ function startLocal(m, players) {
 
 function beginGame(s) {
   S = s;
+  screen = ["game"];
   uncovered = -1;
   pending = null;
   busy = false;
@@ -211,17 +256,17 @@ function hostTable(name) {
   net = { role: "host", code, started: false, players: [{ name, cid: N.clientId(), conn: null, online: true }] };
   mySeat = 0;
   seats = new Set([0]);
-  lobby("Opening the table…");
+  lobby(L("Opening the table…", "正在開桌…"));
   net.api = N.host(code, {
     open: () => lobby(),
-    error: e => { lobby(`Connection problem: ${e.type || e.message}`); },
+    error: e => { lobby(L(`Connection problem: ${e.type || e.message}`, `連線問題：${e.type || e.message}`)); },
     message: (connId, msg) => hostMessage(connId, msg),
     leave: connId => {
       const p = net.players.find(x => x.conn === connId);
       if (!p) return;
       p.online = false;
       p.conn = null;
-      if (net.started) { seats.add(net.players.indexOf(p)); toast(`${p.name} lost connection. You will play their turns until they return.`); }
+      if (net.started) { seats.add(net.players.indexOf(p)); toast(L(`${p.name} lost connection. You will play their turns until they return.`, `${p.name}斷線了。在對方回來之前，由你代為進行其回合。`)); }
       else net.players.splice(net.players.indexOf(p), 1);
       sendLobby();
       if (net.started) { refresh(); tick(); } else lobby();
@@ -238,7 +283,7 @@ function hostMessage(connId, msg) {
     else if (!net.started && net.players.length < 4) { p = { name, cid: msg.cid, conn: connId, online: true }; net.players.push(p); }
     else { net.api.send(connId, { t: "full" }); return; }
     const seat = net.players.indexOf(p);
-    if (net.started) { seats.delete(seat); toast(`${p.name} is back at the table.`); }
+    if (net.started) { seats.delete(seat); toast(L(`${p.name} is back at the table.`, `${p.name}回到牌桌了。`)); }
     net.api.send(connId, { t: "welcome", seat, code: net.code });
     sendLobby();
     if (net.started && S) net.api.send(connId, { t: "state", s: S });
@@ -264,19 +309,19 @@ function joinTable(code, name) {
   mode = "online";
   net = { role: "guest", code, started: false, players: [], soul: null, lantern: null };
   seats = new Set();
-  lobby("Looking for the table…");
+  lobby(L("Looking for the table…", "正在尋找牌桌…"));
   net.api = N.join(code, {
     open: () => net.api.send({ t: "hello", name, cid: N.clientId() }),
     message: msg => guestMessage(msg),
     close: () => {
       if (!net) return;
-      toast("The connection to the host was lost.");
-      if (S) setPrompt(`<span class="msg">The host has left the table. <b>The game cannot continue.</b></span>`);
-      else lobby("The host closed the table.");
+      toast(L("The connection to the host was lost.", "與主持人的連線中斷了。"));
+      if (S) setPrompt(`<span class="msg">${L("The host has left the table. <b>The game cannot continue.</b>", "主持人已離開牌桌。<b>遊戲無法繼續。</b>")}</span>`);
+      else lobby(L("The host closed the table.", "主持人關閉了牌桌。"));
     },
     error: e => {
       if (!net) return;
-      const text = e?.type === "peer-unavailable" ? "No open table with that code." : `Connection problem: ${e?.type || e?.message || e}`;
+      const text = e?.type === "peer-unavailable" ? L("No open table with that code.", "找不到這個桌號的牌桌。") : L(`Connection problem: ${e?.type || e?.message || e}`, `連線問題：${e?.type || e?.message || e}`);
       if (S) toast(text); else lobby(text);
     },
   });
@@ -285,7 +330,7 @@ function joinTable(code, name) {
 function guestMessage(msg) {
   if (!msg || typeof msg !== "object" || !net) return;
   if (msg.t === "welcome") { mySeat = msg.seat; seats = new Set([mySeat]); if (!S) lobby(); }
-  else if (msg.t === "full") lobby("That table is full or its game has already begun.");
+  else if (msg.t === "full") lobby(L("That table is full or its game has already begun.", "這張牌桌已滿，或遊戲已經開始。"));
   else if (msg.t === "lobby") {
     net.players = msg.players;
     net.soul = msg.soul;
@@ -299,25 +344,26 @@ function guestMessage(msg) {
 }
 
 function lobby(note = "") {
+  screen = ["lobby", note];
   topbar();
   const host = net.role === "host";
   const soul = host ? setup.soul : net.soul, lan = host ? setup.lantern : net.lantern;
-  const list = (net.players || []).map((p, i) => `<div><span class="dot ${p.online ? "" : "off"}"></span>${esc(p.name)}${i === 0 ? ' <span class="muted">(host)</span>' : ""}${host || i !== mySeat ? "" : ' <span class="muted">(you)</span>'}</div>`).join("");
+  const list = (net.players || []).map((p, i) => `<div><span class="dot ${p.online ? "" : "off"}"></span>${esc(p.name)}${i === 0 ? ` <span class="muted">${L("(host)", "（主持人）")}</span>` : ""}${host || i !== mySeat ? "" : ` <span class="muted">${L("(you)", "（你）")}</span>`}</div>`).join("");
   $("app").innerHTML = `
   <div class="screen">
     <section class="panel" style="justify-items:center;text-align:center">
-      <div class="eyebrow">Online table</div>
+      <div class="eyebrow">${L("Online table", "線上牌桌")}</div>
       <div class="code">${esc(net.code)}</div>
-      <p class="muted" style="margin:0">${host ? "Share this code. Other players choose Online → Join a table." : "Waiting for the host to begin."}</p>
+      <p class="muted" style="margin:0">${host ? L("Share this code. Other players choose Online → Join a table.", "分享這個桌號。其他玩家選擇「線上模式 → 加入牌桌」。") : L("Waiting for the host to begin.", "等待主持人開始遊戲。")}</p>
       ${note ? `<p style="margin:0;color:var(--crimson)">${esc(note)}</p>` : ""}
     </section>
     <section class="panel">
-      <h2>At the table (${(net.players || []).length}/4)</h2>
-      <div class="plist">${list || '<span class="muted">Connecting…</span>'}</div>
-      <div class="muted">Soul: <b style="color:var(--bone)">${esc(SOULS[soul]?.name || "—")}</b> · Lantern ${lan || "—"}</div>
-      ${host ? `<div class="row"><button type="button" class="primary" id="start" ${net.players.length < 2 ? "disabled" : ""}>Begin the crossing</button>
-        <span class="muted">${net.players.length < 2 ? "Needs at least 2 players." : ""}</span></div>
-        <p class="muted" style="margin:0;font-size:.88rem">To change the soul or Lantern, go back to the menu, choose them, then host again.</p>` : ""}
+      <h2>${L("At the table", "牌桌上的玩家")} (${(net.players || []).length}/4)</h2>
+      <div class="plist">${list || `<span class="muted">${L("Connecting…", "連線中…")}</span>`}</div>
+      <div class="muted">${L("Soul", "亡魂")}: <b style="color:var(--bone)">${esc(soulInfo(soul)?.name || "—")}</b> · ${L("Lantern", "燈籠")} ${lan || "—"}</div>
+      ${host ? `<div class="row"><button type="button" class="primary" id="start" ${net.players.length < 2 ? "disabled" : ""}>${L("Begin the crossing", "開始渡河")}</button>
+        <span class="muted">${net.players.length < 2 ? L("Needs at least 2 players.", "至少需要2名玩家。") : ""}</span></div>
+        <p class="muted" style="margin:0;font-size:.88rem">${L("To change the soul or Lantern, go back to the menu, choose them, then host again.", "若要更換亡魂或燈籠，請回到主選單重新選擇，再開一次桌。")}</p>` : ""}
     </section>
   </div>`;
   if (host) $("start").onclick = startOnline;
@@ -376,12 +422,12 @@ async function tick() {
 }
 
 function showPass() {
-  const name = S.names[S.cur];
+  const name = pname(S.names[S.cur]);
   veil(`<div class="dialog pass">
     <svg class="lily" aria-hidden="true"><use href="#nb-bloom"/></svg>
-    <h2>Pass the lantern to ${esc(name)}</h2>
-    <p class="muted">Everyone else, look away from the screen. In Netherbloom nobody speaks about their cards.</p>
-    <button type="button" class="primary" id="reveal">I am ${esc(name)}: show my hand</button></div>`);
+    <h2>${L(`Pass the lantern to ${esc(name)}`, `把燈籠交給${esc(name)}`)}</h2>
+    <p class="muted">${L("Everyone else, look away from the screen. In Netherbloom nobody speaks about their cards.", "其他人請把視線移開螢幕。在這個遊戲裡，沒有人會談論自己的手牌。")}</p>
+    <button type="button" class="primary" id="reveal">${L(`I am ${esc(name)}: show my hand`, `我是${esc(name)}：顯示我的手牌`)}</button></div>`, "pass");
   $("reveal").onclick = () => {
     uncovered = S.cur;
     passOpen = false;
@@ -447,15 +493,16 @@ async function finishTurn() {
 
 function summonDialog() {
   const p = S.cur, hand = S.hands[p];
-  const rows = Object.entries(MANTLES).filter(([m]) => S.mantles[m] === -1).map(([m, info]) => {
+  const rows = Object.keys(MANTLES).filter(m => S.mantles[m] === -1).map(m => {
+    const info = mantleInfo(m);
     const cards = hand.filter(cid => CARDS[cid].tag === info.tag);
     return `<div class="panel" style="gap:6px"><h3 class="${TAGCLS[info.tag]}">${esc(info.name)}</h3><p class="muted" style="margin:0">${esc(info.text)}</p>
-      <div class="row">${cards.length ? cards.map(cid => `<button type="button" data-m="${m}" data-cid="${cid}">Discard ${esc(CARDS[cid].name)}</button>`).join("")
-        : `<span class="muted">Needs a ${TAG_NAMES[info.tag]} card.</span>`}</div></div>`;
+      <div class="row">${cards.length ? cards.map(cid => `<button type="button" data-m="${m}" data-cid="${cid}">${L("Discard", "棄掉")} ${esc(cardName(cid))}</button>`).join("")
+        : `<span class="muted">${L(`Needs a ${tagName(info.tag)} card.`, `需要一張${tagName(info.tag)}牌。`)}</span>`}</div></div>`;
   }).join("");
-  veil(`<div class="dialog wide"><h2>Summon a Mantle</h2>
-    <p>Pay <b>${S.cfg.mantleCost} Light</b> and discard a card of the Mantle's thread. You keep the Mantle for the rest of the game.</p>
-    ${rows}<div class="row"><button type="button" id="cancel">Not now</button></div></div>`);
+  veil(`<div class="dialog wide"><h2>${L("Summon a Mantle", "召喚稱號")}</h2>
+    <p>${L(`Pay <b>${S.cfg.mantleCost} Light</b> and discard a card of the Mantle's thread. You keep the Mantle for the rest of the game.`, `支付<b>${S.cfg.mantleCost}點光</b>，並棄掉一張與該稱號同絲線的牌。你將持有這個稱號直到遊戲結束。`)}</p>
+    ${rows}<div class="row"><button type="button" id="cancel">${L("Not now", "暫時不要")}</button></div></div>`, "summon");
   $("cancel").onclick = closeVeil;
   document.querySelectorAll("[data-m]").forEach(b => b.onclick = () => {
     E.summon(S, b.dataset.m, +b.dataset.cid);
@@ -471,18 +518,18 @@ function buildTable() {
     <div class="main">
       <div class="status" id="status"></div>
       <div class="boardwrap" id="boardwrap">
-        <div class="boardscroll"><svg id="board" viewBox="0 0 1120 400" role="img" aria-label="The river"></svg></div>
+        <div class="boardscroll"><svg id="board" viewBox="0 0 1120 400" role="img" aria-label="${L("The river", "河流")}"></svg></div>
       </div>
       <div class="prompt" id="prompt"></div>
       <div class="hand" id="hand"></div>
-      <section class="panel"><h2>Book of Remembrance <button type="button" class="link openbook" id="openbook">${svgUse("nb-seal")}Open the Book</button></h2>
-        <div class="bookstrip" id="book" title="Open the Book of Remembrance"></div></section>
+      <section class="panel"><h2>${L("Book of Remembrance", "憶念之書")} <button type="button" class="link openbook" id="openbook">${svgUse("nb-seal")}${L("Open the Book", "翻開書本")}</button></h2>
+        <div class="bookstrip" id="book" title="${L("Open the Book of Remembrance", "翻開憶念之書")}"></div></section>
     </div>
     <aside class="side">
       <section class="panel guide" id="guide" aria-live="polite"></section>
-      <section class="panel"><h2>Loom of the Fates</h2><div class="loom" id="loom"></div></section>
-      <section class="panel"><h2>The Soul</h2><div id="soulboard"></div></section>
-      <section class="panel chron"><h2>Chronicle</h2><div class="log" id="log"></div></section>
+      <section class="panel"><h2>${L("Loom of the Fates", "命運織機")}</h2><div class="loom" id="loom"></div></section>
+      <section class="panel"><h2>${L("The Soul", "亡魂")}</h2><div id="soulboard"></div></section>
+      <section class="panel chron"><h2>${L("Chronicle", "紀事")}</h2><div class="log" id="log"></div></section>
     </aside>
   </div>`;
   drawBoardStatic();
@@ -517,9 +564,9 @@ function riverPath() {
 
 function drawBoardStatic() {
   const d = riverPath();
-  const reachLbl = [[REACH_NAMES[0], 1, 4], [REACH_NAMES[1], 5, 8], [REACH_NAMES[2], 9, 11]].map(([n, a, b], i) =>
-    `<text x="${(X(a) + X(b)) / 2}" y="22" text-anchor="middle">REACH ${ROMAN[i]} · ${n.toUpperCase()}</text>`).join("");
-  const nums = Array.from({ length: 13 }, (_, sp) => `<text x="${X(sp)}" y="392" text-anchor="middle">${sp === 0 ? "near shore" : sp === 12 ? "" : sp}</text>`).join("");
+  const reachLbl = [[reachName(0), 1, 4], [reachName(1), 5, 8], [reachName(2), 9, 11]].map(([n, a, b], i) =>
+    `<text x="${(X(a) + X(b)) / 2}" y="22" text-anchor="middle">${L(`REACH ${ROMAN[i]} · ${n.toUpperCase()}`, `第${ZHNUM[i]}河段 · ${n}`)}</text>`).join("");
+  const nums = Array.from({ length: 13 }, (_, sp) => `<text x="${X(sp)}" y="392" text-anchor="middle">${sp === 0 ? L("near shore", "此岸") : sp === 12 ? "" : sp}</text>`).join("");
   $("board").innerHTML = `
   <defs>
     <radialGradient id="litGrad"><stop offset="0" stop-color="#D7263D" stop-opacity=".55"/><stop offset=".6" stop-color="#D7263D" stop-opacity=".12"/><stop offset="1" stop-color="#D7263D" stop-opacity="0"/></radialGradient>
@@ -541,7 +588,7 @@ function drawBoardStatic() {
   <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#9A948C">${nums}</g>
   <g transform="translate(${X(12)}, ${Y(12)})">
     <use href="#nb-light" x="-22" y="-26" width="44" height="48" style="color:#E6D3A3"/>
-    <text y="-48" text-anchor="middle" font-family="IM Fell English SC, serif" font-size="16" fill="#E6D3A3">Far Shore</text>
+    <text y="-48" text-anchor="middle" font-family="IM Fell English SC, Noto Serif TC, serif" font-size="16" fill="#E6D3A3">${L("Far Shore", "彼岸")}</text>
   </g>
   <g id="dyn"></g>
   <g id="soulG"><g class="bob">
@@ -600,11 +647,12 @@ function drawBoard() {
 
 function slotTitle(k) {
   const s = S;
-  const where = `Space ${k >> 1}, ${k % 2 ? "lower" : "upper"} bank`;
-  if (s.griev[k]) return `${where}: Grievance`;
-  if (s.tok[k] === E.BLOOM) return `${where}: Bloom`;
-  if (s.tok[k] === E.ROOT) return `${where}: Root`;
-  return `${where}: ${s.revealed[k] ? TILE_NAMES[s.tile[k]] : "fog"}`;
+  const where = L(`Space ${k >> 1}, ${k % 2 ? "lower" : "upper"} bank`, `第${k >> 1}格${k % 2 ? "下岸" : "上岸"}`);
+  const sep = L(": ", "：");
+  if (s.griev[k]) return where + sep + L("Grievance", "怨念");
+  if (s.tok[k] === E.BLOOM) return where + sep + L("Bloom", "花");
+  if (s.tok[k] === E.ROOT) return where + sep + L("Root", "根");
+  return where + sep + (s.revealed[k] ? tileName(s.tile[k]) : L("fog", "霧"));
 }
 
 // ---------------------------------------------------------------- side panels
@@ -618,8 +666,8 @@ function drawLoom() {
       knots += `<span class="kn ${on ? "on" : ""} ${on && S.karma[t] >= cap - 1 ? "hot" : ""} ${isNew ? "new" : ""}">${on ? svgUse("nb-knot") : ""}</span>`;
     }
     return `<div class="thread ${TAGCLS[t]} ${S.echo === t ? "echo" : ""}">${svgUse(TAG_ICONS[t])}
-      <span>${TAG_NAMES[t]}${S.echo === t ? ' <span class="echotag">ECHO</span>' : ""}</span><span class="knots">${knots}</span></div>`;
-  }).join("") + (S.echo < 0 ? '<small class="muted">No Echo on the Loom.</small>' : "");
+      <span>${tagName(t)}${S.echo === t ? ` <span class="echotag">${L("ECHO", "迴響")}</span>` : ""}</span><span class="knots">${knots}</span></div>`;
+  }).join("") + (S.echo < 0 ? `<small class="muted">${L("No Echo on the Loom.", "織機上沒有迴響。")}</small>` : "");
 }
 
 function drawSoulboard() {
@@ -627,32 +675,32 @@ function drawSoulboard() {
   let cells = "";
   for (let n = 1; n <= c.forgottenLimit; n++) {
     const cls = [n <= f ? "fill" : "", n === c.ashAt || n === c.adriftAt ? "mark" : "", n === c.forgottenLimit ? "end" : "", prev && n <= f && n > prev.forgotten ? "new" : ""].join(" ");
-    cells += `<span class="cell ${cls}" title="${n === c.ashAt ? "Light as Ash" : n === c.adriftAt ? "Adrift" : n === c.forgottenLimit ? "Faded" : ""}">${n}</span>`;
+    cells += `<span class="cell ${cls}" title="${n === c.ashAt ? L("Light as Ash", "輕如灰燼") : n === c.adriftAt ? L("Adrift", "漂離") : n === c.forgottenLimit ? L("Faded", "消散") : ""}">${n}</span>`;
   }
   let bw = "";
   for (let n = 0; n < c.bwSupply; n++) bw += svgUse("nb-blackwater", n < S.bw ? "" : "dim", "color:#9A948C");
   const fr = [0, 1, 2].map(n => svgUse("nb-fracture", n < S.fract ? "" : "dim", "color:#D7263D")).join("");
-  const mantles = Object.entries(MANTLES).map(([m, info]) =>
-    `<div title="${esc(info.text)}"><span class="${TAGCLS[info.tag]}">${esc(info.name.replace("The ", ""))}</span><b>${S.mantles[m] >= 0 ? esc(S.names[S.mantles[m]]) : '<span class="muted">free</span>'}</b></div>`).join("");
+  const mantles = Object.keys(MANTLES).map(m => [m, mantleInfo(m)]).map(([m, info]) =>
+    `<div title="${esc(info.text)}"><span class="${TAGCLS[info.tag]}">${esc(info.name.replace("The ", ""))}</span><b>${S.mantles[m] >= 0 ? esc(pname(S.names[S.mantles[m]])) : `<span class="muted">${L("free", "未取得")}</span>`}</b></div>`).join("");
   $("soulboard").innerHTML = `<div class="soulgrid">
-    <div class="lbl wide">Forgotten ${f} of ${c.forgottenLimit} <span class="muted" style="text-transform:none;letter-spacing:0">· Ash ${c.ashAt}${c.adriftAt < 99 ? ` · Adrift ${c.adriftAt}` : ""}</span></div>
+    <div class="lbl wide">${L(`Forgotten ${f} of ${c.forgottenLimit}`, `遺忘 ${f}／${c.forgottenLimit}`)} <span class="muted" style="text-transform:none;letter-spacing:0">· ${L("Ash", "灰燼")} ${c.ashAt}${c.adriftAt < 99 ? ` · ${L("Adrift", "漂離")} ${c.adriftAt}` : ""}</span></div>
     <div class="track wide" style="grid-template-columns:repeat(${c.forgottenLimit},minmax(0,1fr))">${cells}</div>
-    <div><div class="lbl">Fractures</div><div class="icons">${fr}</div></div>
-    <div><div class="lbl">Light</div><div class="icons">${svgUse("nb-light", "", "color:#E6D3A3")}<span style="font-family:var(--display);font-size:1.25rem;color:var(--bone)">${S.light}</span></div></div>
-    <div class="wide"><div class="lbl">Black Water supply</div><div class="icons">${bw}</div></div>
-    <div class="wide"><div class="lbl">Mantles · cost ${c.mantleCost} Light</div><div class="mantles">${mantles}</div></div>
+    <div><div class="lbl">${L("Fractures", "裂痕")}</div><div class="icons">${fr}</div></div>
+    <div><div class="lbl">${L("Light", "光")}</div><div class="icons">${svgUse("nb-light", "", "color:#E6D3A3")}<span style="font-family:var(--display);font-size:1.25rem;color:var(--bone)">${S.light}</span></div></div>
+    <div class="wide"><div class="lbl">${L("Black Water supply", "黑水供應")}</div><div class="icons">${bw}</div></div>
+    <div class="wide"><div class="lbl">${L(`Mantles · cost ${c.mantleCost} Light`, `稱號 · 花費${c.mantleCost}點光`)}</div><div class="mantles">${mantles}</div></div>
   </div>`;
 }
 
 function drawBook() {
   const ids = new Set();
-  $("book").innerHTML = BOOK_FRAMES.map(([title, frame], r) => {
+  $("book").innerHTML = bookFrames().map(([title, frame], r) => {
     const page = S.book[r];
     const text = frame.replace(/\{(\w+)\}/g, (_, slot) => {
       const cid = page[slot];
-      if (cid === undefined) return `<span class="gone">[${slot.toLowerCase()}]</span>`;
+      if (cid === undefined) return `<span class="gone">[${zh() ? slotLabel(slot) : slot.toLowerCase()}]</span>`;
       ids.add(`${r}-${slot}`);
-      return `<b class="${prevBookIds.has(`${r}-${slot}`) ? "" : "new"}">${esc(CARDS[cid].band)}</b>`;
+      return `<b class="${prevBookIds.has(`${r}-${slot}`) ? "" : "new"}">${esc(cardBand(cid))}</b>`;
     });
     const n = Object.keys(page).length;
     return `<div class="page ${S.blessed[r] ? "blessed" : ""}" data-page="${r}"><h3><span>${title}</span><span>${S.blessed[r] ? svgUse("nb-seal", "", "width:16px;height:16px;color:#E6D3A3") : ""}</span></h3>${text}
@@ -663,20 +711,20 @@ function drawBook() {
 
 function drawLog() {
   const el = $("log");
-  el.innerHTML = S.log.map(l => `<div class="k-${l.kind}">${esc(l.msg)}</div>`).join("");
+  el.innerHTML = S.log.map(l => `<div class="k-${l.kind}">${esc(say(l))}</div>`).join("");
   el.scrollTop = el.scrollHeight;
 }
 
 function drawStatus() {
-  const soul = SOULS[S.cfg.soul];
+  const soul = soulInfo(S.cfg.soul);
   $("status").innerHTML = `
     <span><b>${esc(soul.name)}</b></span>
-    <span>Lantern <b>${S.cfg.lantern}</b></span>
-    <span>Turn <b>${S.turn}</b></span>
-    <span>Reach <b>${ROMAN[S.reach]}</b> · ${REACH_NAMES[S.reach]}</span>
-    <span>Soul at <b>${Math.min(S.soul, 12)}</b> / 12</span>
-    <span>Deck <b>${S.deck.length}</b> · Discard <b>${S.discard.length}</b></span>
-    ${mode === "online" ? `<span class="net"><span class="dot"></span>${esc(net?.code || "")} · you are ${esc(S.names[mySeat])}</span>` : ""}`;
+    <span>${L("Lantern", "燈籠")} <b>${S.cfg.lantern}</b></span>
+    <span>${L(`Turn <b>${S.turn}</b>`, `第<b>${S.turn}</b>回合`)}</span>
+    <span>${L(`Reach <b>${ROMAN[S.reach]}</b>`, `第<b>${ZHNUM[S.reach]}</b>河段`)} · ${reachName(S.reach)}</span>
+    <span>${L("Soul at", "亡魂位置")} <b>${Math.min(S.soul, 12)}</b> / 12</span>
+    <span>${L("Deck", "牌庫")} <b>${S.deck.length}</b> · ${L("Discard", "棄牌堆")} <b>${S.discard.length}</b></span>
+    ${mode === "online" ? `<span class="net"><span class="dot"></span>${esc(net?.code || "")} · ${L("you are", "你是")} ${esc(pname(S.names[mySeat]))}</span>` : ""}`;
 }
 
 // ---------------------------------------------------------------- prompt and hand
@@ -687,22 +735,25 @@ function setPrompt(html, mine = false) {
 }
 
 function drawPrompt() {
-  if (S.result) { setPrompt(`<span class="msg">${S.result === "win" ? "<b>The soul has crossed.</b>" : `<b>Lost: ${esc(S.cause)}.</b>`}</span><button type="button" id="seeend">See the ending</button>`); $("seeend").onclick = () => { endShown = false; showEnd(); }; return; }
-  const who = esc(S.names[S.cur]);
+  if (S.result) { setPrompt(`<span class="msg">${S.result === "win" ? L("<b>The soul has crossed.</b>", "<b>亡魂已經渡河。</b>") : L(`<b>Lost: ${esc(S.cause)}.</b>`, `<b>失敗：${esc(causeName(S.cause))}。</b>`)}</span><button type="button" id="seeend">${L("See the ending", "查看結局")}</button>`); $("seeend").onclick = () => { endShown = false; showEnd(); }; return; }
+  const who = esc(pname(S.names[S.cur]));
   if (!canAct()) {
-    const why = mode === "local" ? `Waiting for <b>${who}</b> to take the lantern.` : `<b>${who}</b> is playing. ${mode === "online" ? "Study your hand while you wait." : ""}`;
+    const why = mode === "local" ? L(`Waiting for <b>${who}</b> to take the lantern.`, `等待<b>${who}</b>接過燈籠。`)
+      : L(`<b>${who}</b> is playing. ${mode === "online" ? "Study your hand while you wait." : ""}`, `<b>${who}</b>正在行動。${mode === "online" ? "等待時可以先研究你的手牌。" : ""}`);
     setPrompt(`<span class="msg">${why}</span>`);
     return;
   }
   if (pending) {
-    const skip = `<button type="button" id="skip">Skip</button>`;
-    if (pending.type === "root") setPrompt(`<span class="msg">Choose where <b>Root ${pending.i} of ${pending.n}</b> grows. Glowing slots touch the network${pending.stony ? " (Stony ground allowed)" : ""}.</span>${skip}`, true);
-    else if (pending.type === "bloom") setPrompt(`<span class="msg">Choose a Root to <b>Bloom</b> (${pending.i} of ${pending.n}).</span>${skip}`, true);
-    else if (pending.type === "bringer") setPrompt(`<span class="msg"><b>The Bloom-Bringer</b>: bloom one Root for free.</span>${skip}`, true);
+    const skip = `<button type="button" id="skip">${L("Skip", "跳過")}</button>`;
+    if (pending.type === "root") setPrompt(`<span class="msg">${L(`Choose where <b>Root ${pending.i} of ${pending.n}</b> grows. Glowing slots touch the network${pending.stony ? " (Stony ground allowed)" : ""}.`,
+      `選擇<b>第${pending.i}個根（共${pending.n}個）</b>的位置。發光的河岸與根網相連${pending.stony ? "（可放在石地上）" : ""}。`)}</span>${skip}`, true);
+    else if (pending.type === "bloom") setPrompt(`<span class="msg">${L(`Choose a Root to <b>Bloom</b> (${pending.i} of ${pending.n}).`, `選擇一個根使其<b>綻放</b>（第${pending.i}個，共${pending.n}個）。`)}</span>${skip}`, true);
+    else if (pending.type === "bringer") setPrompt(`<span class="msg">${L("<b>The Bloom-Bringer</b>: bloom one Root for free.", "<b>引花人</b>：免費使一個根綻放。")}</span>${skip}`, true);
     else if (pending.type === "inscribe") {
       const c = CARDS[pending.cid];
-      setPrompt(`<span class="msg">Inscribe <b>“${esc(c.band)}”</b> as the ${c.slot} on page ${ROMAN[S.reach]}? The card leaves the deck for good.</span>
-        <button type="button" class="primary" id="yes">Inscribe</button><button type="button" id="no">Keep it in the deck</button>`, true);
+      setPrompt(`<span class="msg">${L(`Inscribe <b>“${esc(c.band)}”</b> as the ${c.slot} on page ${ROMAN[S.reach]}? The card leaves the deck for good.`,
+        `要將<b>「${esc(cardBand(pending.cid))}」</b>銘刻為第${ZHNUM[S.reach]}頁的${slotLabel(c.slot)}嗎？這張牌將永久離開牌庫。`)}</span>
+        <button type="button" class="primary" id="yes">${L("Inscribe", "銘刻")}</button><button type="button" id="no">${L("Keep it in the deck", "留在牌庫中")}</button>`, true);
       $("yes").onclick = () => { A.sfx("inscribe"); answer(true); };
       $("no").onclick = () => answer(false);
       return;
@@ -712,9 +763,10 @@ function drawPrompt() {
   }
   if (busy) { setPrompt(`<span class="msg">…</span>`, true); return; }
   const n = S.played + 1;
-  const echo = S.echo >= 0 && S.played === 0 ? ` The Echo is <b class="${TAGCLS[S.echo]}">${TAG_NAMES[S.echo]}</b>: a first card of that thread Resonates.` : "";
-  const sum = E.canSummon(S) ? `<button type="button" id="summon">Summon a Mantle (${S.cfg.mantleCost} Light)</button>` : "";
-  setPrompt(`<span class="msg">${S.n > 1 ? `<b>${who}</b>, choose` : "Choose"} card ${n} of ${S.cfg.cardsPerTurn}.${echo}</span>${sum}`, true);
+  const echo = S.echo >= 0 && S.played === 0 ? L(` The Echo is <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>: a first card of that thread Resonates.`,
+    `迴響是<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>：本回合第一張同絲線的牌會產生共鳴。`) : "";
+  const sum = E.canSummon(S) ? `<button type="button" id="summon">${L(`Summon a Mantle (${S.cfg.mantleCost} Light)`, `召喚稱號（${S.cfg.mantleCost}點光）`)}</button>` : "";
+  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, choose` : "Choose"} card ${n} of ${S.cfg.cardsPerTurn}.`, `${S.n > 1 ? `<b>${who}</b>，請` : "請"}選擇第${n}張牌（共${S.cfg.cardsPerTurn}張）。`)}${echo}</span>${sum}`, true);
   if (sum) $("summon").onclick = summonDialog;
 }
 
@@ -728,14 +780,14 @@ function cardHTML(cid, opts = {}) {
   const c = CARDS[cid];
   const res = opts.resonant;
   return `<div class="card t${c.tag} ${opts.playable ? "playable" : ""} ${opts.sel ? "sel" : ""} ${res ? "resonant" : ""} ${opts.dealt ? "dealt" : ""}" data-cid="${cid}" ${opts.playable ? 'role="button" tabindex="0"' : ""}>
-    <div class="top">${svgUse(TAG_ICONS[c.tag], TAGCLS[c.tag])}<div><div class="nm">${esc(c.name)}</div><div class="tag">${TAG_NAMES[c.tag]}${c.key ? ' · <span class="key">Key Memory</span>' : ""}</div></div></div>
-    <div class="eff">${esc(opsText(c.eff))}</div>
-    <div class="res"><b>Resonance:</b> ${c.rr ? "instead, " : ""}${esc(opsText(c.res))}</div>
-    ${c.slot ? `<div class="band">${svgUse(SLOT_ICON[c.slot], "", "color:#E6D3A3")}<span>${esc(c.band)}</span></div>` : '<div class="band"><span class="muted">An Oblivion card is forgotten after use.</span></div>'}
+    <div class="top">${svgUse(TAG_ICONS[c.tag], TAGCLS[c.tag])}<div><div class="nm">${esc(cardName(cid))}</div><div class="tag">${tagName(c.tag)}${c.key ? ` · <span class="key">${L("Key Memory", "關鍵記憶")}</span>` : ""}</div></div></div>
+    <div class="eff">${esc(ops(c.eff))}</div>
+    <div class="res"><b>${L("Resonance:", "共鳴：")}</b> ${c.rr ? L("instead, ", "改為") : ""}${esc(ops(c.res))}</div>
+    ${c.slot ? `<div class="band">${svgUse(SLOT_ICON[c.slot], "", "color:#E6D3A3")}<span>${esc(cardBand(cid))}</span></div>` : `<div class="band"><span class="muted">${L("An Oblivion card is forgotten after use.", "忘卻牌使用後會被遺忘。")}</span></div>`}
     ${opts.sel ? `<div class="modes">
-      <button type="button" data-play="up">Play face up${res ? " · Resonates" : ""}</button>
-      <button type="button" data-play="down">Face down · 1 Root, no knot</button>
-      <button type="button" data-play="burn">Burn · twice, then forget it and 1 more</button></div>` : ""}
+      <button type="button" data-play="up">${L(`Play face up${res ? " · Resonates" : ""}`, `正面打出${res ? " · 共鳴" : ""}`)}</button>
+      <button type="button" data-play="down">${L("Face down · 1 Root, no knot", "背面打出 · 放1個根，不打結")}</button>
+      <button type="button" data-play="burn">${L("Burn · twice, then forget it and 1 more", "焚燒 · 效果兩次，再遺忘此牌與另1張")}</button></div>` : ""}
   </div>`;
 }
 
@@ -750,7 +802,7 @@ function drawHand() {
   }
   const hand = S.hands[seat];
   const playable = seat === S.cur && canPlayCards();
-  el.innerHTML = (seat !== S.cur ? `<div class="muted" style="width:100%">Your hand (${esc(S.names[seat])})</div>` : "") + hand.map(cid => cardHTML(cid, {
+  el.innerHTML = (seat !== S.cur ? `<div class="muted" style="width:100%">${L("Your hand", "你的手牌")} (${esc(pname(S.names[seat]))})</div>` : "") + hand.map(cid => cardHTML(cid, {
     playable, sel: playable && selected === cid, dealt: !prevHand.includes(cid),
     resonant: playable && S.played === 0 && S.echo === CARDS[cid].tag,
   })).join("");
@@ -788,13 +840,13 @@ function flyCard(cid) {
 // Lights the step the active player is on. While the end-of-turn animations play, it follows them
 // (Soul Step, then the Mist, then the draw) before moving on to the next player's first card.
 const GUIDE = [
-  ["summon", "Summon", "optional · before your first card"],
-  ["card1", "First card", "match the Echo to Resonate"],
-  ["card2", "Second card", ""],
-  ["bringer", "Bloom-Bringer", "free Bloom"],
-  ["soul", "Soul Step", "move if the next space is Lit"],
-  ["mist", "The Mist", "one card from this Reach"],
-  ["draw", "Settle and draw", "refill your hand"],
+  ["summon", "Summon", "optional · before your first card", "召喚", "選擇性 · 在第一張牌之前"],
+  ["card1", "First card", "match the Echo to Resonate", "第一張牌", "與迴響相同即產生共鳴"],
+  ["card2", "Second card", "", "第二張牌", ""],
+  ["bringer", "Bloom-Bringer", "free Bloom", "引花人", "免費綻放"],
+  ["soul", "Soul Step", "move if the next space is Lit", "亡魂步驟", "下一格被照亮就前進"],
+  ["mist", "The Mist", "one card from this Reach", "迷霧", "翻開本河段的一張牌"],
+  ["draw", "Settle and draw", "refill your hand", "結算與抽牌", "補滿手牌"],
 ];
 
 function guideState() {
@@ -807,7 +859,8 @@ function guideState() {
   else now = (busy || pending) ? (S.played <= 1 ? "card1" : "card2") : (S.played === 0 ? "card1" : "card2");
   const idx = now ? order.indexOf(now) : order.length;
   const hasBringer = S.mantles.bringer === S.cur;
-  return GUIDE.map(([id, title, sub], i) => {
+  return GUIDE.map(([id, enTitle, enSub, zhTitle, zhSub], i) => {
+    const title = L(enTitle, zhTitle), sub = L(enSub, zhSub);
     let cls = i < idx ? "done" : i === idx ? "now" : "";
     if (id === "summon") cls = (!(guideStep && S.played === 0) && S.phase === "play" && S.played === 0 && E.canSummon(S) && canAct()) ? "avail" : (i < idx ? "skip" : "");
     if (id === "bringer" && !hasBringer) cls = "skip";
@@ -816,27 +869,28 @@ function guideState() {
 }
 
 function guideHint() {
-  if (S.result) return S.result === "win" ? "The crossing is complete. Open the Book to read the soul's story." : "The crossing has failed. Open the Book to read what was kept.";
+  if (S.result) return S.result === "win" ? L("The crossing is complete. Open the Book to read the soul's story.", "渡河完成。翻開書本，讀讀亡魂的故事。")
+    : L("The crossing has failed. Open the Book to read what was kept.", "渡河失敗了。翻開書本，看看留下了什麼。");
   const anim = guideStep && S.played === 0 && !pending && !busy;
-  if (anim && guideStep === "soul") return "The soul tries to step onto the next Lit space. In the dark, it Lingers.";
-  if (anim && guideStep === "mist") return "The Mist turns a card for this Reach.";
-  if (anim && guideStep === "draw") return "The river settles and hands are refilled.";
-  const who = esc(S.names[S.cur]);
-  if (!canAct()) return mode === "local" ? `Pass the device to <b>${who}</b>.` : `Waiting for <b>${who}</b>…`;
-  if (pending?.type === "root") return `Click a <b>glowing bank</b> on the river to place Root ${pending.i} of ${pending.n}.`;
-  if (pending?.type === "bloom") return "Click one of your <b>Roots</b> to open it into a Bloom.";
-  if (pending?.type === "bringer") return "Click a <b>Root</b> to bloom it for free, or skip.";
-  if (pending?.type === "inscribe") return "Write this memory into the <b>Book</b>, or keep the card in the deck.";
-  const echo = S.echo >= 0 && S.played === 0 ? ` A <b class="${TAGCLS[S.echo]}">${TAG_NAMES[S.echo]}</b> card will Resonate.` : "";
-  return `Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b> or <b>Burn</b>.${echo}`;
+  if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。");
+  if (anim && guideStep === "mist") return L("The Mist turns a card for this Reach.", "迷霧為本河段翻開一張牌。");
+  if (anim && guideStep === "draw") return L("The river settles and hands are refilled.", "河面平靜下來，玩家補滿手牌。");
+  const who = esc(pname(S.names[S.cur]));
+  if (!canAct()) return mode === "local" ? L(`Pass the device to <b>${who}</b>.`, `請把裝置交給<b>${who}</b>。`) : L(`Waiting for <b>${who}</b>…`, `等待<b>${who}</b>…`);
+  if (pending?.type === "root") return L(`Click a <b>glowing bank</b> on the river to place Root ${pending.i} of ${pending.n}.`, `點擊河上<b>發光的河岸</b>，放置第${pending.i}個根（共${pending.n}個）。`);
+  if (pending?.type === "bloom") return L("Click one of your <b>Roots</b> to open it into a Bloom.", "點擊一個<b>根</b>，讓它綻放成花。");
+  if (pending?.type === "bringer") return L("Click a <b>Root</b> to bloom it for free, or skip.", "點擊一個<b>根</b>免費使其綻放，或選擇跳過。");
+  if (pending?.type === "inscribe") return L("Write this memory into the <b>Book</b>, or keep the card in the deck.", "將這段記憶寫進<b>憶念之書</b>，或把這張牌留在牌庫中。");
+  const echo = S.echo >= 0 && S.played === 0 ? L(` A <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b> card will Resonate.`, `<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>牌會產生共鳴。`) : "";
+  return L(`Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b> or <b>Burn</b>.${echo}`, `從手牌中選一張牌，再選擇<b>正面打出</b>、<b>背面打出</b>或<b>焚燒</b>。${echo}`);
 }
 
 function drawGuide() {
   const el = $("guide");
   if (!el) return;
   const steps = guideState();
-  el.innerHTML = `<h2><span>Turn ${S.turn || 1} <span class="muted" style="font-family:var(--body);font-size:.85rem">${esc(S.names[S.cur])}${S.n === 1 ? " · then the Ghost" : ""}</span></span>
-    <button type="button" class="link" data-aid>Player Aid</button></h2>
+  el.innerHTML = `<h2><span>${L(`Turn ${S.turn || 1}`, `第${S.turn || 1}回合`)} <span class="muted" style="font-family:var(--body);font-size:.85rem">${esc(pname(S.names[S.cur]))}${S.n === 1 ? L(" · then the Ghost", " · 接著是幽靈") : ""}</span></span>
+    <button type="button" class="link" data-aid>${L("Player Aid", "玩家輔助卡")}</button></h2>
     <ol class="gsteps">${steps.map((g, i) => `<li class="${g.cls}"><span class="gi"><span>${i + 1}</span></span><div><b>${g.title}</b>${g.sub ? `<small>${g.sub}</small>` : ""}</div></li>`).join("")}</ol>
     <div class="ghint">${guideHint()}</div>`;
   el.querySelector("[data-aid]").onclick = () => openDrawer("aid");
@@ -849,23 +903,35 @@ function buildDrawer() {
   const d = document.createElement("aside");
   d.className = "drawer";
   d.id = "drawer";
-  d.setAttribute("aria-label", "Player Aid and Rulebook");
-  d.innerHTML = `<header><div class="tabs"><button type="button" data-tab="aid">Player Aid</button><button type="button" data-tab="rules">Rulebook</button></div>
-      <button type="button" id="drawer-x">Close</button></header>
-    <div class="search" id="dsearch"><input type="search" id="dq" placeholder="Search the rules… e.g. Backlash, Stony, Linger" aria-label="Search the rules"><span class="count" id="dcount"></span></div>
+  d.innerHTML = `<header><div class="tabs"><button type="button" data-tab="aid"></button><button type="button" data-tab="rules"></button></div>
+      <button type="button" id="drawer-x"></button></header>
+    <div class="search" id="dsearch"><input type="search" id="dq"><span class="count" id="dcount"></span></div>
     <div class="body" id="dbody"></div>`;
   document.body.appendChild(d);
   const tab = document.createElement("button");
   tab.type = "button";
   tab.className = "drawer-tab hidden";
   tab.id = "aid-tab";
-  tab.textContent = "Player Aid · Rules";
   tab.onclick = () => openDrawer(drawerTab);
   document.body.appendChild(tab);
   d.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => openDrawer(b.dataset.tab));
   $("drawer-x").onclick = closeDrawer;
   $("dq").addEventListener("input", () => searchRules($("dq").value));
   document.addEventListener("keydown", e => { if (e.key === "Escape" && d.classList.contains("open")) closeDrawer(); });
+  rebuildDrawer();
+}
+
+// The drawer's own labels, and its contents when it is open.
+function rebuildDrawer() {
+  const d = $("drawer");
+  d.setAttribute("aria-label", L("Player Aid and Rulebook", "玩家輔助卡與規則書"));
+  d.querySelector('[data-tab="aid"]').textContent = L("Player Aid", "玩家輔助卡");
+  d.querySelector('[data-tab="rules"]').textContent = L("Rulebook", "規則書");
+  $("drawer-x").textContent = L("Close", "關閉");
+  $("dq").placeholder = L("Search the rules… e.g. Backlash, Stony, Linger", "搜尋規則…例如：反噬、石地、徘徊");
+  $("dq").setAttribute("aria-label", L("Search the rules", "搜尋規則"));
+  $("aid-tab").textContent = L("Player Aid · Rules", "輔助卡 · 規則");
+  if (d.classList.contains("open")) openDrawer(drawerTab);
 }
 
 function openDrawer(tab) {
@@ -875,8 +941,9 @@ function openDrawer(tab) {
   $("dsearch").classList.toggle("hidden", tab !== "rules");
   if (tab === "aid") $("dbody").innerHTML = playerAid(S?.cfg);
   else {
-    $("dbody").innerHTML = `<nav class="toc">${RULEBOOK.map(r => `<a href="#r-${r.id}">${esc(r.title.replace(/^\d+\. /, ""))}</a>`).join("")}</nav>` +
-      RULEBOOK.map(r => `<section class="rsec" id="r-${r.id}" data-keys="${esc(r.keys || "")}"><h3>${r.title}</h3>${r.body}</section>`).join("");
+    const book = rulebook();
+    $("dbody").innerHTML = `<nav class="toc">${book.map(r => `<a href="#r-${r.id}">${esc(r.title.replace(/^\d+\. /, ""))}</a>`).join("")}</nav>` +
+      book.map(r => `<section class="rsec" id="r-${r.id}" data-keys="${esc(r.keys || "")}"><h3>${r.title}</h3>${r.body}</section>`).join("");
     $("dbody").querySelectorAll(".toc a").forEach(a => a.onclick = e => {
       e.preventDefault();
       document.getElementById(a.getAttribute("href").slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -885,11 +952,13 @@ function openDrawer(tab) {
   }
   d.classList.add("open");
   $("aid-tab").classList.add("hidden");
-  if (tab === "rules") setTimeout(() => $("dq").focus(), 300);
+  if (tab === "rules" && !d.dataset.wasOpen) setTimeout(() => $("dq").focus(), 300);
+  d.dataset.wasOpen = "1";
 }
 
 function closeDrawer() {
   $("drawer").classList.remove("open");
+  delete $("drawer").dataset.wasOpen;
   $("aid-tab").classList.toggle("hidden", !S);
 }
 
@@ -897,7 +966,7 @@ function searchRules(q) {
   const body = $("dbody");
   body.querySelectorAll("mark").forEach(m => m.replaceWith(document.createTextNode(m.textContent)));
   body.normalize();
-  const terms = q.toLowerCase().split(/\s+/).filter(t => t.length > 1);
+  const terms = q.toLowerCase().split(/\s+/).filter(t => t.length > 1 || /[\u3400-\u9fff]/.test(t));
   let hits = 0, shown = 0, first = null;
   body.querySelectorAll(".rsec").forEach(sec => {
     const text = (sec.textContent + " " + sec.dataset.keys).toLowerCase();
@@ -918,7 +987,7 @@ function searchRules(q) {
     first = first || sec.querySelector("mark");
   });
   body.querySelector(".toc")?.classList.toggle("hidden", terms.length > 0);
-  $("dcount").textContent = terms.length ? (shown ? `${hits} match${hits === 1 ? "" : "es"} · ${shown} section${shown === 1 ? "" : "s"}` : "No matches") : "";
+  $("dcount").textContent = terms.length ? (shown ? L(`${hits} match${hits === 1 ? "" : "es"} · ${plural(shown, "section")}`, `${hits}處符合 · ${shown}個章節`) : L("No matches", "沒有符合的結果")) : "";
   if (first) first.scrollIntoView({ block: "center" });
 }
 
@@ -980,20 +1049,20 @@ function animateEvents() {
       case "grievance": sounds.add("grievance"); break;
       case "forget": sounds.add("forget"); break;
       case "move": sounds.add("move"); break;
-      case "linger": sounds.add("linger"); toast(ev.msg); break;
+      case "linger": sounds.add("linger"); toast(say(ev)); break;
       case "play":
-        if (!seats.has(ev.p) || mode === "local") toast(ev.msg, ev.cid >= 0 ? CARDS[ev.cid].tag : 1);
+        if (!seats.has(ev.p) || mode === "local") toast(say(ev), ev.cid >= 0 ? CARDS[ev.cid].tag : 1);
         if (!seats.has(ev.p)) sounds.add("card");
-        if (ev.res) { sounds.add("resonance"); enqueue(() => banner("Resonance", "The card answers the Echo", "obl")); }
+        if (ev.res) { sounds.add("resonance"); enqueue(() => banner(L("Resonance", "共鳴"), L("The card answers the Echo", "這張牌回應了迴響"), "obl")); }
         break;
-      case "ghost": toast(ev.msg, ev.tag); sounds.add("card"); break;
-      case "inscribe": toast(ev.msg, 1); if (!seats.has(S.cur)) sounds.add("inscribe"); break;
-      case "blessing": enqueue(() => { A.sfx("inscribe"); return banner("Chapter Blessing", ev.msg.replace("Chapter Blessing: ", ""), "good"); }); break;
-      case "summon": enqueue(() => { A.sfx("summon"); return banner(ev.msg, MANTLES[ev.mantle].text, ["obs", "acc", "obl"][MANTLES[ev.mantle].tag]); }); break;
+      case "ghost": toast(say(ev), ev.tag); sounds.add("card"); break;
+      case "inscribe": toast(say(ev), 1); if (!seats.has(S.cur)) sounds.add("inscribe"); break;
+      case "blessing": enqueue(() => { A.sfx("inscribe"); return banner(L("Chapter Blessing", "章節祝福"), say(ev).replace(/^(Chapter Blessing: |章節祝福：)/, ""), "good"); }); break;
+      case "summon": enqueue(() => { A.sfx("summon"); const mi = mantleInfo(ev.mantle); return banner(say(ev), mi.text, ["obs", "acc", "obl"][mi.tag]); }); break;
       case "mist": enqueue(() => { setGuide("mist"); return mistCard(ev.name); }); enqueue(() => { setGuide("draw"); return 700; }); break;
-      case "backlash": enqueue(() => { A.sfx("backlash"); shake(); return banner(`Backlash · ${TAG_NAMES[ev.tag]}`, ev.msg.split("! ")[1] || "", ["obs", "acc", "obl"][ev.tag]); }); break;
+      case "backlash": enqueue(() => { A.sfx("backlash"); shake(); return banner(L(`Backlash · ${tagName(ev.tag)}`, `反噬 · ${tagName(ev.tag)}`), backlashText(ev.tag), ["obs", "acc", "obl"][ev.tag]); }); break;
       case "fracture": enqueue(() => { A.sfx("fracture"); flash(); shake(); return 900; }); break;
-      case "reach": enqueue(() => { A.sfx("summon"); return banner(`Reach ${ROMAN[ev.reach]}`, REACH_NAMES[ev.reach], "good"); }); break;
+      case "reach": enqueue(() => { A.sfx("summon"); return banner(L(`Reach ${ROMAN[ev.reach]}`, `第${ZHNUM[ev.reach]}河段`), reachName(ev.reach), "good"); }); break;
       case "turn": if (mode !== "local") sounds.add("turn"); break;
       case "win": enqueue(() => { A.sfx("win"); return 400; }); break;
       case "loss": enqueue(() => { A.sfx("loss"); return 400; }); break;
@@ -1008,7 +1077,7 @@ function mistCard(name) {
   const harsh = HARSH_NAMES.has(name);
   const el = document.createElement("div");
   el.className = `mistcard ${harsh ? "harsh" : ""}`;
-  el.innerHTML = `<div class="k">${harsh ? "Harsh Mist" : "The Mist"}</div>${svgUse("nb-fog")}<h3>${esc(name)}</h3><p>${esc(MIST_TEXT[name] || "")}</p>`;
+  el.innerHTML = `<div class="k">${harsh ? L("Harsh Mist", "凶霧") : L("The Mist", "迷霧")}</div>${svgUse("nb-fog")}<h3>${esc(mistName(name))}</h3><p>${esc(mistText(name))}</p>`;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2700);
   return 2300;
@@ -1045,52 +1114,60 @@ function toast(msg, tag = 1) {
 }
 
 // ---------------------------------------------------------------- dialogs
-function veil(html) {
+function veil(html, kind = "") {
   closeVeil();
   const v = document.createElement("div");
   v.className = "veil";
   v.id = "veil";
+  v.dataset.kind = kind;
   v.innerHTML = html;
   document.body.appendChild(v);
   v.querySelector("button")?.focus();
 }
 function closeVeil() { $("veil")?.remove(); }
 
-async function showEnd() {
+async function showEnd(now = false) {
   if (endShown) return;
   endShown = true;
-  await idle();
-  await new Promise(r => setTimeout(r, 600));
+  if (!now) {
+    await idle();
+    await new Promise(r => setTimeout(r, 600));
+  }
   if (!S || !S.result) return;
   const win = S.result === "win";
   const fate = E.keyMemoryFate(S);
-  const soul = SOULS[S.cfg.soul];
-  const fateText = fate && {
+  const soul = soulInfo(S.cfg.soul);
+  const fateText = fate && (zh() ? {
+    inscribed: `關鍵記憶已寫進書中。${soul.name}帶著最重要的回憶渡過了河。`,
+    forgotten: `關鍵記憶被河水帶走了。${soul.name}${win ? "抵達時變得更輕，也更空" : "沒有帶著它，走進了迷霧"}。`,
+    unspoken: "關鍵記憶始終沒有被寫下。有些事，就這樣未曾說出口地渡過了河。",
+  } : {
     inscribed: `The Key Memory was written into the Book. ${soul.name} crosses remembering what mattered most.`,
     forgotten: `The Key Memory was lost to the river. ${soul.name} ${win ? "arrives lighter, and emptier" : "goes into the mist without it"}.`,
     unspoken: `The Key Memory was never written down. Some things go across unsaid.`,
-  }[fate];
-  const pages = BOOK_FRAMES.map(([title, frame], r) => `<div class="page"><h3>${title}</h3>${frame.replace(/\{(\w+)\}/g, (_, slot) => {
+  })[fate];
+  const pages = bookFrames().map(([title, frame], r) => `<div class="page"><h3>${title}</h3>${frame.replace(/\{(\w+)\}/g, (_, slot) => {
     const cid = S.book[r][slot];
-    return cid === undefined ? `<span class="gone">…but this, the river has taken</span>` : `<b>${esc(CARDS[cid].band)}</b>`;
+    return cid === undefined ? `<span class="gone">${L("…but this, the river has taken", "……但這一段，已被河水帶走")}</span>` : `<b>${esc(cardBand(cid))}</b>`;
   })}</div>`).join("");
   const canRestart = mode !== "online" || net?.role === "host";
+  const stat = (n, en, zhText) => `<div><b>${n}</b>${L(en, zhText)}</div>`;
   veil(`<div class="dialog wide end">
-    <div class="eyebrow">${esc(soul.name)} · Lantern ${S.cfg.lantern}</div>
-    <h2 class="${S.result}">${win ? "The soul reaches the Far Shore" : { Faded: "Faded", Shattered: "Shattered", Deluge: "Deluge", Stalled: "Stalled" }[S.cause]}</h2>
-    <p class="muted">${esc(S.log.filter(l => l.kind === "win" || l.kind === "loss").pop()?.msg || "")}</p>
+    <div class="eyebrow">${esc(soul.name)} · ${L("Lantern", "燈籠")} ${S.cfg.lantern}</div>
+    <h2 class="${S.result}">${win ? L("The soul reaches the Far Shore", "亡魂抵達了彼岸") : causeName(S.cause)}</h2>
+    <p class="muted">${esc(say(S.log.filter(l => l.kind === "win" || l.kind === "loss").pop()))}</p>
     ${fateText ? `<p style="font-family:var(--serif);font-style:italic;color:var(--bone)">${esc(fateText)}</p>` : ""}
     <div class="stats">
-      <div><b>${S.turn}</b>turns</div><div><b>${Math.min(S.soul, 12)}/12</b>spaces crossed</div>
-      <div><b>${S.forgotten.length}</b>forgotten</div><div><b>${S.stats.resonances}</b>resonances</div>
-      <div><b>${S.stats.inscribed}</b>memories inscribed</div><div><b>${S.stats.backlashes}</b>backlashes</div>
+      ${stat(S.turn, "turns", "回合")}${stat(`${Math.min(S.soul, 12)}/12`, "spaces crossed", "渡過的格數")}
+      ${stat(S.forgotten.length, "forgotten", "遺忘")}${stat(S.stats.resonances, "resonances", "共鳴")}
+      ${stat(S.stats.inscribed, "memories inscribed", "銘刻的記憶")}${stat(S.stats.backlashes, "backlashes", "反噬")}
     </div>
-    <h3 style="color:var(--bone)">The Book of Remembrance</h3>
+    <h3 style="color:var(--bone)">${L("The Book of Remembrance", "憶念之書")}</h3>
     <div class="book">${pages}</div>
-    <div class="row">${canRestart ? '<button type="button" class="primary" id="again">Cross again</button>' : '<span class="muted">The host can start another crossing.</span>'}
-      <button type="button" id="readbook" class="openbook">${svgUse("nb-seal")}Open the Book</button>
-      <button type="button" id="tomenu">Back to the menu</button><button type="button" id="stay">Look at the board</button></div>
-  </div>`);
+    <div class="row">${canRestart ? `<button type="button" class="primary" id="again">${L("Cross again", "再渡一次")}</button>` : `<span class="muted">${L("The host can start another crossing.", "主持人可以開始新的渡河。")}</span>`}
+      <button type="button" id="readbook" class="openbook">${svgUse("nb-seal")}${L("Open the Book", "翻開書本")}</button>
+      <button type="button" id="tomenu">${L("Back to the menu", "回到主選單")}</button><button type="button" id="stay">${L("Look at the board", "查看版圖")}</button></div>
+  </div>`, "end");
   $("tomenu").onclick = () => { leaveGame(); menu(); };
   $("stay").onclick = closeVeil;
   $("readbook").onclick = () => { closeVeil(); openBook(S, 4); };

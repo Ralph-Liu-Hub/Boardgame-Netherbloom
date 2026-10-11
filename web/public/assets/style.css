@@ -590,3 +590,24 @@ mark { background: rgba(215,38,61,.45); color: var(--paper); border-radius: 2px;
 .pp-shore { animation: glow 5s ease-in-out infinite; }
 @media (max-width: 760px) { .bk-theatre .pp { max-height: none; } .bk-theatre.portrait .pp { max-height: 240px; } }
 .bk-wax { bottom: auto; top: 3%; right: 3%; }
+
+/* ---------------------------------------------------------------- v5: 正體中文 */
+.langbtn { border-color: var(--bone); color: var(--bone); font-family: var(--body); }
+.langpick { justify-items: center; }
+.langopts { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.langopts button { min-width: 180px; padding: 16px 26px; font-family: "IM Fell English SC", "Noto Serif TC", serif; font-size: 1.3rem; }
+.langopts button.on { border-color: var(--bone); }
+.zhtitle { display: block; font-family: "Noto Serif TC", serif; font-weight: 600; font-size: .5em; letter-spacing: .5em; margin-top: 6px; color: var(--bone); }
+html:lang(zh-Hant-TW) {
+  --display: "IM Fell English SC", "Noto Serif TC", "Songti TC", serif; --serif: "IM Fell English", "Noto Serif TC", "Songti TC", serif;
+  --body: "Alegreya Sans", "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", system-ui, sans-serif;
+}
+/* Chinese has no italic: slanted CJK reads as a rendering fault. */
+html:lang(zh-Hant-TW) * { font-style: normal !important; }
+html:lang(zh-Hant-TW) .bk-title h2, html:lang(zh-Hant-TW) .bk-script { font-family: "LXGW WenKai TC", "Noto Serif TC", serif; letter-spacing: .08em; }
+html:lang(zh-Hant-TW) .bk-title h1 { letter-spacing: .2em; }
+html:lang(zh-Hant-TW) .bk-page, html:lang(zh-Hant-TW) .bk-face, html:lang(zh-Hant-TW) .page, html:lang(zh-Hant-TW) .card .band { font-family: "LXGW WenKai TC", "Noto Serif TC", serif; }
+html:lang(zh-Hant-TW) .bk-dropcap::first-letter { font-family: "LXGW WenKai TC", "Noto Serif TC", serif; }
+html:lang(zh-Hant-TW) .card .nm { font-weight: 600; }
+html:lang(zh-Hant-TW) .card.resonant::after { content: "共鳴"; }
+html:lang(zh-Hant-TW) .drawer .body { line-height: 1.75; }

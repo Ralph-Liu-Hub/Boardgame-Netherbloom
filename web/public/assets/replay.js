@@ -2,7 +2,8 @@
 // Two looks: "ink" (drawn on the Book's parchment) and "night" (the band beneath the Book).
 // The scene loops: the soul walks space by space, lilies open where it left Blooms behind,
 // it flickers where it Lingered, cracks where it Fractured, and inscribed memories rise as ink.
-import { CARDS } from "./cards.js";
+import { zh, cardBand } from "./i18n.js";
+const L = (en, zhText) => (zh() ? zhText : en);
 
 const NS = "http://www.w3.org/2000/svg";
 const STEP_MS = 1150, HOLD_MS = 2600;
@@ -45,7 +46,7 @@ export function mountReplay(host, S, { lo = 1, hi = 11, look = "ink", focus = nu
   const ink = night ? "#E6D3A3" : "#6b4a2a", red = night ? "#D7263D" : "#a32a30";
   const big = night ? 1 : 1.55;   // figure scale
 
-  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: `rp rp-${look}`, role: "img", "aria-label": "The soul's journey, replayed" });
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: `rp rp-${look}`, role: "img", "aria-label": L("The soul's journey, replayed", "亡魂旅程的重播") });
   host.replaceChildren(svg);
 
   if (!night) {
@@ -87,9 +88,9 @@ export function mountReplay(host, S, { lo = 1, hi = 11, look = "ink", focus = nu
   }
   if (far) {
     use("nb-light", X(12) - 11, Y(12) - 40, 22, 24, `color:${ink}`, svg);
-    el("text", { x: X(12), y: Y(12) + (night ? 30 : 34), "text-anchor": "middle", "font-family": "IM Fell English SC, serif", "font-size": 10, fill: ink }, svg).textContent = "Far Shore";
+    el("text", { x: X(12), y: Y(12) + (night ? 30 : 34), "text-anchor": "middle", "font-family": "IM Fell English SC, serif", "font-size": 10, fill: ink }, svg).textContent = L("Far Shore", "彼岸");
   }
-  if (first === 0) el("text", { x: X(0), y: Y(0) + (night ? 30 : 34), "text-anchor": "middle", "font-family": "IM Fell English SC, serif", "font-size": 10, fill: ink, opacity: 0.8 }, svg).textContent = "near shore";
+  if (first === 0) el("text", { x: X(0), y: Y(0) + (night ? 30 : 34), "text-anchor": "middle", "font-family": "IM Fell English SC, serif", "font-size": 10, fill: ink, opacity: 0.8 }, svg).textContent = L("near shore", "此岸");
 
   const lilies = el("g", {}, svg);
   const words = el("g", {}, svg);
@@ -127,7 +128,7 @@ export function mountReplay(host, S, { lo = 1, hi = 11, look = "ink", focus = nu
     pos = first;
     i = 0;
     place(pos, true);
-    label.textContent = reached ? "" : (S.result ? "never reached" : "not yet reached");
+    label.textContent = reached ? "" : (S.result ? L("never reached", "未曾抵達") : L("not yet reached", "尚未抵達"));
     svg.classList.toggle("rp-waiting", !reached);
   }
 
@@ -139,7 +140,7 @@ export function mountReplay(host, S, { lo = 1, hi = 11, look = "ink", focus = nu
       return;
     }
     const e = steps[i++];
-    label.textContent = `Turn ${e.t}`;
+    label.textContent = L(`Turn ${e.t}`, `第${e.t}回合`);
     soul.classList.remove("rp-flicker", "rp-pulse", "rp-crack");
     void soul.getBBox?.();
     if (e.k === "m") {
@@ -149,13 +150,13 @@ export function mountReplay(host, S, { lo = 1, hi = 11, look = "ink", focus = nu
     } else if (e.k === "p") {
       pos = e.to;
       place(pos);
-      rise("pulled back toward the living", pos);
+      rise(L("pulled back toward the living", "被拉回生者的方向"), pos);
     } else if (e.k === "w") soul.classList.add("rp-pulse");
-    else if (e.k === "l") { soul.classList.add("rp-flicker"); rise("forgets…", pos); }
-    else if (e.k === "x") { soul.classList.add("rp-crack"); rise("a Fracture", pos, "x"); }
-    else if (e.k === "i") rise(`“${CARDS[e.cid].band}”`, pos);
+    else if (e.k === "l") { soul.classList.add("rp-flicker"); rise(L("forgets…", "遺忘了…"), pos); }
+    else if (e.k === "x") { soul.classList.add("rp-crack"); rise(L("a Fracture", "一道裂痕"), pos, "x"); }
+    else if (e.k === "i") rise(L(`“${cardBand(e.cid)}”`, `「${cardBand(e.cid)}」`), pos);
     else if (e.k === "win") soul.classList.add("rp-home");
-    else if (e.k === "end") { soul.classList.add("rp-gone"); rise({ Faded: "faded", Shattered: "shattered", Deluge: "lost to the flood", Stalled: "still" }[e.cause] || "", pos, "x"); }
+    else if (e.k === "end") { soul.classList.add("rp-gone"); rise((zh() ? { Faded: "消散", Shattered: "破碎", Deluge: "被洪水吞沒", Stalled: "靜止" } : { Faded: "faded", Shattered: "shattered", Deluge: "lost to the flood", Stalled: "still" })[e.cause] || "", pos, "x"); }
     timer = setTimeout(tick, e.k === "i" ? STEP_MS * 1.6 : STEP_MS);
   }
 
