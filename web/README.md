@@ -1,3 +1,5 @@
+English | [正體中文](README.zh-TW.md)
+
 # Netherbloom web table
 
 A playable browser version of Netherbloom for publisher previews, hosted on Vercel.
@@ -41,5 +43,16 @@ The Vercel GitHub app does not yet have access to this repository. Once it does,
 | `public/assets/book.js` | The full illustrated Book of Remembrance, with page turns |
 | `public/assets/puppet.js` | Shadow-theatre silhouettes of each Soul for the Book: jointed, sketched puppets whose gestures replay the soul's journey |
 | `public/assets/replay.js` | The small journey replay on the night river under the Book |
+| `public/assets/i18n.js` | Language switching (English / 正體中文) and translated access to card, Soul, Mist and Chronicle text |
+| `public/assets/zh.js` | Traditional Chinese (Taiwan) game data and the zh-TW terminology glossary |
+| `public/assets/rules_zh.js` | The Traditional Chinese Rulebook and Player Aid |
 | `public/assets/audio.js` | Generative music and sound effects |
 | `public/assets/net.js` | Online play over WebRTC |
+
+## Languages
+
+The game runs in English or Traditional Chinese (Taiwan board-game terminology). Players pick a language on the
+sign-in page or on first launch, and can switch at any time with the button at the top right of the window (or inside
+the Book). The choice is stored per browser, so players at the same online table can each read their own language: the
+engine records every Chronicle line as a message key (`m`) alongside its English text, and each browser renders it
+locally. New card or log text needs a Chinese entry in `zh.js` or `i18n.js`; `npm test` fails if one is missing.

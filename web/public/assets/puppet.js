@@ -3,8 +3,9 @@
 // drawn in ink with a hand-sketched, gently "boiling" edge. The story drives the poses: the soul walks
 // the river turn by turn, and each moment of its journey (a Linger, a Fracture, an inscribed memory,
 // the ending) plays a gesture in that Soul's character.
-import { CARDS } from "./cards.js";
 import { stepsFor } from "./replay.js";
+import { zh, cardBand } from "./i18n.js";
+const L = (en, zhText) => (zh() ? zhText : en);
 
 const NS = "http://www.w3.org/2000/svg";
 const INK = "#2a1d12", RED = "#a32a30", WARM = "#f2c46b";
@@ -210,7 +211,7 @@ export function mountPuppet(host, S, { lo = 1, hi = 11, mode = "chapter" } = {})
   const id = ++uid;
   const soul = S.cfg.soul;
   const G = GESTURES[soul] || GESTURES.open;
-  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: `pp pp-${mode}`, role: "img", "aria-label": "The soul's story, in shadow" });
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, class: `pp pp-${mode}`, role: "img", "aria-label": L("The soul's story, in shadow", "亡魂故事的剪影") });
   host.replaceChildren(svg);
   const defs = el("defs", {}, svg);
   const f = el("filter", { id: `sk-${id}`, x: "-20%", y: "-20%", width: "140%", height: "140%" }, defs);
@@ -232,7 +233,7 @@ export function mountPuppet(host, S, { lo = 1, hi = 11, mode = "chapter" } = {})
     const m = el("g", { "font-family": "IM Fell English SC, serif", "font-size": 13, fill: INK, "text-anchor": "middle", opacity: 0.65 }, svg);
     for (let sp = first; sp <= last; sp++) {
       el("path", { d: `M${X(sp)} ${GROUND - 3} l0 7`, stroke: INK, "stroke-width": 1.2 }, m);
-      el("text", { x: X(sp), y: GROUND + 62 }, m).textContent = sp === 0 ? "near shore" : sp === 12 ? "Far Shore" : sp;
+      el("text", { x: X(sp), y: GROUND + 62 }, m).textContent = sp === 0 ? L("near shore", "此岸") : sp === 12 ? L("Far Shore", "彼岸") : sp;
     }
     if (far) {
       const fs = el("g", { class: "pp-shore" }, svg);
@@ -287,18 +288,18 @@ export function mountPuppet(host, S, { lo = 1, hi = 11, mode = "chapter" } = {})
       return;
     }
     const steps = mode === "epilogue" ? epilogueSteps() : stepsFor(S, lo, hi);
-    if (!steps.length) { moveTo({ ...G.idle, alpha: 0.4 }, 2000, { label: S.result ? "never reached" : "not yet reached" }); return; }
+    if (!steps.length) { moveTo({ ...G.idle, alpha: 0.4 }, 2000, { label: S.result ? L("never reached", "未曾抵達") : L("not yet reached", "尚未抵達") }); return; }
     moveTo(G.idle, 900);
     for (const e of steps) {
-      const label = e.t ? `Turn ${e.t}` : "";
+      const label = e.t ? L(`Turn ${e.t}`, `第${e.t}回合`) : "";
       if (e.k === "m") queue.push({ walk: X(Math.min(e.to, last)), from: e.f, b: e.b, label });
-      else if (e.k === "p") { gesture((G.look || [[FLINCH, 600]]).map(([p, ms]) => [p, ms])); queue.push({ walk: X(e.to), back: true, label, say: "pulled back toward the living" }); }
+      else if (e.k === "p") { gesture((G.look || [[FLINCH, 600]]).map(([p, ms]) => [p, ms])); queue.push({ walk: X(e.to), back: true, label, say: L("pulled back toward the living", "被拉回生者的方向") }); }
       else if (e.k === "w") moveTo({ ...G.idle, nod: -8 }, 1200, { label });
-      else if (e.k === "l") { moveTo(G.idle, 300, { label, say: "lingers, and forgets…" }); gesture(G.linger); moveTo(G.idle, 700); }
-      else if (e.k === "x") { moveTo(FLINCH, 350, { label, say: "a Fracture", sayCls: "x", fx: "crack" }); moveTo(FLINCH, 700); moveTo(G.idle, 600); }
-      else if (e.k === "i") { moveTo(G.idle, 300, { label, say: `“${CARDS[e.cid].band}”` }); gesture(G.sign); moveTo(G.idle, 700); }
-      else if (e.k === "win") { moveTo(OPEN_ARMS, 1200, { say: "the Far Shore" }); moveTo(OPEN_ARMS, 2200); }
-      else if (e.k === "end") { moveTo(FLINCH, 600, { say: { Faded: "faded", Shattered: "shattered", Deluge: "lost to the flood", Stalled: "still" }[e.cause] || "", sayCls: "x" }); moveTo(FALLEN, 1800); moveTo(FALLEN, 1600); }
+      else if (e.k === "l") { moveTo(G.idle, 300, { label, say: L("lingers, and forgets…", "徘徊，並遺忘了…") }); gesture(G.linger); moveTo(G.idle, 700); }
+      else if (e.k === "x") { moveTo(FLINCH, 350, { label, say: L("a Fracture", "一道裂痕"), sayCls: "x", fx: "crack" }); moveTo(FLINCH, 700); moveTo(G.idle, 600); }
+      else if (e.k === "i") { moveTo(G.idle, 300, { label, say: L(`“${cardBand(e.cid)}”`, `「${cardBand(e.cid)}」`) }); gesture(G.sign); moveTo(G.idle, 700); }
+      else if (e.k === "win") { moveTo(OPEN_ARMS, 1200, { say: L("the Far Shore", "彼岸") }); moveTo(OPEN_ARMS, 2200); }
+      else if (e.k === "end") { moveTo(FLINCH, 600, { say: (zh() ? { Faded: "消散", Shattered: "破碎", Deluge: "被洪水吞沒", Stalled: "靜止" } : { Faded: "faded", Shattered: "shattered", Deluge: "lost to the flood", Stalled: "still" })[e.cause] || "", sayCls: "x" }); moveTo(FALLEN, 1800); moveTo(FALLEN, 1600); }
     }
     moveTo(G.idle, 600);
   }

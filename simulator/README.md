@@ -1,3 +1,5 @@
+English | [正體中文](README.zh-TW.md)
+
 # Netherbloom simulator
 
 Plays thousands of games of Netherbloom with Echo-following AI players and reports how balanced and how well-paced the game is. It models the rules in **GDD v0.4** and the cards in **Card Compendium v0.2** and **Soul Roster v3**.

@@ -106,7 +106,7 @@ export function newGame(cfg, seed = (Math.random() * 2 ** 31) | 0, names = []) {
   s.lastMist = null;
   s.stats = { resonances: 0, inscribed: 0, blessings: 0, backlashes: 0, lingers: 0, burns: 0, summons: 0 };
   s.trail = [];  // the soul's journey, replayed in the Book of Remembrance
-  note(s, "start", `The soul wakes at the near shore. ${REACH_NAMES[0]} lies ahead.`);
+  note(s, "start", `The soul wakes at the near shore. ${REACH_NAMES[0]} lies ahead.`, { m: ["start"] });
   return s;
 }
 
@@ -125,7 +125,7 @@ export function note(s, kind, msg, data = {}) {
   s.ev.push({ id: s.evn, kind, msg, ...data });
   if (s.ev.length > 120) s.ev.splice(0, s.ev.length - 120);
   if (msg) {
-    s.log.push({ id: s.evn, turn: s.turn, kind, msg });
+    s.log.push({ id: s.evn, turn: s.turn, kind, msg, m: data.m });
     if (s.log.length > 80) s.log.splice(0, s.log.length - 80);
   }
 }
@@ -142,7 +142,7 @@ function lose(s, cause) {
     note(s, "loss", { Faded: "Too much was forgotten. The soul fades into the mist.",
       Shattered: "The third Fracture. The soul shatters.",
       Deluge: "The Black Water rises with nothing left to hold it. Deluge.",
-      Stalled: "The river grows still. The crossing is abandoned." }[cause], { cause });
+      Stalled: "The river grows still. The crossing is abandoned." }[cause], { cause, m: [`loss_${cause}`] });
   }
   throw new GameOver(cause);
 }
@@ -150,7 +150,7 @@ function win(s) {
   if (s.result === null) {
     trail(s, { k: "win" });
     s.result = "win";
-    note(s, "win", "The soul reaches the Far Shore.");
+    note(s, "win", "The soul reaches the Far Shore.", { m: ["win"] });
   }
   throw new GameOver("win");
 }
@@ -181,22 +181,22 @@ function placeRoot(s, k, stonyOk) {
   if (!s.revealed[k]) {
     s.revealed[k] = true;
     const t = s.tile[k];
-    note(s, "reveal", `The fog lifts at ${slotName(k)}: ${TILE_NAMES[t]}.`, { k, tile: t });
+    note(s, "reveal", `The fog lifts at ${slotName(k)}: ${TILE_NAMES[t]}.`, { k, tile: t, m: ["reveal", k, t] });
     if (t === GRAVE) {
       s.griev[k] = true;
-      note(s, "grievance", "A Grievance rises from the Grave.", { k });
+      note(s, "grievance", "A Grievance rises from the Grave.", { k, m: ["grave"] });
       return false;
     }
     if (t === STONY && !stonyOk) {
-      note(s, "info", "Stony ground. The Root will not take.");
+      note(s, "info", "Stony ground. The Root will not take.", { m: ["stony"] });
       return false;
     }
     if (t === MEMORY) {
       s.keepsakes[reachOf(k >> 1)] += 1;
       if (s.cfg.soul === "open") {
         s.light += 2;
-        note(s, "light", "A Memory Site glows: +2 Light.", { k });
-      } else note(s, "keepsake", "A Memory Site: a keepsake is found.", { k });
+        note(s, "light", "A Memory Site glows: +2 Light.", { k, m: ["memLight"] });
+      } else note(s, "keepsake", "A Memory Site: a keepsake is found.", { k, m: ["memKeep"] });
     }
   } else if (s.tile[k] === GRAVE || (s.tile[k] === STONY && !stonyOk)) return false;
   s.tok[k] = ROOT;
@@ -207,22 +207,22 @@ function placeRoot(s, k, stonyOk) {
 function addFracture(s) {
   if (s.shieldUntil >= s.turn) {
     s.shieldUntil = -1;
-    note(s, "shield", "The Shield holds. No Fracture.");
+    note(s, "shield", "The Shield holds. No Fracture.", { m: ["shieldHold"] });
     return;
   }
   const r = reachOf(Math.max(1, Math.min(11, s.soul)));
   if (s.childShield[r]) {
     s.childShield[r] = false;
-    note(s, "shield", "The little flame shields the Child. The first Fracture this Reach is ignored.");
+    note(s, "shield", "The little flame shields the Child. The first Fracture this Reach is ignored.", { m: ["childShield"] });
     return;
   }
   s.fract += 1;
   trail(s, { k: "x", at: s.soul });
-  note(s, "fracture", `Fracture ${s.fract} of ${s.cfg.fractureLimit}.`);
+  note(s, "fracture", `Fracture ${s.fract} of ${s.cfg.fractureLimit}.`, { m: ["fracture", s.fract, s.cfg.fractureLimit] });
   if (s.cfg.soul === "king") {
     for (const m in s.mantles) if (s.mantles[m] === s.cur) {
       s.mantles[m] = -1;
-      note(s, "info", `The King's grief strips ${MANTLES[m].name} from ${s.names[s.cur]}.`);
+      note(s, "info", `The King's grief strips ${MANTLES[m].name} from ${s.names[s.cur]}.`, { m: ["kingStrip", m, s.names[s.cur]] });
     }
   }
   if (s.fract >= s.cfg.fractureLimit) lose(s, "Shattered");
@@ -232,7 +232,7 @@ function reshuffle(s) {
   if (s.discard.length) {
     s.deck = shuffle(s, s.discard);
     s.discard = [];
-    note(s, "info", "The discard pile is shuffled into a new deck.");
+    note(s, "info", "The discard pile is shuffled into a new deck.", { m: ["reshuffle"] });
   }
 }
 function forgetTop(s, n = 1) {
@@ -241,13 +241,13 @@ function forgetTop(s, n = 1) {
     if (!s.deck.length) return;
     const cid = s.deck.pop();
     s.forgotten.push(cid);
-    note(s, "forget", `Forgotten: ${CARDS[cid].name}.`, { cid });
+    note(s, "forget", `Forgotten: ${CARDS[cid].name}.`, { cid, m: ["forgot", cid] });
     checkFaded(s);
   }
 }
 function forgetCard(s, cid) {
   s.forgotten.push(cid);
-  note(s, "forget", `Forgotten: ${CARDS[cid].name}.`, { cid });
+  note(s, "forget", `Forgotten: ${CARDS[cid].name}.`, { cid, m: ["forgot", cid] });
   checkFaded(s);
 }
 function checkFaded(s) {
@@ -264,12 +264,12 @@ function placeBW(s, sp) {
   s.flooded[x] = true;
   s.bw -= 1;
   for (const b of [0, 1]) if (s.tok[x * 2 + b] === BLOOM) s.tok[x * 2 + b] = ROOT;
-  note(s, "flood", `Black Water floods space ${x}. ${s.bw} left in the supply.`, { sp: x });
+  note(s, "flood", `Black Water floods space ${x}. ${s.bw} left in the supply.`, { sp: x, m: ["flood", x, s.bw] });
 }
 function drain(s, sp) {
   if (s.flooded[sp]) {
     s.flooded[sp] = false;
-    note(s, "drain", `The Black Water at ${sp} drains away.`, { sp });
+    note(s, "drain", `The Black Water at ${sp} drains away.`, { sp, m: ["drain", sp] });
   }
 }
 function placeGriev(s, sp, bank) {
@@ -285,7 +285,7 @@ function placeGriev(s, sp, bank) {
     if (!s.griev[k]) {
       s.griev[k] = true;
       s.tok[k] = NONE;
-      note(s, "grievance", `A Grievance takes ${slotName(k)}.`, { k });
+      note(s, "grievance", `A Grievance takes ${slotName(k)}.`, { k, m: ["griev", k] });
       return;
     }
   }
@@ -301,7 +301,7 @@ function tieKnot(s, tag) {
 }
 function backlash(s, tag) {
   s.stats.backlashes += 1;
-  note(s, "backlash", `Backlash of ${TAG_NAMES[tag]}! ${["Grasping: a Grievance claws at the soul.", "Resignation: the soul will sit down and Linger.", "The Tide Rises: Black Water floods ahead."][tag]}`, { tag });
+  note(s, "backlash", `Backlash of ${TAG_NAMES[tag]}! ${["Grasping: a Grievance claws at the soul.", "Resignation: the soul will sit down and Linger.", "The Tide Rises: Black Water floods ahead."][tag]}`, { tag, m: ["backlash", tag] });
   if (tag === OBS) {
     const k0 = s.soul * 2, k1 = k0 + 1;
     if (s.soul >= 1 && !s.griev[k0]) placeGriev(s, s.soul, 0);
@@ -324,7 +324,7 @@ async function doOp(s, op, ch) {
     }
     for (let i = 0; i < n; i++) {
       const ts = rootTargets(s, stony);
-      if (!ts.length) { note(s, "info", "No ground left to root."); break; }
+      if (!ts.length) { note(s, "info", "No ground left to root.", { m: ["noRoot"] }); break; }
       const t = await ch.rootTarget(s, stony, ts, i + 1, n);
       if (t === null || t === undefined) break;
       placeRoot(s, t, stony);
@@ -332,7 +332,7 @@ async function doOp(s, op, ch) {
   } else if (kind === "bloom") {
     for (let i = 0; i < op[1]; i++) {
       const ts = bloomTargets(s);
-      if (!ts.length) { note(s, "info", "No Root left to bloom."); break; }
+      if (!ts.length) { note(s, "info", "No Root left to bloom.", { m: ["noBloom"] }); break; }
       const t = await ch.bloomTarget(s, ts, i + 1, op[1]);
       if (t === null || t === undefined) break;
       s.tok[t] = BLOOM;
@@ -340,27 +340,27 @@ async function doOp(s, op, ch) {
     }
   } else if (kind === "hold") {
     s.hold = true;
-    note(s, "info", "Hold Fast: the soul will wait without forgetting.");
+    note(s, "info", "Hold Fast: the soul will wait without forgetting.", { m: ["hold"] });
   } else if (kind === "shield") {
     s.shieldUntil = s.turn + s.n;
-    note(s, "shield", "A Shield is raised until your next turn.");
+    note(s, "shield", "A Shield is raised until your next turn.", { m: ["shield"] });
   } else if (kind === "mend") {
-    if (s.fract > 0) note(s, "mend", "A Fracture is mended.");
+    if (s.fract > 0) note(s, "mend", "A Fracture is mended.", { m: ["mend"] });
     s.fract = Math.max(0, s.fract - op[1]);
   } else if (kind === "release") {
     const col = fullest(s);
     s.karma[col] = Math.max(0, s.karma[col] - op[1]);
-    note(s, "release", `Knots untied on ${TAG_NAMES[col]}.`, { tag: col });
+    note(s, "release", `Knots untied on ${TAG_NAMES[col]}.`, { tag: col, m: ["release", col] });
   } else if (kind === "guide") {
     if (passable(s, s.soul + 1)) {
-      note(s, "guide", "Guided, the soul steps forward.");
+      note(s, "guide", "Guided, the soul steps forward.", { m: ["guided"] });
       moveSoul(s, 1);
-    } else note(s, "info", "The way ahead is dark. The soul cannot be guided.");
+    } else note(s, "info", "The way ahead is dark. The soul cannot be guided.", { m: ["noGuide"] });
   } else if (kind === "vigil") {
     const d = s.mist[s.reach];
     const top = d.slice(-3).sort((a, b) => mistSeverity(b) - mistSeverity(a));
     d.splice(d.length - top.length, top.length, ...top);
-    note(s, "info", `Vigil: the coming Mist is read. Next: ${d.length ? d[d.length - 1][0] : "—"}.`);
+    note(s, "info", `Vigil: the coming Mist is read. Next: ${d.length ? d[d.length - 1][0] : "—"}.`, { m: ["vigil", d.length ? d[d.length - 1][0] : ""] });
   } else if (kind === "banish_or_drain") {
     const g = urgentGrievance(s), w = urgentWater(s);
     if (g !== null && (w === null || grievUrgency(s, g) >= waterUrgency(s, w))) banish(s, g);
@@ -373,7 +373,7 @@ async function doOp(s, op, ch) {
     if (w !== null) drain(s, w);
   } else if (kind === "light") {
     s.light += op[1];
-    note(s, "light", `+${op[1]} Light.`);
+    note(s, "light", `+${op[1]} Light.`, { m: ["light", op[1]] });
   } else if (kind === "reveal_reach") {
     for (const sp of TILES[s.reach][0]) for (const b of [0, 1]) {
       const k = sp * 2 + b;
@@ -382,11 +382,11 @@ async function doOp(s, op, ch) {
         if (s.tile[k] === GRAVE) s.tile[k] = FERTILE;
       }
     }
-    note(s, "reveal", "The fog lifts across the whole Reach.");
+    note(s, "reveal", "The fog lifts across the whole Reach.", { m: ["revealAll"] });
   } else if (kind === "unmake") {
     const col = fullest(s);
     s.karma[col] = 0;
-    note(s, "release", `The ${TAG_NAMES[col]} thread is unmade.`, { tag: col });
+    note(s, "release", `The ${TAG_NAMES[col]} thread is unmade.`, { tag: col, m: ["unmade", col] });
   } else if (kind === "wash") {
     for (const b of [0, 1]) if (s.soul >= 1 && s.griev[s.soul * 2 + b]) banish(s, s.soul * 2 + b);
   } else if (kind === "lowtide") {
@@ -397,7 +397,7 @@ async function doOp(s, op, ch) {
 
 function banish(s, k) {
   s.griev[k] = false;
-  note(s, "banish", `The Grievance at ${slotName(k)} is banished.`, { k });
+  note(s, "banish", `The Grievance at ${slotName(k)} is banished.`, { k, m: ["banish", k] });
 }
 function fullest(s) {
   let col = 0;
@@ -436,7 +436,7 @@ export function beginTurn(s) {
   s.phase = "play";
   s.played = 0;
   s.lastMist = null;
-  note(s, "turn", `Turn ${s.turn}: ${s.names[p]}.`, { p });
+  note(s, "turn", `Turn ${s.turn}: ${s.names[p]}.`, { p, m: ["turn", s.turn, s.names[p]] });
 }
 
 export function canSummon(s) {
@@ -453,7 +453,7 @@ export function summon(s, mantle, cid) {
   s.discard.push(cid);
   s.mantles[mantle] = p;
   s.stats.summons += 1;
-  note(s, "summon", `${s.names[p]} takes up ${MANTLES[mantle].name}.`, { mantle, p });
+  note(s, "summon", `${s.names[p]} takes up ${MANTLES[mantle].name}.`, { mantle, p, m: ["summon", s.names[p], mantle] });
 }
 
 // mode: "up", "down" or "burn". Returns true if the card Resonated.
@@ -464,14 +464,14 @@ export async function playCard(s, cid, mode, ch) {
   hand.splice(hand.indexOf(cid), 1);
   s.played += 1;
   if (mode === "down") {
-    note(s, "play", `${s.names[s.cur]} plays a card face down: 1 Root.`, { cid: -1, mode, p: s.cur });
+    note(s, "play", `${s.names[s.cur]} plays a card face down: 1 Root.`, { cid: -1, mode, p: s.cur, m: ["playDown", s.names[s.cur]] });
     await doOp(s, ["root", 1, false], ch);
     s.discard.push(cid);
     return false;
   }
   const resonated = first && s.echo === card.tag;
   note(s, "play", `${s.names[s.cur]} plays ${card.name}${mode === "burn" ? " and Burns it" : ""}${resonated ? ". It Resonates with the Echo!" : "."}`,
-    { cid, mode, p: s.cur, res: resonated });
+    { cid, mode, p: s.cur, res: resonated, m: ["play", s.names[s.cur], cid, mode === "burn", resonated] });
   const reps = mode === "burn" ? 2 : 1;
   for (let i = 0; i < reps; i++) await doOps(s, resonated && card.rr ? card.res : card.eff, ch);
   if (resonated) {
@@ -490,7 +490,7 @@ export async function playCard(s, cid, mode, ch) {
     if (s.mantles.breaker === s.cur && !s.breakerUsed) {
       s.breakerUsed = true;
       s.discard.push(cid);
-      note(s, "info", "The Fog-Breaker keeps the memory from the river.");
+      note(s, "info", "The Fog-Breaker keeps the memory from the river.", { m: ["breaker"] });
     } else forgetCard(s, cid);
     return resonated;
   }
@@ -499,7 +499,7 @@ export async function playCard(s, cid, mode, ch) {
     s.book[s.reach][card.slot] = cid;
     trail(s, { k: "i", at: s.soul, r: s.reach, cid });
     s.stats.inscribed += 1;
-    note(s, "inscribe", `Inscribed in the Book (${card.slot}): “${card.band}”`, { cid, reach: s.reach, slot: card.slot });
+    note(s, "inscribe", `Inscribed in the Book (${card.slot}): “${card.band}”`, { cid, reach: s.reach, slot: card.slot, m: ["inscribe", cid] });
     const filled = Object.keys(s.book[s.reach]).length;
     if (!s.blessed[s.reach] && filled >= s.cfg.blessingAt) {
       s.blessed[s.reach] = true;
@@ -520,15 +520,15 @@ export const canInscribe = (s, cid, resonated) => {
 function blessing(s) {
   if (s.fract > 0) {
     s.fract -= 1;
-    note(s, "blessing", "Chapter Blessing: a Fracture is mended.");
+    note(s, "blessing", "Chapter Blessing: a Fracture is mended.", { m: ["bless_mend"] });
   } else if (s.flooded.some((f, i) => f && i >= 1)) {
     const w = urgentWater(s) ?? s.flooded.findIndex((f, i) => f && i >= 1);
-    note(s, "blessing", "Chapter Blessing: the Black Water recedes.");
+    note(s, "blessing", "Chapter Blessing: the Black Water recedes.", { m: ["bless_drain"] });
     drain(s, w);
   } else if (s.forgotten.length) {
     s.discard.push(s.forgotten.pop());
-    note(s, "blessing", "Chapter Blessing: a forgotten memory returns.");
-  } else note(s, "blessing", "Chapter Blessing: the page glows.");
+    note(s, "blessing", "Chapter Blessing: a forgotten memory returns.", { m: ["bless_return"] });
+  } else note(s, "blessing", "Chapter Blessing: the page glows.", { m: ["bless_glow"] });
 }
 
 export const bringerPending = s => s.mantles.bringer === s.cur && !s.bringerUsed && bloomTargets(s).length > 0;
@@ -537,7 +537,7 @@ export function bringerBloom(s, k) {
   s.bringerUsed = true;
   if (k !== null && k !== undefined) {
     s.tok[k] = BLOOM;
-    note(s, "bloom", "The Bloom-Bringer opens a flower.", { k });
+    note(s, "bloom", "The Bloom-Bringer opens a flower.", { k, m: ["bringer"] });
   }
 }
 
@@ -562,7 +562,7 @@ function moveSoul(s, steps) {
     if (nr !== s.reach) {
       s.reach = nr;
       s.karma = [0, 0, 0];
-      note(s, "reach", `The soul enters Reach ${["I", "II", "III"][nr]}: ${REACH_NAMES[nr]}. The Loom is cleared.`, { reach: nr });
+      note(s, "reach", `The soul enters Reach ${["I", "II", "III"][nr]}: ${REACH_NAMES[nr]}. The Loom is cleared.`, { reach: nr, m: ["reach", nr] });
     }
   }
 }
@@ -572,7 +572,7 @@ function soulStep(s) {
   const f = s.forgotten.length, cfg = s.cfg;
   if (s.resign) {
     s.resign = false;
-    note(s, "linger", "Resignation: the soul sits down in the reeds.");
+    note(s, "linger", "Resignation: the soul sits down in the reeds.", { m: ["resign"] });
     linger(s, true);
     feed(s);
     return;
@@ -583,14 +583,14 @@ function soulStep(s) {
       if (passable(s, s.soul + 1)) moveSoul(s, 1);
       else if (s.mantles.warden >= 0 && s.wardenReady) {
         s.wardenReady = false;
-        note(s, "shield", "The Spirit Warden holds the drifting soul back.");
+        note(s, "shield", "The Spirit Warden holds the drifting soul back.", { m: ["wardenDrift"] });
       } else {
-        note(s, "adrift", "Adrift: with so much forgotten, the soul drifts into the dark.");
+        note(s, "adrift", "Adrift: with so much forgotten, the soul drifts into the dark.", { m: ["adrift"] });
         moveSoul(s, 1);
         addFracture(s);
       }
     } else if (f >= cfg.ashAt && passable(s, s.soul + 1)) {
-      note(s, "info", "Light as Ash: the soul, lighter now, glides one more space.");
+      note(s, "info", "Light as Ash: the soul, lighter now, glides one more space.", { m: ["ash"] });
       moveSoul(s, 1);
     }
   } else linger(s, false);
@@ -598,17 +598,17 @@ function soulStep(s) {
 }
 
 function linger(s, force) {
-  if (!force && s.hold) { trail(s, { k: "w", at: s.soul }); note(s, "info", "Holding fast, the soul waits without forgetting."); return; }
+  if (!force && s.hold) { trail(s, { k: "w", at: s.soul }); note(s, "info", "Holding fast, the soul waits without forgetting.", { m: ["holding"] }); return; }
   if (!force && s.mantles.warden >= 0 && s.wardenReady) {
     s.wardenReady = false;
     trail(s, { k: "w", at: s.soul });
-    note(s, "shield", "The Spirit Warden steadies the soul.");
+    note(s, "shield", "The Spirit Warden steadies the soul.", { m: ["wardenSteady"] });
     return;
   }
   s.stats.lingers += 1;
   if (!force && s.soul >= 1 && lit(s, s.soul)) {
     trail(s, { k: "w", at: s.soul });
-    note(s, "linger", "The way ahead is dark. The soul waits beside its own light.");
+    note(s, "linger", "The way ahead is dark. The soul waits beside its own light.", { m: ["waitLit"] });
     return;
   }
   if (s.cfg.soul === "bride" && !force && s.soul >= 1 && !s.bridePulled) {
@@ -616,17 +616,17 @@ function linger(s, force) {
     s.soul -= 1;
     trail(s, { k: "p", f: s.soul + 1, to: s.soul });
     note(s, "move", "", { from: s.soul + 1, to: s.soul });
-    note(s, "linger", "In the dark she looks back, and is pulled one space toward the living.");
+    note(s, "linger", "In the dark she looks back, and is pulled one space toward the living.", { m: ["bridePull"] });
     return;
   }
   trail(s, { k: "l", at: s.soul });
-  note(s, "linger", "The soul Lingers in the dark, and forgets.");
+  note(s, "linger", "The soul Lingers in the dark, and forgets.", { m: ["linger"] });
   forgetTop(s, 1);
 }
 
 function feed(s) {
   if (s.soul >= 1 && s.soul <= 11 && (s.griev[s.soul * 2] || s.griev[s.soul * 2 + 1])) {
-    note(s, "info", "A Grievance feeds on the soul.");
+    note(s, "info", "A Grievance feeds on the soul.", { m: ["feed"] });
     addFracture(s);
   }
 }
@@ -637,7 +637,7 @@ function mistStep(s) {
   if (!d.length) d.push(...shuffle(s, MIST[s.reach].map(m => m)));
   const [name, ops] = d.pop();
   s.lastMist = name;
-  note(s, "mist", name, { name });
+  note(s, "mist", name, { name, m: ["mist", name] });
   const S = s.soul;
   for (const op of ops) {
     const k = op[0];
@@ -673,7 +673,7 @@ function mistStep(s) {
 function endOfTurnChecks(s) {
   for (let sp = 1; sp < FAR; sp++) {
     if (s.flooded[sp] && s.tok[sp * 2] >= ROOT && s.tok[sp * 2 + 1] >= ROOT) {
-      note(s, "info", `Roots on both banks drink the flood at ${sp}.`);
+      note(s, "info", `Roots on both banks drink the flood at ${sp}.`, { m: ["drink", sp] });
       drain(s, sp);
     }
   }
@@ -682,7 +682,7 @@ function endOfTurnChecks(s) {
       const sp = k >> 1, b = k % 2;
       if (sp >= 2 && sp <= 10 && s.tok[(sp - 1) * 2 + b] === BLOOM && s.tok[(sp + 1) * 2 + b] === BLOOM) {
         s.griev[k] = false;
-        note(s, "banish", `Trapped between Blooms, the Grievance at ${slotName(k)} dissolves in the light.`, { k });
+        note(s, "banish", `Trapped between Blooms, the Grievance at ${slotName(k)} dissolves in the light.`, { k, m: ["trapped", k] });
       }
     }
   }
@@ -701,7 +701,7 @@ function ghostTurn(s) {
   const [tag, act] = s.ghost.pop();
   const what = { root_far: "roots far ahead", root_near: "roots close by", bloom_near: "blooms the nearest Root",
     bloom_far: "blooms the furthest Root", banish_forget: "clears the way", none: "drifts silently" }[act];
-  note(s, "ghost", `The Ghost plays ${TAG_NAMES[tag]}: it ${what}.`, { tag });
+  note(s, "ghost", `The Ghost plays ${TAG_NAMES[tag]}: it ${what}.`, { tag, m: ["ghost", tag, act] });
   if (act === "root_far" || act === "root_near") {
     const ts = rootTargets(s, false);
     if (ts.length) placeRoot(s, act === "root_far" ? Math.max(...ts) : Math.min(...ts), false);

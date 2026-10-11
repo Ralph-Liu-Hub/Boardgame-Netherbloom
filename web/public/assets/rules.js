@@ -4,6 +4,9 @@ import {
   CARDS, TAG_NAMES, TAG_ICONS, MANTLES, SOULS, FIRST_SOUL, LANTERN, MIST, HARSH, MIST_TEXT, opsText, GHOST,
 } from "./cards.js";
 
+import { zh } from "./i18n.js";
+import { RULEBOOK_ZH, playerAidZh } from "./rules_zh.js";
+
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const ico = (id, color) => `<svg class="ri" style="color:${color}" aria-hidden="true"><use href="#${id}"/></svg>`;
 const TAGCOL = ["#D7263D", "#E6D3A3", "#8FD6E1"];
@@ -140,7 +143,9 @@ export const RULEBOOK = [
 ];
 
 // The one-page Player Aid. With a game running, it shows that game's numbers.
+export const rulebook = () => (zh() ? RULEBOOK_ZH : RULEBOOK);
 export function playerAid(cfg) {
+  if (zh()) return playerAidZh(cfg);
   const lim = cfg ? cfg.forgottenLimit : "10–14", cap = cfg ? cfg.karmaCap : "4–5", ash = cfg ? cfg.ashAt : 6, adrift = cfg ? (cfg.adriftAt < 99 ? cfg.adriftAt : "never") : 9;
   return `
   <section class="aid">

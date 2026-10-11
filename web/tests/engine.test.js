@@ -1,7 +1,8 @@
 // Plays many games with a simple greedy chooser to check the engine never crashes and games end.
 import assert from "node:assert/strict";
 import { makeConfig, newGame, beginTurn, playCard, endTurn, GameOver, copy, lit, NONE, ROOT, canSummon, summon, bringerPending, bringerBloom, bloomTargets } from "../public/assets/engine.js";
-import { CARDS, MANTLES } from "../public/assets/cards.js";
+import { CARDS, MANTLES, MIST, HARSH, SOULS } from "../public/assets/cards.js";
+import { setLang, say, cardName, cardBand, mistName, mistText, soulInfo, mantleInfo } from "../public/assets/i18n.js";
 
 const greedy = {
   async rootTarget(s, stony, ts) {
@@ -49,9 +50,34 @@ async function play(players, soul, lantern, seed) {
     } catch (e) { if (!(e instanceof GameOver)) throw e; s.phase = "over"; break; }
     endTurn(s);
     JSON.stringify(s);
+    checkLog(s);
   }
+  checkLog(s);
   return s;
 }
+
+// Every Chronicle line carries a message key with a Chinese rendering.
+const seenKeys = new Set();
+function checkLog(s) {
+  setLang("zh");
+  for (const l of s.log) {
+    if (!l.msg) continue;
+    assert.ok(Array.isArray(l.m), `no message key for: ${l.msg}`);
+    const zh = say(l);
+    assert.ok(zh && zh !== l.msg && !/undefined|NaN/.test(zh) && /[\u4e00-\u9fff]/.test(zh), `bad zh for ${l.m[0]}: ${zh}`);
+    seenKeys.add(l.m[0]);
+  }
+  setLang("en");
+}
+setLang("zh");
+for (let cid = 0; cid < CARDS.length; cid++) {
+  assert.notEqual(cardName(cid), CARDS[cid].name, `zh name for ${CARDS[cid].id}`);
+  if (CARDS[cid].slot) assert.notEqual(cardBand(cid), CARDS[cid].band, `zh band for ${CARDS[cid].id}`);
+}
+for (const [n] of [...MIST.flat(), ...HARSH]) assert.ok(mistName(n) !== n && mistText(n), `zh Mist ${n}`);
+for (const k of Object.keys(SOULS)) assert.ok(soulInfo(k).name !== SOULS[k].name);
+for (const m of Object.keys(MANTLES)) assert.ok(mantleInfo(m).name !== MANTLES[m].name);
+setLang("en");
 
 let wins = 0, games = 0, turns = 0;
 const causes = {};
@@ -72,4 +98,5 @@ for (const soul of ["open", "bride", "child"]) for (let seed = 1; seed <= 25; se
 const a = await play(3, "open", 3, 42), b = await play(3, "open", 3, 42);
 assert.equal(JSON.stringify(a), JSON.stringify(b), "same seed gives the same game");
 assert.deepEqual(copy(a), a);
+console.log(`zh: ${seenKeys.size} message kinds checked`);
 console.log(`ok: ${games} games, greedy win rate ${(wins / games * 100).toFixed(0)}%, avg ${(turns / games).toFixed(1)} turns, losses`, causes);
