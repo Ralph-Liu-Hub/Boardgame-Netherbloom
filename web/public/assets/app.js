@@ -167,6 +167,7 @@ function menu(which = "solo") {
     </section>
     <section class="panel" id="modepanel"></section>
     <p class="muted" style="text-align:center;margin:0">${L("New to the river? Read", "第一次來到這條河？閱讀")} <button type="button" class="ghost" id="howto">${L("How to play", "遊戲說明")}</button></p>
+    <p class="muted" style="text-align:center;margin:0;font-size:.88rem"><a href="/downloads/netherbloom-pnp.zh-TW.pdf" target="_blank" rel="noopener" style="color:var(--bone)">${L("Print & Play components (Traditional Chinese, PDF)", "下載正體中文印刷試玩配件（PDF）")}</a></p>
   </div>`;
   $("howto").onclick = () => openDrawer("rules");
   document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => menu(b.dataset.mode));

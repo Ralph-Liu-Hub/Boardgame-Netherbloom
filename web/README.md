@@ -1,3 +1,5 @@
+English | [正體中文](README.zh-TW.md)
+
 # Netherbloom web table
 
 A playable browser version of Netherbloom for publisher previews, hosted on Vercel.
