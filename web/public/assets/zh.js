@@ -1,7 +1,7 @@
 // 正體中文（台灣桌遊用語）資料：卡牌、亡魂、迷霧、稱號與效果文字。結構與 cards.js 相同，以 id 或英文名稱對應。
 //
 // 用語表（遊戲內一律使用）：
-//   Soul 亡魂 · Far Shore 彼岸 · near shore 此岸 · space 格 · bank 河岸（upper 上岸 / lower 下岸）· Reach 河段
+//   Soul 亡魂 · Far Shore 彼岸 · near shore 此岸 · space 格 · bank 河岸（left 左岸 / right 右岸；面向下游，左岸在版圖上方）· Reach 河段
 //   Root 根 · Bloom 花（動詞：綻放）· Lit 照亮 · network 根網 · fog 霧 · Light 光（點）
 //   Fertile 沃土 · Stony 石地 · Memory Site 記憶之地 · Grave 墳墓 · keepsake 信物
 //   Black Water 黑水 · flood 淹沒 · drain 排乾 · Deluge 滅頂 · Grievance 怨念 · banish 驅散 · Fracture 裂痕 · Shield 護盾

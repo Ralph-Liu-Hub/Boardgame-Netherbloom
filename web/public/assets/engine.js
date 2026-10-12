@@ -10,7 +10,7 @@ import {
 export const FAR = 12, NSLOT = 24, NONE = 0, ROOT = 1, BLOOM = 2;
 export const TURN_LIMIT = 120;
 export const reachOf = sp => (sp <= 4 ? 0 : sp <= 8 ? 1 : 2);
-export const slotName = k => `${k >> 1}${k % 2 ? " lower" : " upper"}`;
+export const slotName = k => `${k >> 1}${k % 2 ? " right" : " left"}`;
 
 export class GameOver extends Error {}
 

@@ -93,7 +93,7 @@ export const RULEBOOK = [
     <p>What each piece is in the story, and what it does in play. The icons are the same ones you see on the board and the cards.</p>
     <table class="rtable rpieces"><thead><tr><th>Piece</th><th>In the story</th><th>In play</th></tr></thead><tbody>
       ${piece("nb-soul", "#EFE7D6", "The soul", "A coinless dead person, waking on the near shore with a whole life still inside them.", "The pawn you escort from space 0 to the Far Shore at space 12. It only steps onto Lit spaces.")}
-      ${piece("", "", "The river", "The River Lethe, winding from the near shore to the Far Shore.", "Spaces 0 to 12. Spaces 1–11 each have an upper and a lower bank, and each bank holds one tile or token.")}
+      ${piece("", "", "The river", "The River Lethe, winding from the near shore to the Far Shore.", "Spaces 0 to 12. Spaces 1–11 each have a left and a right bank, and each bank holds one tile or token.")}
       ${piece("", "", "The three Reaches", "Three stretches of the underworld: the grey <b>Asphodel Road</b>, the <b>Fields of Mourning</b> where grief lingers, and the <b>Banks of Lethe</b> where the water is deepest.", "Spaces 1–4, 5–8 and 9–11. Each Reach has its own Mist deck and its own chapter in the Book. The Loom is cleared as the soul enters each one.")}
       ${piece("nb-light", "#E6D3A3", "The Far Shore", "Where the veiled Keeper waits with the cup of forgetting.", "Space 12. When the soul reaches it, you win.")}
       ${piece("nb-fog", "#9A948C", "Fog", "The mist that hides the bank. Nobody knows what lies under it.", "Covers each bank until a Root is placed there and reveals the tile below.")}
@@ -135,7 +135,7 @@ export const RULEBOOK = [
 
   { id: "board", title: "6. The river", keys: "spaces reach bank slot near shore far shore", body: `
     ${lore("The river winds from the near shore to the Far Shore, and every bank is a place a flower might grow.")}
-    <p>The river has 13 spaces: the near shore (0), spaces 1 to 11, and the Far Shore (12). Each space from 1 to 11 has an <b>upper</b> and a <b>lower bank</b>, and each bank holds one token.</p>
+    <p>The river has 13 spaces: the near shore (0), spaces 1 to 11, and the Far Shore (12). Each space from 1 to 11 has a <b>left</b> and a <b>right bank</b>, and each bank holds one token. Banks are named as you face downstream toward the Far Shore: the left bank is the row above the river, the right bank the row below.</p>
     <ul><li><b>Reach I, the Asphodel Road</b>: spaces 1–4.</li><li><b>Reach II, the Fields of Mourning</b>: spaces 5–8.</li><li><b>Reach III, the Banks of Lethe</b>: spaces 9–11.</li></ul>
     <p>Each Reach has its own Mist deck and its own page in the Book of Remembrance. When the soul enters a new Reach, the Loom of the Fates is cleared.</p>
     <p>At setup both banks of space 1 hold a Bloom, so the first step is always lit. The banks of spaces 2–11 are hidden under <b>fog</b> tiles.</p>` },

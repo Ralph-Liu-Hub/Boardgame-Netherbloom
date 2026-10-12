@@ -49,7 +49,7 @@ export const roman = r => ["I", "II", "III"][r];
 // reads the log in their own language, even at an online table.
 const CAUSE_ZH = { Faded: "消散", Shattered: "破碎", Deluge: "滅頂", Stalled: "停滯" };
 export const causeName = c => (zh() ? CAUSE_ZH[c] || c : c);
-const bankZh = k => `第${k >> 1}格${k % 2 ? "下岸" : "上岸"}`;
+const bankZh = k => `第${k >> 1}格${k % 2 ? "右岸" : "左岸"}`;
 const ZH_MSG = {
   start: () => `亡魂在此岸醒來。前方是${reachName(0)}。`,
   loss_Faded: () => "遺忘的太多了。亡魂消散在迷霧之中。",

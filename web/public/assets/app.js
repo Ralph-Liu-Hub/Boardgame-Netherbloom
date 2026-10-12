@@ -587,6 +587,8 @@ function drawBoardStatic() {
   </g>
   <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#9A948C" letter-spacing="1.4">${reachLbl}</g>
   <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#9A948C">${nums}</g>
+  <g font-family="IBM Plex Mono, monospace" font-size="10" fill="#9A948C" letter-spacing="1.2" text-anchor="middle" opacity=".8">
+    <text x="${X(0)}" y="${Y(0) - 80}">${L("LEFT BANK", "左岸")}</text><text x="${X(0)}" y="${Y(0) + 88}">${L("RIGHT BANK", "右岸")}</text></g>
   <g transform="translate(${X(12)}, ${Y(12)})">
     <use href="#nb-light" x="-22" y="-26" width="44" height="48" style="color:#E6D3A3"/>
     <text y="-48" text-anchor="middle" font-family="IM Fell English SC, Noto Serif TC, serif" font-size="16" fill="#E6D3A3">${L("Far Shore", "彼岸")}</text>
@@ -648,7 +650,7 @@ function drawBoard() {
 
 function slotTitle(k) {
   const s = S;
-  const where = L(`Space ${k >> 1}, ${k % 2 ? "lower" : "upper"} bank`, `第${k >> 1}格${k % 2 ? "下岸" : "上岸"}`);
+  const where = L(`Space ${k >> 1}, ${k % 2 ? "right" : "left"} bank`, `第${k >> 1}格${k % 2 ? "右岸" : "左岸"}`);
   const sep = L(": ", "：");
   if (s.griev[k]) return where + sep + L("Grievance", "怨念");
   if (s.tok[k] === E.BLOOM) return where + sep + L("Bloom", "花");
