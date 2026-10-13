@@ -3,7 +3,7 @@
 // Player choices go through an async chooser: { rootTarget(s, stonyOk, targets), bloomTarget(s, targets), wantInscribe(s, cid) }.
 
 import {
-  CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, TILES, LANTERN, GHOST, MANTLES,
+  CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, TILES, LANTERN, STANDARD_LANTERN, GHOST, MANTLES,
   OBS, ACC, OBL, FERTILE, STONY, MEMORY, GRAVE, TILE_NAMES, TAG_NAMES, REACH_NAMES,
 } from "./cards.js";
 
@@ -14,7 +14,8 @@ export const slotName = k => `${k >> 1}${k % 2 ? " right" : " left"}`;
 
 export class GameOver extends Error {}
 
-export function makeConfig({ players = 3, soul = "open", lantern = 3 } = {}) {
+export function makeConfig({ players = 3, soul = "open", lantern = STANDARD_LANTERN } = {}) {
+  if (!LANTERN[lantern]) lantern = STANDARD_LANTERN;
   const [bw, limit, harsh] = LANTERN[lantern];
   const cfg = {
     players, soul, lantern, useBook: true,

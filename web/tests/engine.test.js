@@ -88,7 +88,7 @@ setLang("en");
 let wins = 0, games = 0, turns = 0;
 const causes = {};
 for (const players of [1, 2, 3, 4]) for (const soul of ["open", "child", "garland", "king", "bride"]) for (let seed = 1; seed <= 20; seed++) {
-  const s = await play(players, soul, 1 + seed % 5, seed);
+  const s = await play(players, soul, 1 + seed % 4, seed);
   assert.ok(["win", "loss"].includes(s.result));
   games++; turns += s.turn;
   if (s.result === "win") wins++; else causes[s.cause] = (causes[s.cause] || 0) + 1;

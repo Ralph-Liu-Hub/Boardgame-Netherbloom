@@ -23,7 +23,7 @@ def symbols():
     return m.group(0)
 
 
-def build(players, seed, soul="open", lantern=3):
+def build(players, seed, soul="open", lantern=2):
     cfg = Config(players=players, seed=seed, soul=soul, lantern=lantern)
     s = play_game(cfg, record=True)
     game = {"players": players, "seed": seed, "soul": soul, "lantern": lantern, "snaps": s.snaps,
@@ -40,7 +40,7 @@ def main():
     ap.add_argument("--players", type=int, default=3)
     ap.add_argument("--seed", type=int, default=13)
     ap.add_argument("--soul", default="open")
-    ap.add_argument("--lantern", type=int, default=3)
+    ap.add_argument("--lantern", type=int, default=2)
     ap.add_argument("--out", default=os.path.join(HERE, "replay.html"))
     a = ap.parse_args()
     page, s = build(a.players, a.seed, a.soul, a.lantern)

@@ -1,9 +1,9 @@
 // 規則書與玩家輔助卡（正體中文，台灣桌遊用語）。結構與 rules.js 相同；卡牌、迷霧、燈籠與幽靈表格
 // 直接由 cards.js 與 zh.js 產生，因此無論目前介面語言為何，這裡的表格一律是中文。
 import {
-  CARDS, TAG_ICONS, MANTLES, FIRST_SOUL, LANTERN, MIST, HARSH, GHOST,
+  CARDS, TAG_ICONS, MANTLES, FIRST_SOUL, LANTERN, lanternIcon, MIST, HARSH, GHOST,
 } from "./cards.js";
-import { ZH_TAGS, ZH_CARD_NAMES, ZH_SOULS, ZH_MIST, ZH_MANTLES, ZH_REACHES, ZH_TILES, ZH_BANDS, zhOpsText } from "./zh.js";
+import { ZH_LANTERNS, ZH_TAGS, ZH_CARD_NAMES, ZH_SOULS, ZH_MIST, ZH_MANTLES, ZH_REACHES, ZH_TILES, ZH_BANDS, zhOpsText } from "./zh.js";
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const ico = (id, color) => `<svg class="ri" style="color:${color}" aria-hidden="true"><use href="#${id}"/></svg>`;
@@ -36,7 +36,7 @@ function mistTableZh() {
 
 function lanternTableZh() {
   return `<table class="rtable"><thead><tr><th>燈籠</th><th>黑水供應</th><th>消散門檻</th><th>每河段凶霧數</th></tr></thead><tbody>${
-    Object.entries(LANTERN).map(([l, [bw, lim, h]]) => `<tr><td>${"◆".repeat(+l)}${"◇".repeat(5 - l)} ${l}</td><td>${bw}</td><td>遺忘${lim}張</td><td>${h}</td></tr>`).join("")}</tbody></table>`;
+    Object.entries(LANTERN).map(([l, [bw, lim, h]]) => `<tr><td>${lanternIcon(l)} ${ZH_LANTERNS[l]}</td><td>${bw}</td><td>遺忘${lim}張</td><td>${h}</td></tr>`).join("")}</tbody></table>`;
 }
 
 function ghostTableZh() {
@@ -116,7 +116,7 @@ export const RULEBOOK_ZH = [
       ${piece("", "", "遺忘堆", "被河水帶走的一切。", "被遺忘的牌將永遠消失。遺忘的牌夠多時，亡魂先是變得輕盈（輕如灰燼），接著失去控制（漂離），最後消散。")}
       ${piece("nb-fog", "#9A948C", "迷霧牌", "冥府本身：上漲的河水、寒冷的風、重返的霧氣。", "每個回合結束時，從當前河段的迷霧牌庫翻開1張。")}
       ${piece("", "", "稱號", `擺渡人在河上可以擔起的角色：${["weaver", "warden", "bringer", "breaker"].map(k => ZH_MANTLES[k].name).join("、")}。`, "以光召喚一個稱號，獲得永久的能力（見第15節）。")}
-      ${piece("", "", "燈籠", "今夜的河有多暗。", "難度等級，1至5。")}
+      ${piece("", "", "燈籠", "今夜的河有多暗。", "難度：溫和、標準、困難或英雄。")}
       ${piece("nb-seal", "#E6D3A3", "憶念之書", "古老的墓文囑咐亡者莫飲忘川，而要去尋找的記憶之泉。寫在這裡的，亡魂便能留住。", "共三頁，每個河段一頁，每頁是一個有四處空白的句子。共鳴的牌會將它們填滿。")}
       ${piece("nb-slot-place", "#E6D3A3", "地點・人物・事蹟・感受", "一段記憶的四個部分：在哪裡、和誰、做了什麼，以及留下了什麼。", "憶念之書每頁的四個欄位。每張記憶牌都對應其中一個。")}
       ${piece("nb-seal", "#D7263D", "關鍵記憶", "對這個亡魂而言最重要的那一段記憶。", "只要正面打出，隨時都可以銘刻。它被寫下、被遺忘，還是從未說出，決定了結局。")}
@@ -245,15 +245,15 @@ export const RULEBOOK_ZH = [
     <p><b>特色規則：</b>${esc(ZH_SOULS.bride.twist)}<b>關鍵記憶：</b><i>${band("B04")}</i>。</p>
     <h4>${esc(ZH_SOULS.open.name)}</h4>
     <p>一個無名的亡魂。你們不會得知它的故事，而是要親手寫下它。${esc(ZH_SOULS.open.twist)}這個亡魂沒有關鍵記憶，因此憶念之書就是它將擁有的一切。</p>
-    <p class="rsuggest">${ico("nb-light", "#E6D3A3")}<b>你的第一次渡河：</b>我們建議以燈籠1或2遊玩<b>${esc(ZH_SOULS[FIRST_SOUL].name)}</b>。這位亡魂的特色規則能讓新玩家在遇見其他亡魂之前，先熟悉河流、織機與憶念之書。</p>` },
+    <p class="rsuggest">${ico("nb-light", "#E6D3A3")}<b>你的第一次渡河：</b>我們建議以溫和燈籠遊玩<b>${esc(ZH_SOULS[FIRST_SOUL].name)}</b>。這位亡魂的特色規則能讓新玩家在遇見其他亡魂之前，先熟悉河流、織機與憶念之書。</p>` },
 
   { id: "mist", title: "18. 迷霧", keys: "迷霧 凶霧 迷霧牌 牌庫 漲水 凋零 寒風 黑風 霧氣重返 迴響斷絕 mist harsh card deck rising water withering cold wind fog returns severed", body: `
     ${lore("冥府並非空無一物。每個回合過後，它都會有所動靜。")}
     <p>每個回合結束時，翻開當前河段迷霧牌庫頂的1張牌。每個迷霧牌庫還另有2張額外的牌（漲水與怨念逼近），並在較高的燈籠等級加入一些<b>凶霧</b>牌。</p>${mistTableZh()}` },
 
-  { id: "lantern", title: "19. 燈籠等級", keys: "難度 燈籠 等級 difficulty lantern level", body: `
+  { id: "lantern", title: "19. 燈籠等級", keys: "難度 燈籠 等級 溫和 標準 困難 英雄 difficulty lantern level gentle standard hard heroic", body: `
     ${lore("夜色越深，燈籠能照見的便越少。")}
-    <p>燈籠決定遊戲難度。</p>${lanternTableZh()}` },
+    <p>燈籠決定遊戲難度。<b>標準</b>是遊戲設計的本來面貌：默契良好的隊伍大約能完成一半的渡河。<b>溫和</b>適合學習遊戲，<b>困難</b>適合已多次渡河的隊伍，<b>英雄</b>則留給想挑戰最黑暗河流的玩家。</p>${lanternTableZh()}` },
 
   { id: "solo", title: "20. 單人模式與幽靈", keys: "單人模式 單人 幽靈 自動玩家 solo ghost automaton", body: `
     ${lore("即使是孤身一人的擺渡人，在河上也從不真正孤單。")}

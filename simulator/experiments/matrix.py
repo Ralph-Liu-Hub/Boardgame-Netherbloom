@@ -4,12 +4,13 @@ Writes reports/win_matrix.json and reports/win_matrix.md."""
 import sys, json
 from multiprocessing import Pool
 from netherbloom.stats import run_batch
+from netherbloom.cards import LANTERN, LANTERN_NAMES
 
 SOULS = ["child", "garland", "open", "king", "bride"]
 NAMES = {"child": "Child of the Last Flame", "garland": "Garland Girl", "open": "Open Crossing",
          "king": "King on the Barge", "bride": "Bride Who Stayed Below"}
-LANS = (1, 2, 3, 4, 5)
-HEAD = "| {} | L1 | L2 | L3 | L4 | L5 |\n|---|---|---|---|---|---|"
+LANS = tuple(LANTERN)
+HEAD = "| {} | " + " | ".join(LANTERN_NAMES[l] for l in LANS) + " |\n|---|" + "---|" * len(LANS)
 
 
 def job(a):

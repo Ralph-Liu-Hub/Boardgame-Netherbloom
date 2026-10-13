@@ -1,8 +1,8 @@
 // Language: English or 正體中文 (Taiwan). The choice is kept in localStorage and can change mid-game;
 // listeners redraw whatever they own. Game data is translated here, so the rest of the app asks for
 // "the name of card 12" rather than reading CARDS[12].name directly.
-import { CARDS, TAG_NAMES, TILE_NAMES, REACH_NAMES, SOULS, MANTLES, MIST_TEXT, BOOK_FRAMES, opsText } from "./cards.js";
-import { ZH_TAGS, ZH_SLOTS, ZH_TILES, ZH_REACHES, ZH_CARD_NAMES, ZH_BANDS, ZH_SOULS, ZH_MIST, ZH_MANTLES, ZH_BOOK_FRAMES, zhOpsText } from "./zh.js";
+import { CARDS, TAG_NAMES, TILE_NAMES, REACH_NAMES, SOULS, MANTLES, MIST_TEXT, BOOK_FRAMES, LANTERN_NAMES, opsText } from "./cards.js";
+import { ZH_LANTERNS, ZH_TAGS, ZH_SLOTS, ZH_TILES, ZH_REACHES, ZH_CARD_NAMES, ZH_BANDS, ZH_SOULS, ZH_MIST, ZH_MANTLES, ZH_BOOK_FRAMES, zhOpsText } from "./zh.js";
 
 export const LANGS = { en: "English", zh: "正體中文" };
 const KEY = "nb-lang";
@@ -42,6 +42,7 @@ export const bookFrames = () => (zh() ? ZH_BOOK_FRAMES : BOOK_FRAMES);
 export const ops = list => (zh() ? zhOpsText(list) : opsText(list));
 // Default seat names are stored in English ("Player 2"); show them in the reader's language.
 export const pname = n => (zh() ? String(n).replace(/^Player (\d)$/, "玩家$1") : n);
+export const lanternName = l => (zh() ? ZH_LANTERNS : LANTERN_NAMES)[l] || String(l);
 export const roman = r => ["I", "II", "III"][r];
 
 // ---------------------------------------------------------------- the Chronicle

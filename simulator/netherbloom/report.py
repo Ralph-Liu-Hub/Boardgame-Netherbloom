@@ -8,6 +8,7 @@ import os
 import time
 from multiprocessing import Pool
 
+from .cards import LANTERN, LANTERN_NAMES
 from .stats import run_batch
 
 # GDD v0.4 exactly as written, for comparison with the tuned defaults.
@@ -30,8 +31,8 @@ def suite(n):
     for soul in ("king", "garland", "bride", "child"):
         jobs.append((f"soul:{soul}", n // 2, dict(players=3, soul=soul)))
     for soul in ("king", "garland", "bride"):
-        jobs.append((f"soul2:{soul}", n // 2, dict(players=3, soul=soul, lantern=2)))
-    for lantern in (1, 2, 3, 4, 5):
+        jobs.append((f"soul2:{soul}", n // 2, dict(players=3, soul=soul, lantern=1)))
+    for lantern in LANTERN:
         jobs.append((f"lantern:{lantern}", n // 2, dict(players=3, lantern=lantern)))
     jobs.append(("book:off", n, dict(players=3, use_book=False)))
     jobs.append(("book:on", n, dict(players=3, use_book=True)))
@@ -54,7 +55,7 @@ def to_markdown(results, n, secs):
     L.append("# Netherbloom Simulator — Balance Report\n")
     L.append(f"{n} games per main configuration (half that for variants). Echo-following AI players. "
              f"Run time {secs:.0f} s.\n")
-    L.append("## 1. Player counts (Lantern 3, Open Crossing)\n")
+    L.append("## 1. Player counts (Standard Lantern, Open Crossing)\n")
     L.append("| Players | Win rate | Loss split Faded / Shattered / Deluge | Turns (mean) | Turns per Reach I/II/III | "
              "Tracks half-full (of 3) | Near-miss wins | Backlash per Reach |")
     L.append("|---|---|---|---|---|---|---|---|")
@@ -69,7 +70,7 @@ def to_markdown(results, n, secs):
     for p in (1, 2, 3, 4):
         a, b = R[f"as_written:{p}"], R[f"players:{p}"]
         L.append(f"| {p} | {pct(a['win_rate'])} | {causes(a)} | {a['turns_mean']:.1f} | {pct(b['win_rate'])} | {causes(b)} | {b['turns_mean']:.1f} |")
-    L.append("\n## 3. Souls (3 players, Lantern 3)\n")
+    L.append("\n## 3. Souls (3 players, Standard Lantern)\n")
     L.append("| Soul | Win rate | Loss split F/S/D | Turns | Endings reached (among wins) |")
     L.append("|---|---|---|---|---|")
     for soul in ("king", "garland", "bride", "child"):
@@ -78,14 +79,14 @@ def to_markdown(results, n, secs):
         tot = sum(ends.values()) or 1
         e = ", ".join(f"{k} {v / tot * 100:.0f}%" for k, v in sorted(ends.items(), key=lambda kv: -kv[1]))
         L.append(f"| {soul} | {pct(s['win_rate'])} | {causes(s)} | {s['turns_mean']:.1f} | {e} |")
-    L.append("\nSame Souls at **Lantern 2**: " + ", ".join(
+    L.append("\nSame Souls at the **Gentle Lantern**: " + ", ".join(
         f"{soul} {pct(R[f'soul2:{soul}']['win_rate'])}" for soul in ("king", "garland", "bride")) + "\n")
     L.append("\n## 4. Lantern difficulty (3 players)\n")
     L.append("| Lantern | Win rate | Loss split F/S/D | Turns |")
     L.append("|---|---|---|---|")
-    for lv in (1, 2, 3, 4, 5):
+    for lv in LANTERN:
         s = R[f"lantern:{lv}"]
-        L.append(f"| {lv} | {pct(s['win_rate'])} | {causes(s)} | {s['turns_mean']:.1f} |")
+        L.append(f"| {LANTERN_NAMES[lv]} | {pct(s['win_rate'])} | {causes(s)} | {s['turns_mean']:.1f} |")
     L.append("\n## 5. The Book of Remembrance (3 players)\n")
     on, off = R["book:on"], R["book:off"]
     L.append("| | Win rate | Inscriptions | Full pages | Turns |")

@@ -9,10 +9,11 @@
 //   Loom of the Fates 命運織機 · thread 絲線 · knot 結 · Backlash 反噬 · Obsession 執念 · Acceptance 釋懷 · Oblivion 忘卻
 //   Echo 迴響 · Resonate / Resonance 共鳴 · face up 正面打出 · face down 背面打出 · Burn 焚燒
 //   Book of Remembrance 憶念之書 · inscribe 銘刻 · Chapter Blessing 章節祝福 · Key Memory 關鍵記憶
-//   Mantle 稱號 · Summon 召喚 · Mist 迷霧 · harsh Mist 凶霧 · Lantern 燈籠（難度）· Ghost 幽靈（單人模式的自動玩家）
+//   Mantle 稱號 · Summon 召喚 · Mist 迷霧 · harsh Mist 凶霧 · Lantern 燈籠（難度：Gentle 溫和 / Standard 標準 / Hard 困難 / Heroic 英雄）· Ghost 幽靈（單人模式的自動玩家）
 //   Soul Step 亡魂步驟 · deck 牌庫 · discard pile 棄牌堆 · hand 手牌 · draw 抽牌 · turn 回合 · round 輪
 //   Place 地點 · Person 人物 · Deed 事蹟 · Feeling 感受
 
+export const ZH_LANTERNS = { 1: "溫和", 2: "標準", 3: "困難", 4: "英雄" };
 export const ZH_TAGS = ["執念", "釋懷", "忘卻"];
 export const ZH_SLOTS = { Place: "地點", Person: "人物", Deed: "事蹟", Feeling: "感受" };
 export const ZH_TILES = ["沃土", "石地", "記憶之地", "墳墓"];

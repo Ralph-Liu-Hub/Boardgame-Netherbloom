@@ -168,8 +168,11 @@ export const TILES = [
 ];
 export const REACH_NAMES = ["The Asphodel Road", "The Fields of Mourning", "The Banks of Lethe"];
 
-// Lantern: [black water supply, forgotten limit, harsh Mist per Reach]
-export const LANTERN = { 1: [6, 14, 0], 2: [5, 13, 0], 3: [5, 11, 2], 4: [4, 11, 2], 5: [4, 10, 3] };
+// Lantern: [black water supply, forgotten limit, harsh Mist per Reach]. Standard is the intended game.
+export const LANTERN = { 1: [6, 14, 0], 2: [5, 11, 2], 3: [4, 10, 3], 4: [3, 9, 3] };
+export const LANTERN_NAMES = { 1: "Gentle", 2: "Standard", 3: "Hard", 4: "Heroic" };
+export const STANDARD_LANTERN = 2;
+export const lanternIcon = l => "◆".repeat(+l) + "◇".repeat(Object.keys(LANTERN).length - l);
 
 export const GHOST = [
   ...Array(3).fill([OBS, "root_far"]), ...Array(2).fill([OBS, "root_near"]),

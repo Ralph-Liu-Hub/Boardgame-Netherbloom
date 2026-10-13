@@ -1,7 +1,7 @@
 // The searchable Rulebook and the Player Aid sheet. Card and Mist tables are built from cards.js,
 // so the reference always matches the cards the engine plays.
 import {
-  CARDS, TAG_NAMES, TAG_ICONS, MANTLES, SOULS, FIRST_SOUL, LANTERN, MIST, HARSH, MIST_TEXT, opsText, GHOST,
+  CARDS, TAG_NAMES, TAG_ICONS, MANTLES, SOULS, FIRST_SOUL, LANTERN, LANTERN_NAMES, lanternIcon, MIST, HARSH, MIST_TEXT, opsText, GHOST,
 } from "./cards.js";
 
 import { zh } from "./i18n.js";
@@ -37,7 +37,7 @@ function mistTable() {
 
 function lanternTable() {
   return `<table class="rtable"><thead><tr><th>Lantern</th><th>Black Water supply</th><th>Faded at</th><th>Harsh Mist per Reach</th></tr></thead><tbody>${
-    Object.entries(LANTERN).map(([l, [bw, lim, h]]) => `<tr><td>${"◆".repeat(+l)}${"◇".repeat(5 - l)} ${l}</td><td>${bw}</td><td>${lim} forgotten</td><td>${h}</td></tr>`).join("")}</tbody></table>`;
+    Object.entries(LANTERN).map(([l, [bw, lim, h]]) => `<tr><td>${lanternIcon(l)} ${LANTERN_NAMES[l]}</td><td>${bw}</td><td>${lim} forgotten</td><td>${h}</td></tr>`).join("")}</tbody></table>`;
 }
 
 function ghostTable() {
@@ -116,7 +116,7 @@ export const RULEBOOK = [
       ${piece("", "", "Forgotten pile", "Everything the river has taken.", "Forgotten cards are gone for good. Enough of them make the soul lighter (Light as Ash), then reckless (Adrift), then Faded.")}
       ${piece("nb-fog", "#9A948C", "Mist cards", "The underworld itself: rising water, cold wind, returning fog.", "One is turned at the end of every turn, from the deck of the current Reach.")}
       ${piece("", "", "Mantles", "Roles a Ferryman can take up on the river: the Root-Weaver, the Spirit Warden, the Bloom-Bringer, the Fog-Breaker.", "Summon one with Light for a permanent power (section 15).")}
-      ${piece("", "", "The Lantern", "How dark the river is tonight.", "The difficulty level, 1 to 5.")}
+      ${piece("", "", "The Lantern", "How dark the river is tonight.", "The difficulty: Gentle, Standard, Hard or Heroic.")}
       ${piece("nb-seal", "#E6D3A3", "Book of Remembrance", "The spring of Memory the old grave-texts told the dead to seek instead of Lethe. What is written here, the soul keeps.", "Three pages, one per Reach, each a sentence with four blanks. Resonating cards fill them.")}
       ${piece("nb-slot-place", "#E6D3A3", "Place · Person · Deed · Feeling", "The four parts of a remembered moment: where, who, what was done, and what it left behind.", "The four slots on each page of the Book. Each memory card fits one of them.")}
       ${piece("nb-seal", "#D7263D", "Key Memory", "The one memory that matters most to this soul.", "Can be inscribed whenever it is played face up. Whether it is written, forgotten or never spoken decides the ending.")}
@@ -245,15 +245,15 @@ export const RULEBOOK = [
     <p><b>Twist:</b> ${esc(SOULS.bride.twist)} <b>Key Memory:</b> <i>${esc(CARDS.find(c => c.id === "B04").band)}</i>.</p>
     <h4>${esc(SOULS.open.name)}</h4>
     <p>A nameless soul. You do not learn its story; you write it. ${esc(SOULS.open.twist)} There is no Key Memory, so the Book is all the soul will have.</p>
-    <p class="rsuggest">${ico("nb-light", "#E6D3A3")}<b>Your first crossing:</b> we suggest <b>${esc(SOULS[FIRST_SOUL].name)}</b> at Lantern 1 or 2. Its twists let a new table learn the river, the Loom and the Book before meeting the other Souls.</p>` },
+    <p class="rsuggest">${ico("nb-light", "#E6D3A3")}<b>Your first crossing:</b> we suggest <b>${esc(SOULS[FIRST_SOUL].name)}</b> at the Gentle Lantern. Its twists let a new table learn the river, the Loom and the Book before meeting the other Souls.</p>` },
 
   { id: "mist", title: "18. The Mist", keys: "mist harsh card deck rising water withering cold wind fog returns severed", body: `
     ${lore("The underworld is not empty. After every turn, it moves.")}
     <p>At the end of every turn the top card of the current Reach's Mist deck is turned. Each deck also holds 2 extra cards (Rising Water and Grievance Drawn Near) and, at higher Lanterns, some <b>harsh</b> cards.</p>${mistTable()}` },
 
-  { id: "lantern", title: "19. Lantern levels", keys: "difficulty lantern level", body: `
+  { id: "lantern", title: "19. Lantern levels", keys: "difficulty lantern level gentle standard hard heroic", body: `
     ${lore("The darker the night, the less a lantern shows.")}
-    <p>The Lantern sets the difficulty.</p>${lanternTable()}` },
+    <p>The Lantern sets the difficulty. <b>Standard</b> is the game as designed: a good table wins about half its crossings. <b>Gentle</b> is for learning, <b>Hard</b> for tables that have crossed often, and <b>Heroic</b> for those who want the river at its darkest.</p>${lanternTable()}` },
 
   { id: "solo", title: "20. Solo play and the Ghost", keys: "solo ghost automaton", body: `
     ${lore("Even a lone Ferryman is never quite alone on the river.")}

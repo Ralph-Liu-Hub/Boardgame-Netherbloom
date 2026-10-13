@@ -1,8 +1,8 @@
 # Netherbloom Simulator — Balance Report
 
-1000 games per main configuration (half that for variants). Echo-following AI players. Run time 96 s.
+1000 games per main configuration (half that for variants). Echo-following AI players. Run time 76 s.
 
-## 1. Player counts (Lantern 3, Open Crossing)
+## 1. Player counts (Standard Lantern, Open Crossing)
 
 | Players | Win rate | Loss split Faded / Shattered / Deluge | Turns (mean) | Turns per Reach I/II/III | Tracks half-full (of 3) | Near-miss wins | Backlash per Reach |
 |---|---|---|---|---|---|---|---|
@@ -20,7 +20,7 @@
 | 3 | 64% | 83% / 17% / 0% | 11.4 | 54% | 31% / 36% / 33% | 14.6 |
 | 4 | 47% | 82% / 18% / 0% | 12.4 | 55% | 33% / 33% / 33% | 15.1 |
 
-## 3. Souls (3 players, Lantern 3)
+## 3. Souls (3 players, Standard Lantern)
 
 | Soul | Win rate | Loss split F/S/D | Turns | Endings reached (among wins) |
 |---|---|---|---|---|
@@ -29,18 +29,17 @@
 | bride | 36% | 28% / 35% / 37% | 16.1 | unspoken/high 28%, inscribed/high 25%, inscribed/low 18%, unspoken/low 16%, forgotten/high 9%, forgotten/low 3% |
 | child | 73% | 51% / 20% / 29% | 14.8 | unspoken/low 24%, unspoken/high 23%, inscribed/low 23%, inscribed/high 21%, forgotten/high 6%, forgotten/low 4% |
 
-Same Souls at **Lantern 2**: king 56%, garland 68%, bride 49%
+Same Souls at the **Gentle Lantern**: king 61%, garland 72%, bride 55%
 
 
 ## 4. Lantern difficulty (3 players)
 
 | Lantern | Win rate | Loss split F/S/D | Turns |
 |---|---|---|---|
-| 1 | 71% | 16% / 67% / 16% | 15.3 |
-| 2 | 65% | 14% / 56% / 30% | 15.0 |
-| 3 | 55% | 32% / 34% / 34% | 14.7 |
-| 4 | 47% | 23% / 27% / 50% | 13.8 |
-| 5 | 37% | 22% / 21% / 57% | 13.4 |
+| Gentle | 71% | 16% / 67% / 16% | 15.3 |
+| Standard | 55% | 32% / 34% / 34% | 14.7 |
+| Hard | 37% | 22% / 21% / 57% | 13.4 |
+| Heroic | 24% | 15% / 14% / 70% | 11.8 |
 
 ## 5. The Book of Remembrance (3 players)
 

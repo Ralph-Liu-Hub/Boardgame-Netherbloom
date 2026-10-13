@@ -47,7 +47,7 @@ class Games(unittest.TestCase):
         for players in (1, 2, 3, 4):
             for soul in ("open", "king", "garland", "bride", "child"):
                 for seed in range(15):
-                    s = play_game(Config(players=players, soul=soul, seed=seed, lantern=1 + seed % 5))
+                    s = play_game(Config(players=players, soul=soul, seed=seed, lantern=1 + seed % 4))
                     self.assertIn(s.result, ("win", "loss"))
                     if s.result == "loss":
                         self.assertIn(s.cause, ("Faded", "Shattered", "Deluge"))

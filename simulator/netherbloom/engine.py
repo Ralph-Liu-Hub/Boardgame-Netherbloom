@@ -22,9 +22,9 @@ def reach_of(space):
 
 
 class Config:
-    """Everything a game needs to know before it starts. Defaults follow GDD v0.4 at Lantern 3."""
+    """Everything a game needs to know before it starts. Defaults follow GDD v0.4 at the Standard Lantern."""
 
-    def __init__(self, players=3, soul="open", lantern=3, use_book=True, seed=None, **overrides):
+    def __init__(self, players=3, soul="open", lantern=C.STANDARD_LANTERN, use_book=True, seed=None, **overrides):
         self.players = players
         self.soul = soul                      # "open", "king", "garland", "bride", "child"
         self.lantern = lantern

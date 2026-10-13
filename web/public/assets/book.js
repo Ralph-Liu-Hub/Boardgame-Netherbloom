@@ -5,7 +5,7 @@ import { keyMemoryFate } from "./engine.js";
 import { mountReplay } from "./replay.js";
 import { mountPuppet } from "./puppet.js";
 import { storyTheme } from "./audio.js";
-import { zh, setLang, cardName, cardBand, slotLabel, reachName, soulInfo, bookFrames, causeName, pname } from "./i18n.js";
+import { zh, setLang, cardName, cardBand, slotLabel, reachName, soulInfo, bookFrames, causeName, pname, lanternName } from "./i18n.js";
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const ROMAN = ["I", "II", "III"], ZHNUM = ["一", "二", "三"];
@@ -53,7 +53,7 @@ function leftPage(i) {
       <div class="bk-of">${L("of", "獻給")}</div>
       <h2>${esc(soul.name)}</h2>
       <p class="bk-blurb">${esc(soul.blurb)}</p>
-      <div class="bk-imprint">${L("Lantern", "燈籠")} ${S.cfg.lantern} · ${S.names.map(n => esc(pname(n))).join(L(", ", "、"))}</div>
+      <div class="bk-imprint">${L("Lantern", "燈籠")} ${esc(lanternName(S.cfg.lantern))} · ${S.names.map(n => esc(pname(n))).join(L(", ", "、"))}</div>
     </div>`;
   }
   if (i === 4) {

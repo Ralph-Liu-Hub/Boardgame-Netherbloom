@@ -6,10 +6,10 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, GHOST, MANTLES, TILES, LANTERN, SLOTS, FIRST_SOUL,
+  CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, GHOST, MANTLES, TILES, LANTERN, lanternIcon, SLOTS, FIRST_SOUL,
 } from "../web/public/assets/cards.js";
 import {
-  ZH_TAGS, ZH_SLOTS, ZH_TILES, ZH_REACHES, ZH_CARD_NAMES, ZH_BANDS, ZH_SOULS, ZH_MIST, ZH_MANTLES, ZH_BOOK_FRAMES, zhOpsText,
+  ZH_LANTERNS, ZH_TAGS, ZH_SLOTS, ZH_TILES, ZH_REACHES, ZH_CARD_NAMES, ZH_BANDS, ZH_SOULS, ZH_MIST, ZH_MANTLES, ZH_BOOK_FRAMES, zhOpsText,
 } from "../web/public/assets/zh.js";
 import { playerAidZh } from "../web/public/assets/rules_zh.js";
 
@@ -108,7 +108,7 @@ function tileSheet() {
 
 function lanternCard() {
   return `<section class="sheet aidsheet"><h2>燈籠（難度）</h2><table class="lt"><thead><tr><th>燈籠</th><th>黑水供應</th><th>消散門檻</th><th>每河段凶霧數</th></tr></thead><tbody>${
-    Object.entries(LANTERN).map(([l, [bw, lim, h]]) => `<tr><td>${"◆".repeat(+l)}${"◇".repeat(5 - l)} ${l}</td><td>${bw}</td><td>遺忘${lim}張</td><td>${h}</td></tr>`).join("")}</tbody></table>
+    Object.entries(LANTERN).map(([l, [bw, lim, h]]) => `<tr><td>${lanternIcon(l)} ${ZH_LANTERNS[l]}</td><td>${bw}</td><td>遺忘${lim}張</td><td>${h}</td></tr>`).join("")}</tbody></table>
     <h2 style="margin-top:8mm">玩家輔助卡</h2>
     <div class="aid-print">${playerAidZh(null).replace(/#E6D3A3/g, "#9a7a3a").replace(/#8FD6E1/g, "#2f7f8e").replace(/#9A948C/g, "#6b655d")}</div></section>`;
 }
