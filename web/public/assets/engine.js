@@ -437,6 +437,7 @@ export function beginTurn(s) {
   s.phase = "play";
   s.played = 0;
   s.sought = false;
+  s.pushed = false;
   s.lastMist = null;
   note(s, "turn", `Turn ${s.turn}: ${s.names[p]}.`, { p, m: ["turn", s.turn, s.names[p]] });
 }
@@ -611,8 +612,7 @@ function soulStep(s) {
       note(s, "info", "Light as Ash: the soul, lighter now, glides one more space.", { m: ["ash"] });
       moveSoul(s, 1);
     }
-  } else if (blockedByGrievances(s)) pushThrough(s);
-  else linger(s, false);
+  } else linger(s, false);
   feed(s);
 }
 
@@ -621,13 +621,21 @@ export function blockedByGrievances(s) {
   const sp = s.soul + 1;
   return sp >= 1 && sp <= 11 && !s.flooded[sp] && s.griev[sp * 2] && s.griev[sp * 2 + 1];
 }
+// Push Through is an action a player chooses; it uses no card. Without it, a soul facing two Grievances Lingers.
+export const canPush = s => s.phase === "play" && !s.pushed && s.played < s.cfg.cardsPerTurn && blockedByGrievances(s);
+export const pushCost = s => 1 + (s.stats.pushes || 0);
+export function pushAction(s) {
+  s.played += 1;
+  s.pushed = true;
+  pushThrough(s);
+}
 // Push through the shades: both Grievances scatter, the soul steps forward, and it pays with a memory and a
 // Fracture. Each push already made this game adds another Fracture, so a second push is close to fatal.
 function pushThrough(s) {
   const sp = s.soul + 1, wounds = 1 + (s.stats.pushes || 0);
   s.griev[sp * 2] = s.griev[sp * 2 + 1] = false;
   s.stats.pushes = wounds;
-  note(s, "push", `The soul pushes through the Grievances. They scatter, but they wound it: ${wounds} Fracture${wounds > 1 ? "s" : ""}.`, { sp, m: ["push", wounds] });
+  note(s, "push", `${s.names[s.cur]} drives the soul through the Grievances. They scatter, but they wound it: ${wounds} Fracture${wounds > 1 ? "s" : ""}.`, { sp, p: s.cur, m: ["push", wounds, s.names[s.cur]] });
   moveSoul(s, 1);
   for (let i = 0; i < wounds; i++) addFracture(s);
   forgetTop(s, 1);

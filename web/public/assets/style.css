@@ -243,6 +243,7 @@ input, select { font: inherit; color: var(--paper); background: var(--ink); bord
 @keyframes banner { 0% { opacity: 0; transform: scaleY(0); } 12% { opacity: 1; transform: none; } 82% { opacity: 1; } 100% { opacity: 0; } }
 .flash { position: fixed; inset: 0; z-index: 44; pointer-events: none; box-shadow: inset 0 0 160px 40px rgba(215,38,61,.85); animation: flash 1.1s ease-out both; }
 @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
+.pushbtn { border-color: var(--crimson) !important; color: var(--paper); background: rgba(215,38,61,.22) !important; }
 .pushwarn { display: block; margin-top: 6px; padding: 6px 10px; border-left: 3px solid var(--crimson); background: rgba(215,38,61,.14); color: var(--paper); border-radius: 4px; animation: pushpulse 1.6s ease-in-out infinite alternate; }
 @keyframes pushpulse { to { background: rgba(215,38,61,.28); } }
 .toasts { position: fixed; left: 16px; bottom: 16px; z-index: 30; display: grid; gap: 8px; max-width: min(380px, calc(100vw - 32px)); pointer-events: none; }

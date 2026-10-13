@@ -1,6 +1,6 @@
 // Plays many games with a simple greedy chooser to check the engine never crashes and games end.
 import assert from "node:assert/strict";
-import { makeConfig, newGame, beginTurn, playCard, endTurn, GameOver, copy, lit, NONE, ROOT, canSummon, summon, bringerPending, bringerBloom, bloomTargets, canSeek, seek } from "../public/assets/engine.js";
+import { makeConfig, newGame, beginTurn, playCard, endTurn, GameOver, copy, lit, NONE, ROOT, canSummon, summon, bringerPending, bringerBloom, bloomTargets, canSeek, seek, canPush, pushCost, pushAction } from "../public/assets/engine.js";
 import { CARDS, MANTLES, MIST, HARSH, SOULS } from "../public/assets/cards.js";
 import { setLang, say, cardName, cardBand, mistName, mistText, soulInfo, mantleInfo } from "../public/assets/i18n.js";
 
@@ -46,6 +46,13 @@ async function play(players, soul, lantern, seed) {
         seek(s, s.hands[s.cur][0]);
         assert.equal(s.played, 1);
         assert.ok(!canSeek(s), "only one Seek per turn");
+      }
+      // Push Through whenever the way is shut and the soul can take the Fractures.
+      if (canPush(s) && s.fract + pushCost(s) < 3) {
+        const before = s.played;
+        pushAction(s);
+        assert.equal(s.played, before + 1);
+        assert.ok(!canPush(s), "only one Push Through per turn");
       }
       for (let i = s.played; i < 2 && s.hands[s.cur].length; i++) {
         const hand = s.hands[s.cur];

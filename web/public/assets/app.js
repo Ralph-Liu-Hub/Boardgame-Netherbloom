@@ -477,6 +477,24 @@ async function playSelected(cid, mode_) {
     S.phase = "over";
   }
   busy = false;
+  await afterAction();
+}
+
+async function pushNow() {
+  if (!canPlayCards() || !E.canPush(S)) return;
+  selected = null;
+  busy = true;
+  try {
+    E.pushAction(S);
+  } catch (e) {
+    if (!(e instanceof E.GameOver)) throw e;
+    S.phase = "over";
+  }
+  busy = false;
+  await afterAction();
+}
+
+async function afterAction() {
   if (!S.result && (S.played >= S.cfg.cardsPerTurn || !S.hands[S.cur].length)) {
     await finishTurn();
     return;
@@ -775,8 +793,11 @@ function drawPrompt() {
   const echo = S.echo >= 0 && S.played === 0 ? L(` The Echo is <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>: a first card of that thread Resonates.`,
     `迴響是<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>：本回合第一張同絲線的牌會產生共鳴。`) : "";
   const sum = E.canSummon(S) ? `<button type="button" id="summon">${L(`Summon a Mantle (${S.cfg.mantleCost} Light)`, `召喚稱號（${S.cfg.mantleCost}點光）`)}</button>` : "";
-  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, choose` : "Choose"} action ${n} of ${S.cfg.cardsPerTurn}: play a card${E.canSeek(S) ? " or Seek" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，請` : "請"}選擇第${n}個行動（共${S.cfg.cardsPerTurn}個）：打出一張牌${E.canSeek(S) ? "或尋覓" : ""}。`)}${echo}</span>${sum}`, true);
+  const cost = E.pushCost(S);
+  const push = E.canPush(S) ? `<button type="button" id="push" class="pushbtn">${L(`Push Through · ${cost} Fracture${cost > 1 ? "s" : ""}, forget 1`, `強行穿過 · ${cost}道裂痕，遺忘1張`)}</button>` : "";
+  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, choose` : "Choose"} action ${n} of ${S.cfg.cardsPerTurn}: play a card${E.canSeek(S) ? ", Seek" : ""}${push ? " or Push Through" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，請` : "請"}選擇第${n}個行動（共${S.cfg.cardsPerTurn}個）：打出一張牌${E.canSeek(S) ? "、尋覓" : ""}${push ? "或強行穿過" : ""}。`)}${echo}</span>${push}${sum}`, true);
   if (sum) $("summon").onclick = summonDialog;
+  if (push) $("push").onclick = pushNow;
 }
 
 function viewSeat() {
@@ -882,7 +903,7 @@ function guideHint() {
   if (S.result) return S.result === "win" ? L("The crossing is complete. Open the Book to read the soul's story.", "渡河完成。翻開書本，讀讀亡魂的故事。")
     : L("The crossing has failed. Open the Book to read what was kept.", "渡河失敗了。翻開書本，看看留下了什麼。");
   const anim = guideStep && S.played === 0 && !pending && !busy;
-  if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers. If Grievances hold both banks ahead, it pushes through them.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。若前方兩岸都被怨念佔據，它會強行穿過。");
+  if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers. Grievances on both banks ahead also make it Linger, unless a player spent an action to Push Through.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。前方兩岸都被怨念佔據時也會徘徊，除非有玩家花了行動強行穿過。");
   if (anim && guideStep === "mist") return L("The Mist turns a card for this Reach.", "迷霧為本河段翻開一張牌。");
   if (anim && guideStep === "draw") return L("The river settles and hands are refilled.", "河面平靜下來，玩家補滿手牌。");
   const who = esc(pname(S.names[S.cur]));
@@ -892,8 +913,8 @@ function guideHint() {
   if (pending?.type === "bringer") return L("Click a <b>Root</b> to bloom it for free, or skip.", "點擊一個<b>根</b>免費使其綻放，或選擇跳過。");
   if (pending?.type === "inscribe") return L("Write this memory into the <b>Book</b>, or keep the card in the deck.", "將這段記憶寫進<b>憶念之書</b>，或把這張牌留在牌庫中。");
   const echo = S.echo >= 0 && S.played === 0 ? L(` A <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b> card will Resonate.`, `<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>牌會產生共鳴。`) : "";
-  const wounds = 1 + (S.stats.pushes || 0);
-  const push = E.blockedByGrievances(S) ? `<span class="pushwarn">${L(`Grievances hold both banks ahead. At the Soul Step the soul will <b>push through</b> them automatically: ${wounds} Fracture and 1 forgotten card. Clear a bank first to avoid it.`, `前方兩岸都被怨念佔據。亡魂步驟時，亡魂會自動<b>強行穿過</b>：承受${wounds}道裂痕並遺忘1張牌。先清出一側河岸即可避免。`)}</span>` : "";
+  const wounds = E.pushCost(S);
+  const push = E.canPush(S) ? `<span class="pushwarn">${L(`Grievances hold both banks ahead, so the soul will Linger. You may spend an action to <b>Push Through</b>: both Grievances scatter and the soul steps forward now, at ${wounds} Fracture${wounds > 1 ? "s" : ""} and 1 forgotten card.`, `前方兩岸都被怨念佔據，亡魂將會徘徊。你可以花1個行動<b>強行穿過</b>：兩個怨念四散，亡魂立刻前進一格，代價是${wounds}道裂痕並遺忘1張牌。`)}</span>` : "";
   return L(`Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `從手牌中選一張牌，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`) + push;
 }
 

@@ -5,6 +5,10 @@ from .agent import EchoAgent
 TURN_LIMIT = 120
 
 
+def label(cid, mode):
+    return "Push Through" if mode == "push" else f"{CARD[cid].cid} {CARD[cid].name} ({mode})"
+
+
 def play_game(cfg, agent=None, record=False):
     agent = agent or EchoAgent(use_book=cfg.use_book)
     s = State.new(cfg)
@@ -21,6 +25,7 @@ def play_game(cfg, agent=None, record=False):
             s.hold = False
             s.weaver_used = s.bringer_used = s.breaker_used = False
             s.stats["sought"] = 0
+            s.stats["pushed"] = 0
             if s.mantles["warden"] == p:
                 s.warden_ready = True
             s.stats["turns_in_reach"][s.reach] += 1
@@ -29,19 +34,19 @@ def play_game(cfg, agent=None, record=False):
             agent.maybe_summon(s)
             plays = agent.choose(s)
             s.last_mist = None
-            plays_txt = [f"{CARD[cid].cid} {CARD[cid].name} ({mode})" for cid, mode in plays]
+            plays_txt = [label(cid, mode) for cid, mode in plays]
             if plays and plays[0][1] == "seek":
                 # Seek first: draw, then choose the one remaining card with the new hand (it cannot Resonate).
                 s.note(f"  seeks, discarding {CARD[plays[0][0]].cid}")
                 s.play(plays[0][0], "seek", agent, first=True)
                 second = agent.choose_second(s)
                 plays = plays[:1] + ([second] if second else [])
-                plays_txt = [f"{CARD[cid].cid} {CARD[cid].name} ({mode})" for cid, mode in plays]
+                plays_txt = [label(cid, mode) for cid, mode in plays]
                 if second:
                     s.play(second[0], second[1], agent, first=False)
             else:
                 for i, (cid, mode) in enumerate(plays):
-                    s.note(f"  plays {CARD[cid].cid} {CARD[cid].name} [{mode}]")
+                    s.note(f"  plays {label(cid, mode)}")
                     s.play(cid, mode, agent, first=(i == 0))
             if s.mantles["bringer"] == p and not s.bringer_used:
                 s.bringer_used = True
