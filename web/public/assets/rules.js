@@ -60,12 +60,12 @@ const piece = (icon, color, name, story, play) =>
 // Each section: id, title, keywords (extra search terms) and body HTML.
 // Part one tells the story and what every piece means in it; part two is the rules, each section opened by a line of lore.
 export const RULEBOOK = [
-  { id: "story", title: "1. Prologue: the river of forgetting", keys: "story lore setting world lethe ferryman coin underworld prologue theme", body: `
+  { id: "story", title: "1. Prologue: the river of forgetting", keys: "story lore setting world lethe ferryman ferrymen servant underworld coin prologue theme who are we role", body: `
     ${lore("Whoever drinks from the River Lethe forgets.")}
     <p>Below the world of the living runs a black river. The dead must cross it to reach the <b>Far Shore</b>, where a veiled <b>Keeper</b> waits with one cup of river water. Drink it, and the weight of a whole life slips away.</p>
     <p>An old ferryman carries the dead across, but only those who were buried with a coin for the fare. The others, the <b>coinless dead</b>, wake alone on the <b>near shore</b> and wander the bank. Fog fills them, and they begin to forget: first the small things, then the faces, then their own names. A soul that forgets everything simply fades into the mist.</p>
-    <p>You are the <b>Ferrymen</b>: rogue guides who carry the souls the old ferryman will not. You have no boat. You have something stranger. Along the banks of Lethe grows the <b>Netherbloom</b>, a crimson flower shaped like a spider lily, blooming on a bare stalk with no leaves, because <i>flower and leaf never meet</i>. Its glow is the only light in the fog that a lost soul can follow. Where you plant Netherblooms, a soul can walk.</p>
-    <p>One more thing: the living cannot speak in the underworld. Whatever you mean to say to each other, you must say with the flowers you plant and the choices you make.</p>` },
+    <p>You are the <b>Ferrymen</b>: servants of the underworld, neither living nor dead. The coinless the old ferryman will not carry are given to you. You have no boat. You have something stranger. Along the banks of Lethe grows the <b>Netherbloom</b>, a crimson flower shaped like a spider lily, blooming on a bare stalk with no leaves, because <i>flower and leaf never meet</i>. Its glow is the only light in the fog that a lost soul can follow. Where you plant Netherblooms, a soul can walk.</p>
+    <p>One more thing: the servants of the river are bound to silence. No Ferryman may speak on the water, not to the dead and not to one another. Whatever you mean to say to each other, you must say with the flowers you plant and the choices you make.</p>` },
 
   { id: "mission", title: "2. Your mission", keys: "goal mission objective win lose escort remember purpose", body: `
     ${lore("Carry one soul to the Far Shore, and help it remember who it was.")}
@@ -82,8 +82,8 @@ export const RULEBOOK = [
     </ul>
     <p>The tension at the heart of the game: forgetting is both a weapon and a wound. Letting memories go makes the soul lighter and faster, and some of your strongest cards are acts of forgetting. But every memory you let go is gone from the soul's story, and brings it closer to fading.</p>` },
 
-  { id: "silence", title: "3. The Rule of Silence", keys: "talk communicate table talk etiquette silent quiet speak", body: `
-    ${lore("In the underworld the living have no voice. Your only language is the last card played.")}
+  { id: "silence", title: "3. The Rule of Silence", keys: "talk communicate table talk etiquette silent quiet speak oath servants", body: `
+    ${lore("The servants of the river serve in silence. Your only language is the last card played.")}
     <p>From setup until the soul reaches the Far Shore or is lost, nobody speaks about the game. Do not name or show the cards in your hand, hint at them, point, or ask others what to play.</p>
     <p>You may talk about what everyone can already see: the river, the Loom, the Book. Your real voice is the <b>Echo</b>, the thread of the last card played face up (section 11). Following someone's Echo says "I understood you". Leaving a clear Echo says "this is what I need next".</p>
     <p>When the game ends, the silence lifts. One of you reads the Book aloud, page by page, and the table finally hears the life it saved together.</p>` },
@@ -120,7 +120,7 @@ export const RULEBOOK = [
       ${piece("nb-seal", "#E6D3A3", "Book of Remembrance", "The spring of Memory the old grave-texts told the dead to seek instead of Lethe. What is written here, the soul keeps.", "Three pages, one per Reach, each a sentence with four blanks. Resonating cards fill them.")}
       ${piece("nb-slot-place", "#E6D3A3", "Place · Person · Deed · Feeling", "The four parts of a remembered moment: where, who, what was done, and what it left behind.", "The four slots on each page of the Book. Each memory card fits one of them.")}
       ${piece("nb-seal", "#D7263D", "Key Memory", "The one memory that matters most to this soul.", "Can be inscribed whenever it is played face up. Whether it is written, forgotten or never spoken decides the ending.")}
-      ${piece("nb-soul", "#8FD6E1", "The Ghost (solo)", "A silent ferryman who travels beside you.", "In solo play it plays a card after each of your turns and leaves the Echo for you to follow.")}
+      ${piece("nb-soul", "#8FD6E1", "The Ghost (solo)", "A silent Ferryman who travels beside you.", "In solo play it plays a card after each of your turns and leaves the Echo for you to follow.")}
     </tbody></table>` },
 
   { id: "overview", title: "5. How a crossing unfolds", keys: "arc chapters reaches pacing overview flow game length", body: `
