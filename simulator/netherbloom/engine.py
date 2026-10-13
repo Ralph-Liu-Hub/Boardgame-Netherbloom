@@ -58,6 +58,7 @@ class Config:
         self.push_through = "harsh"  # if Grievances hold both banks ahead, the soul pushes through: "off", "fracture" (+1 Fracture) or "harsh" (+1 Fracture, forget 1)
         self.push_scope = "game"     # the first push per "game" (or "reach") costs the base price; "none": every push costs the base price
         self.push_again = "escalate" # a later push in the same scope: "escalate" (+1 Fracture each time) or "linger" (not allowed)
+        self.push_action = True      # push-through is an action a player takes (False: the soul pushes on its own at the Soul Step)
         self.seek = True             # one action per turn may be Seek: discard a card and draw one (that turn's next card cannot Resonate)
         for k, v in overrides.items():
             if not hasattr(self, k):
@@ -502,6 +503,12 @@ class State:
     # ------------------------------------------------------------- playing cards
     def play(self, cid, mode, chooser, first):
         """mode: 'up', 'down' or 'burn'. Returns True if the card Resonated."""
+        if mode == "push":
+            # Push Through: an action that uses no card. Only legal while Grievances hold both banks ahead.
+            self.stats["push_actions"] = self.stats.get("push_actions", 0) + 1
+            self.stats["pushed"] = 1
+            self.push_through()
+            return False
         card = CARD[cid]
         self.hands[self.cur].remove(cid)
         if mode == "seek":
@@ -630,7 +637,7 @@ class State:
                     self.add_fracture()
             elif f >= cfg.ash_at and self.passable(self.soul + 1):
                 self.move_soul(1)
-        elif self.blocked_by_grievances():
+        elif self.blocked_by_grievances() and not self.cfg.push_action:
             self.push_through()
         else:
             self.linger()

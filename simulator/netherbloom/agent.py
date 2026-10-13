@@ -139,6 +139,8 @@ class EchoAgent:
     def options(self, s, seek=False):
         hand = s.hands[s.cur]
         seen, out = set(), []
+        if s.cfg.push_action and not s.stats.get("pushed") and s.blocked_by_grievances():
+            out.append((None, "push"))
         if seek and s.cfg.seek and not s.stats.get("sought") and len(hand) > 1:
             out += [(cid, "seek") for cid in dict.fromkeys(hand)]
         for cid in hand:
@@ -162,7 +164,7 @@ class EchoAgent:
         firsts = []
         for cid, mode in self.options(s, seek=True):
             c = s.clone()
-            res = c.echo == CARD[cid].tag and mode not in ("down", "seek")
+            res = mode not in ("down", "seek", "push") and c.echo == CARD[cid].tag
             self._apply(c, cid, mode, True)
             bonus = (self.w.echo_follow if res else 0) + (self.w.seek_value if mode == "seek" else 0)
             score = self._after_step(c.clone()) + bonus
@@ -172,7 +174,7 @@ class EchoAgent:
         n_cards = min(s.cfg.cards_per_turn, len(s.hands[s.cur]))
         if n_cards == 1:
             for sc, cid, mode, c, res, bonus in firsts:
-                if mode != "seek":
+                if mode not in ("seek", "push"):
                     return [(cid, mode)]
         for sc1, cid1, mode1, c1, res, bonus in firsts[:self.beam]:
             if c1.result is not None:
