@@ -139,7 +139,8 @@ class EchoAgent:
     def options(self, s, seek=False):
         hand = s.hands[s.cur]
         seen, out = set(), []
-        if s.cfg.push_action and not s.stats.get("pushed") and s.blocked_by_grievances():
+        if (s.cfg.push_action and not s.stats.get("pushed") and s.blocked_by_grievances()
+                and not (s.cfg.push_once_each and s.stats.get(f"pushed_p{s.cur}"))):
             out.append((None, "push"))
         if seek and s.cfg.seek and not s.stats.get("sought") and len(hand) > 1:
             out += [(cid, "seek") for cid in dict.fromkeys(hand)]

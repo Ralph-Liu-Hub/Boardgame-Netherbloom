@@ -162,9 +162,9 @@ export const RULEBOOK = [
   { id: "turn", title: "9. Your turn", keys: "turn order sequence summon play draw", body: `
     ${lore("You plant, the soul walks, the river answers.")}
     <ol class="steps">
-      <li><b>Summon a Mantle</b> (optional, before your first action).</li>
-      <li><b>First action</b>: play a card face up, face down or Burned, <b>Seek</b>, or <b>Push Through</b> if Grievances hold both banks ahead.</li>
-      <li><b>Second action</b>: the same choices (but only one Seek and one Push Through a turn).</li>
+      <li><b>Summon a Mantle</b> (optional, before your Answer).</li>
+      <li><b>The Answer</b> (your first action): play a card face up, face down or Burned, <b>Seek</b>, or <b>Push Through</b> if Grievances hold both banks ahead.</li>
+      <li><b>The Steer</b> (your second action): the same choices (but only one Seek a turn, and each Ferryman may Push Through only once per game).</li>
       <li><b>Bloom-Bringer</b>: if you hold this Mantle, Bloom one Root for free.</li>
       <li><b>Soul Step</b>: the soul moves or Lingers.</li>
       <li><b>The Mist</b>: turn the top card of the current Reach's Mist deck.</li>
@@ -175,20 +175,20 @@ export const RULEBOOK = [
 
   { id: "modes", title: "10. Your two actions: three ways to play a card, Seek, or Push Through", keys: "face up face down burn mode seek discard draw action stuck push through", body: `
     ${lore("A memory can be spoken, kept quiet, or burned away for strength. Or you can let one go and reach for another.")}
-    <p>Each turn you take <b>two actions</b>, one at a time. Each action is to play a card from your hand in one of three ways, to Seek, or to Push Through.</p>
+    <p>Each turn you take <b>two actions</b>, one at a time. The first is your <b>Answer</b>: it is the only one that can answer the Echo. The second is your <b>Steer</b>, your hand on the tiller once the Echo is behind you. Each action is to play a card from your hand in one of three ways, to Seek, or to Push Through.</p>
     <ul>
       <li><b>Face up</b> (spoken): do the card's effect, tie one knot on its thread in the Loom, and the card's thread becomes the new <b>Echo</b>. Obsession and Acceptance cards go to the discard pile. <b>Oblivion</b> cards are <b>forgotten</b> after use.</li>
       <li><b>Face down</b> (kept quiet): place 1 Root. No knot is tied and the Echo does not change. The card is discarded.</li>
       <li><b>Burn</b> (burned away): do the effect <b>twice</b>, tie a knot, and its thread becomes the new <b>Echo</b> (a Burned first card can Resonate). Then the card is forgotten, along with the top card of the deck. The soul grows lighter, and its story grows shorter.</li>
     </ul>
-    <p><b>Seek</b> (once per turn): discard a card from your hand and draw one. Nothing is played, no knot is tied and the Echo does not change. Only your <b>first action</b> can Resonate, so if you Seek first you let the Echo pass this turn; Seek second and your first card has already had its chance. Seek when your hand holds nothing the river needs.</p>
-    <p><b>Push Through</b> (once per turn, only when Grievances hold both banks of the space ahead of the soul): drive the soul through them now, at a price. It uses no card; see section 13. Like a Seek, a Push Through taken first lets the Echo pass.</p>` },
+    <p><b>Seek</b> (once per turn): discard a card from your hand and draw one. Nothing is played, no knot is tied and the Echo does not change. Only your <b>Answer</b> can Resonate, so if you Seek as your Answer you let the Echo pass this turn; Seek as your Steer and your first card has already had its chance. Seek when your hand holds nothing the river needs.</p>
+    <p><b>Push Through</b> (each Ferryman only <b>once per game</b>, and only when Grievances hold both banks of the space ahead of the soul): drive the soul through them now, at a price. It uses no card; see section 13. Like a Seek, a Push Through taken as your Answer lets the Echo pass.</p>` },
 
   { id: "echo", title: "11. The Echo and Resonance", keys: "echo resonance resonate thread silent signal", body: `
     ${lore("When two silent Ferrymen pull the same thread, the Loom sings.")}
     <p>${ico("nb-echo", "#8FD6E1")} The <b>Echo</b> is the thread of the last card played face up or Burned, by anyone. It is how silent players talk.</p>
     <p>If the <b>first</b> card you play on your turn is on the Echo's thread, it <b>Resonates</b>. Do its Resonance effect as well; some Oblivion cards do their Resonance <i>instead</i>. A Resonating card that carries a memory may be <b>inscribed</b> in the Book of Remembrance.</p>
-    <p>Only your first action can Resonate. If it is a Seek or a Push Through, the Echo passes unanswered this turn.</p>
+    <p>Only your Answer (your first action) can Resonate. If your Answer is a Seek or a Push Through, the Echo passes unanswered this turn.</p>
     <p>Leaving an Echo the next player can safely follow is the heart of the game.</p>` },
 
   { id: "loom", title: "12. The Loom of the Fates and Backlash", keys: "loom knot thread backlash grasping resignation tide karma", body: `
@@ -206,7 +206,7 @@ export const RULEBOOK = [
     ${lore("The soul walks only toward light. In the dark, it waits, and waiting, it forgets.")}
     <p>After your actions the soul tries to step forward. If the next space is <b>Lit and not flooded</b>, it moves there. It gains 1 Light for each Bloom it leaves behind, and the space it left is cleared.</p>
     <p>Otherwise it <b>Lingers</b>. Beside its own light (its own space is Lit) it simply waits. In the dark it forgets the top card of the deck. <i>Hold Fast</i> and the Spirit Warden stop a Linger.</p>
-    <p><b>Through the shades.</b> If Grievances hold <b>both</b> banks of the next space, the way is shut and the soul will Linger. On your turn you may spend an action to <b>Push Through</b> (once per turn, and only if that space is not flooded): both Grievances scatter, the soul steps onto the space at once, and it pays dearly, taking <b>1 Fracture</b> and forgetting the top card of the deck. Each push already made this game costs <b>one more Fracture</b>: the second push costs 2, the third 3, which shatters the soul. The Soul Step still follows as usual. Push once; after that, clear the way with your cards.</p>
+    <p><b>Through the shades.</b> If Grievances hold <b>both</b> banks of the next space, the way is shut and the soul will Linger. On your turn you may spend an action to <b>Push Through</b> (each Ferryman only once per game, and only if that space is not flooded): both Grievances scatter, the soul steps onto the space at once, and it pays dearly, taking <b>1 Fracture</b> and forgetting the top card of the deck. Each push already made this game costs <b>one more Fracture</b>: the second push costs 2, the third 3, which shatters the soul. The Soul Step still follows as usual. Push once; after that, clear the way with your cards.</p>
     <p><b>Light as Ash.</b> Once 6 cards are forgotten, the soul glides one extra space whenever it can. It has less to carry.</p>
     <p><b>Adrift.</b> Once 9 cards are forgotten, each time the soul moves it moves one more space. If that space is dark it drifts in anyway and suffers a Fracture (the Spirit Warden can hold it back). It has almost nothing left to hold it in place.</p>
     <p>If a Grievance sits beside the soul after the step, it feeds: <b>1 Fracture</b>.</p>` },
@@ -219,7 +219,7 @@ export const RULEBOOK = [
 
   { id: "mantles", title: "15. Mantles and Light", keys: "mantle summon light weaver warden bringer breaker", body: `
     ${lore("The light of passed flowers can be spent to take up an old role of the river.")}
-    <p>Before your first action you may <b>summon</b> a free Mantle: pay Light (3, or 2 for the King) and discard a card of the Mantle's thread. Each player holds at most one Mantle.</p>
+    <p>Before your Answer you may <b>summon</b> a free Mantle: pay Light (3, or 2 for the King) and discard a card of the Mantle's thread. Each player holds at most one Mantle.</p>
     <ul>${Object.values(MANTLES).map(m => `<li>${ico(TAG_ICONS[m.tag], TAGCOL[m.tag])}<b>${esc(m.name)}</b>: ${esc(m.text)}</li>`).join("")}</ul>` },
 
   { id: "book", title: "16. The Book of Remembrance", keys: "inscribe page chapter blessing key memory keepsake slot place person deed feeling", body: `
@@ -291,8 +291,8 @@ export function playerAid(cfg) {
     <h3>On your turn</h3>
     <ol class="steps">
       <li><b>Summon</b> <span>optional · pay Light, discard a matching card</span></li>
-      <li><b>Action 1</b> <span>a card that matches the Echo Resonates</span></li>
-      <li><b>Action 2</b> <span>either action may be a Seek or a Push Through (each once a turn)</span></li>
+      <li><b>Answer</b> <span>your first action: a card that matches the Echo Resonates</span></li>
+      <li><b>Steer</b> <span>your second action. Either may be a Seek (once a turn) or a Push Through (once a game for each Ferryman)</span></li>
       <li><b>Soul Step</b> <span>Lit and dry ahead: move. Otherwise: Linger</span></li>
       <li><b>Mist</b> <span>turn one card of this Reach</span></li>
       <li><b>Settle and draw</b> <span>roots drink the flood, trapped Grievances dissolve</span></li>
@@ -302,8 +302,8 @@ export function playerAid(cfg) {
       <div><b>Face up</b><span>effect + knot + new Echo</span></div>
       <div><b>Face down</b><span>1 Root only</span></div>
       <div><b>Burn</b><span>effect ×2 + knot + new Echo; forget it + 1</span></div>
-      <div><b>Seek</b><span>discard 1, draw 1; no Resonance if first</span></div>
-      <div><b>Push Through</b><span>Grievances on both banks ahead: they scatter and the soul steps forward; 1 Fracture (+1 per earlier push), forget 1</span></div>
+      <div><b>Seek</b><span>discard 1, draw 1; no Resonance if it is your Answer</span></div>
+      <div><b>Push Through</b><span>Grievances on both banks ahead: they scatter and the soul steps forward; 1 Fracture (+1 per earlier push), forget 1; once a game for each Ferryman</span></div>
     </div>
     <h3>Threads (${cap} knots)</h3>
     <div class="aidgrid">

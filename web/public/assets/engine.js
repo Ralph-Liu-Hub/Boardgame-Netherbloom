@@ -622,11 +622,15 @@ export function blockedByGrievances(s) {
   return sp >= 1 && sp <= 11 && !s.flooded[sp] && s.griev[sp * 2] && s.griev[sp * 2 + 1];
 }
 // Push Through is an action a player chooses; it uses no card. Without it, a soul facing two Grievances Lingers.
-export const canPush = s => s.phase === "play" && !s.pushed && s.played < s.cfg.cardsPerTurn && blockedByGrievances(s);
+// Each Ferryman may Push Through only once in the whole game.
+export const hasPushed = (s, p = s.cur) => !!(s.pushedBy && s.pushedBy[p]);
+export const canPush = s => s.phase === "play" && !s.pushed && !hasPushed(s) && s.played < s.cfg.cardsPerTurn && blockedByGrievances(s);
 export const pushCost = s => 1 + (s.stats.pushes || 0);
 export function pushAction(s) {
   s.played += 1;
   s.pushed = true;
+  s.pushedBy = s.pushedBy || Array(s.n).fill(false);
+  s.pushedBy[s.cur] = true;
   pushThrough(s);
 }
 // Push through the shades: both Grievances scatter, the soul steps forward, and it pays with a memory and a
