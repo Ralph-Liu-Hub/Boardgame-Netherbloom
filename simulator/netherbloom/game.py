@@ -85,5 +85,5 @@ def ending(s):
         place = "forgotten"
     else:
         place = "unspoken"
-    tier = "low" if len(s.forgotten) < s.cfg.ash_at else "high"  # the tiers split where Light as Ash begins
+    tier = "low" if len(s.forgotten) <= 7 else "high"  # endings: 0–7 forgotten, or 8 or more (valid at every Lantern limit, 9–14)
     return place, tier

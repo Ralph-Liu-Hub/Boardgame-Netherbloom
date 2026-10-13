@@ -397,11 +397,12 @@
    "oblivion_played": 2.902,
    "final_forgotten": 8.508,
    "endings": {
-    "inscribed/high": 111,
-    "forgotten/high": 43,
-    "unspoken/high": 56,
-    "unspoken/low": 2,
-    "inscribed/low": 8
+    "inscribed/high": 67,
+    "inscribed/low": 52,
+    "forgotten/high": 31,
+    "unspoken/high": 37,
+    "forgotten/low": 12,
+    "unspoken/low": 21
    }
   }
  },
@@ -443,11 +444,12 @@
    "oblivion_played": 2.746,
    "final_forgotten": 8.23,
    "endings": {
-    "inscribed/high": 132,
-    "unspoken/high": 66,
-    "forgotten/high": 52,
-    "inscribed/low": 7,
-    "unspoken/low": 1
+    "inscribed/high": 79,
+    "unspoken/high": 36,
+    "forgotten/high": 37,
+    "forgotten/low": 15,
+    "unspoken/low": 31,
+    "inscribed/low": 60
    }
   }
  },
@@ -489,11 +491,12 @@
    "oblivion_played": 2.942,
    "final_forgotten": 8.77,
    "endings": {
-    "inscribed/high": 79,
-    "unspoken/high": 72,
-    "forgotten/high": 21,
-    "unspoken/low": 2,
-    "inscribed/low": 2
+    "inscribed/low": 35,
+    "unspoken/high": 45,
+    "inscribed/high": 46,
+    "unspoken/low": 29,
+    "forgotten/low": 5,
+    "forgotten/high": 16
    }
   }
  },
@@ -535,11 +538,12 @@
    "oblivion_played": 2.906,
    "final_forgotten": 8.232,
    "endings": {
-    "inscribed/high": 154,
-    "unspoken/high": 154,
-    "inscribed/low": 14,
-    "forgotten/high": 41,
-    "unspoken/low": 21
+    "inscribed/low": 82,
+    "inscribed/high": 86,
+    "unspoken/low": 88,
+    "unspoken/high": 87,
+    "forgotten/high": 28,
+    "forgotten/low": 13
    }
   }
  },
@@ -582,11 +586,12 @@
    "oblivion_played": 3.236,
    "final_forgotten": 9.28,
    "endings": {
-    "inscribed/high": 142,
-    "unspoken/high": 80,
-    "forgotten/high": 64,
-    "inscribed/low": 10,
-    "unspoken/low": 3
+    "inscribed/high": 93,
+    "inscribed/low": 59,
+    "unspoken/high": 58,
+    "unspoken/low": 25,
+    "forgotten/high": 50,
+    "forgotten/low": 14
    }
   }
  },
@@ -629,12 +634,12 @@
    "oblivion_played": 3.082,
    "final_forgotten": 8.806,
    "endings": {
-    "forgotten/high": 65,
-    "unspoken/high": 84,
-    "inscribed/high": 180,
-    "unspoken/low": 7,
-    "inscribed/low": 6,
-    "forgotten/low": 1
+    "forgotten/low": 9,
+    "unspoken/low": 43,
+    "inscribed/high": 106,
+    "unspoken/high": 48,
+    "forgotten/high": 57,
+    "inscribed/low": 80
    }
   }
  },
@@ -677,11 +682,12 @@
    "oblivion_played": 3.456,
    "final_forgotten": 9.814,
    "endings": {
-    "inscribed/high": 111,
-    "unspoken/high": 111,
-    "forgotten/high": 30,
-    "inscribed/low": 4,
-    "unspoken/low": 3
+    "inscribed/low": 30,
+    "unspoken/low": 31,
+    "forgotten/high": 27,
+    "unspoken/high": 83,
+    "inscribed/high": 85,
+    "forgotten/low": 3
    }
   }
  },

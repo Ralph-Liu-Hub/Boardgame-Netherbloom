@@ -1,6 +1,6 @@
 # Netherbloom Simulator — Balance Report
 
-1000 games per main configuration (half that for variants). Echo-following AI players. Run time 79 s.
+1000 games per main configuration (half that for variants). Echo-following AI players. Run time 85 s.
 
 ## 1. Player counts (Standard Lantern, Open Crossing)
 
@@ -24,10 +24,10 @@
 
 | Soul | Win rate | Loss split F/S/D | Turns | Endings reached (among wins) |
 |---|---|---|---|---|
-| king | 44% | 42% / 35% / 24% | 16.1 | inscribed/high 50%, unspoken/high 25%, forgotten/high 20%, inscribed/low 4%, unspoken/low 1% |
-| garland | 52% | 32% / 46% / 22% | 16.4 | inscribed/high 51%, unspoken/high 26%, forgotten/high 20%, inscribed/low 3%, unspoken/low 0% |
-| bride | 35% | 34% / 35% / 31% | 18.2 | inscribed/high 45%, unspoken/high 41%, forgotten/high 12%, unspoken/low 1%, inscribed/low 1% |
-| child | 77% | 54% / 28% / 17% | 15.0 | inscribed/high 40%, unspoken/high 40%, forgotten/high 11%, unspoken/low 5%, inscribed/low 4% |
+| king | 44% | 42% / 35% / 24% | 16.1 | inscribed/high 30%, inscribed/low 24%, unspoken/high 17%, forgotten/high 14%, unspoken/low 10%, forgotten/low 5% |
+| garland | 52% | 32% / 46% / 22% | 16.4 | inscribed/high 31%, inscribed/low 23%, forgotten/high 14%, unspoken/high 14%, unspoken/low 12%, forgotten/low 6% |
+| bride | 35% | 34% / 35% / 31% | 18.2 | inscribed/high 26%, unspoken/high 26%, inscribed/low 20%, unspoken/low 16%, forgotten/high 9%, forgotten/low 3% |
+| child | 77% | 54% / 28% / 17% | 15.0 | unspoken/low 23%, unspoken/high 23%, inscribed/high 22%, inscribed/low 21%, forgotten/high 7%, forgotten/low 3% |
 
 Same Souls at the **Gentle Lantern**: king 60%, garland 69%, bride 52%
 

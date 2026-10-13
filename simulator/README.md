@@ -53,7 +53,7 @@ GDD v0.4 as written was **unbalanced**:
 - Faded caused 82–91% of all losses, and Deluge never happened.
 - Games lasted only 10–12 turns.
 
-These changes bring every player count to **50–54% wins** with the Open Crossing at the Standard Lantern (the four Souls other than the Child average 47%), with all three loss conditions sharing the losses:
+These changes bring every player count to **54–56% wins** with the Open Crossing at the Standard Lantern (the four Souls other than the Child average 50%), with all three loss conditions sharing the losses:
 
 | Rule | GDD v0.4 | Tuned |
 |---|---|---|
