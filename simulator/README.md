@@ -58,7 +58,7 @@ These changes bring every player count to **50–54% wins** with the Open Crossi
 | Rule | GDD v0.4 | Tuned |
 |---|---|---|
 | Lingering | Always forget 1 | Forget 1 only if the soul's own space is **not Lit** (a soul waiting beside its own light does not fade) |
-| Drained Black Water | Returns to the supply | **Leaves the game.** The supply (5 at the Standard Lantern) becomes a slow flood clock, so Deluge is a real threat. |
+| Drained Black Water | Returns to the supply | **Leaves the game.** The supply (6 at the Standard Lantern) becomes a slow flood clock, so Deluge is a real threat. |
 | Burn | Forget the card | Forget the card **and 1 more** |
 | Light as Ash / Adrift | 4 / 8 forgotten | **6 / 9** |
 | Mist decks | 10 cards per Reach | **12**: +1 Rising Water, +1 Grievance Drawn Near |
@@ -71,7 +71,7 @@ These changes bring every player count to **50–54% wins** with the Open Crossi
 | Bride pack | B02 Shield, B06 Mend | **B02 Stubborn Root, B06 Full Bloom** |
 | Actions | Play 2 cards | **2 actions**: play a card, Seek (discard 1, draw 1; once a turn), or Push Through (see below); only the first action can Resonate |
 | Grievances on both banks ahead | The soul Lingers | The soul still Lingers, but a player may spend an action to **Push Through** (once a turn): both scatter, the soul steps on, 1 Fracture and forget 1; each later push in the game costs 1 more Fracture |
-| Lanterns | 1–5 | **Gentle 6/14/0, Standard 5/11/2, Hard 4/10/3, Heroic 3/9/3** (Black Water / Faded at / harsh Mist per Reach) |
+| Lanterns | 1–5 | **Gentle 6/14/0, Standard 6/11/2, Hard 4/10/3, Heroic 3/9/3** (Black Water / Faded at / harsh Mist per Reach) |
 | Child twist | 3 Light, first Fracture each Reach ignored, never Adrift, no harsh Mist | Also **forgets 1 more card before she Fades** |
 
 ## Not modelled yet

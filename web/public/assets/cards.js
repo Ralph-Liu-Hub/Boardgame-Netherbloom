@@ -169,7 +169,7 @@ export const TILES = [
 export const REACH_NAMES = ["The Asphodel Road", "The Fields of Mourning", "The Banks of Lethe"];
 
 // Lantern: [black water supply, forgotten limit, harsh Mist per Reach]. Standard is the intended game.
-export const LANTERN = { 1: [6, 14, 0], 2: [5, 11, 2], 3: [4, 10, 3], 4: [3, 9, 3] };
+export const LANTERN = { 1: [6, 14, 0], 2: [6, 11, 2], 3: [4, 10, 3], 4: [3, 9, 3] };
 export const LANTERN_NAMES = { 1: "Gentle", 2: "Standard", 3: "Hard", 4: "Heroic" };
 export const STANDARD_LANTERN = 2;
 // The Faded limits across all Lanterns, as "9–14".
