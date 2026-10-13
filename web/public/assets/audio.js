@@ -193,8 +193,8 @@ function whisper() {
 
 // ---------------------------------------------------------------- the song of the river
 // A slow piece in D minor (84 bpm) over the drone: a harp arpeggio, a soft heartbeat, and a melody that
-// comes and goes. Each 8-bar round picks a voice: the flute, a music-box answer an octave up, or only the
-// harp, so the bells have room to ring. The raised C sharp over the last chord keeps the unease.
+// comes and goes. Each 8-bar round picks a voice: a solo violin (always the first round), the flute, a
+// music-box answer an octave up, or only the harp, so the bells have room to ring. The raised C sharp over the last chord keeps the unease.
 const BPM = 84, BEAT = 60 / BPM, BAR = BEAT * 4;
 const PROG = [            // [bass, chord tones] per bar: Dm Bb F C | Dm Gm Bb A
   [38, [62, 65, 69]], [34, [62, 65, 70]], [41, [60, 65, 69]], [36, [60, 64, 67]],
@@ -209,6 +209,18 @@ const MELODY = [          // [midi, beats] per bar; 0 is a rest
   [[79, 1], [77, 1], [74, 2]],
   [[77, 1], [76, 1], [74, 1], [70, 1]],
   [[73, 1.5], [76, .5], [74, 2]],
+];
+// The violin's line: long bowed notes that sigh down by a semitone and lean on unresolved tones
+// (the raised C sharp, an E flat over G minor, a B natural against C) for a tranquil kind of dread.
+const VIOLIN = [          // [midi, beats] per bar
+  [[74, 3], [73, 1]],
+  [[74, 2], [70, 2]],
+  [[72, 3], [69, 1]],
+  [[71, 2], [72, 2]],
+  [[77, 3], [76, 1]],
+  [[74, 2], [75, 2]],
+  [[77, 2], [74, 2]],
+  [[76, 2], [73, 2]],
 ];
 let songBar = 0, songNext = 0, songVoice = "flute", melodyOn = false;
 
@@ -263,6 +275,52 @@ function flute(freq, when, dur, vol = 0.06) {
   lp.connect(g).connect(amb);
 }
 
+// A solo violin: two slightly detuned bowed tones through a body resonance, with a slow bow attack,
+// a small scoop into each note and vibrato that only blooms once the note is held.
+function violin(freq, when, dur, vol = 0.045) {
+  const end = when + dur;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(vol * 0.7, when + 0.35);
+  g.gain.linearRampToValueAtTime(vol, when + Math.min(dur * 0.6, 1.4));
+  g.gain.setValueAtTime(vol, Math.max(when + 0.4, end - 0.5));
+  g.gain.linearRampToValueAtTime(0, end + 0.6);
+  const vib = ctx.createOscillator(), vibAmt = ctx.createGain();
+  vib.frequency.value = 5.4;
+  vibAmt.gain.setValueAtTime(0, when);
+  vibAmt.gain.linearRampToValueAtTime(0, when + 0.45);
+  vibAmt.gain.linearRampToValueAtTime(freq * 0.009, when + Math.min(dur, 1.6));
+  vib.connect(vibAmt);
+  const body = ctx.createBiquadFilter();
+  body.type = "peaking";
+  body.frequency.value = 2400;
+  body.Q.value = 1.2;
+  body.gain.value = 7;
+  const lp = ctx.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.setValueAtTime(1400, when);
+  lp.frequency.linearRampToValueAtTime(3600, when + 0.6);
+  const hp = ctx.createBiquadFilter();
+  hp.type = "highpass";
+  hp.frequency.value = 220;
+  for (const det of [-4, 5]) {
+    const o = ctx.createOscillator();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(freq * 0.985, when);                 // the scoop up into the note
+    o.frequency.exponentialRampToValueAtTime(freq, when + 0.22);
+    o.detune.value = det;
+    vibAmt.connect(o.frequency);
+    o.connect(lp);
+    o.start(when);
+    o.stop(end + 0.7);
+  }
+  vib.start(when);
+  vib.stop(end + 0.7);
+  const p = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+  const out = lp.connect(hp).connect(body).connect(g);
+  if (p) { p.pan.value = -0.25; out.connect(p).connect(amb); } else out.connect(amb);
+}
+
 function heartbeat(when, vol) {
   for (const [dt, v] of [[0, vol], [0.24, vol * 0.6]]) {
     const o = ctx.createOscillator(), g = ctx.createGain();
@@ -282,7 +340,7 @@ function songBarAt(t) {
   if (i === 0) {
     // a new round: choose who sings it
     const r = Math.random();
-    songVoice = r < 0.45 ? "flute" : r < 0.75 ? "box" : "harp";
+    songVoice = songBar === 0 || r < 0.4 ? "violin" : r < 0.65 ? "flute" : r < 0.85 ? "box" : "harp";
     melodyOn = songVoice !== "harp";
   }
   const [bass, tones] = PROG[i];
@@ -291,7 +349,10 @@ function songBarAt(t) {
   arp.forEach((n, k) => pluck(NOTE(n - 12), t + k * BEAT / 2, k % 2 ? 0.022 : 0.03, 1.4, 0.35));
   heartbeat(t, 0.12);
   heartbeat(t + BEAT * 2, 0.08);
-  if (melodyOn) {
+  if (songVoice === "violin") {
+    let x = t;
+    for (const [n, b] of VIOLIN[i]) { violin(NOTE(n), x, b * BEAT); x += b * BEAT; }
+  } else if (melodyOn) {
     let x = t;
     for (const [n, b] of MELODY[i]) {
       if (n) {

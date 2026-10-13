@@ -25,11 +25,21 @@ const ease = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
 // ---------------------------------------------------------------- the five Souls
 const LOOKS = {
-  child: { scale: 0.92, dress: "short", shawl: true, prop: "match", hair: "short", gait: 1.25 },
-  garland: { scale: 1.08, dress: "long", hair: "long", garland: true, prop: "flower", gait: 0.95 },
-  king: { scale: 1.14, dress: "robe", cape: true, crown: true, beard: true, prop: "sword", gait: 0.7 },
-  bride: { scale: 1.08, dress: "long", veil: true, hair: "bun", prop: null, gait: 0.85 },
-  open: { scale: 1.08, dress: "robe", hood: true, prop: "lantern", gait: 0.9 },
+  // A small, thin child: big head, short limbs, a shawl over her head, a ragged short dress, bare feet.
+  child: { scale: 0.82, head: 15.5, neck: 3, torso: 44, sh: 8, hip: 8, thigh: 29, shin: 27, ua: 23, fa: 21, limbW: 0.78,
+    dress: "ragged", shawl: true, prop: "match", hair: "short", gait: 1.3, stride: 30, bob: 4, swing: 0.5, stoop: 4 },
+  // Tall and slender, with a long neck, long loose hair, a flowing gown hemmed with flowers.
+  garland: { scale: 1.06, head: 11, neck: 9, torso: 64, sh: 8.5, hip: 9, thigh: 49, shin: 49, ua: 37, fa: 34, limbW: 0.78,
+    dress: "flowing", hair: "long", garland: true, prop: "flower", gait: 0.95, stride: 16, bob: 0.8, swing: 1.1, stoop: -2 },
+  // Broad, heavy and old: wide shoulders in pauldrons, thick limbs, a robe, torn cape, crown and beard.
+  king: { scale: 1.12, head: 13.5, neck: 3, torso: 72, sh: 18, hip: 14, thigh: 40, shin: 40, ua: 35, fa: 32, limbW: 1.35,
+    dress: "robe", cape: true, pauldrons: true, crown: true, beard: true, prop: "sword", gait: 0.62, stride: 18, bob: 1, swing: 0.45, stoop: 5 },
+  // Slight and upright, narrow-waisted, in a wide bell-shaped wedding gown with a long train and veil.
+  bride: { scale: 1.0, head: 12, neck: 6, torso: 60, sh: 9, hip: 7, thigh: 45, shin: 45, ua: 34, fa: 32, limbW: 0.86,
+    dress: "bell", train: true, veil: true, hair: "bun", prop: "bouquet", gait: 0.8, stride: 13, bob: 0.6, swing: 0.6, stoop: 0 },
+  // A gaunt, hooded traveller with long limbs and a stoop, cloaked to the ankles, holding a lantern out.
+  open: { scale: 1.14, head: 12.5, neck: 4, torso: 68, sh: 11, hip: 10, thigh: 48, shin: 46, ua: 38, fa: 36, limbW: 0.9,
+    dress: "cloak", hood: true, prop: "lantern", gait: 0.85, stride: 20, bob: 1.6, swing: 0.4, stoop: 9 },
 };
 
 // Poses are joint angles in degrees (positive swings forward) plus a few extras.
@@ -83,64 +93,75 @@ function build(svg, soul, id) {
   const root = el("g", {}, fig);
   const j = {};
   const part = (parent, d, extra = {}) => el("path", { d, fill: INK, ...extra }, parent);
+  const w = L.limbW, T = L.torso, LEG = L.thigh + L.shin, k = L.head / 13;
+  const foot = (g, op) => part(g, `M-4 ${L.shin - 2} Q4 ${L.shin - 4} ${12 * Math.min(1.1, w + 0.2)} ${L.shin + 1} Q8 ${L.shin + 5} -4 ${L.shin + 4} Z`, op);
 
   // back leg
   j.thB = el("g", {}, root);
-  part(j.thB, limb(42, 13, 10), { opacity: 0.82 });
+  part(j.thB, limb(L.thigh, 13 * w, 10 * w), { opacity: 0.82 });
   j.shB = el("g", {}, j.thB);
-  part(j.shB, limb(42, 10, 7), { opacity: 0.82 });
-  part(j.shB, "M-4 40 Q4 38 12 43 Q8 47 -4 46 Z", { opacity: 0.82 });
+  part(j.shB, limb(L.shin, 10 * w, 7 * w), { opacity: 0.82 });
+  foot(j.shB, { opacity: 0.82 });
 
   j.torso = el("g", {}, root);
-  // capes and veils sit behind the body
+  // capes, trains and veils sit behind the body
   j.back = el("g", {}, j.torso);
-  if (L.cape) j.cape = part(j.back, "M-2 -64 C-26 -40 -40 10 -56 78 L-8 76 C-4 30 4 -30 4 -60 Z", { opacity: 0.9 });
-  if (L.veil) j.veil = part(j.back, "M-4 -96 C-40 -80 -70 -30 -112 46 C-80 40 -50 20 -20 -40 C-12 -60 -6 -76 -2 -86 Z", { opacity: 0.45 });
-  if (L.hair === "long") j.hairBack = part(j.back, "M-6 -98 C-24 -86 -26 -50 -34 -24 C-24 -30 -16 -44 -10 -60 C-6 -72 -2 -82 0 -88 Z", { opacity: 0.95 });
+  if (L.cape) j.cape = part(j.back, `M-${L.sh * 0.3} -${T} C-${L.sh + 14} -${T * 0.6} -${L.sh + 30} ${LEG * 0.2} -${L.sh + 44} ${LEG + 4} L-10 ${LEG + 2} C-6 ${LEG * 0.4} 2 -${T * 0.4} ${L.sh * 0.3} -${T - 4} Z`, { opacity: 0.9 });
+  if (L.train) j.train = part(j.back, `M-6 0 C-30 ${LEG * 0.5} -70 ${LEG * 0.85} -120 ${LEG + 4} L-20 ${LEG + 4} C-14 ${LEG * 0.6} -8 ${LEG * 0.3} -4 0 Z`, { opacity: 0.55 });
+  if (L.veil) j.veil = part(j.back, `M-4 -${T + 30} C-40 -${T + 14} -76 -${T * 0.4} -130 ${LEG * 0.7} C-90 ${LEG * 0.6} -54 ${LEG * 0.2} -20 -${T * 0.6} C-12 -${T * 0.85} -6 -${T + 10} -2 -${T + 20} Z`, { opacity: 0.4 });
+  if (L.hair === "long") j.hairBack = part(j.back, `M-6 -${T + L.neck + 2 * L.head} C-26 -${T + 8} -30 -${T * 0.5} -38 -${T * 0.15} C-26 -${T * 0.3} -18 -${T * 0.55} -10 -${T * 0.8} C-6 -${T * 0.95} -2 -${T + 8} 0 -${T + 12} Z`, { opacity: 0.95 });
 
   // back arm
-  j.uaB = el("g", { }, j.torso);
-  part(j.uaB, limb(33, 10, 8), { opacity: 0.8 });
+  j.uaB = el("g", {}, j.torso);
+  part(j.uaB, limb(L.ua, 10 * w, 8 * w), { opacity: 0.8 });
   j.faB = el("g", {}, j.uaB);
-  part(j.faB, limb(31, 8, 7), { opacity: 0.8 });
-  el("circle", { cx: 0, cy: 33, r: 4.5, fill: INK, opacity: 0.8 }, j.faB);
+  part(j.faB, limb(L.fa, 8 * w, 7 * w), { opacity: 0.8 });
+  el("circle", { cx: 0, cy: L.fa, r: 4.5 * Math.min(1.2, w + 0.1), fill: INK, opacity: 0.8 }, j.faB);
 
-  // torso and dress
-  part(j.torso, "M-11 -4 C-14 -30 -13 -52 -9 -66 L9 -66 C13 -52 14 -30 11 -4 Z");
-  if (L.dress === "long") j.skirt = part(j.torso, "M-12 -10 L12 -10 C18 20 26 56 34 86 C10 92 -14 92 -36 86 C-26 56 -18 20 -12 -10 Z");
-  if (L.dress === "short") j.skirt = part(j.torso, "M-12 -8 L12 -8 C16 10 22 28 26 44 C8 48 -10 48 -26 44 C-20 28 -16 10 -12 -8 Z");
-  if (L.dress === "robe") j.skirt = part(j.torso, "M-13 -60 L13 -60 C18 -10 22 40 26 88 C8 92 -12 92 -30 88 C-24 40 -18 -10 -13 -60 Z");
-  if (L.shawl) part(j.torso, "M-16 -76 C-24 -58 -22 -40 -14 -24 L16 -30 C20 -46 18 -62 12 -76 Z");
+  // torso, from the hips (y 0) to the shoulders (y -T)
+  part(j.torso, `M-${L.hip} -4 C-${L.hip + 3} -${T * 0.45} -${L.sh + 2} -${T * 0.8} -${L.sh} -${T} L${L.sh} -${T} C${L.sh + 2} -${T * 0.8} ${L.hip + 3} -${T * 0.45} ${L.hip} -4 Z`);
+  if (L.pauldrons) for (const s of [-1, 1]) part(j.torso, `M${s * (L.sh - 6)} -${T + 3} C${s * (L.sh + 6)} -${T + 5} ${s * (L.sh + 9)} -${T - 6} ${s * (L.sh + 5)} -${T - 12} C${s * L.sh} -${T - 8} ${s * (L.sh - 6)} -${T - 6} ${s * (L.sh - 6)} -${T + 3} Z`);
+  const hemFlowers = [];
+  if (L.dress === "flowing") { j.skirt = part(j.torso, `M-10 -12 L10 -12 C16 ${LEG * 0.3} 22 ${LEG * 0.7} 30 ${LEG + 2} C10 ${LEG + 8} -14 ${LEG + 8} -40 ${LEG + 2} C-28 ${LEG * 0.7} -16 ${LEG * 0.3} -10 -12 Z`); hemFlowers.push(-30, -16, -2, 12, 24); }
+  if (L.dress === "bell") j.skirt = part(j.torso, `M-8 -10 L8 -10 C20 ${LEG * 0.15} 40 ${LEG * 0.6} 44 ${LEG + 3} C16 ${LEG + 10} -20 ${LEG + 10} -46 ${LEG + 3} C-40 ${LEG * 0.6} -20 ${LEG * 0.15} -8 -10 Z`);
+  if (L.dress === "ragged") j.skirt = part(j.torso, `M-11 -8 L11 -8 C15 ${LEG * 0.2} 20 ${LEG * 0.4} 24 ${LEG * 0.55} L18 ${LEG * 0.5} L14 ${LEG * 0.58} L8 ${LEG * 0.5} L2 ${LEG * 0.6} L-4 ${LEG * 0.5} L-10 ${LEG * 0.6} L-16 ${LEG * 0.5} L-24 ${LEG * 0.56} C-20 ${LEG * 0.4} -15 ${LEG * 0.2} -11 -8 Z`);
+  if (L.dress === "robe") j.skirt = part(j.torso, `M-${L.hip + 2} -${T - 4} L${L.hip + 2} -${T - 4} C${L.hip + 8} -10 ${L.hip + 12} ${LEG * 0.5} ${L.hip + 16} ${LEG + 4} C${L.hip} ${LEG + 8} -${L.hip + 4} ${LEG + 8} -${L.hip + 20} ${LEG + 4} C-${L.hip + 14} ${LEG * 0.5} -${L.hip + 8} -10 -${L.hip + 2} -${T - 4} Z`);
+  if (L.dress === "cloak") j.skirt = part(j.torso, `M-${L.sh + 4} -${T - 2} C-${L.sh} -${T + 6} ${L.sh} -${T + 6} ${L.sh + 4} -${T - 2} C${L.sh + 10} -10 ${L.sh + 12} ${LEG * 0.5} ${L.sh + 14} ${LEG - 2} C${L.sh} ${LEG + 4} -${L.sh + 4} ${LEG + 4} -${L.sh + 22} ${LEG - 2} C-${L.sh + 18} ${LEG * 0.5} -${L.sh + 12} -10 -${L.sh + 4} -${T - 2} Z`);
+  if (L.dress === "robe") part(j.torso, `M-${L.hip + 1} -6 L${L.hip + 1} -6 L${L.hip + 1} -1 L-${L.hip + 1} -1 Z`, { fill: WARM, opacity: 0.55 });   // the king's belt
+  for (const x of hemFlowers) el("circle", { cx: x, cy: LEG + 2 + Math.abs(x) * 0.05, r: 2.6, fill: RED }, j.torso);
+  if (L.shawl) part(j.torso, `M-${L.sh + 7} -${T + 6} C-${L.sh + 11} -${T * 0.7} -${L.sh + 9} -${T * 0.45} -${L.sh + 3} -${T * 0.25} L${L.sh + 6} -${T * 0.38} C${L.sh + 9} -${T * 0.6} ${L.sh + 8} -${T * 0.85} ${L.sh + 4} -${T + 6} Z`);
 
-  // head
+  // head, drawn at the classic 13-unit size and scaled to this Soul's head
   j.head = el("g", {}, j.torso);
-  el("circle", { cx: 0, cy: -16, r: 13, fill: INK }, j.head);
-  part(j.head, "M10 -18 L17 -14 L10 -11 Z");                                   // nose and chin profile
-  part(j.head, "M-6 -4 L6 -4 L5 4 L-5 4 Z");                                   // neck
-  if (L.hair === "short") part(j.head, "M-13 -18 C-14 -32 4 -36 12 -26 C2 -28 -6 -24 -8 -12 Z");
-  if (L.hair === "long") part(j.head, "M-13 -14 C-14 -34 8 -36 14 -24 C4 -28 -4 -22 -6 -10 Z");
-  if (L.hair === "bun") el("circle", { cx: -12, cy: -26, r: 7, fill: INK }, j.head);
-  if (L.hood) part(j.head, "M-18 -10 C-22 -34 -4 -44 12 -32 C16 -26 16 -18 14 -12 C8 -24 -4 -24 -6 -8 C-10 2 -16 4 -18 -10 Z");
-  if (L.shawl) part(j.head, "M-16 -12 C-18 -34 2 -40 14 -28 C6 -30 -4 -26 -6 -10 Z");
-  if (L.crown) part(j.head, "M-11 -27 L-9 -40 L-4 -32 L1 -42 L5 -32 L10 -40 L11 -27 Z");
-  if (L.beard) part(j.head, "M2 -8 C6 -2 10 2 14 -2 C14 -8 12 -12 10 -12 Z");
-  if (L.garland) for (let i = 0; i < 6; i++) el("circle", { cx: -11 + i * 4.4, cy: -28 - Math.sin(i / 5 * Math.PI) * 4, r: 2.6, fill: RED }, j.head);
+  const h = el("g", { transform: `scale(${k})` }, j.head);
+  el("circle", { cx: 0, cy: -16, r: 13, fill: INK }, h);
+  part(h, "M10 -18 L17 -14 L10 -11 Z");                                   // nose and chin profile
+  part(h, `M-6 -4 L6 -4 L5 ${4 + L.neck / k} L-5 ${4 + L.neck / k} Z`);    // neck
+  if (L.hair === "short") part(h, "M-13 -18 C-14 -32 4 -36 12 -26 C2 -28 -6 -24 -8 -12 Z");
+  if (L.hair === "long") part(h, "M-13 -14 C-14 -34 8 -36 14 -24 C4 -28 -4 -22 -6 -10 Z");
+  if (L.hair === "bun") el("circle", { cx: -12, cy: -26, r: 7, fill: INK }, h);
+  if (L.hood) part(h, "M-20 -8 C-26 -36 -4 -48 14 -34 C19 -27 19 -18 16 -11 C8 -24 -4 -24 -6 -6 C-10 6 -18 8 -20 -8 Z");
+  if (L.shawl) part(h, "M-17 -10 C-20 -36 2 -42 15 -29 C6 -31 -4 -27 -6 -9 Z");
+  if (L.crown) part(h, "M-11 -27 L-9 -42 L-4 -33 L1 -44 L5 -33 L10 -42 L11 -27 Z");
+  if (L.beard) part(h, "M0 -8 C4 4 10 10 16 4 C16 -4 13 -12 10 -12 Z");
+  if (L.garland) for (let i = 0; i < 6; i++) el("circle", { cx: -11 + i * 4.4, cy: -28 - Math.sin(i / 5 * Math.PI) * 4, r: 2.6, fill: RED }, h);
+  if (L.veil) part(h, "M-14 -22 C-6 -32 6 -32 12 -26 L10 -23 C4 -28 -6 -28 -12 -20 Z", { fill: WARM, opacity: 0.7 });   // a thin bridal circlet
 
-  // front leg (drawn over the dress hem only below it)
+  // front leg (the skirt covers both legs where there is one)
   j.thF = el("g", {}, root);
-  part(j.thF, limb(42, 13, 10));
+  part(j.thF, limb(L.thigh, 13 * w, 10 * w));
   j.shF = el("g", {}, j.thF);
-  part(j.shF, limb(42, 10, 7));
-  part(j.shF, "M-4 40 Q4 38 12 43 Q8 47 -4 46 Z");
-  if (j.skirt) root.appendChild(j.torso);   // the dress covers both legs
+  part(j.shF, limb(L.shin, 10 * w, 7 * w));
+  foot(j.shF);
+  if (j.skirt) root.appendChild(j.torso);
 
   // front arm and prop
   j.uaF = el("g", {}, j.torso);
-  part(j.uaF, limb(33, 10, 8));
+  part(j.uaF, limb(L.ua, 10 * w, 8 * w));
   j.faF = el("g", {}, j.uaF);
-  part(j.faF, limb(31, 8, 7));
-  el("circle", { cx: 0, cy: 33, r: 4.5, fill: INK }, j.faF);
-  const hand = el("g", { transform: "translate(0,33)" }, j.faF);
+  part(j.faF, limb(L.fa, 8 * w, 7 * w));
+  el("circle", { cx: 0, cy: L.fa, r: 4.5 * Math.min(1.2, w + 0.1), fill: INK }, j.faF);
+  const hand = el("g", { transform: `translate(0,${L.fa})` }, j.faF);
   j.glowEls = [];
   if (L.prop === "match") {
     el("rect", { x: -1, y: -14, width: 2, height: 16, fill: INK }, hand);
@@ -153,41 +174,46 @@ function build(svg, soul, id) {
     j.flower = el("use", { href: "#nb-bloom", x: -9, y: -40, width: 18, height: 18, style: `color:${RED}` }, hand);
   } else if (L.prop === "sword") {
     const sw = el("g", {}, hand);
-    el("rect", { x: -9, y: -2, width: 18, height: 3, fill: INK }, sw);
-    el("path", { d: "M-2.5 2 L2.5 2 L2 74 L0 80 L-2 74 Z", fill: INK }, sw);
-    el("rect", { x: -1.5, y: -12, width: 3, height: 10, fill: INK }, sw);
-    const g = el("circle", { cx: 0, cy: 40, r: 30, fill: WARM, opacity: 0, class: "pp-swordglow" }, sw);
+    el("rect", { x: -10, y: -2, width: 20, height: 3.5, fill: INK }, sw);
+    el("path", { d: "M-3 2 L3 2 L2.5 84 L0 91 L-2.5 84 Z", fill: INK }, sw);
+    el("rect", { x: -2, y: -13, width: 4, height: 11, fill: INK }, sw);
+    el("circle", { cx: 0, cy: -15, r: 3, fill: INK }, sw);
+    const g = el("circle", { cx: 0, cy: 44, r: 32, fill: WARM, opacity: 0, class: "pp-swordglow" }, sw);
     j.glowEls.push(g);
   } else if (L.prop === "lantern") {
-    el("path", { d: "M0 0 L0 10", stroke: INK, "stroke-width": 1.5 }, hand);
+    el("path", { d: "M0 0 L0 12", stroke: INK, "stroke-width": 1.5 }, hand);
     const lg = el("g", {}, hand);
-    const halo = el("circle", { cx: 0, cy: 22, r: 22, fill: WARM, opacity: 0.25 }, lg);
-    el("use", { href: "#nb-light", x: -10, y: 8, width: 20, height: 24, style: `color:${INK}` }, lg);
+    const halo = el("circle", { cx: 0, cy: 24, r: 24, fill: WARM, opacity: 0.25 }, lg);
+    el("use", { href: "#nb-light", x: -10, y: 10, width: 20, height: 24, style: `color:${INK}` }, lg);
     j.glowEls.push(halo);
+  } else if (L.prop === "bouquet") {
+    for (const [x, y, r] of [[-3, -3, 3.4], [3, -5, 3], [0, -8, 2.8], [5, -1, 2.4]]) el("circle", { cx: x, cy: y, r, fill: RED, opacity: 0.85 }, hand);
+    el("path", { d: "M0 0 L-2 9 M1 0 L2 9", stroke: INK, "stroke-width": 1.4 }, hand);
   }
   return { fig, root, j, L };
 }
 
 function apply(pp, x, p, t) {
   const { root, j, L } = pp;
-  const s = L.scale * 1.32;
-  const hipY = GROUND - 84 * s;
-  root.setAttribute("transform", `translate(${x + p.dx * s} ${hipY + p.dy * s}) scale(${s})`);
+  const s = L.scale * 1.32, LEG = L.thigh + L.shin, legK = LEG / 84;
+  const hipY = GROUND - (LEG + 2) * s;
+  root.setAttribute("transform", `translate(${x + p.dx * s} ${hipY + p.dy * legK * s}) scale(${s})`);
   root.setAttribute("opacity", p.alpha);
-  j.torso.setAttribute("transform", `rotate(${p.lean})`);
-  j.head.setAttribute("transform", `translate(0 -70) rotate(${p.nod})`);
-  j.uaF.setAttribute("transform", `translate(0 -64) rotate(${-p.uaF})`);
-  j.faF.setAttribute("transform", `translate(0 33) rotate(${-p.faF})`);
-  j.uaB.setAttribute("transform", `translate(0 -64) rotate(${-p.uaB})`);
-  j.faB.setAttribute("transform", `translate(0 33) rotate(${-p.faB})`);
+  j.torso.setAttribute("transform", `rotate(${p.lean + L.stoop})`);
+  j.head.setAttribute("transform", `translate(0 -${L.torso + 4 + L.neck}) rotate(${p.nod + L.stoop * 0.6})`);
+  j.uaF.setAttribute("transform", `translate(0 -${L.torso - 2}) rotate(${-p.uaF})`);
+  j.faF.setAttribute("transform", `translate(0 ${L.ua}) rotate(${-p.faF})`);
+  j.uaB.setAttribute("transform", `translate(0 -${L.torso - 2}) rotate(${-p.uaB})`);
+  j.faB.setAttribute("transform", `translate(0 ${L.ua}) rotate(${-p.faB})`);
   j.thF.setAttribute("transform", `rotate(${-p.thF})`);
-  j.shF.setAttribute("transform", `translate(0 42) rotate(${-p.shF})`);
+  j.shF.setAttribute("transform", `translate(0 ${L.thigh}) rotate(${-p.shF})`);
   j.thB.setAttribute("transform", `rotate(${-p.thB})`);
-  j.shB.setAttribute("transform", `translate(0 42) rotate(${-p.shB})`);
+  j.shB.setAttribute("transform", `translate(0 ${L.thigh}) rotate(${-p.shB})`);
   const flutter = Math.sin(t / 700) * 3 + (p.walk || 0) * 6;
-  if (j.cape) j.cape.setAttribute("transform", `rotate(${flutter} 0 -64)`);
-  if (j.veil) j.veil.setAttribute("transform", `rotate(${flutter * 1.4 - 2} 0 -90)`);
-  if (j.hairBack) j.hairBack.setAttribute("transform", `rotate(${flutter} 0 -88)`);
+  if (j.cape) j.cape.setAttribute("transform", `rotate(${flutter} 0 -${L.torso})`);
+  if (j.veil) j.veil.setAttribute("transform", `rotate(${flutter * 1.4 - 2} 0 -${L.torso + 24})`);
+  if (j.train) j.train.setAttribute("transform", `skewX(${-flutter * 0.8})`);
+  if (j.hairBack) j.hairBack.setAttribute("transform", `rotate(${flutter} 0 -${L.torso + 10})`);
   if (j.skirt) j.skirt.setAttribute("transform", `rotate(${-p.lean * 0.5 + Math.sin(t / 500) * 1.2} 0 -8)`);
   for (const g of j.glowEls) g.setAttribute("opacity", p.glow ? (0.35 + 0.25 * Math.sin(t / 160)) * p.glow + 0.05 * p.glow : 0);
 }
@@ -199,11 +225,11 @@ const mix = (a, b, k) => {
 };
 
 // Walking: legs swing, arms counter-swing, the body bobs. The gait depends on the Soul.
-function walkPose(base, phase, gait) {
-  const s = Math.sin(phase), c = Math.cos(phase);
-  return { ...base, walk: 1, dy: -2 * Math.abs(c), thF: 24 * s, shF: -12 - 16 * Math.max(0, Math.sin(phase + 1.4)),
-    thB: -24 * s, shB: -12 - 16 * Math.max(0, Math.sin(phase + Math.PI + 1.4)),
-    uaF: base.uaF + 16 * -s * (gait > 1 ? 0.6 : 1), uaB: base.uaB + 16 * s, lean: base.lean + 4 * gait };
+function walkPose(base, phase, L) {
+  const s = Math.sin(phase), c = Math.cos(phase), st = L.stride;
+  return { ...base, walk: 1, dy: -L.bob * Math.abs(c), thF: st * s, shF: -12 - 16 * Math.max(0, Math.sin(phase + 1.4)),
+    thB: -st * s, shB: -12 - 16 * Math.max(0, Math.sin(phase + Math.PI + 1.4)),
+    uaF: base.uaF + 16 * L.swing * -s, uaB: base.uaB + 16 * L.swing * s, lean: base.lean + 4 * L.gait };
 }
 
 // ---------------------------------------------------------------- the stage
@@ -351,7 +377,7 @@ export function mountPuppet(host, S, { lo = 1, hi = 11, mode = "chapter" } = {})
       x = lerp(walkFrom, walkTo, ease(k));
       const dir = walkTo >= walkFrom ? 1 : -1;
       const phase = (now - segStart) / (330 / pp.L.gait) * (current.back ? -1 : 1);
-      pose = walkPose(G.idle, phase, pp.L.gait);
+      pose = walkPose(G.idle, phase, pp.L);
       pp.fig.setAttribute("transform", dir < 0 && !current.back ? `translate(${2 * x} 0) scale(-1 1)` : "");
     } else {
       pose = mix(from, target, ease(k));
@@ -360,7 +386,14 @@ export function mountPuppet(host, S, { lo = 1, hi = 11, mode = "chapter" } = {})
     const t = now - t0;
     const breath = { ...pose, lean: pose.lean + Math.sin(t / 900) * 1.2, nod: pose.nod + Math.sin(t / 1300) * 1.5 };
     if (shiver) { breath.dx = Math.sin(t / 30) * 0.8; breath.uaF += Math.sin(t / 45) * 2; }
-    if (soul === "child" && !walking) breath.dx = (breath.dx || 0) + Math.sin(t / 60) * 0.25;
+    if (!walking) {
+      // Each Soul has its own small habits while it waits.
+      if (soul === "child") breath.dx = (breath.dx || 0) + Math.sin(t / 60) * 0.25;                       // shivering
+      if (soul === "garland") { breath.dx = (breath.dx || 0) + Math.sin(t / 1100) * 3; breath.lean += Math.sin(t / 1100) * 2.5; breath.nod += Math.sin(t / 900) * 3; }   // swaying to her song
+      if (soul === "king") { breath.nod += Math.sin(t / 2600) * 2; breath.lean += Math.sin(t / 2600) * 0.8; }   // slow, heavy breath
+      if (soul === "bride") { const c = t % 7000; if (c < 1600) { const k = Math.sin(Math.PI * c / 1600); breath.nod -= 22 * k; breath.lean -= 6 * k; } }   // a glance back over her shoulder
+      if (soul === "open") { breath.uaF += Math.sin(t / 850) * 4; breath.faF += Math.sin(t / 850 + 1) * 3; }  // the lantern sways
+    }
     apply(pp, x, breath, t);
     shadow.setAttribute("cx", x);
     if (k >= 1 && !current.hold) next(now);
