@@ -5,7 +5,7 @@ from statistics import mean
 from netherbloom.engine import Config
 from netherbloom.game import play_game
 
-RULES = {"automatic (old)": dict(push_action=False), "player action": dict(push_action=True)}
+RULES = {"push any turn": dict(push_once_each=False), "once per player": dict(push_once_each=True)}
 SOULS = ["open", "child", "garland", "king", "bride"]
 
 

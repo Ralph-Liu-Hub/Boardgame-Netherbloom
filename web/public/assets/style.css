@@ -135,6 +135,19 @@ input, select { font: inherit; color: var(--paper); background: var(--ink); bord
 @keyframes bob { 50% { transform: translateY(-5px); } }
 .soulglow { animation: soulglow 3.6s ease-in-out infinite; }
 @keyframes soulglow { 50% { opacity: .45; transform: scale(1.15); } }
+/* the soul's miniature on the river */
+.mini .mini-wisp { animation: miniwisp 4.8s ease-in-out infinite; }
+@keyframes miniwisp { 50% { transform: translateX(-4px); opacity: .55; } }
+.mini .mini-reflect { animation: minireflect 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes minireflect { 50% { transform: scaleX(.8); opacity: .1; } }
+.mini .mini-flame, .mini .mini-lantern { animation: miniflame 1.7s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 80%; }
+@keyframes miniflame { 30% { opacity: .82; transform: scale(.93); } 60% { opacity: 1; transform: scale(1.06); } }
+.mini .mini-veil, .mini .mini-cape, .mini .mini-hair { animation: miniveil 5.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 100% 0; }
+@keyframes miniveil { 50% { transform: rotate(-5deg) skewX(4deg); } }
+.mini .mini-bloom, .mini .mini-bouquet { animation: minibloom 3s ease-in-out infinite; }
+@keyframes minibloom { 50% { opacity: .7; } }
+@media (prefers-reduced-motion: reduce) { .mini * { animation: none !important; } }
+
 .shore { animation: glow 5s ease-in-out infinite; }
 
 /* loom, soul board */

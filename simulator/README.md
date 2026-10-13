@@ -69,8 +69,8 @@ These changes bring every player count to **54–56% wins** with the Open Crossi
 | Solo Ghost | Its Oblivion card forgets 1 | **Does not forget** |
 | Bride twist | Pulled back once per Reach, still forgets | Pulled back **once per game**, forgets nothing |
 | Bride pack | B02 Shield, B06 Mend | **B02 Stubborn Root, B06 Full Bloom** |
-| Actions | Play 2 cards | **2 actions**: play a card, Seek (discard 1, draw 1; once a turn), or Push Through (see below); only the first action can Resonate |
-| Grievances on both banks ahead | The soul Lingers | The soul still Lingers, but a player may spend an action to **Push Through** (once a turn): both scatter, the soul steps on, 1 Fracture and forget 1; each later push in the game costs 1 more Fracture |
+| Actions | Play 2 cards | **2 actions**: play a card, Seek (discard 1, draw 1; once a turn), or Push Through (see below); only the first action (the **Answer**) can Resonate; the second is the **Steer** |
+| Grievances on both banks ahead | The soul Lingers | The soul still Lingers, but a player may spend an action to **Push Through** (once per game for each player): both scatter, the soul steps on, 1 Fracture and forget 1; each later push in the game costs 1 more Fracture |
 | Lanterns | 1–5 | **Gentle 6/14/0, Standard 6/11/2, Hard 4/10/3, Heroic 3/9/3** (Black Water / Faded at / harsh Mist per Reach) |
 | Child twist | 3 Light, first Fracture each Reach ignored, never Adrift, no harsh Mist | Also **forgets 1 more card before she Fades** |
 

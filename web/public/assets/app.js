@@ -3,6 +3,7 @@
 import * as E from "./engine.js";
 import { CARDS, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, LANTERN, STANDARD_LANTERN, lanternIcon, HARSH, STONY, MEMORY, GRAVE, FERTILE } from "./cards.js";
 import * as A from "./audio.js";
+import { soulMiniature } from "./miniature.js";
 import * as N from "./net.js";
 import { rulebook, playerAid } from "./rules.js";
 import { openBook, closeBook, refreshBook, resetBookMemory, relangBook } from "./book.js";
@@ -620,7 +621,7 @@ function drawBoardStatic() {
   <g id="dyn"></g>
   <g id="soulG"><g class="bob">
     <circle class="soulglow" r="34" fill="url(#soulGrad)"/>
-    <use href="#nb-soul" x="-19" y="-24" width="38" height="44" style="color:#EFE7D6"/>
+    <g id="soulFig" data-soul="${S?.cfg.soul || ""}">${soulMiniature(S?.cfg.soul || "open")}</g>
   </g></g>`;
 }
 
@@ -668,6 +669,8 @@ function drawBoard() {
   }
   $("dyn").innerHTML = h;
   const sp = Math.min(s.soul, 12);
+  const fig = $("soulFig");
+  if (fig && fig.dataset.soul !== s.cfg.soul) { fig.dataset.soul = s.cfg.soul; fig.innerHTML = soulMiniature(s.cfg.soul); }
   $("soulG").style.transform = `translate(${X(sp)}px, ${Y(sp)}px)`;
   if (p.soul > s.soul) $("boardwrap").classList.add("shake");
 }
@@ -790,12 +793,12 @@ function drawPrompt() {
   }
   if (busy) { setPrompt(`<span class="msg">…</span>`, true); return; }
   const n = S.played + 1;
-  const echo = S.echo >= 0 && S.played === 0 ? L(` The Echo is <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>: a first card of that thread Resonates.`,
-    `迴響是<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>：本回合第一張同絲線的牌會產生共鳴。`) : "";
+  const echo = S.echo >= 0 && S.played === 0 ? L(` The Echo is <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>: an Answer of that thread Resonates.`,
+    `迴響是<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>：以同絲線的牌回應便會產生共鳴。`) : "";
   const sum = E.canSummon(S) ? `<button type="button" id="summon">${L(`Summon a Mantle (${S.cfg.mantleCost} Light)`, `召喚稱號（${S.cfg.mantleCost}點光）`)}</button>` : "";
   const cost = E.pushCost(S);
-  const push = E.canPush(S) ? `<button type="button" id="push" class="pushbtn">${L(`Push Through · ${cost} Fracture${cost > 1 ? "s" : ""}, forget 1`, `強行穿過 · ${cost}道裂痕，遺忘1張`)}</button>` : "";
-  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, choose` : "Choose"} action ${n} of ${S.cfg.cardsPerTurn}: play a card${E.canSeek(S) ? ", Seek" : ""}${push ? " or Push Through" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，請` : "請"}選擇第${n}個行動（共${S.cfg.cardsPerTurn}個）：打出一張牌${E.canSeek(S) ? "、尋覓" : ""}${push ? "或強行穿過" : ""}。`)}${echo}</span>${push}${sum}`, true);
+  const push = E.canPush(S) ? `<button type="button" id="push" class="pushbtn">${L(`Push Through · ${cost} Fracture${cost > 1 ? "s" : ""}, forget 1 · once a game`, `強行穿過 · ${cost}道裂痕，遺忘1張 · 整局一次`)}</button>` : "";
+  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, ` : ""}${n === 1 ? (S.n > 1 ? "your <b>Answer</b>" : "Your <b>Answer</b>") : (S.n > 1 ? "now <b>Steer</b>" : "Now <b>Steer</b>")}: play a card${E.canSeek(S) ? ", Seek" : ""}${push ? " or Push Through" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，` : ""}${n === 1 ? "你的<b>回應</b>" : "接著<b>掌舵</b>"}：打出一張牌${E.canSeek(S) ? "、尋覓" : ""}${push ? "或強行穿過" : ""}。`)}${echo}</span>${push}${sum}`, true);
   if (sum) $("summon").onclick = summonDialog;
   if (push) $("push").onclick = pushNow;
 }
@@ -871,9 +874,9 @@ function flyCard(cid) {
 // Lights the step the active player is on. While the end-of-turn animations play, it follows them
 // (Soul Step, then the Mist, then the draw) before moving on to the next player's first card.
 const GUIDE = [
-  ["summon", "Summon", "optional · before your first action", "召喚", "可選 · 在第一個行動之前"],
-  ["card1", "First action", "a card matching the Echo Resonates", "第一個行動", "與迴響相同的牌產生共鳴"],
-  ["card2", "Second action", "play a card, or Seek once a turn", "第二個行動", "打出一張牌，或每回合尋覓一次"],
+  ["summon", "Summon", "optional · before your Answer", "召喚", "可選 · 在回應之前"],
+  ["card1", "Answer", "first action · a card matching the Echo Resonates", "回應", "第一個行動 · 與迴響相同的牌產生共鳴"],
+  ["card2", "Steer", "second action · a card, Seek, or Push Through", "掌舵", "第二個行動 · 打出一張牌、尋覓或強行穿過"],
   ["bringer", "Bloom-Bringer", "free Bloom", "引花人", "免費綻放"],
   ["soul", "Soul Step", "move if the next space is Lit", "亡魂步驟", "下一格被照亮就前進"],
   ["mist", "The Mist", "one card from this Reach", "迷霧", "翻開本河段的一張牌"],
@@ -914,7 +917,8 @@ function guideHint() {
   if (pending?.type === "inscribe") return L("Write this memory into the <b>Book</b>, or keep the card in the deck.", "將這段記憶寫進<b>憶念之書</b>，或把這張牌留在牌庫中。");
   const echo = S.echo >= 0 && S.played === 0 ? L(` A <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b> card will Resonate.`, `<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>牌會產生共鳴。`) : "";
   const wounds = E.pushCost(S);
-  const push = E.canPush(S) ? `<span class="pushwarn">${L(`Grievances hold both banks ahead, so the soul will Linger. You may spend an action to <b>Push Through</b>: both Grievances scatter and the soul steps forward now, at ${wounds} Fracture${wounds > 1 ? "s" : ""} and 1 forgotten card.`, `前方兩岸都被怨念佔據，亡魂將會徘徊。你可以花1個行動<b>強行穿過</b>：兩個怨念四散，亡魂立刻前進一格，代價是${wounds}道裂痕並遺忘1張牌。`)}</span>` : "";
+  const push = E.canPush(S) ? `<span class="pushwarn">${L(`Grievances hold both banks ahead, so the soul will Linger. You may spend an action to <b>Push Through</b>: both Grievances scatter and the soul steps forward now, at ${wounds} Fracture${wounds > 1 ? "s" : ""} and 1 forgotten card. Each Ferryman may do this only once in the whole game.`, `前方兩岸都被怨念佔據，亡魂將會徘徊。你可以花1個行動<b>強行穿過</b>：兩個怨念四散，亡魂立刻前進一格，代價是${wounds}道裂痕並遺忘1張牌。每位擺渡人整局只能這麼做一次。`)}</span>`
+    : E.blockedByGrievances(S) && E.hasPushed(S) ? `<span class="pushwarn">${L("Grievances hold both banks ahead. You have already used your one Push Through this game: clear a bank with your cards.", "前方兩岸都被怨念佔據。你本局的強行穿過已經用過了：請用手牌清出一側河岸。")}</span>` : "";
   return L(`Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `從手牌中選一張牌，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`) + push;
 }
 
