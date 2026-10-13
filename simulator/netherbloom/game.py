@@ -85,5 +85,5 @@ def ending(s):
         place = "forgotten"
     else:
         place = "unspoken"
-    tier = "low" if len(s.forgotten) <= 7 else "high"
+    tier = "low" if len(s.forgotten) <= 7 else "high"  # endings: 0–7 forgotten, or 8 or more (valid at every Lantern limit, 9–14)
     return place, tier

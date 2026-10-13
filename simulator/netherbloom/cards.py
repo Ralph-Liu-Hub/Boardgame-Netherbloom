@@ -195,7 +195,7 @@ TILES = {  # per Reach: spaces covered and tile mix (spaces 2-4, 5-8, 9-11)
 
 # ---------------------------------------------------------------- Lantern difficulty
 LANTERN = {  # (black water supply, forgotten limit, harsh cards per reach); Standard is the intended game
-    1: (6, 14, 0), 2: (5, 11, 2), 3: (4, 10, 3), 4: (3, 9, 3),
+    1: (6, 14, 0), 2: (6, 11, 2), 3: (4, 10, 3), 4: (3, 9, 3),
 }
 LANTERN_NAMES = {1: "Gentle", 2: "Standard", 3: "Hard", 4: "Heroic"}
 STANDARD_LANTERN = 2
