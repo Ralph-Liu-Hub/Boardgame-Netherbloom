@@ -1,14 +1,14 @@
 // Netherbloom web table: menus, the board, the hand, animations and the three ways to play
 // (solo against the Ghost, everyone at one screen, or online with each player on their own device).
 import * as E from "./engine.js";
-import { CARDS, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, LANTERN, HARSH, STONY, MEMORY, GRAVE, FERTILE } from "./cards.js";
+import { CARDS, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, LANTERN, STANDARD_LANTERN, lanternIcon, HARSH, STONY, MEMORY, GRAVE, FERTILE } from "./cards.js";
 import * as A from "./audio.js";
 import * as N from "./net.js";
 import { rulebook, playerAid } from "./rules.js";
 import { openBook, closeBook, refreshBook, resetBookMemory, relangBook } from "./book.js";
 import {
   LANGS, lang, zh, setLang, onLang, hasChosenLang, say, backlashText, causeName, cardName, cardBand, tagName, slotLabel, tileName,
-  reachName, soulInfo, mantleInfo, mistName, mistText, bookFrames, ops, pname,
+  reachName, soulInfo, mantleInfo, mistName, mistText, bookFrames, ops, pname, lanternName,
 } from "./i18n.js";
 
 const $ = id => document.getElementById(id);
@@ -40,11 +40,15 @@ let passOpen = false, endShown = false;
 let net = null;            // online session
 let guideStep = null;      // set while the end-of-turn animations play, so the guide can follow them
 let screen = null;         // what fills the window, so a language change can redraw it: ["menu", which] | ["lobby", note] | ["game"]
-const setup = load("nb-setup", { players: 3, soul: "child", lantern: 2, names: ["", "", "", ""], name: "" });
+const setup = load("nb-setup", { players: 3, soul: "child", lantern: STANDARD_LANTERN, names: ["", "", "", ""], name: "" });
+// Saved before the four named Lanterns: Lanterns 1–5 become Gentle, Gentle, Standard, Hard, Heroic.
+if (hasStored("nb-setup") && !setup.lv) setup.lantern = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4 }[setup.lantern] || STANDARD_LANTERN;
+setup.lv = 2;
 
 function load(key, dflt) {
   try { return { ...dflt, ...JSON.parse(localStorage.getItem(key) || "{}") }; } catch { return dflt; }
 }
+function hasStored(key) { try { return localStorage.getItem(key) !== null; } catch { return false; } }
 function store(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch { /* ignore */ } }
 
 // ---------------------------------------------------------------- boot
@@ -144,7 +148,8 @@ function menu(which = "solo") {
   topbar();
   const soulBtns = Object.keys(SOULS).map(k => [k, soulInfo(k)]).map(([k, v]) =>
     `<button type="button" class="soulopt ${setup.soul === k ? "on" : ""}" data-soul="${k}"><b>${esc(v.name)}</b>${k === FIRST_SOUL ? `<span class="firsttag" title="${L("Suggested for your first crossing", "建議第一次渡河時選擇")}">${L("Suggested first", "新手推薦")}</span>` : ""}<small>${esc(v.twist)}</small></button>`).join("");
-  const lan = [1, 2, 3, 4, 5].map(l => `<button type="button" data-lantern="${l}" class="${setup.lantern === l ? "on" : ""}">${"◆".repeat(l)}${"◇".repeat(5 - l)}</button>`).join("");
+  if (!LANTERN[setup.lantern]) setup.lantern = STANDARD_LANTERN;
+  const lan = Object.keys(LANTERN).map(Number).map(l => `<button type="button" data-lantern="${l}" class="${setup.lantern === l ? "on" : ""}">${lanternIcon(l)} ${esc(lanternName(l))}</button>`).join("");
   $("app").innerHTML = `
   <div class="screen">
     <div class="hero">
@@ -174,8 +179,8 @@ function menu(which = "solo") {
   document.querySelectorAll("[data-soul]").forEach(b => b.onclick = () => { setup.soul = b.dataset.soul; store("nb-setup", setup); menu(which); });
   document.querySelectorAll("[data-lantern]").forEach(b => b.onclick = () => { setup.lantern = +b.dataset.lantern; store("nb-setup", setup); menu(which); });
   const [bw, lim, harsh] = LANTERN[setup.lantern];
-  $("lanhelp").textContent = L(`Lantern ${setup.lantern}: ${bw} Black Water in the supply, Faded at ${lim} forgotten, ${harsh} harsh Mist card${harsh === 1 ? "" : "s"} per Reach.`,
-    `燈籠${setup.lantern}：黑水供應${bw}個，遺忘${lim}張時消散，每個河段${harsh}張凶霧。`);
+  $("lanhelp").textContent = L(`${lanternName(setup.lantern)}${setup.lantern === STANDARD_LANTERN ? " (the game as designed)" : ""}: ${bw} Black Water in the supply, Faded at ${lim} forgotten, ${harsh} harsh Mist card${harsh === 1 ? "" : "s"} per Reach.`,
+    `${lanternName(setup.lantern)}燈籠${setup.lantern === STANDARD_LANTERN ? "（遊戲設計的本來面貌）" : ""}：黑水供應${bw}個，遺忘${lim}張時消散，每個河段${harsh}張凶霧。`);
   const mp = $("modepanel");
   if (which === "solo") {
     mp.innerHTML = `<h2>${L("Solo", "單人模式")}</h2><div class="form"><label class="field"><span>${L("Your name", "你的名字")}</span><input id="nm0" maxlength="18" value="${esc(setup.names[0])}" placeholder="${L("Player 1", "玩家1")}"></label></div>
@@ -361,7 +366,7 @@ function lobby(note = "") {
     <section class="panel">
       <h2>${L("At the table", "牌桌上的玩家")} (${(net.players || []).length}/4)</h2>
       <div class="plist">${list || `<span class="muted">${L("Connecting…", "連線中…")}</span>`}</div>
-      <div class="muted">${L("Soul", "亡魂")}: <b style="color:var(--bone)">${esc(soulInfo(soul)?.name || "—")}</b> · ${L("Lantern", "燈籠")} ${lan || "—"}</div>
+      <div class="muted">${L("Soul", "亡魂")}: <b style="color:var(--bone)">${esc(soulInfo(soul)?.name || "—")}</b> · ${L("Lantern", "燈籠")} ${lan ? esc(lanternName(lan)) : "—"}</div>
       ${host ? `<div class="row"><button type="button" class="primary" id="start" ${net.players.length < 2 ? "disabled" : ""}>${L("Begin the crossing", "開始渡河")}</button>
         <span class="muted">${net.players.length < 2 ? L("Needs at least 2 players.", "至少需要2名玩家。") : ""}</span></div>
         <p class="muted" style="margin:0;font-size:.88rem">${L("To change the soul or Lantern, go back to the menu, choose them, then host again.", "若要更換亡魂或燈籠，請回到主選單重新選擇，再開一次桌。")}</p>` : ""}
@@ -465,7 +470,8 @@ async function playSelected(cid, mode_) {
   busy = true;
   A.sfx("card");
   try {
-    await E.playCard(S, cid, mode_, chooser);
+    if (mode_ === "seek") E.seek(S, cid);
+    else await E.playCard(S, cid, mode_, chooser);
   } catch (e) {
     if (!(e instanceof E.GameOver)) throw e;
     S.phase = "over";
@@ -587,6 +593,8 @@ function drawBoardStatic() {
   </g>
   <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#9A948C" letter-spacing="1.4">${reachLbl}</g>
   <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#9A948C">${nums}</g>
+  <g font-family="IBM Plex Mono, monospace" font-size="10" fill="#9A948C" letter-spacing="1.2" text-anchor="middle" opacity=".8">
+    <text x="${X(0)}" y="${Y(0) - 80}">${L("LEFT BANK", "左岸")}</text><text x="${X(0)}" y="${Y(0) + 88}">${L("RIGHT BANK", "右岸")}</text></g>
   <g transform="translate(${X(12)}, ${Y(12)})">
     <use href="#nb-light" x="-22" y="-26" width="44" height="48" style="color:#E6D3A3"/>
     <text y="-48" text-anchor="middle" font-family="IM Fell English SC, Noto Serif TC, serif" font-size="16" fill="#E6D3A3">${L("Far Shore", "彼岸")}</text>
@@ -648,7 +656,7 @@ function drawBoard() {
 
 function slotTitle(k) {
   const s = S;
-  const where = L(`Space ${k >> 1}, ${k % 2 ? "lower" : "upper"} bank`, `第${k >> 1}格${k % 2 ? "下岸" : "上岸"}`);
+  const where = L(`Space ${k >> 1}, ${k % 2 ? "right" : "left"} bank`, `第${k >> 1}格${k % 2 ? "右岸" : "左岸"}`);
   const sep = L(": ", "：");
   if (s.griev[k]) return where + sep + L("Grievance", "怨念");
   if (s.tok[k] === E.BLOOM) return where + sep + L("Bloom", "花");
@@ -720,7 +728,7 @@ function drawStatus() {
   const soul = soulInfo(S.cfg.soul);
   $("status").innerHTML = `
     <span><b>${esc(soul.name)}</b></span>
-    <span>${L("Lantern", "燈籠")} <b>${S.cfg.lantern}</b></span>
+    <span>${L("Lantern", "燈籠")} <b>${esc(lanternName(S.cfg.lantern))}</b></span>
     <span>${L(`Turn <b>${S.turn}</b>`, `第<b>${S.turn}</b>回合`)}</span>
     <span>${L(`Reach <b>${ROMAN[S.reach]}</b>`, `第<b>${ZHNUM[S.reach]}</b>河段`)} · ${reachName(S.reach)}</span>
     <span>${L("Soul at", "亡魂位置")} <b>${Math.min(S.soul, 12)}</b> / 12</span>
@@ -767,7 +775,7 @@ function drawPrompt() {
   const echo = S.echo >= 0 && S.played === 0 ? L(` The Echo is <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>: a first card of that thread Resonates.`,
     `迴響是<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>：本回合第一張同絲線的牌會產生共鳴。`) : "";
   const sum = E.canSummon(S) ? `<button type="button" id="summon">${L(`Summon a Mantle (${S.cfg.mantleCost} Light)`, `召喚稱號（${S.cfg.mantleCost}點光）`)}</button>` : "";
-  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, choose` : "Choose"} card ${n} of ${S.cfg.cardsPerTurn}.`, `${S.n > 1 ? `<b>${who}</b>，請` : "請"}選擇第${n}張牌（共${S.cfg.cardsPerTurn}張）。`)}${echo}</span>${sum}`, true);
+  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, choose` : "Choose"} action ${n} of ${S.cfg.cardsPerTurn}: play a card${E.canSeek(S) ? " or Seek" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，請` : "請"}選擇第${n}個行動（共${S.cfg.cardsPerTurn}個）：打出一張牌${E.canSeek(S) ? "或尋覓" : ""}。`)}${echo}</span>${sum}`, true);
   if (sum) $("summon").onclick = summonDialog;
 }
 
@@ -788,7 +796,8 @@ function cardHTML(cid, opts = {}) {
     ${opts.sel ? `<div class="modes">
       <button type="button" data-play="up">${L(`Play face up${res ? " · Resonates" : ""}`, `正面打出${res ? " · 共鳴" : ""}`)}</button>
       <button type="button" data-play="down">${L("Face down · 1 Root, no knot", "背面打出 · 放1個根，不打結")}</button>
-      <button type="button" data-play="burn">${L("Burn · twice, then forget it and 1 more", "焚燒 · 效果兩次，再遺忘此牌與另1張")}</button></div>` : ""}
+      <button type="button" data-play="burn">${L("Burn · twice, then forget it and 1 more", "焚燒 · 效果兩次，再遺忘此牌與另1張")}</button>
+      ${E.canSeek(S) ? `<button type="button" data-play="seek">${L(`Seek · discard this, draw 1${S.played === 0 ? " (the Echo passes)" : ""}`, `尋覓 · 棄掉此牌，抽1張${S.played === 0 ? "（放過迴響）" : ""}`)}</button>` : ""}</div>` : ""}
   </div>`;
 }
 
@@ -841,13 +850,13 @@ function flyCard(cid) {
 // Lights the step the active player is on. While the end-of-turn animations play, it follows them
 // (Soul Step, then the Mist, then the draw) before moving on to the next player's first card.
 const GUIDE = [
-  ["summon", "Summon", "optional · before your first card", "召喚", "選擇性 · 在第一張牌之前"],
-  ["card1", "First card", "match the Echo to Resonate", "第一張牌", "與迴響相同即產生共鳴"],
-  ["card2", "Second card", "", "第二張牌", ""],
+  ["summon", "Summon", "optional · before your first action", "召喚", "可選 · 在第一個行動之前"],
+  ["card1", "First action", "a card matching the Echo Resonates", "第一個行動", "與迴響相同的牌產生共鳴"],
+  ["card2", "Second action", "play a card, or Seek once a turn", "第二個行動", "打出一張牌，或每回合尋覓一次"],
   ["bringer", "Bloom-Bringer", "free Bloom", "引花人", "免費綻放"],
   ["soul", "Soul Step", "move if the next space is Lit", "亡魂步驟", "下一格被照亮就前進"],
   ["mist", "The Mist", "one card from this Reach", "迷霧", "翻開本河段的一張牌"],
-  ["draw", "Settle and draw", "refill your hand", "結算與抽牌", "補滿手牌"],
+  ["draw", "Settle and draw", "refill your hand", "平息並抽牌", "補滿手牌"],
 ];
 
 function guideState() {
@@ -873,7 +882,7 @@ function guideHint() {
   if (S.result) return S.result === "win" ? L("The crossing is complete. Open the Book to read the soul's story.", "渡河完成。翻開書本，讀讀亡魂的故事。")
     : L("The crossing has failed. Open the Book to read what was kept.", "渡河失敗了。翻開書本，看看留下了什麼。");
   const anim = guideStep && S.played === 0 && !pending && !busy;
-  if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。");
+  if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers. If Grievances hold both banks ahead, it pushes through them.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。若前方兩岸都被怨念佔據，它會強行穿過。");
   if (anim && guideStep === "mist") return L("The Mist turns a card for this Reach.", "迷霧為本河段翻開一張牌。");
   if (anim && guideStep === "draw") return L("The river settles and hands are refilled.", "河面平靜下來，玩家補滿手牌。");
   const who = esc(pname(S.names[S.cur]));
@@ -883,7 +892,7 @@ function guideHint() {
   if (pending?.type === "bringer") return L("Click a <b>Root</b> to bloom it for free, or skip.", "點擊一個<b>根</b>免費使其綻放，或選擇跳過。");
   if (pending?.type === "inscribe") return L("Write this memory into the <b>Book</b>, or keep the card in the deck.", "將這段記憶寫進<b>憶念之書</b>，或把這張牌留在牌庫中。");
   const echo = S.echo >= 0 && S.played === 0 ? L(` A <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b> card will Resonate.`, `<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>牌會產生共鳴。`) : "";
-  return L(`Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b> or <b>Burn</b>.${echo}`, `從手牌中選一張牌，再選擇<b>正面打出</b>、<b>背面打出</b>或<b>焚燒</b>。${echo}`);
+  return L(`Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `從手牌中選一張牌，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`);
 }
 
 function drawGuide() {
@@ -1058,6 +1067,8 @@ function animateEvents() {
         if (ev.res) { sounds.add("resonance"); enqueue(() => banner(L("Resonance", "共鳴"), L("The card answers the Echo", "這張牌回應了迴響"), "obl")); }
         break;
       case "ghost": toast(say(ev), ev.tag); sounds.add("card"); break;
+      case "seek": if (!seats.has(ev.p) || mode === "local") toast(say(ev), 1); sounds.add("card"); break;
+      case "push": enqueue(() => { A.sfx("fracture"); flash(); shake(); return banner(L("Through the shades", "穿過怨念"), say(ev), "obs"); }); break;
       case "inscribe": toast(say(ev), 1); if (!seats.has(S.cur)) sounds.add("inscribe"); break;
       case "blessing": enqueue(() => { A.sfx("inscribe"); return banner(L("Chapter Blessing", "章節祝福"), say(ev).replace(/^(Chapter Blessing: |章節祝福：)/, ""), "good"); }); break;
       case "summon": enqueue(() => { A.sfx("summon"); const mi = mantleInfo(ev.mantle); return banner(say(ev), mi.text, ["obs", "acc", "obl"][mi.tag]); }); break;
@@ -1155,7 +1166,7 @@ async function showEnd(now = false) {
   const canRestart = mode !== "online" || net?.role === "host";
   const stat = (n, en, zhText) => `<div><b>${n}</b>${L(en, zhText)}</div>`;
   veil(`<div class="dialog wide end">
-    <div class="eyebrow">${esc(soul.name)} · ${L("Lantern", "燈籠")} ${S.cfg.lantern}</div>
+    <div class="eyebrow">${esc(soul.name)} · ${L("Lantern", "燈籠")} ${esc(lanternName(S.cfg.lantern))}</div>
     <h2 class="${S.result}">${win ? L("The soul reaches the Far Shore", "亡魂抵達了彼岸") : causeName(S.cause)}</h2>
     <p class="muted">${esc(say(S.log.filter(l => l.kind === "win" || l.kind === "loss").pop()))}</p>
     ${fateText ? `<p style="font-family:var(--serif);font-style:italic;color:var(--bone)">${esc(fateText)}</p>` : ""}

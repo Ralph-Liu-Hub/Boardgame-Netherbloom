@@ -6,10 +6,10 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, GHOST, MANTLES, TILES, LANTERN, SLOTS, FIRST_SOUL,
+  CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, GHOST, MANTLES, TILES, LANTERN, lanternIcon, SLOTS, FIRST_SOUL, MIST_EXTRA,
 } from "../web/public/assets/cards.js";
 import {
-  ZH_TAGS, ZH_SLOTS, ZH_TILES, ZH_REACHES, ZH_CARD_NAMES, ZH_BANDS, ZH_SOULS, ZH_MIST, ZH_MANTLES, ZH_BOOK_FRAMES, zhOpsText,
+  ZH_LANTERNS, ZH_TAGS, ZH_SLOTS, ZH_TILES, ZH_REACHES, ZH_CARD_NAMES, ZH_BANDS, ZH_SOULS, ZH_MIST, ZH_MANTLES, ZH_BOOK_FRAMES, zhOpsText,
 } from "../web/public/assets/zh.js";
 import { playerAidZh } from "../web/public/assets/rules_zh.js";
 
@@ -37,11 +37,30 @@ function memoryCard(cid, pack) {
     <div class="foot"><span>${pack}</span><span>${c.id}</span></div></div>`;
 }
 
-function mistCard(name, label, harsh) {
+// What a Mist card does, for play on paper. S is the soul's space; "ahead k" is space S+k.
+function mistOpZh(op) {
+  switch (op[0]) {
+    case "bw": return `在亡魂前方第${op[1]}格放置1個黑水（該格已淹沒則放在下一格）`;
+    case "grv": return `在亡魂前方第${op[1]}格的${op[2] ? "右岸" : "左岸"}放置1個怨念`;
+    case "grv_near": return "在亡魂所在格放置1個怨念（左岸優先；兩岸都有時，放在下一格的左岸）";
+    case "wither": return `亡魂前方最遠的${op[1]}朵花凋零為根`;
+    case "wither_far": return `亡魂前方第${op[1]}格以外的所有花凋零為根`;
+    case "wither_at": return `亡魂前方第${op[1]}格的花凋零為根`;
+    case "fog": return `前方最遠的${op[1]}個已掀開且空著的河岸重新蓋上霧`;
+    case "forget": return `遺忘牌庫頂的${op[1]}張牌`;
+    case "sever": return "將迴響從織機上移除";
+    case "karma_all": return "每條絲線各打1個結";
+    case "dark_wind": return "失去2點光；光不足2點時，改為承受1道裂痕";
+  }
+  return op[0];
+}
+
+function mistCard([name, ops], label, harsh) {
   const [zn, zt] = ZH_MIST[name];
+  const rule = ops.length ? ops.map(mistOpZh).join("；") + "。" : "沒有任何效果。";
   return `<div class="card mist ${harsh ? "harsh" : ""}">
     <div class="kick">${harsh ? "凶霧" : "迷霧"}</div>${icon("nb-fog", "big")}
-    <div class="nm c">${esc(zn)}</div><div class="eff c">${esc(zt)}</div>
+    <div class="nm c">${esc(zn)}</div><div class="eff c"><i>${esc(zt)}</i></div><div class="eff">${esc(rule)}</div>
     <div class="foot"><span>${label}</span><span></span></div></div>`;
 }
 
@@ -108,18 +127,18 @@ function tileSheet() {
 
 function lanternCard() {
   return `<section class="sheet aidsheet"><h2>燈籠（難度）</h2><table class="lt"><thead><tr><th>燈籠</th><th>黑水供應</th><th>消散門檻</th><th>每河段凶霧數</th></tr></thead><tbody>${
-    Object.entries(LANTERN).map(([l, [bw, lim, h]]) => `<tr><td>${"◆".repeat(+l)}${"◇".repeat(5 - l)} ${l}</td><td>${bw}</td><td>遺忘${lim}張</td><td>${h}</td></tr>`).join("")}</tbody></table>
+    Object.entries(LANTERN).map(([l, [bw, lim, h]]) => `<tr><td>${lanternIcon(l)} ${ZH_LANTERNS[l]}</td><td>${bw}</td><td>遺忘${lim}張</td><td>${h}</td></tr>`).join("")}</tbody></table>
     <h2 style="margin-top:8mm">玩家輔助卡</h2>
     <div class="aid-print">${playerAidZh(null).replace(/#E6D3A3/g, "#9a7a3a").replace(/#8FD6E1/g, "#2f7f8e").replace(/#9A948C/g, "#6b655d")}</div></section>`;
 }
 
 function contents() {
-  const n = { memory: CORE_IDS.length + ECHO_IDS.length + Object.values(SOUL_PACKS).flat().length, mist: MIST.flat().length + HARSH.length };
+  const n = { memory: CORE_IDS.length + ECHO_IDS.length + Object.values(SOUL_PACKS).flat().length, mist: MIST.flat().length + MIST_EXTRA.length * MIST.length + HARSH.length };
   return `<section class="sheet cover"><svg class="ic hero" aria-hidden="true"><use href="#nb-bloom"/></svg>
     <h1>Netherbloom<span>彼岸花渡（暫定中文名）</span></h1><p class="tag">無聲合作遊戲 · 1–4人 · 正體中文 印刷試玩版（Print &amp; Play）</p>
     <table class="lt"><thead><tr><th>配件</th><th>數量</th><th>頁</th></tr></thead><tbody>
       <tr><td>記憶牌（基本牌庫32、迴響牌8、亡魂專屬牌4×8）</td><td>${n.memory}</td><td>卡牌</td></tr>
-      <tr><td>迷霧牌（每河段10張）＋凶霧牌</td><td>${MIST.flat().length}＋${HARSH.length}</td><td>卡牌</td></tr>
+      <tr><td>迷霧牌（每河段${MIST[0].length + MIST_EXTRA.length}張）＋凶霧牌</td><td>${MIST.flat().length + MIST_EXTRA.length * MIST.length}＋${HARSH.length}</td><td>卡牌</td></tr>
       <tr><td>幽靈牌（單人模式）</td><td>${GHOST.length}</td><td>卡牌</td></tr>
       <tr><td>稱號牌</td><td>${Object.keys(MANTLES).length}</td><td>卡牌</td></tr>
       <tr><td>亡魂牌</td><td>${Object.keys(ZH_SOULS).length}</td><td>卡牌</td></tr>
@@ -139,8 +158,8 @@ const memory = [
   ...Object.entries(SOUL_PACKS).flatMap(([k, ids]) => ids.map(i => memoryCard(i, SOUL_PACK_NAME(k)))),
 ];
 const mist = [
-  ...MIST.flatMap((deck, r) => deck.map(([n]) => mistCard(n, `第${NUM[r]}河段`, false))),
-  ...HARSH.map(([n]) => mistCard(n, "凶霧", true)),
+  ...MIST.flatMap((deck, r) => [...deck, ...MIST_EXTRA].map(m => mistCard(m, `第${NUM[r]}河段`, false))),
+  ...HARSH.map(m => mistCard(m, "凶霧", true)),
 ];
 const html = `<!doctype html><html lang="zh-Hant-TW"><head><meta charset="utf-8"><title>Netherbloom 正體中文 印刷試玩配件</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Noto+Serif+TC:wght@400;600;700&family=LXGW+WenKai+TC&display=block">

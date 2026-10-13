@@ -27,6 +27,7 @@ class Weights:
         self.inscribe = 3.0
         self.echo_follow = 2.0     # bonus for answering the Echo
         self.echo_leave = 1.5      # bonus for leaving a safe Echo for the next player
+        self.seek_value = 1.0      # expected worth of the unseen card a Seek draws (higher makes the AI over-seek and lose more)
         for k, v in kw.items():
             setattr(self, k, v)
 
@@ -135,9 +136,11 @@ class EchoAgent:
         return self.evaluate(s)
 
     # ------------------------------------------------------------ choices
-    def options(self, s):
+    def options(self, s, seek=False):
         hand = s.hands[s.cur]
         seen, out = set(), []
+        if seek and s.cfg.seek and not s.stats.get("sought") and len(hand) > 1:
+            out += [(cid, "seek") for cid in dict.fromkeys(hand)]
         for cid in hand:
             key = CARD[cid].cid
             if key in seen:
@@ -157,19 +160,21 @@ class EchoAgent:
 
     def choose(self, s):
         firsts = []
-        for cid, mode in self.options(s):
+        for cid, mode in self.options(s, seek=True):
             c = s.clone()
-            res = c.echo == CARD[cid].tag and mode != "down"
+            res = c.echo == CARD[cid].tag and mode not in ("down", "seek")
             self._apply(c, cid, mode, True)
-            score = self._after_step(c.clone()) + (self.w.echo_follow if res else 0)
-            firsts.append((score, cid, mode, c, res))
+            bonus = (self.w.echo_follow if res else 0) + (self.w.seek_value if mode == "seek" else 0)
+            score = self._after_step(c.clone()) + bonus
+            firsts.append((score, cid, mode, c, res, bonus))
         firsts.sort(key=lambda x: -x[0])
         best, bv = None, -1e18
         n_cards = min(s.cfg.cards_per_turn, len(s.hands[s.cur]))
         if n_cards == 1:
-            sc, cid, mode, c, res = firsts[0]
-            return [(cid, mode)]
-        for sc1, cid1, mode1, c1, res in firsts[:self.beam]:
+            for sc, cid, mode, c, res, bonus in firsts:
+                if mode != "seek":
+                    return [(cid, mode)]
+        for sc1, cid1, mode1, c1, res, bonus in firsts[:self.beam]:
             if c1.result is not None:
                 v = self.evaluate(c1)
                 if v > bv:
@@ -178,9 +183,20 @@ class EchoAgent:
             for cid2, mode2 in self.options(c1):
                 c2 = c1.clone()
                 self._apply(c2, cid2, mode2, False)
-                v = self._after_step(c2) + (self.w.echo_follow if res else 0)
+                v = self._after_step(c2) + bonus
                 if v > bv:
                     best, bv = [(cid1, mode1), (cid2, mode2)], v
+        return best
+
+    def choose_second(self, s):
+        """After a Seek: the best single card with the new hand (it cannot Resonate)."""
+        best, bv = None, -1e18
+        for cid, mode in self.options(s):
+            c = s.clone()
+            self._apply(c, cid, mode, False)
+            v = self._after_step(c)
+            if v > bv:
+                best, bv = (cid, mode), v
         return best
 
     def maybe_summon(self, s):

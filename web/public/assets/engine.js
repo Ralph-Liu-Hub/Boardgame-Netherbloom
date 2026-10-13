@@ -3,18 +3,19 @@
 // Player choices go through an async chooser: { rootTarget(s, stonyOk, targets), bloomTarget(s, targets), wantInscribe(s, cid) }.
 
 import {
-  CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, TILES, LANTERN, GHOST, MANTLES,
+  CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, TILES, LANTERN, STANDARD_LANTERN, MIST_EXTRA, GHOST, MANTLES,
   OBS, ACC, OBL, FERTILE, STONY, MEMORY, GRAVE, TILE_NAMES, TAG_NAMES, REACH_NAMES,
 } from "./cards.js";
 
 export const FAR = 12, NSLOT = 24, NONE = 0, ROOT = 1, BLOOM = 2;
 export const TURN_LIMIT = 120;
 export const reachOf = sp => (sp <= 4 ? 0 : sp <= 8 ? 1 : 2);
-export const slotName = k => `${k >> 1}${k % 2 ? " lower" : " upper"}`;
+export const slotName = k => `${k >> 1}${k % 2 ? " right" : " left"}`;
 
 export class GameOver extends Error {}
 
-export function makeConfig({ players = 3, soul = "open", lantern = 3 } = {}) {
+export function makeConfig({ players = 3, soul = "open", lantern = STANDARD_LANTERN } = {}) {
+  if (!LANTERN[lantern]) lantern = STANDARD_LANTERN;
   const [bw, limit, harsh] = LANTERN[lantern];
   const cfg = {
     players, soul, lantern, useBook: true,
@@ -25,7 +26,7 @@ export function makeConfig({ players = 3, soul = "open", lantern = 3 } = {}) {
   };
   if (soul === "king") cfg.mantleCost = 2;
   if (soul === "garland") cfg.blessingAt = 2;
-  if (soul === "child") { cfg.startLight = 3; cfg.adriftAt = 99; cfg.harshPerReach = 0; }
+  if (soul === "child") { cfg.startLight = 3; cfg.adriftAt = 99; cfg.harshPerReach = 0; cfg.forgottenLimit += 1; }
   return cfg;
 }
 
@@ -83,7 +84,7 @@ export function newGame(cfg, seed = (Math.random() * 2 ** 31) | 0, names = []) {
   s.mist = [0, 1, 2].map(r => {
     const d = MIST[r].map(m => m);
     for (let i = 0; i < cfg.harshPerReach && harsh.length; i++) d.push(HARSH[harsh.pop()]);
-    for (let i = 0; i < cfg.extraMist; i++) d.push(i % 2 === 0 ? ["Rising Water", [["bw", 2]]] : ["Grievance Drawn Near", [["grv_near"]]]);
+    for (let i = 0; i < cfg.extraMist; i++) d.push(MIST_EXTRA[i % 2]);
     return shuffle(s, d);
   });
   s.reach = 0;
@@ -435,8 +436,25 @@ export function beginTurn(s) {
   if (s.mantles.warden === p) s.wardenReady = true;
   s.phase = "play";
   s.played = 0;
+  s.sought = false;
   s.lastMist = null;
   note(s, "turn", `Turn ${s.turn}: ${s.names[p]}.`, { p, m: ["turn", s.turn, s.names[p]] });
+}
+
+// Seek: one of your two actions may be to discard a card and draw one. Only your first action can
+// Resonate, so a Seek made first lets the Echo pass.
+export const canSeek = s => s.phase === "play" && !s.sought && s.played < s.cfg.cardsPerTurn
+  && s.hands[s.cur].length > 0 && s.deck.length + s.discard.length > 0;
+export function seek(s, cid) {
+  const hand = s.hands[s.cur];
+  hand.splice(hand.indexOf(cid), 1);
+  if (!s.deck.length) reshuffle(s);
+  if (s.deck.length) hand.push(s.deck.pop());
+  s.discard.push(cid);
+  s.played += 1;
+  s.sought = true;
+  s.stats.seeks = (s.stats.seeks || 0) + 1;
+  note(s, "seek", `${s.names[s.cur]} Seeks: discards a card and draws one.`, { p: s.cur, m: ["seek", s.names[s.cur]] });
 }
 
 export function canSummon(s) {
@@ -593,8 +611,26 @@ function soulStep(s) {
       note(s, "info", "Light as Ash: the soul, lighter now, glides one more space.", { m: ["ash"] });
       moveSoul(s, 1);
     }
-  } else linger(s, false);
+  } else if (blockedByGrievances(s)) pushThrough(s);
+  else linger(s, false);
   feed(s);
+}
+
+// The next space is dark only because Grievances hold both of its banks.
+function blockedByGrievances(s) {
+  const sp = s.soul + 1;
+  return sp >= 1 && sp <= 11 && !s.flooded[sp] && s.griev[sp * 2] && s.griev[sp * 2 + 1];
+}
+// Push through the shades: both Grievances scatter, the soul steps forward, and it pays with a memory and a
+// Fracture. Each push already made this game adds another Fracture, so a second push is close to fatal.
+function pushThrough(s) {
+  const sp = s.soul + 1, wounds = 1 + (s.stats.pushes || 0);
+  s.griev[sp * 2] = s.griev[sp * 2 + 1] = false;
+  s.stats.pushes = wounds;
+  note(s, "push", `The soul pushes through the Grievances. They scatter, but they wound it: ${wounds} Fracture${wounds > 1 ? "s" : ""}.`, { sp, m: ["push", wounds] });
+  moveSoul(s, 1);
+  for (let i = 0; i < wounds; i++) addFracture(s);
+  forgetTop(s, 1);
 }
 
 function linger(s, force) {

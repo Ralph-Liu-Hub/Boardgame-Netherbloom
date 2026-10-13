@@ -1,7 +1,7 @@
 // 正體中文（台灣桌遊用語）資料：卡牌、亡魂、迷霧、稱號與效果文字。結構與 cards.js 相同，以 id 或英文名稱對應。
 //
 // 用語表（遊戲內一律使用）：
-//   Soul 亡魂 · Far Shore 彼岸 · near shore 此岸 · space 格 · bank 河岸（upper 上岸 / lower 下岸）· Reach 河段
+//   Soul 亡魂 · Far Shore 彼岸 · near shore 此岸 · space 格 · bank 河岸（left 左岸 / right 右岸；面向下游，左岸在版圖上方）· Reach 河段
 //   Root 根 · Bloom 花（動詞：綻放）· Lit 照亮 · network 根網 · fog 霧 · Light 光（點）
 //   Fertile 沃土 · Stony 石地 · Memory Site 記憶之地 · Grave 墳墓 · keepsake 信物
 //   Black Water 黑水 · flood 淹沒 · drain 排乾 · Deluge 滅頂 · Grievance 怨念 · banish 驅散 · Fracture 裂痕 · Shield 護盾
@@ -9,10 +9,14 @@
 //   Loom of the Fates 命運織機 · thread 絲線 · knot 結 · Backlash 反噬 · Obsession 執念 · Acceptance 釋懷 · Oblivion 忘卻
 //   Echo 迴響 · Resonate / Resonance 共鳴 · face up 正面打出 · face down 背面打出 · Burn 焚燒
 //   Book of Remembrance 憶念之書 · inscribe 銘刻 · Chapter Blessing 章節祝福 · Key Memory 關鍵記憶
-//   Mantle 稱號 · Summon 召喚 · Mist 迷霧 · harsh Mist 凶霧 · Lantern 燈籠（難度）· Ghost 幽靈（單人模式的自動玩家）
+//   Mantle 稱號 · Summon 召喚 · Mist 迷霧 · harsh Mist 凶霧 · Lantern 燈籠（難度：Gentle 溫和 / Standard 標準 / Hard 困難 / Heroic 英雄）· Ghost 幽靈（單人模式的自動玩家）
 //   Soul Step 亡魂步驟 · deck 牌庫 · discard pile 棄牌堆 · hand 手牌 · draw 抽牌 · turn 回合 · round 輪
 //   Place 地點 · Person 人物 · Deed 事蹟 · Feeling 感受
+//   Ferrymen 擺渡人（玩家：冥府的僕役，既非生者也非亡魂）· old ferryman 老擺渡人（傳說中只載付了船資的亡者）· Keeper 守岸人
+//   action 行動 · Seek 尋覓 · discard 棄掉 · push through 強行穿過 · Chronicle 紀事
+//   Backlash 反噬：Grasping 攫取 / Resignation 認命 / The Tide Rises 漲潮
 
+export const ZH_LANTERNS = { 1: "溫和", 2: "標準", 3: "困難", 4: "英雄" };
 export const ZH_TAGS = ["執念", "釋懷", "忘卻"];
 export const ZH_SLOTS = { Place: "地點", Person: "人物", Deed: "事蹟", Feeling: "感受" };
 export const ZH_TILES = ["沃土", "石地", "記憶之地", "墳墓"];
@@ -57,7 +61,7 @@ export const ZH_BANDS = {
 
 export const ZH_SOULS = {
   open: { name: "無名渡河", blurb: "一個無名的亡魂。迴響牌加入基本牌庫。記憶之地給予2點光。", twist: "記憶之地給予+2點光。" },
-  child: { name: "最後火光的孩子", blurb: "再點亮一簇小小的火光，抵擋寒冷。", twist: "起始擁有3點光。每個河段的第一道裂痕會被忽略。永遠不會漂離。沒有凶霧。" },
+  child: { name: "最後火光的孩子", blurb: "再點亮一簇小小的火光，抵擋寒冷。", twist: "起始擁有3點光。每個河段的第一道裂痕會被忽略。永遠不會漂離。消散前可多遺忘1張牌。沒有凶霧。" },
   garland: { name: "花環少女", blurb: "她為每個人編了花，卻沒有為自己編一朵。", twist: "只需銘刻2段記憶，就能獲得章節祝福。" },
   king: { name: "渡船上的國王", blurb: "王國覆滅已久，王冠仍戴在頭上。", twist: "稱號花費2點光。造成裂痕的玩家會失去自己的稱號。" },
   bride: { name: "留在冥府的新娘", blurb: "差一點，就得救了。", twist: "她第一次將在黑暗中徘徊時，不會遺忘，而是被拉回一格。" },
@@ -67,7 +71,7 @@ export const ZH_MIST = {
   "Rising Water": ["漲水", "黑水淹沒前方的河道。"],
   "Grievance": ["怨念", "一個怨念佔據前方的河岸。"],
   "Grievance Drawn Near": ["怨念逼近", "一個怨念落在亡魂身旁。"],
-  "Withering": ["凋零", "前方最遠的花凋零為根。"],
+  "Withering": ["凋零", "前方最遠的2朵花凋零為根。"],
   "Great Withering": ["大凋零", "前方3朵花凋零為根。"],
   "Fog Returns": ["霧氣重返", "霧氣重新籠罩空無一物的河岸。"],
   "Cold Wind": ["寒風", "遺忘一段記憶。"],
@@ -88,7 +92,7 @@ export const ZH_MANTLES = {
   weaver: { name: "織根者", text: "你的根可以生長在石地上。你每回合的第一個根效果額外放置1個根。" },
   warden: { name: "守魂者", text: "每輪一次，阻止亡魂徘徊或漂離。" },
   bringer: { name: "引花人", text: "你的每個回合結束時，免費使1個根綻放。" },
-  breaker: { name: "破霧者", text: "你每回合打出的第一張忘卻牌改為棄置，而非遺忘。" },
+  breaker: { name: "破霧者", text: "你每回合打出的第一張忘卻牌改為棄掉，而非遺忘。" },
 };
 
 export const ZH_BOOK_FRAMES = [
@@ -106,7 +110,7 @@ export function zhOpText(op) {
     case "mend": return `修補${op[1]}道裂痕`;
     case "release": return `在最滿的絲線上解開${op[1]}個結`;
     case "guide": return "若下一格已被照亮，亡魂立即前進一格";
-    case "vigil": return "查看迷霧牌庫頂的3張牌，將最糟的一張置於牌庫底";
+    case "vigil": return "查看迷霧牌庫頂的3張牌，將其中最糟的一張排在這3張的最後";
     case "banish_or_drain": return "驅散最近的怨念，或排乾最近的黑水";
     case "banish": return "驅散最近的怨念";
     case "drain": return "排乾最近的黑水";

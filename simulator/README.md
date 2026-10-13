@@ -19,7 +19,7 @@ To try a single setting:
 
 ```python
 from netherbloom.stats import run_batch, fmt
-print(fmt(run_batch(500, players=4, lantern=3, soul="open", hand=4)))
+print(fmt(run_batch(500, players=4, lantern=2, soul="open", hand=4)))
 ```
 
 Every number in the game is a `Config` option (`netherbloom/engine.py`), so a rule change can be tested with one argument.
@@ -41,7 +41,7 @@ Every number in the game is a `Config` option (`netherbloom/engine.py`), so a ru
 
 The players are silent, as in the real game:
 - Each player sees only its own hand and the public board.
-- Each turn it tries every card in each way it can be played (face up, face down, Burn).
+- Each turn it tries every card in each way it can be played (face up, face down, Burn), and Seek.
 - It plays out the result up to the Soul Step and keeps the best pair of plays (a beam search over the first card).
 - It favours answering the Echo, and leaves an Echo the next player can safely follow.
 - It cannot see under the fog while planning.
@@ -49,16 +49,16 @@ The players are silent, as in the real game:
 ## Tuning changes proposed to GDD v0.4
 
 GDD v0.4 as written was **unbalanced**:
-- Win rates ranged from 45% to 76% across player counts.
-- Faded caused 76–88% of all losses, and Deluge never happened.
-- Games lasted only 10–13 turns.
+- Win rates ranged from 40% to 78% across player counts.
+- Faded caused 82–91% of all losses, and Deluge never happened.
+- Games lasted only 10–12 turns.
 
-These changes bring every player count to **48–54% wins**, with all three loss conditions sharing the losses:
+These changes bring every player count to **54–56% wins** with the Open Crossing at the Standard Lantern (the four Souls other than the Child average 50%), with all three loss conditions sharing the losses:
 
 | Rule | GDD v0.4 | Tuned |
 |---|---|---|
 | Lingering | Always forget 1 | Forget 1 only if the soul's own space is **not Lit** (a soul waiting beside its own light does not fade) |
-| Drained Black Water | Returns to the supply | **Leaves the game.** The supply of 5 becomes a slow flood clock, so Deluge is a real threat. |
+| Drained Black Water | Returns to the supply | **Leaves the game.** The supply (5 at the Standard Lantern) becomes a slow flood clock, so Deluge is a real threat. |
 | Burn | Forget the card | Forget the card **and 1 more** |
 | Light as Ash / Adrift | 4 / 8 forgotten | **6 / 9** |
 | Mist decks | 10 cards per Reach | **12**: +1 Rising Water, +1 Grievance Drawn Near |
@@ -69,6 +69,10 @@ These changes bring every player count to **48–54% wins**, with all three loss
 | Solo Ghost | Its Oblivion card forgets 1 | **Does not forget** |
 | Bride twist | Pulled back once per Reach, still forgets | Pulled back **once per game**, forgets nothing |
 | Bride pack | B02 Shield, B06 Mend | **B02 Stubborn Root, B06 Full Bloom** |
+| Actions | Play 2 cards | **2 actions**: play a card, or Seek (discard 1, draw 1; once a turn; only the first action can Resonate) |
+| Grievances on both banks ahead | The soul Lingers | **Push through**: both scatter, the soul steps on, 1 Fracture and forget 1; each later push in the game costs 1 more Fracture |
+| Lanterns | 1–5 | **Gentle 6/14/0, Standard 5/11/2, Hard 4/10/3, Heroic 3/9/3** (Black Water / Faded at / harsh Mist per Reach) |
+| Child twist | 3 Light, first Fracture each Reach ignored, never Adrift, no harsh Mist | Also **forgets 1 more card before she Fades** |
 
 ## Not modelled yet
 

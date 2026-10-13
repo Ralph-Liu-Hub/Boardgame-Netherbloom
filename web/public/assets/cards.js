@@ -129,7 +129,7 @@ export const FIRST_SOUL = "child";
 
 export const SOULS = {
   open: { name: "Open Crossing", blurb: "A nameless soul. The Echo deck joins the core. Memory Sites give 2 Light.", twist: "Memory Sites give +2 Light." },
-  child: { name: "Child of the Last Flame", blurb: "One more little light, struck against the cold.", twist: "Starts with 3 Light. The first Fracture in each Reach is ignored. Never drifts Adrift. No harsh Mist." },
+  child: { name: "Child of the Last Flame", blurb: "One more little light, struck against the cold.", twist: "Starts with 3 Light. The first Fracture in each Reach is ignored. Never drifts Adrift. She can forget 1 more card before she Fades. No harsh Mist." },
   garland: { name: "The Garland Girl", blurb: "She wove a flower for everyone but herself.", twist: "The Chapter Blessing comes after only 2 inscribed memories." },
   king: { name: "The King on the Barge", blurb: "A crown carried long after the kingdom fell.", twist: "Mantles cost 2 Light. A Fracture strips the Mantle of the player who caused it." },
   bride: { name: "The Bride Who Stayed Below", blurb: "Almost saved, once.", twist: "The first time she would Linger in the dark, she is pulled one space back instead of forgetting." },
@@ -168,8 +168,15 @@ export const TILES = [
 ];
 export const REACH_NAMES = ["The Asphodel Road", "The Fields of Mourning", "The Banks of Lethe"];
 
-// Lantern: [black water supply, forgotten limit, harsh Mist per Reach]
-export const LANTERN = { 1: [6, 14, 0], 2: [5, 13, 0], 3: [5, 12, 1], 4: [4, 11, 2], 5: [4, 10, 3] };
+// Lantern: [black water supply, forgotten limit, harsh Mist per Reach]. Standard is the intended game.
+export const LANTERN = { 1: [6, 14, 0], 2: [5, 11, 2], 3: [4, 10, 3], 4: [3, 9, 3] };
+export const LANTERN_NAMES = { 1: "Gentle", 2: "Standard", 3: "Hard", 4: "Heroic" };
+export const STANDARD_LANTERN = 2;
+// The Faded limits across all Lanterns, as "9–14".
+export const limitRange = () => { const l = Object.values(LANTERN).map(r => r[1]); return `${Math.min(...l)}–${Math.max(...l)}`; };
+// Each Reach's Mist deck also holds these extra cards (the engine's extraMist: 2).
+export const MIST_EXTRA = [["Rising Water", [["bw", 2]]], ["Grievance Drawn Near", [["grv_near"]]]];
+export const lanternIcon = l => "◆".repeat(+l) + "◇".repeat(Object.keys(LANTERN).length - l);
 
 export const GHOST = [
   ...Array(3).fill([OBS, "root_far"]), ...Array(2).fill([OBS, "root_near"]),
@@ -200,7 +207,7 @@ export function opText(op) {
     case "mend": return `Mend ${plural(op[1], "Fracture")}`;
     case "release": return `Untie ${plural(op[1], "knot")} on the fullest thread`;
     case "guide": return "The soul steps forward now, if the next space is Lit";
-    case "vigil": return "Read the top 3 Mist cards and bury the worst";
+    case "vigil": return "Read the top 3 Mist cards and put the worst of them last";
     case "banish_or_drain": return "Banish the nearest Grievance or drain the nearest Black Water";
     case "banish": return "Banish the nearest Grievance";
     case "drain": return "Drain the nearest Black Water";
@@ -219,7 +226,7 @@ export const MIST_TEXT = {
   "Rising Water": "Black Water floods the river ahead.",
   "Grievance": "A Grievance takes a bank ahead.",
   "Grievance Drawn Near": "A Grievance settles beside the soul.",
-  "Withering": "The furthest Blooms ahead wither to Roots.",
+  "Withering": "The 2 furthest Blooms ahead wither to Roots.",
   "Great Withering": "Three Blooms ahead wither to Roots.",
   "Fog Returns": "Fog rolls back over empty ground.",
   "Cold Wind": "A memory is forgotten.",

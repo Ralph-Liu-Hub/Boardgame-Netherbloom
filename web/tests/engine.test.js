@@ -1,6 +1,6 @@
 // Plays many games with a simple greedy chooser to check the engine never crashes and games end.
 import assert from "node:assert/strict";
-import { makeConfig, newGame, beginTurn, playCard, endTurn, GameOver, copy, lit, NONE, ROOT, canSummon, summon, bringerPending, bringerBloom, bloomTargets } from "../public/assets/engine.js";
+import { makeConfig, newGame, beginTurn, playCard, endTurn, GameOver, copy, lit, NONE, ROOT, canSummon, summon, bringerPending, bringerBloom, bloomTargets, canSeek, seek } from "../public/assets/engine.js";
 import { CARDS, MANTLES, MIST, HARSH, SOULS } from "../public/assets/cards.js";
 import { setLang, say, cardName, cardBand, mistName, mistText, soulInfo, mantleInfo } from "../public/assets/i18n.js";
 
@@ -41,7 +41,13 @@ async function play(players, soul, lantern, seed) {
       }
     }
     try {
-      for (let i = 0; i < 2 && s.hands[s.cur].length; i++) {
+      // Now and then Seek as the first action, which uses it up and lets the Echo pass.
+      if (s.turn % 5 === 0 && canSeek(s)) {
+        seek(s, s.hands[s.cur][0]);
+        assert.equal(s.played, 1);
+        assert.ok(!canSeek(s), "only one Seek per turn");
+      }
+      for (let i = s.played; i < 2 && s.hands[s.cur].length; i++) {
         const hand = s.hands[s.cur];
         const pick = hand.find(c => CARDS[c].tag === s.echo && i === 0) ?? hand[0];
         await playCard(s, pick, "up", greedy);
@@ -82,7 +88,7 @@ setLang("en");
 let wins = 0, games = 0, turns = 0;
 const causes = {};
 for (const players of [1, 2, 3, 4]) for (const soul of ["open", "child", "garland", "king", "bride"]) for (let seed = 1; seed <= 20; seed++) {
-  const s = await play(players, soul, 1 + seed % 5, seed);
+  const s = await play(players, soul, 1 + seed % 4, seed);
   assert.ok(["win", "loss"].includes(s.result));
   games++; turns += s.turn;
   if (s.result === "win") wins++; else causes[s.cause] = (causes[s.cause] || 0) + 1;
@@ -98,5 +104,6 @@ for (const soul of ["open", "bride", "child"]) for (let seed = 1; seed <= 25; se
 const a = await play(3, "open", 3, 42), b = await play(3, "open", 3, 42);
 assert.equal(JSON.stringify(a), JSON.stringify(b), "same seed gives the same game");
 assert.deepEqual(copy(a), a);
+assert.ok(seenKeys.has("seek") && seenKeys.has("push"), "Seek and push-through both happened and read in Chinese");
 console.log(`zh: ${seenKeys.size} message kinds checked`);
 console.log(`ok: ${games} games, greedy win rate ${(wins / games * 100).toFixed(0)}%, avg ${(turns / games).toFixed(1)} turns, losses`, causes);
