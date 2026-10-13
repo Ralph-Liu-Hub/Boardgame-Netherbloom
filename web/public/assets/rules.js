@@ -110,7 +110,7 @@ export const RULEBOOK = [
       ${piece(TAG_ICONS[2], TAGCOL[2], "Oblivion thread", "The thread that is cut: deliberate forgetting.", "Powerful cards that clear the way, but are forgotten after use. A full thread snaps into <b>the Tide Rises</b>: Black Water floods ahead.")}
       ${piece("nb-knot", "#E6D3A3", "The Loom of the Fates", "The great loom where the three Fates weave every soul's last journey.", "Each card played face up ties a knot on its thread. Too many knots on one thread cause a Backlash.")}
       ${piece("nb-echo", "#8FD6E1", "The Echo", "The shuttle of the Loom, resting on the last thread you pulled. In a silent world it is your voice.", "The thread of the last card played face up. If your first card matches it, the card <b>Resonates</b>.")}
-      ${piece("nb-grievance", "#8FD6E1", "Grievance", "A restless shade of the soul's own unfinished resentment.", "Blocks a bank. Beside the soul, it feeds: 1 Fracture each Soul Step.")}
+      ${piece("nb-grievance", "#8FD6E1", "Grievance", "A restless shade of the soul's own unfinished resentment.", "Blocks a bank. Beside the soul, it feeds: 1 Fracture each Soul Step. If two block the space ahead, the soul can push through them at a cost.")}
       ${piece("nb-blackwater", "#9A948C", "Black Water", "The river rising to swallow the path.", "Floods a space so the soul cannot enter, and withers its Blooms. The supply is limited; when water must rise and none is left, it is a Deluge.")}
       ${piece("nb-fracture", "#D7263D", "Fracture", "A crack in the soul's sense of self.", "The third Fracture shatters the soul.")}
       ${piece("", "", "Forgotten pile", "Everything the river has taken.", "Forgotten cards are gone for good. Enough of them make the soul lighter (Light as Ash), then reckless (Adrift), then Faded.")}
@@ -163,8 +163,8 @@ export const RULEBOOK = [
     ${lore("You plant, the soul walks, the river answers.")}
     <ol class="steps">
       <li><b>Summon a Mantle</b> (optional, before your first card).</li>
-      <li><b>Play your first card</b>: face up, face down or Burned.</li>
-      <li><b>Play your second card.</b></li>
+      <li><b>First action</b>: play a card face up, face down or Burned, or <b>Seek</b>.</li>
+      <li><b>Second action</b>: the same choices (but only one Seek a turn).</li>
       <li><b>Bloom-Bringer</b>: if you hold this Mantle, Bloom one Root for free.</li>
       <li><b>Soul Step</b>: the soul moves or Lingers.</li>
       <li><b>The Mist</b>: turn the top card of the current Reach's Mist deck.</li>
@@ -173,18 +173,21 @@ export const RULEBOOK = [
     </ol>
     <p>Hand size is 4 in solo play and 3 with 2–4 players.</p>` },
 
-  { id: "modes", title: "10. Three ways to play a card", keys: "face up face down burn mode", body: `
-    ${lore("A memory can be spoken, kept quiet, or burned away for strength.")}
+  { id: "modes", title: "10. Your two actions: three ways to play a card, or Seek", keys: "face up face down burn mode seek discard draw action stuck", body: `
+    ${lore("A memory can be spoken, kept quiet, or burned away for strength. Or you can let one go and reach for another.")}
+    <p>Each turn you take <b>two actions</b>, one at a time. Each action is to play a card from your hand in one of three ways, or to Seek.</p>
     <ul>
       <li><b>Face up</b> (spoken): do the card's effect, tie one knot on its thread in the Loom, and the card's thread becomes the new <b>Echo</b>. Obsession and Acceptance cards go to the discard pile. <b>Oblivion</b> cards are <b>forgotten</b> after use.</li>
       <li><b>Face down</b> (kept quiet): place 1 Root. No knot is tied and the Echo does not change. The card is discarded.</li>
       <li><b>Burn</b> (burned away): do the effect <b>twice</b> and tie a knot. Then the card is forgotten, along with the top card of the deck. The soul grows lighter, and its story grows shorter.</li>
-    </ul>` },
+    </ul>
+    <p><b>Seek</b> (once per turn): discard a card from your hand and draw one. Nothing is played, no knot is tied and the Echo does not change. Only your <b>first action</b> can Resonate, so if you Seek first you let the Echo pass this turn; Seek second and your first card has already had its chance. Seek when your hand holds nothing the river needs.</p>` },
 
   { id: "echo", title: "11. The Echo and Resonance", keys: "echo resonance resonate thread silent signal", body: `
     ${lore("When two silent Ferrymen pull the same thread, the Loom sings.")}
     <p>${ico("nb-echo", "#8FD6E1")} The <b>Echo</b> is the thread of the last card played face up, by anyone. It is how silent players talk.</p>
     <p>If the <b>first</b> card you play on your turn is on the Echo's thread, it <b>Resonates</b>. Do its Resonance effect as well; some Oblivion cards do their Resonance <i>instead</i>. A Resonating card that carries a memory may be <b>inscribed</b> in the Book of Remembrance.</p>
+    <p>Only your first action can Resonate. If it is a Seek, the Echo passes unanswered this turn.</p>
     <p>Leaving an Echo the next player can safely follow is the heart of the game.</p>` },
 
   { id: "loom", title: "12. The Loom of the Fates and Backlash", keys: "loom knot thread backlash grasping resignation tide karma", body: `
@@ -202,6 +205,7 @@ export const RULEBOOK = [
     ${lore("The soul walks only toward light. In the dark, it waits, and waiting, it forgets.")}
     <p>After your cards the soul tries to step forward. If the next space is <b>Lit and not flooded</b>, it moves there. It gains 1 Light for each Bloom it leaves behind, and the space it left is cleared.</p>
     <p>Otherwise it <b>Lingers</b>. Beside its own light (its own space is Lit) it simply waits. In the dark it forgets the top card of the deck. <i>Hold Fast</i> and the Spirit Warden stop a Linger.</p>
+    <p><b>Through the shades.</b> If the next space is dark only because Grievances hold <b>both</b> of its banks (and it is not flooded), the soul does not Linger. It pushes through: both Grievances scatter, the soul steps onto the space, and it pays dearly, taking <b>1 Fracture</b> and forgetting the top card of the deck.</p>
     <p><b>Light as Ash.</b> Once 6 cards are forgotten, the soul glides one extra space whenever it can. It has less to carry.</p>
     <p><b>Adrift.</b> Once 9 cards are forgotten and the soul moves, it drifts one more space even into the dark, and suffers a Fracture. It has almost nothing left to hold it in place.</p>
     <p>If a Grievance sits beside the soul after the step, it feeds: <b>1 Fracture</b>.</p>` },
@@ -209,7 +213,7 @@ export const RULEBOOK = [
   { id: "threats", title: "14. Black Water, Grievances and Fractures", keys: "black water flood drink deluge grievance feed fracture shield trapped", body: `
     ${lore("The river rises, old resentments crawl out of the graves, and the soul begins to crack.")}
     <p>${ico("nb-blackwater", "#9A948C")} <b>Black Water</b> floods a whole space. The soul cannot step onto it, and Blooms on it wither to Roots. When both banks of a flooded space hold a Root or Bloom at the end of a turn, the roots <b>drink the flood</b> and it drains. Drained water leaves the game, so the supply only shrinks. If water must rise and the supply is empty: <b>Deluge</b>.</p>
-    <p>${ico("nb-grievance", "#8FD6E1")} A <b>Grievance</b> takes a bank and blocks it. One beside the soul feeds on it each Soul Step. A Grievance with a Bloom on the same bank both before and after it is <b>trapped in light</b> and dissolves at the end of the turn.</p>
+    <p>${ico("nb-grievance", "#8FD6E1")} A <b>Grievance</b> takes a bank and blocks it. One beside the soul feeds on it each Soul Step. A Grievance with a Bloom on the same bank both before and after it is <b>trapped in light</b> and dissolves at the end of the turn. If Grievances hold both banks of the space ahead, the soul can push through them (section 13).</p>
     <p>${ico("nb-fracture", "#D7263D")} <b>Fractures</b> come from feeding Grievances, Adrift, and the Dark Wind. At 3 the soul is <b>Shattered</b>. <i>Hold the Line</i> raises a Shield that stops the next Fracture.</p>` },
 
   { id: "mantles", title: "15. Mantles and Light", keys: "mantle summon light weaver warden bringer breaker", body: `
@@ -286,8 +290,8 @@ export function playerAid(cfg) {
     <h3>On your turn</h3>
     <ol class="steps">
       <li><b>Summon</b> <span>optional · pay Light, discard a matching card</span></li>
-      <li><b>Card 1</b> <span>matches the Echo? It Resonates</span></li>
-      <li><b>Card 2</b></li>
+      <li><b>Action 1</b> <span>a card that matches the Echo Resonates</span></li>
+      <li><b>Action 2</b> <span>either action may be a Seek: discard 1, draw 1 (once a turn)</span></li>
       <li><b>Soul Step</b> <span>Lit and dry ahead: move. Otherwise: Linger</span></li>
       <li><b>Mist</b> <span>turn one card of this Reach</span></li>
       <li><b>Settle and draw</b> <span>roots drink the flood, trapped Grievances dissolve</span></li>
@@ -297,6 +301,7 @@ export function playerAid(cfg) {
       <div><b>Face up</b><span>effect + knot + new Echo</span></div>
       <div><b>Face down</b><span>1 Root only</span></div>
       <div><b>Burn</b><span>effect ×2, forget it + 1</span></div>
+      <div><b>Seek</b><span>discard 1, draw 1; no Resonance if first</span></div>
     </div>
     <h3>Threads (${cap} knots)</h3>
     <div class="aidgrid">

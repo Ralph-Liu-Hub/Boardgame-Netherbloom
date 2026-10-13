@@ -1,7 +1,8 @@
 // Original generative soundtrack and sound effects, synthesised live with the Web Audio API.
 // Nothing is sampled or recorded, so there is no copyright to clear.
-// Mood: a tranquil river at night with something wrong underneath. D Aeolian bells over a low drone,
-// running water, and now and then a slow minor-second swell.
+// Mood: a tranquil river at night with something wrong underneath. A slow D-minor song (harp, heartbeat,
+// a flute or music-box melody) over a low drone and running water, bells between its rounds, and now and
+// then a slow minor-second swell.
 
 let ctx = null, master = null, musicBus = null, sfxBus = null, wet = null;
 let amb = null, storyBus = null, storyTimer = null, storySoul = null;  // ambient layers can be ducked under a Soul's theme
@@ -104,10 +105,10 @@ function river() {
   bp.frequency.value = 420;
   bp.Q.value = 0.7;
   const g = ctx.createGain();
-  g.gain.value = 0.11;
+  g.gain.value = 0.085;
   const lfo = ctx.createOscillator(), amt = ctx.createGain();
   lfo.frequency.value = 0.11;
-  amt.gain.value = 0.05;
+  amt.gain.value = 0.04;
   lfo.connect(amt).connect(g.gain);
   lfo.start();
   src.connect(bp).connect(g).connect(amb);
@@ -133,6 +134,7 @@ function bell(freq, when, vol = 0.08, bus = amb, length = 5) {
 }
 
 function phrase() {
+  if (melodyOn) { timers.push(setTimeout(phrase, 4000)); return; }
   const t = ctx.currentTime + 0.1;
   const count = 1 + Math.floor(Math.random() * 3);
   let idx = Math.floor(Math.random() * 6);
@@ -189,6 +191,129 @@ function whisper() {
   timers.push(setTimeout(whisper, 30000 + Math.random() * 40000));
 }
 
+// ---------------------------------------------------------------- the song of the river
+// A slow piece in D minor (84 bpm) over the drone: a harp arpeggio, a soft heartbeat, and a melody that
+// comes and goes. Each 8-bar round picks a voice: the flute, a music-box answer an octave up, or only the
+// harp, so the bells have room to ring. The raised C sharp over the last chord keeps the unease.
+const BPM = 84, BEAT = 60 / BPM, BAR = BEAT * 4;
+const PROG = [            // [bass, chord tones] per bar: Dm Bb F C | Dm Gm Bb A
+  [38, [62, 65, 69]], [34, [62, 65, 70]], [41, [60, 65, 69]], [36, [60, 64, 67]],
+  [38, [62, 65, 69]], [43, [62, 67, 70]], [34, [62, 65, 70]], [45, [61, 64, 69]],
+];
+const MELODY = [          // [midi, beats] per bar; 0 is a rest
+  [[69, 1], [74, 1], [76, .5], [77, 1.5]],
+  [[76, 1], [74, 1], [77, 2]],
+  [[72, 1], [69, 1], [72, .5], [74, 1.5]],
+  [[76, 3], [0, 1]],
+  [[69, 1], [74, 1], [76, .5], [77, 1.5]],
+  [[79, 1], [77, 1], [74, 2]],
+  [[77, 1], [76, 1], [74, 1], [70, 1]],
+  [[73, 1.5], [76, .5], [74, 2]],
+];
+let songBar = 0, songNext = 0, songVoice = "flute", melodyOn = false;
+
+function pluck(freq, when, vol, len = 1.6, pan = 0) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(vol, when + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, when + len);
+  const lp = ctx.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.setValueAtTime(2600, when);
+  lp.frequency.exponentialRampToValueAtTime(500, when + len);
+  for (const [type, r, a] of [["triangle", 1, 1], ["sine", 2, 0.3]]) {
+    const o = ctx.createOscillator(), og = ctx.createGain();
+    o.type = type;
+    o.frequency.value = freq * r;
+    og.gain.value = a;
+    o.connect(og).connect(lp);
+    o.start(when);
+    o.stop(when + len + 0.05);
+  }
+  const p = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+  if (p) { p.pan.value = pan; lp.connect(g).connect(p).connect(amb); } else lp.connect(g).connect(amb);
+}
+
+function flute(freq, when, dur, vol = 0.06) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(vol, when + 0.09);
+  g.gain.setValueAtTime(vol, when + Math.max(0.1, dur - 0.18));
+  g.gain.linearRampToValueAtTime(0, when + dur + 0.25);
+  const vib = ctx.createOscillator(), vibAmt = ctx.createGain();
+  vib.frequency.value = 5.2;
+  vibAmt.gain.setValueAtTime(0, when);
+  vibAmt.gain.linearRampToValueAtTime(freq * 0.006, when + 0.4);
+  vib.connect(vibAmt);
+  const lp = ctx.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.value = 2200;
+  for (const [type, r, a] of [["sine", 1, 1], ["triangle", 2, 0.12]]) {
+    const o = ctx.createOscillator(), og = ctx.createGain();
+    o.type = type;
+    o.frequency.value = freq * r;
+    vibAmt.connect(o.frequency);
+    og.gain.value = a;
+    o.connect(og).connect(lp);
+    o.start(when);
+    o.stop(when + dur + 0.3);
+  }
+  vib.start(when);
+  vib.stop(when + dur + 0.3);
+  lp.connect(g).connect(amb);
+}
+
+function heartbeat(when, vol) {
+  for (const [dt, v] of [[0, vol], [0.24, vol * 0.6]]) {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.setValueAtTime(70, when + dt);
+    o.frequency.exponentialRampToValueAtTime(38, when + dt + 0.25);
+    g.gain.setValueAtTime(v, when + dt);
+    g.gain.exponentialRampToValueAtTime(0.0001, when + dt + 0.32);
+    o.connect(g).connect(amb);
+    o.start(when + dt);
+    o.stop(when + dt + 0.35);
+  }
+}
+
+function songBarAt(t) {
+  const i = songBar % 8;
+  if (i === 0) {
+    // a new round: choose who sings it
+    const r = Math.random();
+    songVoice = r < 0.45 ? "flute" : r < 0.75 ? "box" : "harp";
+    melodyOn = songVoice !== "harp";
+  }
+  const [bass, tones] = PROG[i];
+  pluck(NOTE(bass), t, 0.07, BAR * 0.95, -0.1);
+  const arp = [tones[0], tones[1], tones[2], tones[0] + 12, tones[2], tones[1], tones[0], tones[1]];
+  arp.forEach((n, k) => pluck(NOTE(n - 12), t + k * BEAT / 2, k % 2 ? 0.022 : 0.03, 1.4, 0.35));
+  heartbeat(t, 0.12);
+  heartbeat(t + BEAT * 2, 0.08);
+  if (melodyOn) {
+    let x = t;
+    for (const [n, b] of MELODY[i]) {
+      if (n) {
+        if (songVoice === "flute") flute(NOTE(n), x, b * BEAT);
+        else bell(NOTE(n + 12), x, 0.045, amb, Math.max(1.5, b * BEAT * 2));
+      }
+      x += b * BEAT;
+    }
+  }
+  songBar += 1;
+}
+
+function song() {
+  // schedule bars a little ahead of time, so the rhythm stays steady even when the page is busy
+  if (!songNext || songNext < ctx.currentTime) songNext = ctx.currentTime + 0.2;
+  while (songNext < ctx.currentTime + 1.2) {
+    songBarAt(songNext);
+    songNext += BAR;
+  }
+  timers.push(setTimeout(song, 300));
+}
+
 export function start() {
   init();
   if (ctx.state === "suspended") ctx.resume();
@@ -197,6 +322,7 @@ export function start() {
   drone();
   river();
   timers.push(setTimeout(phrase, 2500));
+  timers.push(setTimeout(song, 6000));
   timers.push(setTimeout(swell, 15000));
   timers.push(setTimeout(whisper, 26000));
 }

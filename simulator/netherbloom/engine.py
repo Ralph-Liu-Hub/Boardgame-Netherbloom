@@ -55,6 +55,8 @@ class Config:
         self.extra_mist = 2          # tuning: extra Rising Water / Grievance cards per Reach deck
         self.light_per_bloom = 1     # tuning: Light gained per Bloom passed
         self.ghost_forgets = False   # tuning: the Ghost's Oblivion card forgets 1
+        self.push_through = "harsh"  # if Grievances hold both banks ahead, the soul pushes through: "off", "fracture" (+1 Fracture) or "harsh" (+1 Fracture, forget 1)
+        self.seek = True             # one action per turn may be Seek: discard a card and draw one (that turn's next card cannot Resonate)
         for k, v in overrides.items():
             if not hasattr(self, k):
                 raise KeyError(f"unknown config option {k}")
@@ -499,6 +501,17 @@ class State:
         """mode: 'up', 'down' or 'burn'. Returns True if the card Resonated."""
         card = CARD[cid]
         self.hands[self.cur].remove(cid)
+        if mode == "seek":
+            # Seek: draw a card, then discard this one. While planning, the AI cannot see the draw.
+            self.stats["sought"] = 1
+            self.stats["seeks"] = self.stats.get("seeks", 0) + 1
+            if not self.sim:
+                if not self.deck:
+                    self.reshuffle()
+                if self.deck:
+                    self.hands[self.cur].append(self.deck.pop())
+            self.discard.append(cid)
+            return False
         if mode == "down":
             self.stats["face_down"] += 1
             self.do_op(("root", 1, False), chooser)
@@ -614,9 +627,27 @@ class State:
                     self.add_fracture()
             elif f >= cfg.ash_at and self.passable(self.soul + 1):
                 self.move_soul(1)
+        elif self.blocked_by_grievances():
+            self.push_through()
         else:
             self.linger()
         self.feed()
+
+    def blocked_by_grievances(self):
+        """The next space is dark only because Grievances hold both of its banks."""
+        sp = self.soul + 1
+        return (self.cfg.push_through != "off" and 1 <= sp <= 11 and not self.flooded[sp]
+                and self.griev[sp * 2] and self.griev[sp * 2 + 1])
+
+    def push_through(self):
+        sp = self.soul + 1
+        self.griev[sp * 2] = self.griev[sp * 2 + 1] = False
+        self.stats["pushes"] = self.stats.get("pushes", 0) + 1
+        self.note("  the soul pushes through the Grievances")
+        self.move_soul(1)
+        self.add_fracture()
+        if self.cfg.push_through == "harsh":
+            self.forget_top(1)
 
     def linger(self, force=False):
         if not force and self.hold:

@@ -465,7 +465,8 @@ async function playSelected(cid, mode_) {
   busy = true;
   A.sfx("card");
   try {
-    await E.playCard(S, cid, mode_, chooser);
+    if (mode_ === "seek") E.seek(S, cid);
+    else await E.playCard(S, cid, mode_, chooser);
   } catch (e) {
     if (!(e instanceof E.GameOver)) throw e;
     S.phase = "over";
@@ -769,7 +770,7 @@ function drawPrompt() {
   const echo = S.echo >= 0 && S.played === 0 ? L(` The Echo is <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>: a first card of that thread Resonates.`,
     `迴響是<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>：本回合第一張同絲線的牌會產生共鳴。`) : "";
   const sum = E.canSummon(S) ? `<button type="button" id="summon">${L(`Summon a Mantle (${S.cfg.mantleCost} Light)`, `召喚稱號（${S.cfg.mantleCost}點光）`)}</button>` : "";
-  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, choose` : "Choose"} card ${n} of ${S.cfg.cardsPerTurn}.`, `${S.n > 1 ? `<b>${who}</b>，請` : "請"}選擇第${n}張牌（共${S.cfg.cardsPerTurn}張）。`)}${echo}</span>${sum}`, true);
+  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, choose` : "Choose"} action ${n} of ${S.cfg.cardsPerTurn}: play a card${E.canSeek(S) ? " or Seek" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，請` : "請"}選擇第${n}個行動（共${S.cfg.cardsPerTurn}個）：打出一張牌${E.canSeek(S) ? "或尋覓" : ""}。`)}${echo}</span>${sum}`, true);
   if (sum) $("summon").onclick = summonDialog;
 }
 
@@ -790,7 +791,8 @@ function cardHTML(cid, opts = {}) {
     ${opts.sel ? `<div class="modes">
       <button type="button" data-play="up">${L(`Play face up${res ? " · Resonates" : ""}`, `正面打出${res ? " · 共鳴" : ""}`)}</button>
       <button type="button" data-play="down">${L("Face down · 1 Root, no knot", "背面打出 · 放1個根，不打結")}</button>
-      <button type="button" data-play="burn">${L("Burn · twice, then forget it and 1 more", "焚燒 · 效果兩次，再遺忘此牌與另1張")}</button></div>` : ""}
+      <button type="button" data-play="burn">${L("Burn · twice, then forget it and 1 more", "焚燒 · 效果兩次，再遺忘此牌與另1張")}</button>
+      ${E.canSeek(S) ? `<button type="button" data-play="seek">${L(`Seek · discard this, draw 1${S.played === 0 ? " (the Echo passes)" : ""}`, `尋覓 · 棄掉此牌，抽1張${S.played === 0 ? "（放過迴響）" : ""}`)}</button>` : ""}</div>` : ""}
   </div>`;
 }
 
@@ -844,8 +846,8 @@ function flyCard(cid) {
 // (Soul Step, then the Mist, then the draw) before moving on to the next player's first card.
 const GUIDE = [
   ["summon", "Summon", "optional · before your first card", "召喚", "選擇性 · 在第一張牌之前"],
-  ["card1", "First card", "match the Echo to Resonate", "第一張牌", "與迴響相同即產生共鳴"],
-  ["card2", "Second card", "", "第二張牌", ""],
+  ["card1", "First action", "a card matching the Echo Resonates", "第一個行動", "與迴響相同的牌產生共鳴"],
+  ["card2", "Second action", "play a card, or Seek once a turn", "第二個行動", "打出一張牌，或每回合尋覓一次"],
   ["bringer", "Bloom-Bringer", "free Bloom", "引花人", "免費綻放"],
   ["soul", "Soul Step", "move if the next space is Lit", "亡魂步驟", "下一格被照亮就前進"],
   ["mist", "The Mist", "one card from this Reach", "迷霧", "翻開本河段的一張牌"],
@@ -885,7 +887,7 @@ function guideHint() {
   if (pending?.type === "bringer") return L("Click a <b>Root</b> to bloom it for free, or skip.", "點擊一個<b>根</b>免費使其綻放，或選擇跳過。");
   if (pending?.type === "inscribe") return L("Write this memory into the <b>Book</b>, or keep the card in the deck.", "將這段記憶寫進<b>憶念之書</b>，或把這張牌留在牌庫中。");
   const echo = S.echo >= 0 && S.played === 0 ? L(` A <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b> card will Resonate.`, `<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>牌會產生共鳴。`) : "";
-  return L(`Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b> or <b>Burn</b>.${echo}`, `從手牌中選一張牌，再選擇<b>正面打出</b>、<b>背面打出</b>或<b>焚燒</b>。${echo}`);
+  return L(`Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `從手牌中選一張牌，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`);
 }
 
 function drawGuide() {
@@ -1060,6 +1062,8 @@ function animateEvents() {
         if (ev.res) { sounds.add("resonance"); enqueue(() => banner(L("Resonance", "共鳴"), L("The card answers the Echo", "這張牌回應了迴響"), "obl")); }
         break;
       case "ghost": toast(say(ev), ev.tag); sounds.add("card"); break;
+      case "seek": if (!seats.has(ev.p) || mode === "local") toast(say(ev), 1); sounds.add("card"); break;
+      case "push": enqueue(() => { A.sfx("fracture"); flash(); shake(); return banner(L("Through the shades", "穿過怨念"), say(ev), "obs"); }); break;
       case "inscribe": toast(say(ev), 1); if (!seats.has(S.cur)) sounds.add("inscribe"); break;
       case "blessing": enqueue(() => { A.sfx("inscribe"); return banner(L("Chapter Blessing", "章節祝福"), say(ev).replace(/^(Chapter Blessing: |章節祝福：)/, ""), "good"); }); break;
       case "summon": enqueue(() => { A.sfx("summon"); const mi = mantleInfo(ev.mantle); return banner(say(ev), mi.text, ["obs", "acc", "obl"][mi.tag]); }); break;

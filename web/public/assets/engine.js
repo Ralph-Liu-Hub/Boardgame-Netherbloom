@@ -435,8 +435,25 @@ export function beginTurn(s) {
   if (s.mantles.warden === p) s.wardenReady = true;
   s.phase = "play";
   s.played = 0;
+  s.sought = false;
   s.lastMist = null;
   note(s, "turn", `Turn ${s.turn}: ${s.names[p]}.`, { p, m: ["turn", s.turn, s.names[p]] });
+}
+
+// Seek: one of your two actions may be to discard a card and draw one. Only your first action can
+// Resonate, so a Seek made first lets the Echo pass.
+export const canSeek = s => s.phase === "play" && !s.sought && s.played < s.cfg.cardsPerTurn
+  && s.hands[s.cur].length > 0 && s.deck.length + s.discard.length > 0;
+export function seek(s, cid) {
+  const hand = s.hands[s.cur];
+  hand.splice(hand.indexOf(cid), 1);
+  if (!s.deck.length) reshuffle(s);
+  if (s.deck.length) hand.push(s.deck.pop());
+  s.discard.push(cid);
+  s.played += 1;
+  s.sought = true;
+  s.stats.seeks = (s.stats.seeks || 0) + 1;
+  note(s, "seek", `${s.names[s.cur]} Seeks: discards a card and draws one.`, { p: s.cur, m: ["seek", s.names[s.cur]] });
 }
 
 export function canSummon(s) {
@@ -593,8 +610,25 @@ function soulStep(s) {
       note(s, "info", "Light as Ash: the soul, lighter now, glides one more space.", { m: ["ash"] });
       moveSoul(s, 1);
     }
-  } else linger(s, false);
+  } else if (blockedByGrievances(s)) pushThrough(s);
+  else linger(s, false);
   feed(s);
+}
+
+// The next space is dark only because Grievances hold both of its banks.
+function blockedByGrievances(s) {
+  const sp = s.soul + 1;
+  return sp >= 1 && sp <= 11 && !s.flooded[sp] && s.griev[sp * 2] && s.griev[sp * 2 + 1];
+}
+// Push through the shades: both Grievances scatter, the soul steps forward, and it pays with a Fracture and a memory.
+function pushThrough(s) {
+  const sp = s.soul + 1;
+  s.griev[sp * 2] = s.griev[sp * 2 + 1] = false;
+  s.stats.pushes = (s.stats.pushes || 0) + 1;
+  note(s, "push", "The soul pushes through the Grievances. They scatter, but they wound it.", { sp, m: ["push"] });
+  moveSoul(s, 1);
+  addFracture(s);
+  forgetTop(s, 1);
 }
 
 function linger(s, force) {
