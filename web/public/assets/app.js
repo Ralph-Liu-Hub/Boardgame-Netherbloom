@@ -892,7 +892,9 @@ function guideHint() {
   if (pending?.type === "bringer") return L("Click a <b>Root</b> to bloom it for free, or skip.", "點擊一個<b>根</b>免費使其綻放，或選擇跳過。");
   if (pending?.type === "inscribe") return L("Write this memory into the <b>Book</b>, or keep the card in the deck.", "將這段記憶寫進<b>憶念之書</b>，或把這張牌留在牌庫中。");
   const echo = S.echo >= 0 && S.played === 0 ? L(` A <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b> card will Resonate.`, `<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>牌會產生共鳴。`) : "";
-  return L(`Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `從手牌中選一張牌，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`);
+  const wounds = 1 + (S.stats.pushes || 0);
+  const push = E.blockedByGrievances(S) ? `<span class="pushwarn">${L(`Grievances hold both banks ahead. At the Soul Step the soul will <b>push through</b> them automatically: ${wounds} Fracture and 1 forgotten card. Clear a bank first to avoid it.`, `前方兩岸都被怨念佔據。亡魂步驟時，亡魂會自動<b>強行穿過</b>：承受${wounds}道裂痕並遺忘1張牌。先清出一側河岸即可避免。`)}</span>` : "";
+  return L(`Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `從手牌中選一張牌，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`) + push;
 }
 
 function drawGuide() {
@@ -1092,8 +1094,10 @@ function mistCard(name) {
   el.className = `mistcard ${harsh ? "harsh" : ""}`;
   el.innerHTML = `<div class="k">${harsh ? L("Harsh Mist", "凶霧") : L("The Mist", "迷霧")}</div>${svgUse("nb-fog")}<h3>${esc(mistName(name))}</h3><p>${esc(mistText(name))}</p>`;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 2700);
-  return 2300;
+  // Crisp while it is read; it only blurs as it leaves. 2 seconds in all.
+  setTimeout(() => el.classList.add("out"), 1550);
+  setTimeout(() => el.remove(), 2000);
+  return 2000;
 }
 function banner(title, sub, cls) {
   const el = document.createElement("div");

@@ -617,7 +617,7 @@ function soulStep(s) {
 }
 
 // The next space is dark only because Grievances hold both of its banks.
-function blockedByGrievances(s) {
+export function blockedByGrievances(s) {
   const sp = s.soul + 1;
   return sp >= 1 && sp <= 11 && !s.flooded[sp] && s.griev[sp * 2] && s.griev[sp * 2 + 1];
 }
