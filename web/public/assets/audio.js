@@ -1,8 +1,8 @@
 // Original generative soundtrack and sound effects, synthesised live with the Web Audio API.
 // Nothing is sampled or recorded, so there is no copyright to clear.
-// Mood: a tranquil river at night with something wrong underneath. A slow D-minor song (harp, heartbeat,
-// a flute or music-box melody) over a low drone and running water, bells between its rounds, and now and
-// then a slow minor-second swell.
+// Mood: a tranquil river at night, sad but tender. A slow D-minor song (harp, heartbeat, a warm pad, and a
+// felt-piano, flute or music-box melody) over a low drone and running water, bells between its rounds, and
+// now and then a slow minor-second swell to remind us where we are.
 
 let ctx = null, master = null, musicBus = null, sfxBus = null, wet = null;
 let amb = null, storyBus = null, storyTimer = null, storySoul = null;  // ambient layers can be ducked under a Soul's theme
@@ -192,9 +192,9 @@ function whisper() {
 }
 
 // ---------------------------------------------------------------- the song of the river
-// A slow piece in D minor (84 bpm) over the drone: a harp arpeggio, a soft heartbeat, and a melody that
-// comes and goes. Each 8-bar round picks a voice: a solo violin (always the first round), the flute, a
-// music-box answer an octave up, or only the harp, so the bells have room to ring. The raised C sharp over the last chord keeps the unease.
+// A slow piece in D minor (84 bpm) over the drone: a harp arpeggio, a soft heartbeat, a warm pad holding
+// each chord, and a melody that comes and goes. Each 8-bar round picks a voice: the felt piano (always the
+// first round), the flute, a music-box answer an octave up, or only the harp, so the bells have room to ring.
 const BPM = 84, BEAT = 60 / BPM, BAR = BEAT * 4;
 const PROG = [            // [bass, chord tones] per bar: Dm Bb F C | Dm Gm Bb A
   [38, [62, 65, 69]], [34, [62, 65, 70]], [41, [60, 65, 69]], [36, [60, 64, 67]],
@@ -210,19 +210,19 @@ const MELODY = [          // [midi, beats] per bar; 0 is a rest
   [[77, 1], [76, 1], [74, 1], [70, 1]],
   [[73, 1.5], [76, .5], [74, 2]],
 ];
-// The violin's line: long bowed notes that sigh down by a semitone and lean on unresolved tones
-// (the raised C sharp, an E flat over G minor, a B natural against C) for a tranquil kind of dread.
-const VIOLIN = [          // [midi, beats] per bar
-  [[74, 3], [73, 1]],
-  [[74, 2], [70, 2]],
-  [[72, 3], [69, 1]],
-  [[71, 2], [72, 2]],
-  [[77, 3], [76, 1]],
-  [[74, 2], [75, 2]],
-  [[77, 2], [74, 2]],
-  [[76, 2], [73, 2]],
+// The piano's line: a lullaby that keeps to the chord tones, moves in small steps and comes to rest,
+// sung in sweet thirds and sixths on its long notes. Tender rather than uneasy.
+const PIANO = [           // [midi, beats] per bar
+  [[69, 1.5], [67, .5], [65, 1], [69, 1]],
+  [[70, 2], [69, 1], [67, 1]],
+  [[69, 3], [72, 1]],
+  [[72, 1.5], [70, .5], [69, 1], [67, 1]],
+  [[69, 1.5], [67, .5], [65, 1], [74, 1]],
+  [[74, 2], [72, 1], [70, 1]],
+  [[65, 1], [67, 1], [69, 1], [70, 1]],
+  [[69, 4]],
 ];
-let songBar = 0, songNext = 0, songVoice = "flute", melodyOn = false;
+let songBar = 0, songNext = 0, songVoice = "piano", melodyOn = false;
 
 function pluck(freq, when, vol, len = 1.6, pan = 0) {
   const g = ctx.createGain();
@@ -275,50 +275,62 @@ function flute(freq, when, dur, vol = 0.06) {
   lp.connect(g).connect(amb);
 }
 
-// A solo violin: two slightly detuned bowed tones through a body resonance, with a slow bow attack,
-// a small scoop into each note and vibrato that only blooms once the note is held.
-function violin(freq, when, dur, vol = 0.045) {
-  const end = when + dur;
+// A felt piano: a soft hammer, a few gently decaying partials and a muffled tone that darkens as it rings.
+function piano(freq, when, vol = 0.05, len = 3.2, pan = 0.2) {
   const g = ctx.createGain();
   g.gain.setValueAtTime(0, when);
-  g.gain.linearRampToValueAtTime(vol * 0.7, when + 0.35);
-  g.gain.linearRampToValueAtTime(vol, when + Math.min(dur * 0.6, 1.4));
-  g.gain.setValueAtTime(vol, Math.max(when + 0.4, end - 0.5));
-  g.gain.linearRampToValueAtTime(0, end + 0.6);
-  const vib = ctx.createOscillator(), vibAmt = ctx.createGain();
-  vib.frequency.value = 5.4;
-  vibAmt.gain.setValueAtTime(0, when);
-  vibAmt.gain.linearRampToValueAtTime(0, when + 0.45);
-  vibAmt.gain.linearRampToValueAtTime(freq * 0.009, when + Math.min(dur, 1.6));
-  vib.connect(vibAmt);
-  const body = ctx.createBiquadFilter();
-  body.type = "peaking";
-  body.frequency.value = 2400;
-  body.Q.value = 1.2;
-  body.gain.value = 7;
+  g.gain.linearRampToValueAtTime(vol, when + 0.012);
+  g.gain.exponentialRampToValueAtTime(vol * 0.35, when + 0.6);
+  g.gain.exponentialRampToValueAtTime(0.0001, when + len);
   const lp = ctx.createBiquadFilter();
   lp.type = "lowpass";
-  lp.frequency.setValueAtTime(1400, when);
-  lp.frequency.linearRampToValueAtTime(3600, when + 0.6);
-  const hp = ctx.createBiquadFilter();
-  hp.type = "highpass";
-  hp.frequency.value = 220;
-  for (const det of [-4, 5]) {
-    const o = ctx.createOscillator();
-    o.type = "sawtooth";
-    o.frequency.setValueAtTime(freq * 0.985, when);                 // the scoop up into the note
-    o.frequency.exponentialRampToValueAtTime(freq, when + 0.22);
+  lp.Q.value = 0.5;
+  lp.frequency.setValueAtTime(Math.min(3200, freq * 6), when);
+  lp.frequency.exponentialRampToValueAtTime(Math.max(500, freq * 1.5), when + len * 0.6);
+  for (const [r, a, det] of [[1, 1, -3], [1, 0.6, 3], [2, 0.32, 0], [3, 0.1, 0], [4.02, 0.04, 0]]) {
+    const o = ctx.createOscillator(), og = ctx.createGain();
+    o.type = "sine";
+    o.frequency.value = freq * r;
     o.detune.value = det;
-    vibAmt.connect(o.frequency);
-    o.connect(lp);
+    og.gain.value = a;
+    o.connect(og).connect(lp);
     o.start(when);
-    o.stop(end + 0.7);
+    o.stop(when + len + 0.05);
   }
-  vib.start(when);
-  vib.stop(end + 0.7);
   const p = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-  const out = lp.connect(hp).connect(body).connect(g);
-  if (p) { p.pan.value = -0.25; out.connect(p).connect(amb); } else out.connect(amb);
+  if (p) { p.pan.value = pan; lp.connect(g).connect(p).connect(amb); } else lp.connect(g).connect(amb);
+}
+
+// A warm pad, like strings or a hummed choir far off: soft detuned tones that swell into each chord
+// and overlap into the next, so the harmony never drops away.
+function warmPad(notes, when, dur) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(0.016, when + dur * 0.45);
+  g.gain.setValueAtTime(0.016, when + dur * 0.8);
+  g.gain.linearRampToValueAtTime(0, when + dur + 0.9);
+  const lp = ctx.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.value = 1100;
+  lp.Q.value = 0.3;
+  for (const n of notes) {
+    for (const det of [-7, 7]) {
+      const o = ctx.createOscillator();
+      o.type = "triangle";
+      o.frequency.value = NOTE(n);
+      o.detune.value = det;
+      o.connect(lp);
+      o.start(when);
+      o.stop(when + dur + 1);
+    }
+  }
+  lp.connect(g).connect(amb);
+}
+
+// The voice a sixth or third below a melody note, from the bar's chord.
+function harmonyBelow(n, tones) {
+  const cands = tones.flatMap(t => [t - 12, t, t + 12]).filter(t => n - t >= 3 && n - t <= 9);
+  return cands.length ? Math.max(...cands) : 0;
 }
 
 function heartbeat(when, vol) {
@@ -340,18 +352,25 @@ function songBarAt(t) {
   if (i === 0) {
     // a new round: choose who sings it
     const r = Math.random();
-    songVoice = songBar === 0 || r < 0.4 ? "violin" : r < 0.65 ? "flute" : r < 0.85 ? "box" : "harp";
+    songVoice = songBar === 0 || r < 0.4 ? "piano" : r < 0.65 ? "flute" : r < 0.85 ? "box" : "harp";
     melodyOn = songVoice !== "harp";
   }
   const [bass, tones] = PROG[i];
   pluck(NOTE(bass), t, 0.07, BAR * 0.95, -0.1);
   const arp = [tones[0], tones[1], tones[2], tones[0] + 12, tones[2], tones[1], tones[0], tones[1]];
   arp.forEach((n, k) => pluck(NOTE(n - 12), t + k * BEAT / 2, k % 2 ? 0.022 : 0.03, 1.4, 0.35));
+  warmPad([...new Set([bass + 12, ...tones.map(n => n - 12)])], t, BAR);
   heartbeat(t, 0.12);
   heartbeat(t + BEAT * 2, 0.08);
-  if (songVoice === "violin") {
+  if (songVoice === "piano") {
     let x = t;
-    for (const [n, b] of VIOLIN[i]) { violin(NOTE(n), x, b * BEAT); x += b * BEAT; }
+    for (const [n, b] of PIANO[i]) {
+      const len = Math.max(2.2, b * BEAT * 2.5);
+      piano(NOTE(n), x, 0.05, len);
+      const h = b >= 2 && harmonyBelow(n, tones);
+      if (h) piano(NOTE(h), x + 0.03, 0.026, len, 0.05);
+      x += b * BEAT;
+    }
   } else if (melodyOn) {
     let x = t;
     for (const [n, b] of MELODY[i]) {
