@@ -3,7 +3,7 @@
 // Player choices go through an async chooser: { rootTarget(s, stonyOk, targets), bloomTarget(s, targets), wantInscribe(s, cid) }.
 
 import {
-  CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, TILES, LANTERN, STANDARD_LANTERN, GHOST, MANTLES,
+  CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, TILES, LANTERN, STANDARD_LANTERN, MIST_EXTRA, GHOST, MANTLES,
   OBS, ACC, OBL, FERTILE, STONY, MEMORY, GRAVE, TILE_NAMES, TAG_NAMES, REACH_NAMES,
 } from "./cards.js";
 
@@ -84,7 +84,7 @@ export function newGame(cfg, seed = (Math.random() * 2 ** 31) | 0, names = []) {
   s.mist = [0, 1, 2].map(r => {
     const d = MIST[r].map(m => m);
     for (let i = 0; i < cfg.harshPerReach && harsh.length; i++) d.push(HARSH[harsh.pop()]);
-    for (let i = 0; i < cfg.extraMist; i++) d.push(i % 2 === 0 ? ["Rising Water", [["bw", 2]]] : ["Grievance Drawn Near", [["grv_near"]]]);
+    for (let i = 0; i < cfg.extraMist; i++) d.push(MIST_EXTRA[i % 2]);
     return shuffle(s, d);
   });
   s.reach = 0;

@@ -14,7 +14,7 @@ FIXED = {
     "# Netherbloom Simulator — Balance Report": "# Netherbloom（暫定中文名：彼岸花渡）模擬器——平衡報告",
     "## 1. Player counts (Standard Lantern, Open Crossing)": "## 1. 玩家人數（標準燈籠，無名渡河）",
     "| Players | Win rate | Loss split Faded / Shattered / Deluge | Turns (mean) | Turns per Reach I/II/III | Tracks half-full (of 3) | Near-miss wins | Backlash per Reach |":
-        "| 玩家人數 | 勝率 | 落敗原因分布 消散／破碎／滅頂 | 回合數（平均） | 各河段回合數 第一／第二／第三 | 半滿的絲線數（共 3 條） | 驚險勝利 | 每河段反噬次數 |",
+        "| 玩家人數 | 勝率 | 落敗原因分布 消散／破碎／滅頂 | 回合數（平均） | 各河段回合數 第一／第二／第三 | 半滿的落敗軌道數（共 3 條） | 驚險勝利 | 每河段反噬次數 |",
     "## 2. Before and after tuning (GDD v0.4 as written)": "## 2. 調整前後對照（依原文撰寫的 GDD v0.4）",
     "| Players | As written: win | As written: loss split F/S/D | As written: turns | Tuned: win | Tuned: loss split | Tuned: turns |":
         "| 玩家人數 | 原版：勝率 | 原版：落敗原因分布 消／破／滅 | 原版：回合數 | 調整後：勝率 | 調整後：落敗原因分布 | 調整後：回合數 |",

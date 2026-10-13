@@ -1,7 +1,7 @@
 // The searchable Rulebook and the Player Aid sheet. Card and Mist tables are built from cards.js,
 // so the reference always matches the cards the engine plays.
 import {
-  CARDS, TAG_NAMES, TAG_ICONS, MANTLES, SOULS, FIRST_SOUL, LANTERN, LANTERN_NAMES, lanternIcon, MIST, HARSH, MIST_TEXT, opsText, GHOST,
+  CARDS, TAG_NAMES, TAG_ICONS, MANTLES, SOULS, FIRST_SOUL, LANTERN, LANTERN_NAMES, lanternIcon, limitRange, MIST, HARSH, MIST_TEXT, opsText, GHOST,
 } from "./cards.js";
 
 import { zh } from "./i18n.js";
@@ -284,7 +284,7 @@ export const RULEBOOK = [
 export const rulebook = () => (zh() ? RULEBOOK_ZH : RULEBOOK);
 export function playerAid(cfg) {
   if (zh()) return playerAidZh(cfg);
-  const lim = cfg ? cfg.forgottenLimit : "10–14", cap = cfg ? cfg.karmaCap : "4–5", ash = cfg ? cfg.ashAt : 6, adrift = cfg ? (cfg.adriftAt < 99 ? cfg.adriftAt : "never") : 9;
+  const lim = cfg ? cfg.forgottenLimit : limitRange(), cap = cfg ? cfg.karmaCap : "4–5", ash = cfg ? cfg.ashAt : 6, adrift = cfg ? (cfg.adriftAt < 99 ? cfg.adriftAt : "never") : 9;
   return `
   <section class="aid">
     <h3>On your turn</h3>

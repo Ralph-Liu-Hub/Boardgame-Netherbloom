@@ -1,7 +1,7 @@
 // 規則書與玩家輔助卡（正體中文，台灣桌遊用語）。結構與 rules.js 相同；卡牌、迷霧、燈籠與幽靈表格
 // 直接由 cards.js 與 zh.js 產生，因此無論目前介面語言為何，這裡的表格一律是中文。
 import {
-  CARDS, TAG_ICONS, MANTLES, FIRST_SOUL, LANTERN, lanternIcon, MIST, HARSH, GHOST,
+  CARDS, TAG_ICONS, MANTLES, FIRST_SOUL, LANTERN, lanternIcon, limitRange, MIST, HARSH, GHOST,
 } from "./cards.js";
 import { ZH_LANTERNS, ZH_TAGS, ZH_CARD_NAMES, ZH_SOULS, ZH_MIST, ZH_MANTLES, ZH_REACHES, ZH_TILES, ZH_BANDS, zhOpsText } from "./zh.js";
 
@@ -282,7 +282,7 @@ export const RULEBOOK_ZH = [
 
 // 單頁玩家輔助卡。遊戲進行中時，顯示該局的數值。
 export function playerAidZh(cfg) {
-  const lim = cfg ? cfg.forgottenLimit : "10–14", cap = cfg ? cfg.karmaCap : "4–5", ash = cfg ? cfg.ashAt : 6, adrift = cfg ? (cfg.adriftAt < 99 ? cfg.adriftAt : "永不") : 9;
+  const lim = cfg ? cfg.forgottenLimit : limitRange(), cap = cfg ? cfg.karmaCap : "4–5", ash = cfg ? cfg.ashAt : 6, adrift = cfg ? (cfg.adriftAt < 99 ? cfg.adriftAt : "永不") : 9;
   return `
   <section class="aid">
     <h3>你的回合</h3>
