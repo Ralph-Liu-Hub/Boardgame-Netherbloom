@@ -50,7 +50,7 @@ function leftPage(i) {
       <div class="bk-kicker">${L("Here is written", "此處記載")}</div>
       <h1>${L("The Book of<br>Remembrance", "憶念之書")}</h1>
       <div class="bk-theatre portrait" data-mode="portrait"></div>
-      <div class="bk-of">${L("of", "獻給")}</div>
+      <div class="bk-of">${L("of", "屬於")}</div>
       <h2>${esc(soul.name)}</h2>
       <p class="bk-blurb">${esc(soul.blurb)}</p>
       <div class="bk-imprint">${L("Lantern", "燈籠")} ${esc(lanternName(S.cfg.lantern))} · ${S.names.map(n => esc(pname(n))).join(L(", ", "、"))}</div>
@@ -91,7 +91,7 @@ function rightPage(i) {
       <ol>${[0, 1, 2].map(r => `<li data-go="${r + 1}"><span class="n">${ROMAN[r]}</span><span class="t">${titles()[r]}</span><span class="dots"></span>
         <span class="c">${filled(r)}/4${S.blessed[r] ? use("nb-seal") : ""}</span></li>`).join("")}
         ${S.result ? `<li data-go="4"><span class="n">·</span><span class="t">${L("Epilogue", "尾聲")}</span><span class="dots"></span><span class="c"></span></li>` : ""}</ol>
-      <p class="bk-note">${L("Memories are written here when a card Resonates with the Echo, or when a Key Memory is played. Three memories on a page bring a Chapter Blessing.", "當一張牌與迴響產生共鳴，或打出關鍵記憶時，記憶就會被寫在這裡。一頁寫滿三段記憶，便會帶來章節祝福。")}</p>
+      <p class="bk-note">${L(`Memories are written here when a card Resonates with the Echo, or when a Key Memory is played. ${S.cfg.blessingAt} memories on a page bring a Chapter Blessing.`, `當一張牌與迴響產生共鳴，或打出關鍵記憶時，記憶就會被寫在這裡。一頁寫滿${S.cfg.blessingAt}段記憶，便會帶來章節祝福。`)}</p>
       ${vignette()}
     </div>`;
   }

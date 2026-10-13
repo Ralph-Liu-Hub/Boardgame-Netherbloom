@@ -13,6 +13,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 
+from netherbloom.cards import LANTERN_NAMES  # noqa: E402
 from netherbloom.engine import Config  # noqa: E402
 from netherbloom.game import play_game  # noqa: E402
 
@@ -26,7 +27,7 @@ def symbols():
 def build(players, seed, soul="open", lantern=2):
     cfg = Config(players=players, seed=seed, soul=soul, lantern=lantern)
     s = play_game(cfg, record=True)
-    game = {"players": players, "seed": seed, "soul": soul, "lantern": lantern, "snaps": s.snaps,
+    game = {"players": players, "seed": seed, "soul": soul, "lantern": lantern, "lantern_name": LANTERN_NAMES[lantern], "snaps": s.snaps,
             "karma_cap": cfg.karma_cap, "forgotten_limit": cfg.forgotten_limit, "ash_at": cfg.ash_at,
             "adrift_at": cfg.adrift_at, "bw_supply": cfg.bw_supply}
     page = open(os.path.join(HERE, "template.html"), encoding="utf-8").read()

@@ -244,7 +244,7 @@ document.addEventListener("keydown", e => { if (e.key === "ArrowRight") go(i + 1
 const last = snaps[snaps.length - 1];
 $("summary").innerHTML = [
   `<span><b>${GAME.players}</b> players</span>`, `<span>Mode <b>${GAME.soul === "open" ? "Open Crossing" : GAME.soul}</b></span>`,
-  `<span>Lantern <b>${GAME.lantern}</b></span>`, `<span>Seed <b>${GAME.seed}</b></span>`,
+  `<span>Lantern <b>${GAME.lantern_name || GAME.lantern}</b></span>`, `<span>Seed <b>${GAME.seed}</b></span>`,
   `<span>Result <b>${last.result === "win" ? "Win" : "Loss (" + last.cause + ")"}</b> in ${last.turn} turns</span>`
 ].join("");
 go(snaps.length - 1);

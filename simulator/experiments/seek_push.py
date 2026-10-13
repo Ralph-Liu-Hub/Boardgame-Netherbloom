@@ -8,8 +8,8 @@ RULES = {
     "push (harsh)": dict(push_through="harsh", seek=False),
     "push + Seek": dict(push_through="harsh", seek=True),
 }
-CELLS = [(p, soul, lan) for p in (1, 2, 3, 4) for soul in ("open",) for lan in (3,)] + \
-        [(3, soul, lan) for soul in ("child", "king", "garland", "bride") for lan in (2, 3)] + [(3, "open", 2)]
+CELLS = [(p, soul, lan) for p in (1, 2, 3, 4) for soul in ("open",) for lan in (2,)] + \
+        [(3, soul, lan) for soul in ("child", "king", "garland", "bride") for lan in (1, 2)] + [(3, "open", 2)]
 
 
 def job(a):

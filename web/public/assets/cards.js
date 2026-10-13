@@ -207,7 +207,7 @@ export function opText(op) {
     case "mend": return `Mend ${plural(op[1], "Fracture")}`;
     case "release": return `Untie ${plural(op[1], "knot")} on the fullest thread`;
     case "guide": return "The soul steps forward now, if the next space is Lit";
-    case "vigil": return "Read the top 3 Mist cards and bury the worst";
+    case "vigil": return "Read the top 3 Mist cards and put the worst of them last";
     case "banish_or_drain": return "Banish the nearest Grievance or drain the nearest Black Water";
     case "banish": return "Banish the nearest Grievance";
     case "drain": return "Drain the nearest Black Water";
@@ -226,7 +226,7 @@ export const MIST_TEXT = {
   "Rising Water": "Black Water floods the river ahead.",
   "Grievance": "A Grievance takes a bank ahead.",
   "Grievance Drawn Near": "A Grievance settles beside the soul.",
-  "Withering": "The furthest Blooms ahead wither to Roots.",
+  "Withering": "The 2 furthest Blooms ahead wither to Roots.",
   "Great Withering": "Three Blooms ahead wither to Roots.",
   "Fog Returns": "Fog rolls back over empty ground.",
   "Cold Wind": "A memory is forgotten.",

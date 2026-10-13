@@ -98,7 +98,7 @@ const ZH_MSG = {
   bless_glow: () => "章節祝福：書頁發出光芒。",
   bringer: () => "引花人讓一朵花綻放。",
   reach: r => `亡魂進入第${"一二三"[r]}河段：${reachName(r)}。命運織機已清空。`,
-  resign: () => "釋懷反噬：亡魂在蘆葦間坐了下來。",
+  resign: () => "認命：亡魂在蘆葦間坐了下來。",
   wardenDrift: () => "守魂者拉住了漂離的亡魂。",
   adrift: () => "漂離：遺忘了太多，亡魂漂進了黑暗。",
   ash: () => "輕如灰燼：變輕的亡魂又滑行了一格。",
@@ -107,15 +107,15 @@ const ZH_MSG = {
   waitLit: () => "前方一片黑暗。亡魂在自己的光旁等待。",
   bridePull: () => "她在黑暗中回頭，被拉回了一格，靠近生者的世界。",
   linger: () => "亡魂在黑暗中徘徊，並遺忘了一些事。",
-  push: (n = 1) => `亡魂穿過了怨念。它們四散而去，卻也傷了亡魂：${n}道裂痕。`,
+  push: (n = 1) => `亡魂強行穿過了怨念。它們四散而去，卻也傷了亡魂：${n}道裂痕。`,
   seek: p => `${pname(p)}尋覓：棄掉一張牌，抽一張牌。`,
-  feed: () => "一個怨念啃食著亡魂。",
+  feed: () => "一個怨念啃噬著亡魂。",
   mist: n => mistName(n),
-  drink: sp => `兩岸的根喝乾了第${sp}格的洪水。`,
+  drink: sp => `兩岸的根吸乾了第${sp}格的洪水。`,
   trapped: k => `被花朵包夾，${bankZh(k)}的怨念在光中消融。`,
   ghost: (tag, act) => `幽靈打出${tagName(tag)}：${GHOST_ZH[act]}。`,
 };
-const BACKLASH_ZH = ["執著：一個怨念撲向亡魂。", "放棄：亡魂將坐下並徘徊。", "潮水上漲：黑水淹沒前方。"];
+const BACKLASH_ZH = ["攫取：一個怨念撲向亡魂。", "認命：亡魂將坐下並徘徊。", "漲潮：黑水淹沒前方。"];
 const GHOST_ZH = { root_far: "在遠方扎根", root_near: "在近處扎根", bloom_near: "使最近的根綻放", bloom_far: "使最遠的根綻放", banish_forget: "清出道路", none: "靜靜地飄過" };
 
 // Text for a log entry or event in the current language.

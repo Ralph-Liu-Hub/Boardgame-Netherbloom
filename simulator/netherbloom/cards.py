@@ -153,7 +153,7 @@ SOULS = {
 # ---------------------------------------------------------------- Mist
 # Placement ops are relative to S, the soul's space.
 #   ("bw", k)                 Black Water on S+k
-#   ("grv", k, bank)          Grievance on S+k, bank 0 (upper) / 1 (lower)
+#   ("grv", k, bank)          Grievance on S+k, bank 0 (left) / 1 (right)
 #   ("grv_near",)             Grievance on the nearest empty bank slot beside the soul
 #   ("wither", n)             flip the n furthest Blooms ahead to Roots
 #   ("wither_far", d)         every Bloom more than d spaces ahead becomes a Root

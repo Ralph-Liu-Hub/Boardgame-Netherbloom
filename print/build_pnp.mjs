@@ -37,11 +37,30 @@ function memoryCard(cid, pack) {
     <div class="foot"><span>${pack}</span><span>${c.id}</span></div></div>`;
 }
 
-function mistCard(name, label, harsh) {
+// What a Mist card does, for play on paper. S is the soul's space; "ahead k" is space S+k.
+function mistOpZh(op) {
+  switch (op[0]) {
+    case "bw": return `在亡魂前方第${op[1]}格放置1個黑水（該格已淹沒則放在下一格）`;
+    case "grv": return `在亡魂前方第${op[1]}格的${op[2] ? "右岸" : "左岸"}放置1個怨念`;
+    case "grv_near": return "在亡魂所在格放置1個怨念（左岸優先；兩岸都有時，放在下一格的左岸）";
+    case "wither": return `亡魂前方最遠的${op[1]}朵花凋零為根`;
+    case "wither_far": return `亡魂前方第${op[1]}格以外的所有花凋零為根`;
+    case "wither_at": return `亡魂前方第${op[1]}格的花凋零為根`;
+    case "fog": return `前方最遠的${op[1]}個已掀開且空著的河岸重新蓋上霧`;
+    case "forget": return `遺忘牌庫頂的${op[1]}張牌`;
+    case "sever": return "將迴響從織機上移除";
+    case "karma_all": return "每條絲線各打1個結";
+    case "dark_wind": return "失去2點光；光不足2點時，改為承受1道裂痕";
+  }
+  return op[0];
+}
+
+function mistCard([name, ops], label, harsh) {
   const [zn, zt] = ZH_MIST[name];
+  const rule = ops.length ? ops.map(mistOpZh).join("；") + "。" : "沒有任何效果。";
   return `<div class="card mist ${harsh ? "harsh" : ""}">
     <div class="kick">${harsh ? "凶霧" : "迷霧"}</div>${icon("nb-fog", "big")}
-    <div class="nm c">${esc(zn)}</div><div class="eff c">${esc(zt)}</div>
+    <div class="nm c">${esc(zn)}</div><div class="eff c"><i>${esc(zt)}</i></div><div class="eff">${esc(rule)}</div>
     <div class="foot"><span>${label}</span><span></span></div></div>`;
 }
 
@@ -139,8 +158,8 @@ const memory = [
   ...Object.entries(SOUL_PACKS).flatMap(([k, ids]) => ids.map(i => memoryCard(i, SOUL_PACK_NAME(k)))),
 ];
 const mist = [
-  ...MIST.flatMap((deck, r) => [...deck, ...MIST_EXTRA].map(([n]) => mistCard(n, `第${NUM[r]}河段`, false))),
-  ...HARSH.map(([n]) => mistCard(n, "凶霧", true)),
+  ...MIST.flatMap((deck, r) => [...deck, ...MIST_EXTRA].map(m => mistCard(m, `第${NUM[r]}河段`, false))),
+  ...HARSH.map(m => mistCard(m, "凶霧", true)),
 ];
 const html = `<!doctype html><html lang="zh-Hant-TW"><head><meta charset="utf-8"><title>Netherbloom 正體中文 印刷試玩配件</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=Noto+Serif+TC:wght@400;600;700&family=LXGW+WenKai+TC&display=block">

@@ -180,7 +180,7 @@ function menu(which = "solo") {
   document.querySelectorAll("[data-lantern]").forEach(b => b.onclick = () => { setup.lantern = +b.dataset.lantern; store("nb-setup", setup); menu(which); });
   const [bw, lim, harsh] = LANTERN[setup.lantern];
   $("lanhelp").textContent = L(`${lanternName(setup.lantern)}${setup.lantern === STANDARD_LANTERN ? " (the game as designed)" : ""}: ${bw} Black Water in the supply, Faded at ${lim} forgotten, ${harsh} harsh Mist card${harsh === 1 ? "" : "s"} per Reach.`,
-    `${lanternName(setup.lantern)}燈籠${setup.lantern === STANDARD_LANTERN ? "（遊戲的標準難度）" : ""}：黑水供應${bw}個，遺忘${lim}張時消散，每個河段${harsh}張凶霧。`);
+    `${lanternName(setup.lantern)}燈籠${setup.lantern === STANDARD_LANTERN ? "（遊戲設計的本來面貌）" : ""}：黑水供應${bw}個，遺忘${lim}張時消散，每個河段${harsh}張凶霧。`);
   const mp = $("modepanel");
   if (which === "solo") {
     mp.innerHTML = `<h2>${L("Solo", "單人模式")}</h2><div class="form"><label class="field"><span>${L("Your name", "你的名字")}</span><input id="nm0" maxlength="18" value="${esc(setup.names[0])}" placeholder="${L("Player 1", "玩家1")}"></label></div>
@@ -850,13 +850,13 @@ function flyCard(cid) {
 // Lights the step the active player is on. While the end-of-turn animations play, it follows them
 // (Soul Step, then the Mist, then the draw) before moving on to the next player's first card.
 const GUIDE = [
-  ["summon", "Summon", "optional · before your first card", "召喚", "選擇性 · 在第一張牌之前"],
+  ["summon", "Summon", "optional · before your first action", "召喚", "可選 · 在第一個行動之前"],
   ["card1", "First action", "a card matching the Echo Resonates", "第一個行動", "與迴響相同的牌產生共鳴"],
   ["card2", "Second action", "play a card, or Seek once a turn", "第二個行動", "打出一張牌，或每回合尋覓一次"],
   ["bringer", "Bloom-Bringer", "free Bloom", "引花人", "免費綻放"],
   ["soul", "Soul Step", "move if the next space is Lit", "亡魂步驟", "下一格被照亮就前進"],
   ["mist", "The Mist", "one card from this Reach", "迷霧", "翻開本河段的一張牌"],
-  ["draw", "Settle and draw", "refill your hand", "結算與抽牌", "補滿手牌"],
+  ["draw", "Settle and draw", "refill your hand", "平息並抽牌", "補滿手牌"],
 ];
 
 function guideState() {
@@ -882,7 +882,7 @@ function guideHint() {
   if (S.result) return S.result === "win" ? L("The crossing is complete. Open the Book to read the soul's story.", "渡河完成。翻開書本，讀讀亡魂的故事。")
     : L("The crossing has failed. Open the Book to read what was kept.", "渡河失敗了。翻開書本，看看留下了什麼。");
   const anim = guideStep && S.played === 0 && !pending && !busy;
-  if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。");
+  if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers. If Grievances hold both banks ahead, it pushes through them.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。若前方兩岸都被怨念佔據，它會強行穿過。");
   if (anim && guideStep === "mist") return L("The Mist turns a card for this Reach.", "迷霧為本河段翻開一張牌。");
   if (anim && guideStep === "draw") return L("The river settles and hands are refilled.", "河面平靜下來，玩家補滿手牌。");
   const who = esc(pname(S.names[S.cur]));

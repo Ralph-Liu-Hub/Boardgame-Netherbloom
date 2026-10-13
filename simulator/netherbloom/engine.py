@@ -1,7 +1,7 @@
 """Rules engine for Netherbloom (GDD v0.4).
 
 The state is plain lists and ints so that the AI can clone it cheaply.
-Bank slots are indexed slot = space * 2 + bank for spaces 1..11 (bank 0 upper, 1 lower).
+Bank slots are indexed slot = space * 2 + bank for spaces 1..11 (bank 0 left, 1 right; the left bank is drawn above the river).
 """
 import random
 
