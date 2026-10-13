@@ -620,14 +620,15 @@ function blockedByGrievances(s) {
   const sp = s.soul + 1;
   return sp >= 1 && sp <= 11 && !s.flooded[sp] && s.griev[sp * 2] && s.griev[sp * 2 + 1];
 }
-// Push through the shades: both Grievances scatter, the soul steps forward, and it pays with a Fracture and a memory.
+// Push through the shades: both Grievances scatter, the soul steps forward, and it pays with a memory and a
+// Fracture. Each push already made this game adds another Fracture, so a second push is close to fatal.
 function pushThrough(s) {
-  const sp = s.soul + 1;
+  const sp = s.soul + 1, wounds = 1 + (s.stats.pushes || 0);
   s.griev[sp * 2] = s.griev[sp * 2 + 1] = false;
-  s.stats.pushes = (s.stats.pushes || 0) + 1;
-  note(s, "push", "The soul pushes through the Grievances. They scatter, but they wound it.", { sp, m: ["push"] });
+  s.stats.pushes = wounds;
+  note(s, "push", `The soul pushes through the Grievances. They scatter, but they wound it: ${wounds} Fracture${wounds > 1 ? "s" : ""}.`, { sp, m: ["push", wounds] });
   moveSoul(s, 1);
-  addFracture(s);
+  for (let i = 0; i < wounds; i++) addFracture(s);
   forgetTop(s, 1);
 }
 

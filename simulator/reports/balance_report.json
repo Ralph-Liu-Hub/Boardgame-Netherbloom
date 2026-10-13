@@ -6,35 +6,35 @@
   },
   "summary": {
    "games": 1000,
-   "win_rate": 0.629,
+   "win_rate": 0.624,
    "loss_causes": {
-    "Faded": 0.3288409703504043,
-    "Deluge": 0.38544474393531,
-    "Shattered": 0.2857142857142857
+    "Faded": 0.31117021276595747,
+    "Deluge": 0.3829787234042553,
+    "Shattered": 0.3058510638297872
    },
-   "turns_mean": 14.19,
-   "turns_win_mean": 12.91891891891892,
+   "turns_mean": 14.172,
+   "turns_win_mean": 12.932692307692308,
    "turns_by_reach": [
     6.4,
     5.7,
     2.1
    ],
-   "near_miss_wins": 0.2702702702702703,
+   "near_miss_wins": 0.2676282051282051,
    "tracks_half_full": 1.86,
    "backlash_per_reach": [
     1.15,
     1.13,
     0.23
    ],
-   "resonance_rate": 0.45156083401824987,
+   "resonance_rate": 0.45133418534013064,
    "inscriptions": 4.754,
    "full_pages": 0.178,
-   "keepsakes": 5.304,
-   "burns": 1.507,
-   "lingers": 5.093,
+   "keepsakes": 5.294,
+   "burns": 1.502,
+   "lingers": 5.087,
    "summons": 1,
-   "oblivion_played": 2.767,
-   "final_forgotten": 8.173,
+   "oblivion_played": 2.76,
+   "final_forgotten": 8.141,
    "endings": null
   }
  },
@@ -70,7 +70,7 @@
     3.7,
     1.4
    ],
-   "near_miss_wins": 0.3282442748091603,
+   "near_miss_wins": 0.3320610687022901,
    "tracks_half_full": 1.24,
    "backlash_per_reach": [
     0.89,
@@ -96,35 +96,35 @@
   },
   "summary": {
    "games": 1000,
-   "win_rate": 0.664,
+   "win_rate": 0.654,
    "loss_causes": {
-    "Shattered": 0.42857142857142855,
-    "Deluge": 0.3333333333333333,
-    "Faded": 0.23809523809523808
+    "Shattered": 0.4479768786127168,
+    "Deluge": 0.3236994219653179,
+    "Faded": 0.22832369942196531
    },
-   "turns_mean": 14.443,
-   "turns_win_mean": 13.569277108433734,
+   "turns_mean": 14.412,
+   "turns_win_mean": 13.513761467889909,
    "turns_by_reach": [
     6.9,
     5.3,
     2.2
    ],
-   "near_miss_wins": 0.38403614457831325,
-   "tracks_half_full": 1.96,
+   "near_miss_wins": 0.39602446483180426,
+   "tracks_half_full": 1.97,
    "backlash_per_reach": [
     0.52,
     0.33,
     0.07
    ],
-   "resonance_rate": 0.36801003647192293,
-   "inscriptions": 4.041,
-   "full_pages": 0.061,
-   "keepsakes": 5.503,
-   "burns": 1.775,
-   "lingers": 5.14,
+   "resonance_rate": 0.36819890968934876,
+   "inscriptions": 4.029,
+   "full_pages": 0.063,
+   "keepsakes": 5.498,
+   "burns": 1.778,
+   "lingers": 5.138,
    "summons": 1.997,
-   "oblivion_played": 2.727,
-   "final_forgotten": 8.014,
+   "oblivion_played": 2.732,
+   "final_forgotten": 7.998,
    "endings": null
   }
  },
@@ -148,34 +148,34 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.808,
+   "win_rate": 0.804,
    "loss_causes": {
-    "Shattered": 0.23958333333333334,
-    "Faded": 0.7604166666666666
+    "Shattered": 0.24489795918367346,
+    "Faded": 0.7551020408163265
    },
-   "turns_mean": 10.432,
-   "turns_win_mean": 10.118811881188119,
+   "turns_mean": 10.426,
+   "turns_win_mean": 10.109452736318408,
    "turns_by_reach": [
     4.9,
     3.6,
     2.0
    ],
-   "near_miss_wins": 0.2301980198019802,
-   "tracks_half_full": 1.13,
+   "near_miss_wins": 0.236318407960199,
+   "tracks_half_full": 1.14,
    "backlash_per_reach": [
     0.26,
-    0.08,
+    0.09,
     0.01
    ],
-   "resonance_rate": 0.4543695027195027,
-   "inscriptions": 3.75,
+   "resonance_rate": 0.45471798756798754,
+   "inscriptions": 3.748,
    "full_pages": 0.038,
-   "keepsakes": 5.51,
+   "keepsakes": 5.506,
    "burns": 3.762,
-   "lingers": 1.68,
+   "lingers": 1.682,
    "summons": 2,
-   "oblivion_played": 2.366,
-   "final_forgotten": 8.612,
+   "oblivion_played": 2.368,
+   "final_forgotten": 8.608,
    "endings": null
   }
  },
@@ -186,35 +186,35 @@
   },
   "summary": {
    "games": 1000,
-   "win_rate": 0.64,
+   "win_rate": 0.626,
    "loss_causes": {
-    "Shattered": 0.35555555555555557,
-    "Deluge": 0.35833333333333334,
-    "Faded": 0.2861111111111111
+    "Shattered": 0.3877005347593583,
+    "Deluge": 0.34759358288770054,
+    "Faded": 0.2647058823529412
    },
-   "turns_mean": 14.804,
-   "turns_win_mean": 14.2,
+   "turns_mean": 14.792,
+   "turns_win_mean": 14.138977635782748,
    "turns_by_reach": [
     7.1,
     5.6,
     2.1
    ],
-   "near_miss_wins": 0.4171875,
-   "tracks_half_full": 2.02,
+   "near_miss_wins": 0.42012779552715657,
+   "tracks_half_full": 2.03,
    "backlash_per_reach": [
     0.55,
     0.35,
     0.05
    ],
-   "resonance_rate": 0.3688413241448704,
-   "inscriptions": 4.185,
-   "full_pages": 0.081,
-   "keepsakes": 5.515,
+   "resonance_rate": 0.3682662704235756,
+   "inscriptions": 4.16,
+   "full_pages": 0.078,
+   "keepsakes": 5.495,
    "burns": 1.797,
-   "lingers": 5.018,
-   "summons": 2.991,
-   "oblivion_played": 2.826,
-   "final_forgotten": 8.184,
+   "lingers": 5.064,
+   "summons": 2.989,
+   "oblivion_played": 2.828,
+   "final_forgotten": 8.145,
    "endings": null
   }
  },
@@ -238,34 +238,34 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.712,
+   "win_rate": 0.71,
    "loss_causes": {
-    "Faded": 0.8402777777777778,
-    "Shattered": 0.1597222222222222
+    "Faded": 0.8137931034482758,
+    "Shattered": 0.18620689655172415
    },
-   "turns_mean": 11.66,
-   "turns_win_mean": 11.176966292134832,
+   "turns_mean": 11.634,
+   "turns_win_mean": 11.177464788732394,
    "turns_by_reach": [
     5.3,
     4.3,
     2.1
    ],
-   "near_miss_wins": 0.28651685393258425,
+   "near_miss_wins": 0.28732394366197184,
    "tracks_half_full": 1.25,
    "backlash_per_reach": [
     0.23,
     0.17,
     0.03
    ],
-   "resonance_rate": 0.4383066205036793,
-   "inscriptions": 3.946,
-   "full_pages": 0.062,
-   "keepsakes": 5.526,
+   "resonance_rate": 0.43812500212206096,
+   "inscriptions": 3.936,
+   "full_pages": 0.06,
+   "keepsakes": 5.516,
    "burns": 3.726,
-   "lingers": 2.472,
+   "lingers": 2.462,
    "summons": 2.994,
-   "oblivion_played": 2.584,
-   "final_forgotten": 9.282,
+   "oblivion_played": 2.578,
+   "final_forgotten": 9.258,
    "endings": null
   }
  },
@@ -276,35 +276,35 @@
   },
   "summary": {
    "games": 1000,
-   "win_rate": 0.643,
+   "win_rate": 0.636,
    "loss_causes": {
-    "Faded": 0.2773109243697479,
-    "Deluge": 0.38375350140056025,
-    "Shattered": 0.3389355742296919
+    "Faded": 0.27197802197802196,
+    "Deluge": 0.37362637362637363,
+    "Shattered": 0.3543956043956044
    },
-   "turns_mean": 15.362,
-   "turns_win_mean": 14.811819595645412,
+   "turns_mean": 15.344,
+   "turns_win_mean": 14.816037735849056,
    "turns_by_reach": [
     7.0,
     6.0,
     2.4
    ],
-   "near_miss_wins": 0.3810264385692068,
-   "tracks_half_full": 2.01,
+   "near_miss_wins": 0.3915094339622642,
+   "tracks_half_full": 2.03,
    "backlash_per_reach": [
     0.24,
     0.21,
     0.04
    ],
-   "resonance_rate": 0.41301590829022966,
-   "inscriptions": 4.772,
-   "full_pages": 0.117,
-   "keepsakes": 5.543,
-   "burns": 1.922,
-   "lingers": 4.346,
-   "summons": 3.881,
-   "oblivion_played": 3.075,
-   "final_forgotten": 8.262,
+   "resonance_rate": 0.4128772981805326,
+   "inscriptions": 4.757,
+   "full_pages": 0.115,
+   "keepsakes": 5.532,
+   "burns": 1.919,
+   "lingers": 4.351,
+   "summons": 3.876,
+   "oblivion_played": 3.074,
+   "final_forgotten": 8.236,
    "endings": null
   }
  },
@@ -328,34 +328,34 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.58,
+   "win_rate": 0.576,
    "loss_causes": {
-    "Faded": 0.7142857142857143,
-    "Shattered": 0.2857142857142857
+    "Faded": 0.6981132075471698,
+    "Shattered": 0.3018867924528302
    },
-   "turns_mean": 12.83,
-   "turns_win_mean": 12.348275862068965,
+   "turns_mean": 12.826,
+   "turns_win_mean": 12.368055555555555,
    "turns_by_reach": [
     6.1,
     4.8,
     2.0
    ],
-   "near_miss_wins": 0.32413793103448274,
-   "tracks_half_full": 1.39,
+   "near_miss_wins": 0.3333333333333333,
+   "tracks_half_full": 1.4,
    "backlash_per_reach": [
     0.21,
-    0.11,
+    0.1,
     0.02
    ],
-   "resonance_rate": 0.4024157850147788,
-   "inscriptions": 3.928,
+   "resonance_rate": 0.40250930961882975,
+   "inscriptions": 3.922,
    "full_pages": 0.05,
-   "keepsakes": 5.38,
-   "burns": 3.514,
-   "lingers": 2.888,
-   "summons": 3.86,
-   "oblivion_played": 2.48,
-   "final_forgotten": 9.614,
+   "keepsakes": 5.368,
+   "burns": 3.524,
+   "lingers": 2.89,
+   "summons": 3.858,
+   "oblivion_played": 2.492,
+   "final_forgotten": 9.596,
    "endings": null
   }
  },
@@ -367,41 +367,41 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.502,
+   "win_rate": 0.49,
    "loss_causes": {
-    "Faded": 0.2971887550200803,
-    "Shattered": 0.3614457831325301,
-    "Deluge": 0.3413654618473896
+    "Faded": 0.2823529411764706,
+    "Shattered": 0.39215686274509803,
+    "Deluge": 0.3254901960784314
    },
-   "turns_mean": 15.222,
-   "turns_win_mean": 14.266932270916335,
+   "turns_mean": 15.146,
+   "turns_win_mean": 14.17142857142857,
    "turns_by_reach": [
     7.5,
-    5.6,
+    5.5,
     2.1
    ],
-   "near_miss_wins": 0.3745019920318725,
-   "tracks_half_full": 2.07,
+   "near_miss_wins": 0.3795918367346939,
+   "tracks_half_full": 2.08,
    "backlash_per_reach": [
     0.75,
     0.34,
     0.06
    ],
-   "resonance_rate": 0.3500320019827337,
-   "inscriptions": 4.29,
-   "full_pages": 0.078,
-   "keepsakes": 5.314,
-   "burns": 1.876,
-   "lingers": 5.776,
-   "summons": 3.7,
-   "oblivion_played": 2.874,
-   "final_forgotten": 8.534,
+   "resonance_rate": 0.35012750476287696,
+   "inscriptions": 4.264,
+   "full_pages": 0.076,
+   "keepsakes": 5.288,
+   "burns": 1.88,
+   "lingers": 5.748,
+   "summons": 3.67,
+   "oblivion_played": 2.87,
+   "final_forgotten": 8.49,
    "endings": {
     "forgotten/high": 44,
-    "inscribed/low": 59,
-    "inscribed/high": 71,
-    "unspoken/low": 20,
-    "unspoken/high": 44,
+    "inscribed/low": 58,
+    "inscribed/high": 69,
+    "unspoken/high": 42,
+    "unspoken/low": 19,
     "forgotten/low": 13
    }
   }
@@ -414,41 +414,41 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.578,
+   "win_rate": 0.574,
    "loss_causes": {
-    "Faded": 0.23696682464454977,
-    "Deluge": 0.4075829383886256,
-    "Shattered": 0.35545023696682465
+    "Faded": 0.2300469483568075,
+    "Deluge": 0.4084507042253521,
+    "Shattered": 0.3615023474178404
    },
-   "turns_mean": 14.976,
-   "turns_win_mean": 14.231833910034602,
+   "turns_mean": 14.962,
+   "turns_win_mean": 14.24390243902439,
    "turns_by_reach": [
     7.8,
     5.3,
     1.9
    ],
-   "near_miss_wins": 0.36678200692041524,
-   "tracks_half_full": 2.01,
+   "near_miss_wins": 0.37630662020905925,
+   "tracks_half_full": 2.02,
    "backlash_per_reach": [
     0.73,
     0.35,
     0.04
    ],
-   "resonance_rate": 0.37717335118230944,
-   "inscriptions": 4.674,
-   "full_pages": 0.138,
-   "keepsakes": 5.32,
-   "burns": 1.89,
-   "lingers": 5.634,
-   "summons": 2.722,
-   "oblivion_played": 2.722,
-   "final_forgotten": 8.292,
+   "resonance_rate": 0.3761662422781417,
+   "inscriptions": 4.66,
+   "full_pages": 0.132,
+   "keepsakes": 5.308,
+   "burns": 1.886,
+   "lingers": 5.644,
+   "summons": 2.716,
+   "oblivion_played": 2.714,
+   "final_forgotten": 8.258,
    "endings": {
     "inscribed/high": 101,
-    "unspoken/low": 37,
-    "inscribed/low": 60,
-    "unspoken/high": 35,
-    "forgotten/high": 40,
+    "unspoken/low": 36,
+    "inscribed/low": 59,
+    "unspoken/high": 36,
+    "forgotten/high": 39,
     "forgotten/low": 16
    }
   }
@@ -461,41 +461,41 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.436,
+   "win_rate": 0.422,
    "loss_causes": {
-    "Shattered": 0.40070921985815605,
-    "Faded": 0.21631205673758866,
-    "Deluge": 0.3829787234042553
+    "Shattered": 0.4359861591695502,
+    "Faded": 0.1903114186851211,
+    "Deluge": 0.3737024221453287
    },
-   "turns_mean": 16.478,
-   "turns_win_mean": 14.935779816513762,
+   "turns_mean": 16.352,
+   "turns_win_mean": 14.872037914691942,
    "turns_by_reach": [
     8.3,
-    6.1,
-    2.1
+    6.0,
+    2.0
    ],
-   "near_miss_wins": 0.44036697247706424,
-   "tracks_half_full": 2.18,
+   "near_miss_wins": 0.4549763033175355,
+   "tracks_half_full": 2.19,
    "backlash_per_reach": [
     0.79,
-    0.45,
+    0.44,
     0.06
    ],
-   "resonance_rate": 0.3564280632305112,
-   "inscriptions": 4.644,
-   "full_pages": 0.194,
-   "keepsakes": 5.256,
-   "burns": 1.89,
-   "lingers": 7.12,
-   "summons": 2.654,
-   "oblivion_played": 2.834,
-   "final_forgotten": 8.818,
+   "resonance_rate": 0.3570364210573989,
+   "inscriptions": 4.58,
+   "full_pages": 0.19,
+   "keepsakes": 5.234,
+   "burns": 1.884,
+   "lingers": 7.09,
+   "summons": 2.64,
+   "oblivion_played": 2.816,
+   "final_forgotten": 8.72,
    "endings": {
-    "unspoken/high": 59,
+    "unspoken/high": 57,
     "forgotten/high": 30,
-    "inscribed/high": 70,
-    "unspoken/low": 24,
-    "inscribed/low": 27,
+    "inscribed/high": 67,
+    "unspoken/low": 23,
+    "inscribed/low": 26,
     "forgotten/low": 8
    }
   }
@@ -508,40 +508,40 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.742,
+   "win_rate": 0.728,
    "loss_causes": {
-    "Deluge": 0.3023255813953488,
-    "Shattered": 0.20155038759689922,
-    "Faded": 0.49612403100775193
+    "Deluge": 0.29411764705882354,
+    "Shattered": 0.19852941176470587,
+    "Faded": 0.5073529411764706
    },
-   "turns_mean": 14.764,
-   "turns_win_mean": 13.91644204851752,
+   "turns_mean": 14.778,
+   "turns_win_mean": 13.832417582417582,
    "turns_by_reach": [
     6.3,
     5.7,
     2.8
    ],
-   "near_miss_wins": 0.21293800539083557,
+   "near_miss_wins": 0.20054945054945056,
    "tracks_half_full": 1.74,
    "backlash_per_reach": [
     0.47,
     0.31,
     0.07
    ],
-   "resonance_rate": 0.4036126443924451,
-   "inscriptions": 4.822,
+   "resonance_rate": 0.40256021912593315,
+   "inscriptions": 4.816,
    "full_pages": 0.122,
    "keepsakes": 5.59,
-   "burns": 1.942,
-   "lingers": 4.614,
+   "burns": 1.946,
+   "lingers": 4.664,
    "summons": 2.986,
-   "oblivion_played": 2.874,
-   "final_forgotten": 8.112,
+   "oblivion_played": 2.866,
+   "final_forgotten": 8.122,
    "endings": {
-    "inscribed/low": 83,
-    "inscribed/high": 81,
+    "inscribed/low": 82,
+    "inscribed/high": 76,
     "unspoken/low": 86,
-    "unspoken/high": 85,
+    "unspoken/high": 84,
     "forgotten/high": 23,
     "forgotten/low": 13
    }
@@ -556,41 +556,41 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.568,
+   "win_rate": 0.564,
    "loss_causes": {
-    "Shattered": 0.4861111111111111,
-    "Deluge": 0.3287037037037037,
-    "Faded": 0.18518518518518517
+    "Shattered": 0.48623853211009177,
+    "Deluge": 0.3302752293577982,
+    "Faded": 0.1834862385321101
    },
-   "turns_mean": 15.762,
-   "turns_win_mean": 14.795774647887324,
+   "turns_mean": 15.736,
+   "turns_win_mean": 14.74822695035461,
    "turns_by_reach": [
     7.4,
     6.0,
     2.3
    ],
-   "near_miss_wins": 0.39436619718309857,
-   "tracks_half_full": 1.98,
+   "near_miss_wins": 0.4078014184397163,
+   "tracks_half_full": 1.99,
    "backlash_per_reach": [
     0.69,
     0.36,
-    0.07
+    0.06
    ],
-   "resonance_rate": 0.3517897435010523,
-   "inscriptions": 4.456,
-   "full_pages": 0.128,
-   "keepsakes": 5.416,
-   "burns": 2.052,
-   "lingers": 6.004,
-   "summons": 3.824,
-   "oblivion_played": 3.108,
-   "final_forgotten": 8.716,
+   "resonance_rate": 0.35185338258976634,
+   "inscriptions": 4.448,
+   "full_pages": 0.124,
+   "keepsakes": 5.408,
+   "burns": 2.062,
+   "lingers": 6.008,
+   "summons": 3.812,
+   "oblivion_played": 3.116,
+   "final_forgotten": 8.71,
    "endings": {
-    "inscribed/high": 88,
-    "inscribed/low": 60,
+    "inscribed/high": 87,
+    "inscribed/low": 59,
     "unspoken/high": 50,
-    "unspoken/low": 26,
-    "forgotten/high": 50,
+    "unspoken/low": 25,
+    "forgotten/high": 51,
     "forgotten/low": 10
    }
   }
@@ -604,41 +604,41 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.688,
+   "win_rate": 0.68,
    "loss_causes": {
-    "Deluge": 0.2692307692307692,
-    "Shattered": 0.5576923076923077,
-    "Faded": 0.17307692307692307
+    "Deluge": 0.2625,
+    "Shattered": 0.58125,
+    "Faded": 0.15625
    },
-   "turns_mean": 15.048,
-   "turns_win_mean": 14.418604651162791,
+   "turns_mean": 15.038,
+   "turns_win_mean": 14.411764705882353,
    "turns_by_reach": [
     7.5,
     5.5,
     2.1
    ],
-   "near_miss_wins": 0.38372093023255816,
-   "tracks_half_full": 1.95,
+   "near_miss_wins": 0.38529411764705884,
+   "tracks_half_full": 1.96,
    "backlash_per_reach": [
     0.62,
     0.31,
     0.05
    ],
-   "resonance_rate": 0.3941557126107954,
-   "inscriptions": 4.824,
-   "full_pages": 0.11,
-   "keepsakes": 5.42,
-   "burns": 2.078,
-   "lingers": 5.484,
+   "resonance_rate": 0.3928053072112414,
+   "inscriptions": 4.796,
+   "full_pages": 0.108,
+   "keepsakes": 5.412,
+   "burns": 2.086,
+   "lingers": 5.502,
    "summons": 2.784,
-   "oblivion_played": 2.86,
-   "final_forgotten": 8.324,
+   "oblivion_played": 2.858,
+   "final_forgotten": 8.306,
    "endings": {
-    "forgotten/high": 56,
-    "unspoken/low": 45,
-    "inscribed/high": 104,
+    "forgotten/high": 55,
+    "unspoken/low": 44,
+    "inscribed/high": 103,
     "unspoken/high": 47,
-    "inscribed/low": 86,
+    "inscribed/low": 85,
     "forgotten/low": 6
    }
   }
@@ -652,41 +652,41 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.506,
+   "win_rate": 0.494,
    "loss_causes": {
-    "Deluge": 0.3562753036437247,
-    "Shattered": 0.5020242914979757,
-    "Faded": 0.1417004048582996
+    "Deluge": 0.34782608695652173,
+    "Shattered": 0.5335968379446641,
+    "Faded": 0.11857707509881422
    },
    "turns_mean": 16.802,
-   "turns_win_mean": 15.474308300395258,
+   "turns_win_mean": 15.437246963562753,
    "turns_by_reach": [
     8.5,
     6.3,
     2.1
    ],
-   "near_miss_wins": 0.5098814229249012,
-   "tracks_half_full": 2.18,
+   "near_miss_wins": 0.5101214574898786,
+   "tracks_half_full": 2.2,
    "backlash_per_reach": [
     0.75,
     0.4,
     0.06
    ],
-   "resonance_rate": 0.3558954260044576,
-   "inscriptions": 4.692,
-   "full_pages": 0.224,
-   "keepsakes": 5.366,
-   "burns": 2.034,
-   "lingers": 7.138,
+   "resonance_rate": 0.3551241486076149,
+   "inscriptions": 4.67,
+   "full_pages": 0.216,
+   "keepsakes": 5.358,
+   "burns": 2.032,
+   "lingers": 7.162,
    "summons": 2.738,
-   "oblivion_played": 3.13,
-   "final_forgotten": 9.082,
+   "oblivion_played": 3.126,
+   "final_forgotten": 9.036,
    "endings": {
     "inscribed/low": 31,
     "unspoken/low": 31,
-    "inscribed/high": 82,
-    "forgotten/high": 26,
-    "unspoken/high": 81,
+    "inscribed/high": 79,
+    "forgotten/high": 25,
+    "unspoken/high": 79,
     "forgotten/low": 2
    }
   }
@@ -705,29 +705,29 @@
     "Shattered": 0.6712328767123288,
     "Faded": 0.1643835616438356
    },
-   "turns_mean": 15.328,
-   "turns_win_mean": 14.69774011299435,
+   "turns_mean": 15.332,
+   "turns_win_mean": 14.711864406779661,
    "turns_by_reach": [
     7.1,
     5.8,
     2.4
    ],
-   "near_miss_wins": 0.3163841807909605,
-   "tracks_half_full": 1.92,
+   "near_miss_wins": 0.327683615819209,
+   "tracks_half_full": 1.93,
    "backlash_per_reach": [
     0.5,
     0.32,
     0.06
    ],
-   "resonance_rate": 0.35969117065198003,
-   "inscriptions": 4.154,
+   "resonance_rate": 0.3595173611281705,
+   "inscriptions": 4.148,
    "full_pages": 0.068,
    "keepsakes": 5.558,
-   "burns": 2.136,
-   "lingers": 5.308,
+   "burns": 2.14,
+   "lingers": 5.314,
    "summons": 2.984,
-   "oblivion_played": 3.088,
-   "final_forgotten": 8.576,
+   "oblivion_played": 3.092,
+   "final_forgotten": 8.58,
    "endings": null
   }
  },
@@ -745,29 +745,29 @@
     "Deluge": 0.2988505747126437,
     "Faded": 0.14367816091954022
    },
-   "turns_mean": 14.976,
-   "turns_win_mean": 14.5,
+   "turns_mean": 14.978,
+   "turns_win_mean": 14.515337423312884,
    "turns_by_reach": [
     7.1,
     5.6,
     2.3
    ],
-   "near_miss_wins": 0.39570552147239263,
-   "tracks_half_full": 1.91,
+   "near_miss_wins": 0.40797546012269936,
+   "tracks_half_full": 1.92,
    "backlash_per_reach": [
     0.49,
     0.31,
     0.06
    ],
-   "resonance_rate": 0.35912685882952855,
-   "inscriptions": 4.11,
+   "resonance_rate": 0.35871383361944453,
+   "inscriptions": 4.102,
    "full_pages": 0.068,
-   "keepsakes": 5.54,
-   "burns": 2.022,
-   "lingers": 5.068,
+   "keepsakes": 5.536,
+   "burns": 2.026,
+   "lingers": 5.076,
    "summons": 2.984,
-   "oblivion_played": 2.982,
-   "final_forgotten": 8.242,
+   "oblivion_played": 2.988,
+   "final_forgotten": 8.244,
    "endings": null
   }
  },
@@ -779,35 +779,35 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.64,
+   "win_rate": 0.624,
    "loss_causes": {
-    "Shattered": 0.3611111111111111,
-    "Deluge": 0.34444444444444444,
-    "Faded": 0.29444444444444445
+    "Shattered": 0.39893617021276595,
+    "Deluge": 0.3351063829787234,
+    "Faded": 0.26595744680851063
    },
-   "turns_mean": 14.784,
-   "turns_win_mean": 14.14375,
+   "turns_mean": 14.728,
+   "turns_win_mean": 14.070512820512821,
    "turns_by_reach": [
     7.1,
     5.5,
-    2.2
+    2.1
    ],
-   "near_miss_wins": 0.425,
-   "tracks_half_full": 2.04,
+   "near_miss_wins": 0.42948717948717946,
+   "tracks_half_full": 2.06,
    "backlash_per_reach": [
     0.58,
-    0.36,
+    0.35,
     0.06
    ],
-   "resonance_rate": 0.3713116427009747,
-   "inscriptions": 4.234,
-   "full_pages": 0.074,
-   "keepsakes": 5.498,
+   "resonance_rate": 0.37113694716374046,
+   "inscriptions": 4.208,
+   "full_pages": 0.07,
+   "keepsakes": 5.478,
    "burns": 1.796,
-   "lingers": 4.944,
-   "summons": 2.99,
-   "oblivion_played": 2.78,
-   "final_forgotten": 8.142,
+   "lingers": 4.97,
+   "summons": 2.986,
+   "oblivion_played": 2.776,
+   "final_forgotten": 8.084,
    "endings": null
   }
  },
@@ -819,35 +819,35 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.478,
+   "win_rate": 0.472,
    "loss_causes": {
-    "Faded": 0.23754789272030652,
-    "Shattered": 0.25287356321839083,
-    "Deluge": 0.5095785440613027
+    "Faded": 0.23106060606060605,
+    "Shattered": 0.26515151515151514,
+    "Deluge": 0.5037878787878788
    },
-   "turns_mean": 13.842,
-   "turns_win_mean": 13.728033472803347,
+   "turns_mean": 13.84,
+   "turns_win_mean": 13.711864406779661,
    "turns_by_reach": [
     7.1,
     4.9,
     1.8
    ],
-   "near_miss_wins": 0.47280334728033474,
-   "tracks_half_full": 2.07,
+   "near_miss_wins": 0.4915254237288136,
+   "tracks_half_full": 2.08,
    "backlash_per_reach": [
     0.6,
-    0.32,
+    0.33,
     0.04
    ],
-   "resonance_rate": 0.37117999855060363,
-   "inscriptions": 3.948,
-   "full_pages": 0.048,
-   "keepsakes": 5.324,
-   "burns": 1.576,
-   "lingers": 4.62,
-   "summons": 2.984,
-   "oblivion_played": 2.486,
-   "final_forgotten": 7.508,
+   "resonance_rate": 0.3710913277185117,
+   "inscriptions": 3.936,
+   "full_pages": 0.05,
+   "keepsakes": 5.306,
+   "burns": 1.582,
+   "lingers": 4.648,
+   "summons": 2.982,
+   "oblivion_played": 2.502,
+   "final_forgotten": 7.5,
    "endings": null
   }
  },
@@ -859,35 +859,35 @@
   },
   "summary": {
    "games": 500,
-   "win_rate": 0.392,
+   "win_rate": 0.374,
    "loss_causes": {
-    "Deluge": 0.5822368421052632,
-    "Faded": 0.23355263157894737,
-    "Shattered": 0.18421052631578946
+    "Deluge": 0.5654952076677316,
+    "Faded": 0.22044728434504793,
+    "Shattered": 0.21405750798722045
    },
-   "turns_mean": 13.482,
-   "turns_win_mean": 13.908163265306122,
+   "turns_mean": 13.408,
+   "turns_win_mean": 13.83957219251337,
    "turns_by_reach": [
     7.0,
-    5.0,
+    4.9,
     1.5
    ],
-   "near_miss_wins": 0.576530612244898,
+   "near_miss_wins": 0.5561497326203209,
    "tracks_half_full": 2.1,
    "backlash_per_reach": [
     0.62,
-    0.34,
+    0.33,
     0.03
    ],
-   "resonance_rate": 0.3670674151409082,
-   "inscriptions": 3.864,
-   "full_pages": 0.052,
-   "keepsakes": 5.278,
-   "burns": 1.322,
-   "lingers": 4.596,
-   "summons": 2.956,
-   "oblivion_played": 2.322,
-   "final_forgotten": 6.896,
+   "resonance_rate": 0.36593846568479155,
+   "inscriptions": 3.824,
+   "full_pages": 0.05,
+   "keepsakes": 5.252,
+   "burns": 1.312,
+   "lingers": 4.578,
+   "summons": 2.952,
+   "oblivion_played": 2.318,
+   "final_forgotten": 6.824,
    "endings": null
   }
  },
@@ -899,35 +899,35 @@
   },
   "summary": {
    "games": 1000,
-   "win_rate": 0.575,
+   "win_rate": 0.564,
    "loss_causes": {
-    "Shattered": 0.4164705882352941,
-    "Deluge": 0.3270588235294118,
-    "Faded": 0.2564705882352941
+    "Shattered": 0.42660550458715596,
+    "Deluge": 0.32798165137614677,
+    "Faded": 0.24541284403669725
    },
-   "turns_mean": 14.913,
-   "turns_win_mean": 13.970434782608695,
+   "turns_mean": 14.923,
+   "turns_win_mean": 13.946808510638299,
    "turns_by_reach": [
     7.1,
-    5.6,
-    2.2
+    5.7,
+    2.1
    ],
-   "near_miss_wins": 0.4226086956521739,
+   "near_miss_wins": 0.425531914893617,
    "tracks_half_full": 2.07,
    "backlash_per_reach": [
     0.46,
-    0.29,
-    0.04
+    0.3,
+    0.03
    ],
-   "resonance_rate": 0.28286428148043763,
+   "resonance_rate": 0.28199251431024447,
    "inscriptions": 0,
    "full_pages": 0,
-   "keepsakes": 5.486,
-   "burns": 1.906,
-   "lingers": 5.38,
+   "keepsakes": 5.473,
+   "burns": 1.905,
+   "lingers": 5.423,
    "summons": 2.987,
-   "oblivion_played": 2.785,
-   "final_forgotten": 8.419,
+   "oblivion_played": 2.789,
+   "final_forgotten": 8.404,
    "endings": null
   }
  },
@@ -939,35 +939,35 @@
   },
   "summary": {
    "games": 1000,
-   "win_rate": 0.64,
+   "win_rate": 0.626,
    "loss_causes": {
-    "Shattered": 0.35555555555555557,
-    "Deluge": 0.35833333333333334,
-    "Faded": 0.2861111111111111
+    "Shattered": 0.3877005347593583,
+    "Deluge": 0.34759358288770054,
+    "Faded": 0.2647058823529412
    },
-   "turns_mean": 14.804,
-   "turns_win_mean": 14.2,
+   "turns_mean": 14.792,
+   "turns_win_mean": 14.138977635782748,
    "turns_by_reach": [
     7.1,
     5.6,
     2.1
    ],
-   "near_miss_wins": 0.4171875,
-   "tracks_half_full": 2.02,
+   "near_miss_wins": 0.42012779552715657,
+   "tracks_half_full": 2.03,
    "backlash_per_reach": [
     0.55,
     0.35,
     0.05
    ],
-   "resonance_rate": 0.3688413241448704,
-   "inscriptions": 4.185,
-   "full_pages": 0.081,
-   "keepsakes": 5.515,
+   "resonance_rate": 0.3682662704235756,
+   "inscriptions": 4.16,
+   "full_pages": 0.078,
+   "keepsakes": 5.495,
    "burns": 1.797,
-   "lingers": 5.018,
-   "summons": 2.991,
-   "oblivion_played": 2.826,
-   "final_forgotten": 8.184,
+   "lingers": 5.064,
+   "summons": 2.989,
+   "oblivion_played": 2.828,
+   "final_forgotten": 8.145,
    "endings": null
   }
  }

@@ -56,6 +56,8 @@ class Config:
         self.light_per_bloom = 1     # tuning: Light gained per Bloom passed
         self.ghost_forgets = False   # tuning: the Ghost's Oblivion card forgets 1
         self.push_through = "harsh"  # if Grievances hold both banks ahead, the soul pushes through: "off", "fracture" (+1 Fracture) or "harsh" (+1 Fracture, forget 1)
+        self.push_scope = "game"     # the first push per "game" (or "reach") costs the base price; "none": every push costs the base price
+        self.push_again = "escalate" # a later push in the same scope: "escalate" (+1 Fracture each time) or "linger" (not allowed)
         self.seek = True             # one action per turn may be Seek: discard a card and draw one (that turn's next card cannot Resonate)
         for k, v in overrides.items():
             if not hasattr(self, k):
@@ -639,13 +641,28 @@ class State:
         return (self.cfg.push_through != "off" and 1 <= sp <= 11 and not self.flooded[sp]
                 and self.griev[sp * 2] and self.griev[sp * 2 + 1])
 
+    def pushes_in_scope(self):
+        scope = self.cfg.push_scope
+        if scope == "none":
+            return 0
+        key = f"pushes_r{self.reach}" if scope == "reach" else "pushes"
+        return self.stats.get(key, 0)
+
     def push_through(self):
+        before = self.pushes_in_scope()
+        if before and self.cfg.push_again == "linger":
+            self.linger()
+            return
         sp = self.soul + 1
         self.griev[sp * 2] = self.griev[sp * 2 + 1] = False
         self.stats["pushes"] = self.stats.get("pushes", 0) + 1
+        self.stats[f"pushes_r{self.reach}"] = self.stats.get(f"pushes_r{self.reach}", 0) + 1
+        if before:
+            self.stats["repushes"] = self.stats.get("repushes", 0) + 1
         self.note("  the soul pushes through the Grievances")
         self.move_soul(1)
-        self.add_fracture()
+        for _ in range(1 + before):   # each push already made in this scope adds another Fracture
+            self.add_fracture()
         if self.cfg.push_through == "harsh":
             self.forget_top(1)
 
