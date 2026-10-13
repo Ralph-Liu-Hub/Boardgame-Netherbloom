@@ -114,6 +114,9 @@ def main():
         f.write(to_markdown(results, a.games, secs))
     with open(os.path.join(a.out, "balance_report.json"), "w") as f:
         json.dump([{"label": l, "config": kw, "summary": s} for l, kw, s in results], f, indent=1)
+    from .report_zh import translate
+    with open(os.path.join(a.out, "balance_report.zh-TW.md"), "w") as f:
+        f.write(translate(to_markdown(results, a.games, secs)))
     print(open(os.path.join(a.out, "balance_report.md")).read())
 
 

@@ -129,7 +129,7 @@ export const FIRST_SOUL = "child";
 
 export const SOULS = {
   open: { name: "Open Crossing", blurb: "A nameless soul. The Echo deck joins the core. Memory Sites give 2 Light.", twist: "Memory Sites give +2 Light." },
-  child: { name: "Child of the Last Flame", blurb: "One more little light, struck against the cold.", twist: "Starts with 3 Light. The first Fracture in each Reach is ignored. Never drifts Adrift. No harsh Mist." },
+  child: { name: "Child of the Last Flame", blurb: "One more little light, struck against the cold.", twist: "Starts with 3 Light. The first Fracture in each Reach is ignored. Never drifts Adrift. She can forget 1 more card before she Fades. No harsh Mist." },
   garland: { name: "The Garland Girl", blurb: "She wove a flower for everyone but herself.", twist: "The Chapter Blessing comes after only 2 inscribed memories." },
   king: { name: "The King on the Barge", blurb: "A crown carried long after the kingdom fell.", twist: "Mantles cost 2 Light. A Fracture strips the Mantle of the player who caused it." },
   bride: { name: "The Bride Who Stayed Below", blurb: "Almost saved, once.", twist: "The first time she would Linger in the dark, she is pulled one space back instead of forgetting." },
@@ -169,7 +169,7 @@ export const TILES = [
 export const REACH_NAMES = ["The Asphodel Road", "The Fields of Mourning", "The Banks of Lethe"];
 
 // Lantern: [black water supply, forgotten limit, harsh Mist per Reach]
-export const LANTERN = { 1: [6, 14, 0], 2: [5, 13, 0], 3: [5, 12, 1], 4: [4, 11, 2], 5: [4, 10, 3] };
+export const LANTERN = { 1: [6, 14, 0], 2: [5, 13, 0], 3: [5, 11, 2], 4: [4, 11, 2], 5: [4, 10, 3] };
 
 export const GHOST = [
   ...Array(3).fill([OBS, "root_far"]), ...Array(2).fill([OBS, "root_near"]),

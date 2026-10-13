@@ -71,6 +71,7 @@ class Config:
         if soul == "child":
             self.start_light = overrides.get("start_light", 3)
             self.adrift_at = 99
+            self.forgotten_limit = overrides.get("forgotten_limit", self.forgotten_limit + 1)
             self.harsh_per_reach = 0
 
 

@@ -195,7 +195,7 @@ TILES = {  # per Reach: spaces covered and tile mix (spaces 2-4, 5-8, 9-11)
 
 # ---------------------------------------------------------------- Lantern difficulty
 LANTERN = {  # (black water supply, forgotten limit, harsh cards per reach)
-    1: (6, 14, 0), 2: (5, 13, 0), 3: (5, 12, 1), 4: (4, 11, 2), 5: (4, 10, 3),
+    1: (6, 14, 0), 2: (5, 13, 0), 3: (5, 11, 2), 4: (4, 11, 2), 5: (4, 10, 3),
 }
 
 # ---------------------------------------------------------------- Ghost deck (solo)
