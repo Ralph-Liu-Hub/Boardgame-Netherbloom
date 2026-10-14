@@ -87,8 +87,10 @@ const soulCard = k => `<div class="card soul">
     <div class="foot"><span>亡魂</span><span>${k}</span></div></div>`;
 
 // Card backs, so a duplex print lines up.
-const back = kind => `<div class="card back ${kind}">${icon(kind === "mist" ? "nb-fog" : kind === "ghost" ? "nb-soul" : "nb-bloom", "huge")}
-    <div class="bt">${{ memory: "記憶牌", mist: "迷霧", ghost: "幽靈", mantle: "稱號", soul: "亡魂" }[kind]}</div><div class="bn">Netherbloom</div></div>`;
+// Memory cards carry the full field-of-Netherblooms back, the same art as the web table.
+const back = kind => kind === "memory" ? `<div class="card back memory"><svg class="cbfull" viewBox="0 0 630 880" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#nb-cardback"/></svg></div>`
+  : `<div class="card back ${kind}">${icon(kind === "mist" ? "nb-fog" : kind === "ghost" ? "nb-soul" : "nb-bloom", "huge")}
+    <div class="bt">${{ mist: "迷霧", ghost: "幽靈", mantle: "稱號", soul: "亡魂" }[kind]}</div><div class="bn">Netherbloom</div></div>`;
 
 // 9 cards per A4 sheet; every face sheet is followed by its back sheet (mirrored for long-edge duplex).
 function sheets(title, faces, kind) {
@@ -122,7 +124,9 @@ function tileSheet() {
   return `<section class="sheet tiles"><h2>河岸板塊與標記</h2>
     <p class="lead">板塊依河段分開洗混，面朝下放在該河段的河岸上（第1格兩岸開局即各有1朵花）。霧板塊為牌背；可印在板塊背面。</p>
     <div class="tgrid">${tiles}</div><h3>霧（板塊背面）</h3><div class="tgrid">${fog}</div></section>
-    <section class="sheet tiles"><h2>標記</h2><p class="lead">沿圓圈剪下。數量為建議值，不足時可用任何小物件代替。</p><div class="kgrid">${tok("nb-root", "根", 24)}${tok("nb-bloom", "花", 24)}${tok("nb-grievance", "怨念", 8)}${tok("nb-blackwater", "黑水", 6)}${tok("nb-fracture", "裂痕", 3)}${tok("nb-light", "光", 12)}${tok("nb-knot", "結", 15)}${tok("nb-echo", "迴響", 1)}${tok("nb-soul", "亡魂", 1)}</div></section>`;
+    <section class="sheet tiles"><h2>標記</h2><p class="lead">沿圓圈剪下。數量為建議值，不足時可用任何小物件代替。</p><div class="kgrid">${tok("nb-root", "根", 24)}${tok("nb-bloom", "花", 24)}${tok("nb-grievance", "怨念", 8)}${tok("nb-blackwater", "黑水", 6)}${tok("nb-fracture", "裂痕", 3)}${tok("nb-light", "光", 12)}${tok("nb-knot", "結", 15)}${tok("nb-echo", "迴響", 1)}${tok("nb-soul", "亡魂", 1)}</div>
+    <h3 style="margin-top:5mm">行動標記</h3><p class="lead">記錄一條規則持續的效果：強行穿過每位玩家1個（用掉時翻面）、堅守與認命放在亡魂旁、護盾放在升起者面前、船槳交給輪到的玩家。</p>
+    <div class="kgrid">${tok("nb-tok-oar", "船槳", 1)}${tok("nb-tok-push", "強行穿過", 4)}${tok("nb-tok-hold", "堅守", 1)}${tok("nb-tok-shield", "護盾", 1)}${tok("nb-tok-resign", "認命", 1)}</div></section>`;
 }
 
 function lanternCard() {
@@ -144,6 +148,7 @@ function contents() {
       <tr><td>亡魂牌</td><td>${Object.keys(ZH_SOULS).length}</td><td>卡牌</td></tr>
       <tr><td>河岸板塊（沃土、石地、記憶之地、墳墓）與霧</td><td>${TILES.reduce((a, [, l]) => a + l.length, 0)}</td><td>板塊</td></tr>
       <tr><td>標記：根、花、怨念、黑水、裂痕、光、結、迴響、亡魂</td><td>—</td><td>標記</td></tr>
+      <tr><td>行動標記：船槳1、強行穿過4、堅守1、護盾1、認命1</td><td>8</td><td>標記</td></tr>
       <tr><td>燈籠表與玩家輔助卡</td><td>1</td><td>輔助</td></tr>
       <tr><td>憶念之書・記錄表</td><td>每局1張</td><td>記錄表</td></tr>
     </tbody></table>
@@ -196,6 +201,7 @@ h2 { font-size: 12pt; border-bottom: .3mm solid #b9a27a; padding-bottom: 1mm; } 
 .back .ic.huge { color: #d7263d; } .back.mist .ic.huge, .back.ghost .ic.huge { color: #8fd6e1; }
 .back .bt { font-size: 14pt; letter-spacing: .6em; margin-top: 4mm; } .back .bn { font-family: "IM Fell English SC", serif; font-size: 11pt; letter-spacing: .1em; color: #9a948c; }
 .blank { border: 0; background: none; } .blank::before { display: none; }
+.back.memory { padding: 0; background: #100d12; } .back.memory::before { display: none; } .cbfull { position: absolute; inset: 0; width: 100%; height: 100%; }
 .cover { text-align: center; padding-top: 20mm; } .cover .hero { width: 40mm; height: 40mm; color: #a32a30; }
 .cover h1 { font-family: "IM Fell English SC", "Noto Serif TC", serif; font-size: 34pt; } .cover h1 span { display: block; font-family: "Noto Serif TC"; font-size: 15pt; letter-spacing: .5em; margin-top: 2mm; }
 .cover .tag { color: #6b5a44; letter-spacing: .1em; }

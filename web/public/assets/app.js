@@ -695,12 +695,15 @@ function vs() {
   return { ...S, tok: view.tok, griev: view.griev, flooded: view.flooded, revealed: view.revealed, soul: view.soul, fract: view.fract,
     light: view.light, bw: view.bw, karma: view.karma, echo: view.echo, forgotten: { length: view.f },
     pile: { deck: view.deck ?? S.deck.length, disc: view.disc ?? S.discard.length, top: view.top ?? S.discard.at(-1) ?? -1, ft: view.ft ?? S.forgotten.at(-1) ?? -1 },
-    hold: view.hold ?? S.hold, acts: view.acts ?? S.acts ?? [] };
+    hold: view.hold ?? S.hold, acts: view.acts ?? S.acts ?? [],
+    shieldOn: view.shield ?? S.shieldUntil >= S.turn, resign: view.resign ?? S.resign, pushedBy: view.pushed ?? S.pushedBy ?? [] };
 }
 const asPrev = b => ({ tok: b.tok, griev: b.griev, revealed: b.revealed, flooded: b.flooded, soul: b.soul, karma: b.karma, forgotten: b.f,
-  pile: b.deck !== undefined && b.disc !== undefined ? { deck: b.deck, disc: b.disc, top: b.top, ft: b.ft } : null, hold: b.hold, acts: b.acts });
+  pile: b.deck !== undefined && b.disc !== undefined ? { deck: b.deck, disc: b.disc, top: b.top, ft: b.ft } : null, hold: b.hold, acts: b.acts,
+  shield: b.shield, resign: b.resign, pushed: b.pushed });
 const finalPrev = () => ({ tok: [...S.tok], griev: [...S.griev], revealed: [...S.revealed], flooded: [...S.flooded], soul: S.soul, karma: [...S.karma], forgotten: S.forgotten.length,
-  pile: { deck: S.deck.length, disc: S.discard.length, top: S.discard.at(-1) ?? -1, ft: S.forgotten.at(-1) ?? -1 }, hold: S.hold, acts: [...(S.acts || [])] });
+  pile: { deck: S.deck.length, disc: S.discard.length, top: S.discard.at(-1) ?? -1, ft: S.forgotten.at(-1) ?? -1 }, hold: S.hold, acts: [...(S.acts || [])],
+  shield: S.shieldUntil >= S.turn, resign: !!S.resign, pushed: [...(S.pushedBy || [])] });
 const playingBack = () => running || queue.length > 0;
 
 function drawBoard() {
@@ -751,6 +754,8 @@ function drawBoard() {
   $("soulG").style.transform = `translate(${X(sp)}px, ${Y(sp)}px)`;
   if (s.hold && sp < 12) h += `<g class="holdtok" transform="translate(${X(sp) + 30},${Y(sp) - 34})"><title>${esc(L("Hold Fast: the soul waits this turn without forgetting", "堅守：亡魂本回合停留而不遺忘"))}</title><g class="${p.hold ? "" : "stampin"}">
     <circle r="15" fill="#17161B" stroke="#8FD6E1" stroke-width="1.6"/><use href="#nb-tok-hold" x="-10" y="-10" width="20" height="20" style="color:#8FD6E1"/></g></g>`;
+  if (s.resign && sp < 12) h += `<g class="holdtok" transform="translate(${X(sp) - 30},${Y(sp) - 34})"><title>${esc(L("Resignation: at the next Soul Step the soul sits down and Lingers", "認命：下一次亡魂步驟時，亡魂坐下並徘徊"))}</title><g class="${p.resign ? "" : "stampin"}">
+    <circle r="15" fill="#17161B" stroke="#E6D3A3" stroke-width="1.6"/><use href="#nb-tok-resign" x="-10" y="-10" width="20" height="20" style="color:#E6D3A3"/></g></g>`;
   $("dyn").innerHTML = h;
   if (p.soul > s.soul) $("boardwrap").classList.add("shake");
 }
@@ -801,7 +806,27 @@ function drawSoulboard() {
     <div><div class="lbl">${L("Light", "光")}</div><div class="icons" id="sb-light">${svgUse("nb-light", "", "color:#E6D3A3")}<span style="font-family:var(--display);font-size:1.25rem;color:var(--bone)">${S.light}</span></div></div>
     <div class="wide"><div class="lbl">${L("Black Water supply", "黑水供應")}</div><div class="icons">${bw}</div></div>
     <div class="wide"><div class="lbl">${L(`Mantles · cost ${c.mantleCost} Light`, `稱號 · 花費${c.mantleCost}點光`)}</div><div class="mantles" id="sb-mantles">${mantles}</div></div>
+    <div class="wide"><div class="lbl">${L("On the table", "桌上的標記")}</div><div class="tabletoks">${tableTokens(S)}</div></div>
   </div>`;
+}
+
+// The tabletop tokens and turned cards that keep track of a rule over time, as they lie on a real table.
+function tableTokens(s) {
+  const chip = (a, label, on = true, title = label) => `<span class="ttok ${on ? "" : "spent"}" title="${esc(title)}">${tokIcon(a)}<small>${esc(label)}</small></span>`;
+  const out = [];
+  for (let p = 0; p < S.n; p++) {
+    const spent = !!s.pushedBy?.[p];
+    out.push(chip("push", S.n > 1 ? pname(S.names[p]) : L("Push Through", "強行穿過"), !spent,
+      spent ? L(`${pname(S.names[p])} has used their Push Through`, `${pname(S.names[p])}已用掉強行穿過`) : L(`${pname(S.names[p])} can still Push Through once`, `${pname(S.names[p])}還能強行穿過一次`)));
+  }
+  if (s.shieldOn) out.push(chip("shield", L("Shield", "護盾"), true, L("Shield: the next Fracture before the raiser's next turn is stopped", "護盾：在升起者的下個回合前，擋下下一道裂痕")));
+  if (s.hold) out.push(chip("hold", L("Hold Fast", "堅守")));
+  if (s.resign) out.push(chip("resign", L("Resignation", "認命")));
+  const turned = [];
+  if (S.mantles.warden >= 0 && !S.wardenReady) turned.push(L("Spirit Warden turned sideways: used this round", "守魂者橫放：本輪已使用"));
+  if (S.cfg.soul === "child" && S.reach < 3 && !S.childShield[S.reach]) turned.push(L("Soul card turned sideways: the little flame is spent this Reach", "亡魂牌橫放：本河段的小小火光已用掉"));
+  if (S.cfg.soul === "bride" && S.bridePulled) turned.push(L("Soul card turned sideways: she has been pulled back once", "亡魂牌橫放：她已被拉回過一次"));
+  return out.join("") + turned.map(x => `<span class="turned">${esc(x)}</span>`).join("");
 }
 
 function drawBook() {
@@ -974,7 +999,7 @@ function drawHand() {
   if (S.result) { el.innerHTML = ""; prevHand = []; if (tog) tog.innerHTML = dockLabel(L("Hand", "手牌"), 0); return; }
   if (seat < 0) {
     const n = S.hands[S.cur].length;
-    el.innerHTML = Array.from({ length: n }, (_, i) => `<div class="card back" style="${fanPose(i, n)}">${svgUse("nb-bloom")}</div>`).join("");
+    el.innerHTML = Array.from({ length: n }, (_, i) => `<div class="card back" style="${fanPose(i, n)}">${cardBack()}</div>`).join("");
     if (tog) tog.innerHTML = dockLabel(L(`${pname(S.names[S.cur])}'s hand · hidden`, `${pname(S.names[S.cur])}的手牌 · 蓋著`), n);
     prevHand = [];
     return;
@@ -1047,13 +1072,16 @@ const TOKS = {
   push: { icon: () => "nb-tok-push", col: () => "#D7263D", en: "Push Through the Grievances", zh: "強行穿過怨念" },
   summon: { icon: () => "nb-tok-summon", col: m => TAGCOL[MANTLES[m]?.tag ?? 1], en: "Mantle summoned with Light", zh: "以光召喚稱號" },
   hold: { icon: () => "nb-tok-hold", col: () => "#8FD6E1", en: "Hold Fast", zh: "堅守" },
+  shield: { icon: () => "nb-tok-shield", col: () => "#E6D3A3", en: "Shield", zh: "護盾" },
+  resign: { icon: () => "nb-tok-resign", col: () => "#E6D3A3", en: "Resignation", zh: "認命" },
+  oar: { icon: () => "nb-tok-oar", col: () => "#E6D3A3", en: "The Oar", zh: "船槳" },
 };
 // The web table's own pieces: the action tokens on the turn tray, explained in the Player Aid.
 function tokenLegend() {
   const row = (a, arg, en, zhT) => `<span>${tokIcon(a, arg)}${L(en, zhT)}</span>`;
-  return `<h3>${L("Action tokens", "行動標記")}</h3><p>${L("Each action this turn is marked with a token on the tray under the river.", "本回合的每個行動，都會在河流下方的托盤上放一個標記。")}</p>
+  return `<h3>${L("Turn tray (web table)", "回合托盤（網頁版）")}</h3><p>${L("On this screen, each action this turn is also marked on the tray under the river. These marks are only a record: at a real table the played cards show it.", "在這個畫面上，本回合的每個行動也會標在河流下方的托盤上。這些只是紀錄：在真實的桌面上，打出的牌就說明了一切。")}</p>
     <div class="aidicons tokenlegend">${row("card", 0, "Card face up (its thread)", "正面打出（其絲線）")}${row("down", 0, "Face down", "背面打出")}${row("burn", 0, "Burn", "焚燒")}${row("seek", 0, "Seek", "尋覓")}
-    ${row("recall", 0, "Recall · 3 Light", "喚回 · 3點光")}${row("summon", "bringer", "Summon · Light", "召喚 · 光")}${row("push", 0, "Push Through", "強行穿過")}${row("hold", 0, "Hold Fast (beside the soul)", "堅守（放在亡魂旁）")}</div>`;
+    ${row("recall", 0, "Recall · 3 Light", "喚回 · 3點光")}${row("summon", "bringer", "Summon · Light", "召喚 · 光")}${row("push", 0, "Push Through", "強行穿過")}</div>`;
 }
 function tokIcon(a, arg) {
   const k = TOKS[a];
@@ -1080,7 +1108,7 @@ function drawTray() {
   const idx = x => acts.indexOf(x);
   const slots = [L("Answer", "回應"), L("Steer", "掌舵")].slice(0, S.cfg.cardsPerTurn).map((name, i) =>
     `<div class="tslot">${main[i] ? tokHTML(main[i], fresh(idx(main[i]))) : `<span class="tok empty"></span>`}<small>${name}</small></div>`).join("");
-  el.innerHTML = `<div class="trayh">${L(`Turn ${turn || 1}`, `第${turn || 1}回合`)}<small>${esc(pname(S.names[who]))}</small></div>
+  el.innerHTML = `<div class="trayh"><span class="oar" title="${esc(L("The Oar: the Ferryman whose turn it is holds it", "船槳：輪到的擺渡人握著它"))}">${tokIcon("oar")}</span>${L(`Turn ${turn || 1}`, `第${turn || 1}回合`)}<small>${esc(pname(S.names[who]))}</small></div>
     ${sum.length ? `<div class="tslot">${sum.map(x => tokHTML(x, fresh(idx(x)))).join("")}<small>${L("Summon", "召喚")}</small></div>` : ""}${slots}`;
   trayShown = acts.length;
 }
@@ -1099,7 +1127,9 @@ function boardToken(a, at) {
 
 // ---------------------------------------------------------------- the piles: deck, discard and forgotten
 const miniFace = cid => (cid < 0 ? miniBack() : `<div class="mc t${CARDS[cid].tag}">${svgUse(TAG_ICONS[CARDS[cid].tag], TAGCLS[CARDS[cid].tag])}<span class="mcn">${esc(cardName(cid))}</span><span class="mct">${tagName(CARDS[cid].tag)}</span></div>`);
-const miniBack = () => `<div class="mc back">${svgUse("nb-bloom")}</div>`;
+// The memory card back, the same art as the printed cards.
+const cardBack = () => `<svg class="cb" viewBox="0 0 630 880" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#nb-cardback"/></svg>`;
+const miniBack = () => `<div class="mc back">${cardBack()}</div>`;
 let pilesHeld = {};   // a pile a card is flying towards keeps its old look until the card lands
 function drawPiles() {
   const el = $("piles");
@@ -1110,19 +1140,19 @@ function drawPiles() {
   const pv = { ...now, f, ...pilesHeld };
   const stack = n => `--layers:${Math.min(6, Math.ceil(n / 4))}`;
   el.innerHTML = `
-    <button type="button" class="pile deck" id="pile-deck" title="${L("The deck, face down", "牌庫（背面朝上）")}">
-      <span class="pst ${pv.deck ? "" : "none"}" style="${stack(pv.deck)}">${pv.deck ? miniBack() : ""}</span><span class="plbl">${L("Deck", "牌庫")} <b>${pv.deck}</b></span></button>
-    <button type="button" class="pile disc" id="pile-disc" data-list="disc" title="${L("The discard pile: click to look through it", "棄牌堆：點擊查看")}">
-      <span class="pst ${pv.disc ? "" : "none"}" style="${stack(pv.disc)}">${pv.disc ? miniFace(pv.top) : ""}</span><span class="plbl">${L("Discard", "棄牌堆")} <b>${pv.disc}</b></span></button>
+    <div class="pile deck" id="pile-deck" title="${L("The deck, face down", "牌庫（背面朝上）")}">
+      <span class="pst ${pv.deck ? "" : "none"}" style="${stack(pv.deck)}">${pv.deck ? miniBack() : ""}</span><span class="plbl">${L("Deck", "牌庫")} <b>${pv.deck}</b></span></div>
+    <div class="pile disc" id="pile-disc" title="${L("The discard pile, face down: nobody looks through it", "棄牌堆（背面朝上）：任何人都不能翻看")}">
+      <span class="pst ${pv.disc ? "" : "none"}" style="${stack(pv.disc)}">${pv.disc ? miniBack() : ""}</span><span class="plbl">${L("Discard", "棄牌堆")} <b>${pv.disc}</b></span></div>
     <button type="button" class="pile forg" id="pile-forg" data-list="forg" title="${L("Forgotten memories: click to look through them", "被遺忘的記憶：點擊查看")}">
       <span class="pst ${pv.f ? "" : "none"}" style="${stack(pv.f)}">${pv.f ? miniFace(pv.ft) : ""}</span><span class="plbl">${L("Forgotten", "遺忘")} <b>${pv.f}</b>/${S.cfg.forgottenLimit}</span></button>`;
   el.querySelectorAll("[data-list]").forEach(b => b.onclick = () => pileDialog(b.dataset.list));
 }
-function pileDialog(which) {
-  const cards = which === "disc" ? [...S.discard].reverse() : [...S.forgotten].reverse();
-  const title = which === "disc" ? L("Discard pile", "棄牌堆") : L("Forgotten memories", "被遺忘的記憶");
-  const note = which === "disc" ? L("Top card first. When the deck runs out, these are shuffled into a new deck.", "最上面的牌排在最前。牌庫用完時，這些牌會洗混成為新的牌庫。")
-    : L(`Most recent first. ${S.cfg.forgottenLimit} forgotten and the soul Fades. Spend ${S.cfg.recallCost} Light as your Answer to Recall one.`, `最近遺忘的排在最前。遺忘達到${S.cfg.forgottenLimit}張，亡魂就會消散。以回應花費${S.cfg.recallCost}點光可以喚回一張。`);
+// The forgotten pile is face up, so anyone may look through it (the discard pile is face down and stays closed).
+function pileDialog() {
+  const cards = [...S.forgotten].reverse();
+  const title = L("Forgotten memories", "被遺忘的記憶");
+  const note = L(`Most recent first. ${S.cfg.forgottenLimit} forgotten and the soul Fades. Spend ${S.cfg.recallCost} Light as your Answer to Recall one.`, `最近遺忘的排在最前。遺忘達到${S.cfg.forgottenLimit}張，亡魂就會消散。以回應花費${S.cfg.recallCost}點光可以喚回一張。`);
   veil(`<div class="dialog wide"><h2>${title} · ${cards.length}</h2><p class="muted">${note}</p>
     <div class="pilelist">${cards.length ? cards.map(cid => miniFace(cid)).join("") : `<span class="muted">${L("Empty.", "空的。")}</span>`}</div>
     <div class="row"><button type="button" id="cancel">${L("Close", "關閉")}</button></div></div>`, "pile");
@@ -1427,7 +1457,8 @@ function animateEvents() {
 }
 // The previous finished state, in snapshot form, so the first step of a playback starts from what was on screen.
 const prevAsSnap = p => ({ tok: p.tok, griev: p.griev, flooded: p.flooded, revealed: p.revealed, soul: p.soul, karma: p.karma, f: p.forgotten,
-  fract: S.fract, light: S.light, bw: S.bw, echo: S.echo, ...(p.pile ? { deck: p.pile.deck, disc: p.pile.disc, top: p.pile.top, ft: p.pile.ft } : {}), hold: p.hold, acts: p.acts });
+  fract: S.fract, light: S.light, bw: S.bw, echo: S.echo, ...(p.pile ? { deck: p.pile.deck, disc: p.pile.disc, top: p.pile.top, ft: p.pile.ft } : {}), hold: p.hold, acts: p.acts,
+  shield: p.shield, resign: p.resign, pushed: p.pushed });
 
 // Show one effect: move the table to the moment just after it, mark where it happened, sound it and caption it.
 // Returns how long to hold the step before the next one.
@@ -1477,8 +1508,10 @@ function stepEvent(ev) {
     }
     case "discard": {
       const done = holdPile(["disc"], prev);
-      fly(ev.from === "hand" ? handPoint() : boardPoint(), pilePoint("disc"), { cid: ev.cid, up0: ev.cid >= 0, up1: ev.cid >= 0, ms: 600, onland: done });
-      caption(ev.cid >= 0 ? L(`${cardName(ev.cid)} goes to the discard pile.`, `「${cardName(ev.cid)}」放入棄牌堆。`) : L("The face-down card goes to the discard pile.", "背面打出的牌放入棄牌堆。"));
+      // Every card lands face down. A card that was played face up turns over on its way; one from a hand never shows.
+      const shown = ev.from === "play" && ev.cid >= 0;
+      fly(ev.from === "hand" ? handPoint() : boardPoint(), pilePoint("disc"), { cid: ev.cid, up0: shown, up1: false, ms: 650, onland: done });
+      caption(shown ? L(`${cardName(ev.cid)} goes face down onto the discard pile.`, `「${cardName(ev.cid)}」背面朝上放入棄牌堆。`) : L("A card goes face down onto the discard pile.", "一張牌背面朝上放入棄牌堆。"));
       A.sfx("card");
       return 750;
     }
@@ -1499,7 +1532,7 @@ function stepEvent(ev) {
     case "recall": {
       motes(pilePoint("forg"), S.cfg.recallCost);
       const done = holdPile(["disc"], prev);
-      fly(pilePoint("forg"), pilePoint("disc"), { cid: ev.cid, ms: 800, delay: 650, onland: done });
+      fly(pilePoint("forg"), pilePoint("disc"), { cid: ev.cid, up1: false, ms: 800, delay: 650, onland: done });
       cap("good"); A.sfx("inscribe"); toast(text, 1); return 1700;
     }
     case "info": {
@@ -1507,7 +1540,7 @@ function stepEvent(ev) {
       if (m === "reshuffle") {
         const done = holdPile(["deck"], prev);
         const n = Math.min(6, ev.n || 4);
-        for (let i = 0; i < n; i++) fly(pilePoint("disc"), pilePoint("deck"), { up0: i === 0, up1: false, ms: 520, delay: i * 110, onland: i === n - 1 ? done : undefined });
+        for (let i = 0; i < n; i++) fly(pilePoint("disc"), pilePoint("deck"), { up0: false, up1: false, ms: 520, delay: i * 110, onland: i === n - 1 ? done : undefined });
         cap(); A.sfx("card"); return 700 + n * 110;
       }
       if (m === "hold" || m === "holding") {    // the Hold Fast token goes down beside the soul, and is shown again when it takes effect
@@ -1518,7 +1551,7 @@ function stepEvent(ev) {
     }
     case "push": A.sfx("fracture"); flash(); shake(); cap("bad"); boardToken("push", [X(ev.sp), Y(ev.sp)]); return banner(L("Through the shades", "穿過怨念"), text, "obs");
     case "blessing":
-      if (ev.cid !== undefined) { const done = holdPile(["disc"], prev); fly(pilePoint("forg"), pilePoint("disc"), { cid: ev.cid, ms: 800, delay: 500, onland: done }); }
+      if (ev.cid !== undefined) { const done = holdPile(["disc"], prev); fly(pilePoint("forg"), pilePoint("disc"), { cid: ev.cid, up1: false, ms: 800, delay: 500, onland: done }); }
       A.sfx("inscribe"); cap("good"); return banner(L("Chapter Blessing", "章節祝福"), text.replace(/^(Chapter Blessing: |章節祝福：)/, ""), "good");
     case "summon": {
       A.sfx("summon"); cap("good");

@@ -128,7 +128,8 @@ function trail(s, entry) {
 // back step by step, the way players would carry each effect out by hand.
 const snap = s => (s.tok ? { tok: [...s.tok], griev: [...s.griev], flooded: [...s.flooded], revealed: [...s.revealed], soul: s.soul,
   fract: s.fract, light: s.light, f: s.forgotten.length, bw: s.bw, karma: [...s.karma], echo: s.echo, deck: s.deck.length,
-  disc: s.discard?.length ?? 0, top: s.discard?.at(-1) ?? -1, ft: s.forgotten.at(-1) ?? -1, hold: !!s.hold, acts: [...(s.acts || [])], turn: s.turn, cur: s.cur } : null);
+  disc: s.discard?.length ?? 0, top: s.discard?.at(-1) ?? -1, ft: s.forgotten.at(-1) ?? -1, hold: !!s.hold, acts: [...(s.acts || [])], turn: s.turn, cur: s.cur,
+  shield: s.shieldUntil >= s.turn, resign: !!s.resign, pushed: [...(s.pushedBy || [])] } : null);
 export function note(s, kind, msg, data = {}) {
   s.evn += 1;
   s.ev.push({ id: s.evn, kind, msg, ...data, b: snap(s) });
