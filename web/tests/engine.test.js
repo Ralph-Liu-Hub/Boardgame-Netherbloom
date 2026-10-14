@@ -1,6 +1,6 @@
 // Plays many games with a simple greedy chooser to check the engine never crashes and games end.
 import assert from "node:assert/strict";
-import { makeConfig, newGame, beginTurn, playCard, endTurn, GameOver, copy, lit, NONE, ROOT, canSummon, summon, bringerPending, bringerBloom, bloomTargets, canSeek, seek, canPush, pushCost, pushAction, hasPushed } from "../public/assets/engine.js";
+import { makeConfig, newGame, beginTurn, playCard, endTurn, GameOver, copy, lit, NONE, ROOT, canSummon, summon, bringerPending, bringerBloom, bloomTargets, canSeek, seek, canPush, pushCost, pushAction, hasPushed, canRecall, recall, heldMantle } from "../public/assets/engine.js";
 import { CARDS, MANTLES, MIST, HARSH, SOULS } from "../public/assets/cards.js";
 import { setLang, say, cardName, cardBand, mistName, mistText, soulInfo, mantleInfo } from "../public/assets/i18n.js";
 
@@ -114,5 +114,42 @@ const a = await play(3, "open", 3, 42), b = await play(3, "open", 3, 42);
 assert.equal(JSON.stringify(a), JSON.stringify(b), "same seed gives the same game");
 assert.deepEqual(copy(a), a);
 assert.ok(seenKeys.has("seek") && seenKeys.has("push"), "Seek and push-through both happened and read in Chinese");
+
+// Recall: as the Answer, 3 Light brings back one forgotten card; it uses the turn's first action.
+{
+  const s = newGame(makeConfig({ players: 2, soul: "king" }), 5);
+  beginTurn(s);
+  s.forgotten.push(s.deck.pop());
+  s.light = 2;
+  assert.ok(!canRecall(s), "Recall needs 3 Light");
+  s.light = 4;
+  assert.ok(canRecall(s));
+  const cid = s.forgotten[0];
+  assert.ok(recall(s, cid));
+  assert.equal(s.light, 1); assert.equal(s.forgotten.length, 0); assert.ok(s.discard.includes(cid)); assert.equal(s.played, 1);
+  assert.ok(!canRecall(s), "only the Answer may Recall");
+}
+// Solo re-summon: a new Mantle lays the old one down for good; each Mantle once; 3 summons a game. Multiplayer: one each.
+{
+  const tagCard = (s, tag) => { const cid = CARDS.findIndex(c => c.tag === tag); s.hands[s.cur].push(cid); return cid; };
+  const s = newGame(makeConfig({ players: 1, soul: "open" }), 9);
+  beginTurn(s);
+  s.light = 20;
+  summon(s, "bringer", tagCard(s, MANTLES.bringer.tag));
+  assert.equal(heldMantle(s), "bringer");
+  tagCard(s, MANTLES.weaver.tag);
+  assert.ok(canSummon(s), "solo may summon again while holding a Mantle");
+  summon(s, "weaver", tagCard(s, MANTLES.weaver.tag));
+  assert.equal(s.mantles.bringer, -2, "the old Mantle is laid down for good");
+  summon(s, "warden", tagCard(s, MANTLES.warden.tag));
+  tagCard(s, MANTLES.breaker.tag);
+  assert.ok(!canSummon(s), "at most 3 summons in a solo game");
+  const m = newGame(makeConfig({ players: 2, soul: "open" }), 9);
+  beginTurn(m);
+  m.light = 20;
+  summon(m, "bringer", tagCard(m, MANTLES.bringer.tag));
+  tagCard(m, MANTLES.weaver.tag);
+  assert.ok(!canSummon(m), "with 2 or more players, one Mantle each");
+}
 console.log(`zh: ${seenKeys.size} message kinds checked`);
 console.log(`ok: ${games} games, greedy win rate ${(wins / games * 100).toFixed(0)}%, avg ${(turns / games).toFixed(1)} turns, losses`, causes);

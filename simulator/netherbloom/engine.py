@@ -61,6 +61,13 @@ class Config:
         self.push_once_each = True   # each player may Push Through only once per game
         self.push_action = True      # push-through is an action a player takes (False: the soul pushes on its own at the Soul Step)
         self.seek = True             # one action per turn may be Seek: discard a card and draw one (that turn's next card cannot Resonate)
+        # Light sinks (experiments; off by default)
+        self.light_action = "recall" # None, "recall" (the Answer action: spend Light, a forgotten card returns) or
+                                     # "kindle" (spend Light for one of: a forgotten card returns, mend a Fracture, drain a Black Water)
+        self.light_action_cost = 3
+        self.light_action_limit = 99 # times per game
+        self.solo_resummon = True    # solo: summon a new Mantle while holding one; the old one is retired; each Mantle once
+        self.max_summons = 3         # with solo_resummon: summons per game
         for k, v in overrides.items():
             if not hasattr(self, k):
                 raise KeyError(f"unknown config option {k}")
@@ -504,6 +511,18 @@ class State:
     # ------------------------------------------------------------- playing cards
     def play(self, cid, mode, chooser, first):
         """mode: 'up', 'down' or 'burn'. Returns True if the card Resonated."""
+        if mode in ("recall", "mend", "drainl"):
+            # Spending Light takes the Answer action and uses no card.
+            self.light -= self.cfg.light_action_cost
+            self.stats["light_actions"] = self.stats.get("light_actions", 0) + 1
+            self.stats[f"la_{mode}"] = self.stats.get(f"la_{mode}", 0) + 1
+            if mode == "recall":
+                self.discard.append(self.forgotten.pop())
+            elif mode == "mend":
+                self.fract -= 1
+            else:
+                self.drain(self.urgent_water())
+            return False
         if mode == "push":
             # Push Through: an action that uses no card. Only legal while Grievances hold both banks ahead.
             self.stats["push_actions"] = self.stats.get("push_actions", 0) + 1
@@ -586,6 +605,9 @@ class State:
             self.note("  Chapter Blessing: a memory returns")
 
     def summon(self, mantle, discard_cid):
+        for m, h in self.mantles.items():
+            if h == self.cur:
+                self.mantles[m] = -2          # retired: it can never be summoned again
         self.light -= self.cfg.mantle_cost
         self.hands[self.cur].remove(discard_cid)
         self.discard.append(discard_cid)
@@ -823,3 +845,19 @@ def mist_severity(m):
         s += {"bw": 3, "grv": 3, "grv_near": 4, "wither": 2, "wither_far": 3, "wither_at": 2,
               "fog": 1, "forget": 2, "sever": 1, "karma_all": 3, "dark_wind": 2}.get(op[0], 0)
     return s
+
+
+def light_actions(s):
+    """The Light-spending actions open to the current player as their Answer (first) action."""
+    cfg = s.cfg
+    if not cfg.light_action or s.light < cfg.light_action_cost or s.stats.get("light_actions", 0) >= cfg.light_action_limit:
+        return []
+    out = []
+    if s.forgotten:
+        out.append("recall")
+    if cfg.light_action == "kindle":
+        if s.fract > 0:
+            out.append("mend")
+        if s.urgent_water() is not None:
+            out.append("drainl")
+    return out

@@ -10,6 +10,10 @@ A playable browser version of Netherbloom for publisher previews, hosted on Verc
 - **Login**: every page and asset sits behind `/login`. The account, password and cookie-signing secret are Vercel environment variables (`NB_USER`, `NB_PASS`, `NB_SECRET`), never source code.
 - **Help while playing**: a *Player Aid* and a searchable *Rulebook* slide in from the side. A turn guide beside the board lights up the current step and follows the Soul Step and the Mist as they play out.
 - **Book of Remembrance**: click the Book on the table to open the illustrated two-page edition, with chapter pages, wax-seal blessings and an epilogue at the end of the game.
+- **Every effect, step by step**: like players at a real table, the game carries out each effect in order: every Root, Bloom, wither, flood, Grievance, fog, knot, forgotten card, draw and Ghost play is shown on the board with a ring of light, a sound and a caption, and nothing moves on until it has played out. *Effects: fast* in the top bar speeds it up.
+- **Cards on the table**: the deck, discard pile and forgotten pile sit under the river. Cards fly between them as they would be moved by hand: drawn and turned over into the hand, played onto the river, discarded, forgotten, Recalled, inscribed in the Book, and the discard pile shuffled back into the deck. Click the discard or forgotten pile to look through it.
+- **The hand**: a fan of cards in a panel along the foot of the window that slides open and shut. Click a card to hold it up close, with its full text, what each effect means, and the ways to play it.
+- **Action tokens**: each action is marked with a token on the turn tray (face up, face down, Burn, Seek, Recall, Summon, Push Through); Light spent drifts from the Light counter to where it is used, and a Hold Fast token waits beside the soul. The Player Aid explains each token.
 - **Music**: synthesised live with the Web Audio API: a drone, the river and wind in the reeds, with one public-domain lullaby at a time played softly on a felt piano. Each Soul has the lullaby of the land its story comes from: Brahms' Lullaby for the game and the Nameless Soul, *Schlaf, Kindlein, schlaf* for the Child, *Can Ye Sew Cushions* for the Garland Girl, *All Through the Night* for the King and the Greek ballad *The Death-Bride* for the Bride. Nothing is sampled, so there is no licence to clear.
 
 The rules engine `public/assets/engine.js` is a port of `simulator/netherbloom/engine.py`, using the tuned defaults from the balance report. Keep the two in step.
@@ -38,7 +42,7 @@ The Vercel GitHub app does not yet have access to this repository. Once it does,
 | `middleware.js` | Sends anyone without a valid session cookie to `/login` |
 | `api/login.js`, `api/logout.js`, `api/_session.js` | Sign-in and the signed HttpOnly cookie |
 | `public/assets/cards.js`, `engine.js` | Card data and rules |
-| `public/assets/app.js` | Menus, board, hand, the turn guide, the rules drawer, animations and the three play modes |
+| `public/assets/app.js` | Menus, board, piles, the hand panel and action tokens, the turn guide, the rules drawer, animations and the three play modes |
 | `public/assets/rules.js` | The searchable Rulebook and the Player Aid sheet (card and Mist tables are built from `cards.js`) |
 | `public/assets/book.js` | The full illustrated Book of Remembrance, with page turns |
 | `public/assets/puppet.js` | Shadow-theatre silhouettes of each Soul for the Book: jointed, sketched puppets whose gestures replay the soul's journey |

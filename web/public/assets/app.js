@@ -32,8 +32,16 @@ let mySeat = 0;            // online: this player's own seat
 let uncovered = -1;        // same-screen play: the seat whose hand is showing
 let pending = null;        // a choice the active player must make
 let busy = false;          // a card is resolving
-let selected = null;       // card picked in the hand
+let selected = null;       // card opened up close from the hand
+let arriving = new Set();  // cards drawn this playback that are still in the air: the hand keeps their place empty
+let dockOpen = true;       // the hand panel along the foot of the window
+try { dockOpen = localStorage.getItem("nb-dock") !== "0"; } catch { /* storage blocked */ }
 let lastEv = 0;            // last event animated
+// Step-by-step playback: while effects are being shown, the table is drawn from the snapshot of the step on
+// screen (`view`) rather than from the finished state, so every effect happens in order, as at a real table.
+let view = null;
+let fxSpeed = 1;
+try { fxSpeed = +localStorage.getItem("nb-fx") || 1; } catch { /* storage blocked */ }
 let prev = null;           // board as last drawn, for change animations
 let prevHand = [];
 let prevBookIds = new Set();
@@ -73,6 +81,11 @@ async function boot() {
   }
   document.addEventListener("pointerdown", () => { if (A.isMusicOn()) A.start(); else A.setSfx(A.isSfxOn()); }, { once: true });
   $("btn-music").onclick = () => { A.setMusic(!A.isMusicOn()); topbar(); };
+  $("btn-fx").onclick = () => {
+    fxSpeed = fxSpeed < 1 ? 1 : 0.45;
+    try { localStorage.setItem("nb-fx", String(fxSpeed)); } catch { /* storage blocked */ }
+    topbar();
+  };
   $("btn-sfx").onclick = () => { A.setSfx(!A.isSfxOn()); topbar(); };
   buildDrawer();
   $("btn-rules").onclick = () => openDrawer("rules");
@@ -117,6 +130,8 @@ function relang() {
 function topbar() {
   $("btn-music").textContent = L(`Music: ${A.isMusicOn() ? "on" : "off"}`, `音樂：${A.isMusicOn() ? "開" : "關"}`);
   $("btn-sfx").textContent = L(`Sound: ${A.isSfxOn() ? "on" : "off"}`, `音效：${A.isSfxOn() ? "開" : "關"}`);
+  $("btn-fx").textContent = L(`Effects: ${fxSpeed < 1 ? "fast" : "step by step"}`, `效果：${fxSpeed < 1 ? "快速" : "逐步"}`);
+  $("btn-fx").title = L("How quickly each effect is played out on the table", "每個效果在桌面上演示的速度");
   $("btn-lang").textContent = zh() ? "English" : "中文";
   $("btn-lang").title = L("Switch to Traditional Chinese", "切換為英文");
   $("btn-aid").textContent = L("Player Aid", "玩家輔助卡");
@@ -245,6 +260,9 @@ function beginGame(s) {
   endShown = false;
   prev = null;
   prevHand = [];
+  arriving = new Set();
+  pilesHeld = {};
+  trayShown = 0;
   prevBookIds = new Set();
   lastEv = Math.max(0, S.evn - 1);
   guideStep = null;
@@ -410,7 +428,7 @@ function canAct() {
   if (mode === "local" && S.n > 1 && uncovered !== S.cur) return false;
   return true;
 }
-const canPlayCards = () => canAct() && !busy && !pending && S.phase === "play" && S.played < S.cfg.cardsPerTurn && S.hands[S.cur].length > 0;
+const canPlayCards = () => canAct() && !busy && !pending && !playingBack() && S.phase === "play" && S.played < S.cfg.cardsPerTurn && S.hands[S.cur].length > 0;
 
 async function tick() {
   if (!S) return;
@@ -454,8 +472,11 @@ const chooser = {
 };
 function ask(p) {
   return new Promise(resolve => {
-    pending = { ...p, resolve };
     commit();
+    idle().then(() => {
+      pending = { ...p, resolve };
+      refresh();
+    });
   });
 }
 function answer(v) {
@@ -467,7 +488,8 @@ function answer(v) {
 
 async function playSelected(cid, mode_) {
   if (!canPlayCards()) return;
-  flyCard(cid);
+  closeZoom();
+  flyCard(cid, mode_);
   selected = null;
   busy = true;
   A.sfx("card");
@@ -518,6 +540,28 @@ async function finishTurn() {
   tick();
 }
 
+// Recall: choose which forgotten card comes back.
+function recallDialog() {
+  const rows = [...new Set(S.forgotten)].reverse().map(cid => {
+    const c = CARDS[cid];
+    return `<button type="button" class="recallopt t${c.tag}" data-rc="${cid}"><b>${esc(cardName(cid))}</b>${c.key ? ` <span class="firsttag">${L("Key Memory", "關鍵記憶")}</span>` : ""}
+      <small>${esc(tagName(c.tag))}${c.band ? ` · <i>${esc(cardBand(cid))}</i>` : ""}</small></button>`;
+  }).join("");
+  veil(`<div class="dialog wide"><h2>${L("Recall a memory", "喚回一段記憶")}</h2>
+    <p>${L(`As your <b>Answer</b>, spend <b>${S.cfg.recallCost} Light</b>: one forgotten card of your choice returns to the discard pile. This is your Answer, so it cannot Resonate.`,
+      `以你的<b>回應</b>花費<b>${S.cfg.recallCost}點光</b>：選一張被遺忘的牌回到棄牌堆。這就是你的回應，因此無法產生共鳴。`)}</p>
+    <div class="recallgrid">${rows}</div>
+    <div class="row"><button type="button" id="cancel">${L("Not now", "暫時不要")}</button></div></div>`, "recall");
+  $("cancel").onclick = closeVeil;
+  document.querySelectorAll("[data-rc]").forEach(b => b.onclick = async () => {
+    closeVeil();
+    if (!canPlayCards() || !E.canRecall(S)) return;
+    selected = null;
+    E.recall(S, +b.dataset.rc);
+    await afterAction();
+  });
+}
+
 function summonDialog() {
   const p = S.cur, hand = S.hands[p];
   const rows = Object.keys(MANTLES).filter(m => S.mantles[m] === -1).map(m => {
@@ -527,8 +571,12 @@ function summonDialog() {
       <div class="row">${cards.length ? cards.map(cid => `<button type="button" data-m="${m}" data-cid="${cid}">${L("Discard", "棄掉")} ${esc(cardName(cid))}</button>`).join("")
         : `<span class="muted">${L(`Needs a ${tagName(info.tag)} card.`, `需要一張${tagName(info.tag)}牌。`)}</span>`}</div></div>`;
   }).join("");
-  veil(`<div class="dialog wide"><h2>${L("Summon a Mantle", "召喚稱號")}</h2>
-    <p>${L(`Pay <b>${S.cfg.mantleCost} Light</b> and discard a card of the Mantle's thread. You keep the Mantle for the rest of the game.`, `支付<b>${S.cfg.mantleCost}點光</b>，並棄掉一張與該稱號同絲線的牌。你將持有這個稱號直到遊戲結束。`)}</p>
+  const old = E.heldMantle(S, p), left = S.cfg.maxSummons - S.stats.summons;
+  const swap = old ? `<p class="pushwarn">${L(`You hold <b>${esc(mantleInfo(old).name)}</b>. Summoning a new Mantle lays it down for good: no one can summon it again. Summons left this game: <b>${left}</b>.`,
+    `你持有<b>${esc(mantleInfo(old).name)}</b>。召喚新的稱號會將它永久放下，之後再也無法召喚。本局剩餘召喚次數：<b>${left}</b>。`)}</p>` : "";
+  veil(`<div class="dialog wide"><h2>${old ? L("Summon a new Mantle", "召喚新的稱號") : L("Summon a Mantle", "召喚稱號")}</h2>
+    <p>${L(`Pay <b>${S.cfg.mantleCost} Light</b> and discard a card of the Mantle's thread. ${S.cfg.resummon ? `Solo: you may later trade it for another, up to ${S.cfg.maxSummons} summons in a game.` : "You keep the Mantle for the rest of the game."}`,
+      `支付<b>${S.cfg.mantleCost}點光</b>，並棄掉一張與該稱號同絲線的牌。${S.cfg.resummon ? `單人模式：之後可以換成另一個稱號，一局最多召喚${S.cfg.maxSummons}次。` : "你將持有這個稱號直到遊戲結束。"}`)}</p>${swap}
     ${rows}<div class="row"><button type="button" id="cancel">${L("Not now", "暫時不要")}</button></div></div>`, "summon");
   $("cancel").onclick = closeVeil;
   document.querySelectorAll("[data-m]").forEach(b => b.onclick = () => {
@@ -546,9 +594,12 @@ function buildTable() {
       <div class="status" id="status"></div>
       <div class="boardwrap" id="boardwrap">
         <div class="boardscroll"><svg id="board" viewBox="0 0 1120 400" role="img" aria-label="${L("The river", "河流")}"></svg></div>
+        <div class="boardcap" id="boardcap" aria-live="polite"></div>
       </div>
-      <div class="prompt" id="prompt"></div>
-      <div class="hand" id="hand"></div>
+      <div class="tabletop">
+        <div class="piles" id="piles"></div>
+        <div class="tray" id="tray" aria-label="${L("Actions this turn", "本回合的行動")}"></div>
+      </div>
       <section class="panel"><h2>${L("Book of Remembrance", "憶念之書")} <button type="button" class="link openbook" id="openbook">${svgUse("nb-seal")}${L("Open the Book", "翻開書本")}</button></h2>
         <div class="bookstrip" id="book" title="${L("Open the Book of Remembrance", "翻開憶念之書")}"></div></section>
     </div>
@@ -558,7 +609,18 @@ function buildTable() {
       <section class="panel"><h2>${L("The Soul", "亡魂")}</h2><div id="soulboard"></div></section>
       <section class="panel chron"><h2>${L("Chronicle", "紀事")}</h2><div class="log" id="log"></div></section>
     </aside>
-  </div>`;
+  </div>
+  <section class="dock ${dockOpen ? "open" : ""}" id="dock" aria-label="${L("Your hand", "你的手牌")}">
+    <div class="dockbar">
+      <button type="button" class="docktoggle" id="docktoggle" aria-expanded="${dockOpen}" aria-controls="hand"></button>
+      <div class="prompt" id="prompt"></div>
+    </div>
+    <div class="fanwrap"><div class="fan" id="hand"></div></div>
+  </section>
+  <div class="zoom hidden" id="zoom" role="dialog" aria-modal="true"></div>`;
+  $("docktoggle").onclick = () => setDock(!dockOpen);
+  $("zoom").addEventListener("click", e => { if (e.target.id === "zoom" || e.target.closest("[data-close]")) closeZoom(); });
+  new ResizeObserver(() => document.documentElement.style.setProperty("--dockh", `${$("dock")?.offsetHeight || 0}px`)).observe($("dock"));
   drawBoardStatic();
   $("board").addEventListener("click", e => {
     const g = e.target.closest(".slot.target");
@@ -623,11 +685,26 @@ function drawBoardStatic() {
   <g id="soulG"><g class="bob">
     <circle class="soulglow" r="34" fill="url(#soulGrad)"/>
     <g id="soulFig" data-soul="${S?.cfg.soul || ""}">${soulMiniature(S?.cfg.soul || "open")}</g>
-  </g></g>`;
+  </g></g>
+  <g id="fx"></g>`;
 }
 
+// The game as the table should show it right now: mid-playback, the snapshot of the step on screen.
+function vs() {
+  if (!view) return S;
+  return { ...S, tok: view.tok, griev: view.griev, flooded: view.flooded, revealed: view.revealed, soul: view.soul, fract: view.fract,
+    light: view.light, bw: view.bw, karma: view.karma, echo: view.echo, forgotten: { length: view.f },
+    pile: { deck: view.deck ?? S.deck.length, disc: view.disc ?? S.discard.length, top: view.top ?? S.discard.at(-1) ?? -1, ft: view.ft ?? S.forgotten.at(-1) ?? -1 },
+    hold: view.hold ?? S.hold, acts: view.acts ?? S.acts ?? [] };
+}
+const asPrev = b => ({ tok: b.tok, griev: b.griev, revealed: b.revealed, flooded: b.flooded, soul: b.soul, karma: b.karma, forgotten: b.f,
+  pile: b.deck !== undefined && b.disc !== undefined ? { deck: b.deck, disc: b.disc, top: b.top, ft: b.ft } : null, hold: b.hold, acts: b.acts });
+const finalPrev = () => ({ tok: [...S.tok], griev: [...S.griev], revealed: [...S.revealed], flooded: [...S.flooded], soul: S.soul, karma: [...S.karma], forgotten: S.forgotten.length,
+  pile: { deck: S.deck.length, disc: S.discard.length, top: S.discard.at(-1) ?? -1, ft: S.forgotten.at(-1) ?? -1 }, hold: S.hold, acts: [...(S.acts || [])] });
+const playingBack = () => running || queue.length > 0;
+
 function drawBoard() {
-  const s = S;
+  const s = vs();
   const p = prev || { tok: s.tok, griev: s.griev, revealed: s.revealed, flooded: s.flooded, soul: s.soul };
   const targets = pending && canAct() && pending.targets ? new Set(pending.targets) : new Set();
   let h = "";
@@ -668,11 +745,13 @@ function drawBoard() {
     h += `<g class="slot${tgt ? " target" : ""}" data-k="${k}" opacity="${behind ? 0.3 : 1}"><title>${esc(slotTitle(k))}</title>
       <rect class="frame" x="${cx - 27}" y="${cy - 27}" width="54" height="54" rx="8"/>${inner}</g>`;
   }
-  $("dyn").innerHTML = h;
   const sp = Math.min(s.soul, 12);
   const fig = $("soulFig");
   if (fig && fig.dataset.soul !== s.cfg.soul) { fig.dataset.soul = s.cfg.soul; fig.innerHTML = soulMiniature(s.cfg.soul); }
   $("soulG").style.transform = `translate(${X(sp)}px, ${Y(sp)}px)`;
+  if (s.hold && sp < 12) h += `<g class="holdtok" transform="translate(${X(sp) + 30},${Y(sp) - 34})"><title>${esc(L("Hold Fast: the soul waits this turn without forgetting", "堅守：亡魂本回合停留而不遺忘"))}</title><g class="${p.hold ? "" : "stampin"}">
+    <circle r="15" fill="#17161B" stroke="#8FD6E1" stroke-width="1.6"/><use href="#nb-tok-hold" x="-10" y="-10" width="20" height="20" style="color:#8FD6E1"/></g></g>`;
+  $("dyn").innerHTML = h;
   if (p.soul > s.soul) $("boardwrap").classList.add("shake");
 }
 
@@ -688,6 +767,7 @@ function slotTitle(k) {
 
 // ---------------------------------------------------------------- side panels
 function drawLoom() {
+  const S = vs();
   const cap = S.cfg.karmaCap;
   $("loom").innerHTML = [0, 1, 2].map(t => {
     let knots = "";
@@ -702,6 +782,7 @@ function drawLoom() {
 }
 
 function drawSoulboard() {
+  const S = vs();
   const c = S.cfg, f = S.forgotten.length;
   let cells = "";
   for (let n = 1; n <= c.forgottenLimit; n++) {
@@ -712,14 +793,14 @@ function drawSoulboard() {
   for (let n = 0; n < c.bwSupply; n++) bw += svgUse("nb-blackwater", n < S.bw ? "" : "dim", "color:#9A948C");
   const fr = [0, 1, 2].map(n => svgUse("nb-fracture", n < S.fract ? "" : "dim", "color:#D7263D")).join("");
   const mantles = Object.keys(MANTLES).map(m => [m, mantleInfo(m)]).map(([m, info]) =>
-    `<div title="${esc(info.text)}"><span class="${TAGCLS[info.tag]}">${esc(info.name.replace("The ", ""))}</span><b>${S.mantles[m] >= 0 ? esc(pname(S.names[S.mantles[m]])) : `<span class="muted">${L("free", "未取得")}</span>`}</b></div>`).join("");
+    `<div title="${esc(info.text)}"><span class="${TAGCLS[info.tag]}">${esc(info.name.replace("The ", ""))}</span><b>${S.mantles[m] >= 0 ? esc(pname(S.names[S.mantles[m]])) : S.mantles[m] === -2 ? `<span class="muted">${L("laid down", "已放下")}</span>` : `<span class="muted">${L("free", "未取得")}</span>`}</b></div>`).join("");
   $("soulboard").innerHTML = `<div class="soulgrid">
     <div class="lbl wide">${L(`Forgotten ${f} of ${c.forgottenLimit}`, `遺忘 ${f}／${c.forgottenLimit}`)} <span class="muted" style="text-transform:none;letter-spacing:0">· ${L("Ash", "灰燼")} ${c.ashAt}${c.adriftAt < 99 ? ` · ${L("Adrift", "漂離")} ${c.adriftAt}` : ""}</span></div>
     <div class="track wide" style="grid-template-columns:repeat(${c.forgottenLimit},minmax(0,1fr))">${cells}</div>
     <div><div class="lbl">${L("Fractures", "裂痕")}</div><div class="icons">${fr}</div></div>
-    <div><div class="lbl">${L("Light", "光")}</div><div class="icons">${svgUse("nb-light", "", "color:#E6D3A3")}<span style="font-family:var(--display);font-size:1.25rem;color:var(--bone)">${S.light}</span></div></div>
+    <div><div class="lbl">${L("Light", "光")}</div><div class="icons" id="sb-light">${svgUse("nb-light", "", "color:#E6D3A3")}<span style="font-family:var(--display);font-size:1.25rem;color:var(--bone)">${S.light}</span></div></div>
     <div class="wide"><div class="lbl">${L("Black Water supply", "黑水供應")}</div><div class="icons">${bw}</div></div>
-    <div class="wide"><div class="lbl">${L(`Mantles · cost ${c.mantleCost} Light`, `稱號 · 花費${c.mantleCost}點光`)}</div><div class="mantles">${mantles}</div></div>
+    <div class="wide"><div class="lbl">${L(`Mantles · cost ${c.mantleCost} Light`, `稱號 · 花費${c.mantleCost}點光`)}</div><div class="mantles" id="sb-mantles">${mantles}</div></div>
   </div>`;
 }
 
@@ -754,7 +835,6 @@ function drawStatus() {
     <span>${L(`Turn <b>${S.turn}</b>`, `第<b>${S.turn}</b>回合`)}</span>
     <span>${L(`Reach <b>${ROMAN[S.reach]}</b>`, `第<b>${ZHNUM[S.reach]}</b>河段`)} · ${reachName(S.reach)}</span>
     <span>${L("Soul at", "亡魂位置")} <b>${Math.min(S.soul, 12)}</b> / 12</span>
-    <span>${L("Deck", "牌庫")} <b>${S.deck.length}</b> · ${L("Discard", "棄牌堆")} <b>${S.discard.length}</b></span>
     ${mode === "online" ? `<span class="net"><span class="dot"></span>${esc(net?.code || "")} · ${L("you are", "你是")} ${esc(pname(S.names[mySeat]))}</span>` : ""}`;
 }
 
@@ -792,15 +872,17 @@ function drawPrompt() {
     $("skip").onclick = () => answer(null);
     return;
   }
-  if (busy) { setPrompt(`<span class="msg">…</span>`, true); return; }
+  if (busy || playingBack()) { setPrompt(`<span class="msg">${L("Carrying out each effect on the table…", "正在桌面上逐一執行效果……")}</span>`, true); return; }
   const n = S.played + 1;
   const echo = S.echo >= 0 && S.played === 0 ? L(` The Echo is <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>: an Answer of that thread Resonates.`,
     `迴響是<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>：以同絲線的牌回應便會產生共鳴。`) : "";
-  const sum = E.canSummon(S) ? `<button type="button" id="summon">${L(`Summon a Mantle (${S.cfg.mantleCost} Light)`, `召喚稱號（${S.cfg.mantleCost}點光）`)}</button>` : "";
+  const sum = E.canSummon(S) ? `<button type="button" id="summon" class="tokbtn">${tokIcon("summon")}${E.heldMantle(S) ? L(`Summon a new Mantle (${S.cfg.mantleCost} Light)`, `召喚新的稱號（${S.cfg.mantleCost}點光）`) : L(`Summon a Mantle (${S.cfg.mantleCost} Light)`, `召喚稱號（${S.cfg.mantleCost}點光）`)}</button>` : "";
+  const rec = E.canRecall(S) ? `<button type="button" id="recall" class="recallbtn tokbtn">${tokIcon("recall")}${L(`Recall a memory · ${S.cfg.recallCost} Light`, `喚回記憶 · ${S.cfg.recallCost}點光`)}</button>` : "";
   const cost = E.pushCost(S);
-  const push = E.canPush(S) ? `<button type="button" id="push" class="pushbtn">${L(`Push Through · ${cost} Fracture${cost > 1 ? "s" : ""}, forget 1 · once a game`, `強行穿過 · ${cost}道裂痕，遺忘1張 · 整局一次`)}</button>` : "";
-  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, ` : ""}${n === 1 ? (S.n > 1 ? "your <b>Answer</b>" : "Your <b>Answer</b>") : (S.n > 1 ? "now <b>Steer</b>" : "Now <b>Steer</b>")}: play a card${E.canSeek(S) ? ", Seek" : ""}${push ? " or Push Through" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，` : ""}${n === 1 ? "你的<b>回應</b>" : "接著<b>掌舵</b>"}：打出一張牌${E.canSeek(S) ? "、尋覓" : ""}${push ? "或強行穿過" : ""}。`)}${echo}</span>${push}${sum}`, true);
+  const push = E.canPush(S) ? `<button type="button" id="push" class="pushbtn tokbtn">${tokIcon("push")}${L(`Push Through · ${cost} Fracture${cost > 1 ? "s" : ""}, forget 1 · once a game`, `強行穿過 · ${cost}道裂痕，遺忘1張 · 整局一次`)}</button>` : "";
+  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, ` : ""}${n === 1 ? (S.n > 1 ? "your <b>Answer</b>" : "Your <b>Answer</b>") : (S.n > 1 ? "now <b>Steer</b>" : "Now <b>Steer</b>")}: play a card${E.canSeek(S) ? ", Seek" : ""}${rec ? ", Recall" : ""}${push ? " or Push Through" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，` : ""}${n === 1 ? "你的<b>回應</b>" : "接著<b>掌舵</b>"}：打出一張牌${E.canSeek(S) ? "、尋覓" : ""}${rec ? "、喚回記憶" : ""}${push ? "或強行穿過" : ""}。`)}${echo}</span>${push}${rec}${sum}`, true);
   if (sum) $("summon").onclick = summonDialog;
+  if (rec) $("recall").onclick = recallDialog;
   if (push) $("push").onclick = pushNow;
 }
 
@@ -810,65 +892,317 @@ function viewSeat() {
   return mySeat;
 }
 
+// What each effect means at the table: shown on a card held up close.
+const GLOSS = {
+  root: ["<b>Root</b>: a seed on an empty bank at or ahead of the soul. It must touch the network: the soul's own space or the next, the opposite bank, or the same bank one space before or after a token. Placing it on fog reveals the tile.",
+    "<b>根</b>：放在亡魂所在格或前方的空河岸上，必須與根網相連：亡魂所在格或下一格、同格對岸，或同側前後一格有標記。放在霧上會翻開地塊。"],
+  bloom: ["<b>Bloom</b>: one of your Roots, at or ahead of the soul, opens into a spider lily. A space with a Bloom is Lit, and the soul only steps onto Lit spaces.",
+    "<b>綻放</b>：亡魂所在格或前方的一個根開成彼岸花。有花的格子即被照亮，亡魂只會踏上被照亮的格子。"],
+  hold: ["<b>Hold Fast</b>: if the soul cannot step this turn, it waits without forgetting a card. The token stays beside the soul until the turn ends.",
+    "<b>堅守</b>：若亡魂本回合無法前進，它會停留而不遺忘任何牌。標記放在亡魂旁，直到回合結束。"],
+  shield: ["<b>Shield</b>: the next Fracture before your next turn is stopped.", "<b>護盾</b>：在你的下個回合之前，擋下下一道裂痕。"],
+  mend: ["<b>Mend</b>: remove a Fracture from the Soul board. At 3 Fractures the soul Shatters.", "<b>修補</b>：從亡魂板上移除一道裂痕。裂痕達到3道，亡魂便會破碎。"],
+  release: ["<b>Release</b>: untie knots on the Loom's fullest thread, further from a Backlash.", "<b>解結</b>：解開命運織機上最滿那條絲線的結，遠離反噬。"],
+  unmake: ["<b>Unmake</b>: the fullest thread is emptied at once, with no Backlash.", "<b>消解</b>：最滿的絲線立即清空，不會反噬。"],
+  guide: ["<b>Guide</b>: the soul steps forward now, but only if the next space is Lit.", "<b>引導</b>：若下一格被照亮，亡魂立刻前進一格。"],
+  vigil: ["<b>Vigil</b>: look at the top 3 cards of this Reach's Mist deck and put the worst of them at the bottom of the three.", "<b>守夜</b>：查看本河段迷霧牌堆頂的3張，把最糟的一張放在這三張的最下面。"],
+  banish: ["<b>Banish</b>: remove the Grievance that threatens the soul most.", "<b>驅散</b>：移除對亡魂威脅最大的怨念。"],
+  drain: ["<b>Drain</b>: remove the Black Water nearest the soul and return it to the supply.", "<b>排水</b>：移除離亡魂最近的黑水，放回供應區。"],
+  banish_or_drain: ["<b>Banish or Drain</b>: clear whichever is more urgent, a Grievance or Black Water.", "<b>驅散或排水</b>：清除較緊迫的一個，怨念或黑水。"],
+  wash: ["<b>Wash</b>: the Grievances on the soul's own space are washed away.", "<b>洗淨</b>：洗去亡魂所在格上的怨念。"],
+  lowtide: ["<b>Low Tide</b>: all Black Water in this Reach drains away.", "<b>退潮</b>：本河段所有黑水退去。"],
+  light: ["<b>Light</b>: spend 3 to Recall a forgotten card as your Answer, or (with a card of its thread) to summon a Mantle.", "<b>光</b>：以回應花3點光喚回一張被遺忘的牌，或搭配同絲線的牌召喚稱號。"],
+  reveal_reach: ["<b>Reveal</b>: every fogged bank in this Reach is turned up. Graves found this way turn Fertile.", "<b>揭示</b>：翻開本河段所有被霧覆蓋的河岸。以此翻出的墳墓會變成沃土。"],
+  extra_karma: ["<b>Extra knot</b>: one more knot is tied on the Obsession thread.", "<b>額外的結</b>：執念絲線再打上一個結。"],
+};
+const THREAD_NOTE = [
+  ["Played face up, it ties a knot on the <b>Obsession</b> thread. When the thread fills: <i>Grasping</i>, a Grievance claws at the soul.", "正面打出時在<b>執念</b>絲線上打結。絲線滿時：<i>攫取</i>，一個怨念撲向亡魂。"],
+  ["Played face up, it ties a knot on the <b>Acceptance</b> thread. When the thread fills: <i>Resignation</i>, the soul sits down and Lingers.", "正面打出時在<b>釋懷</b>絲線上打結。絲線滿時：<i>認命</i>，亡魂坐下並徘徊。"],
+  ["Played face up, it ties a knot on the <b>Oblivion</b> thread. When the thread fills: <i>The Tide Rises</i>, Black Water floods ahead.", "正面打出時在<b>忘卻</b>絲線上打結。絲線滿時：<i>漲潮</i>，黑水淹沒前方。"],
+];
+function cardGloss(cid) {
+  const c = CARDS[cid];
+  const kinds = [...new Set([...c.eff, ...c.res].map(o => o[0]))].filter(k => GLOSS[k]);
+  const items = kinds.map(k => `<li>${L(...GLOSS[k])}</li>`);
+  items.push(`<li>${L(...THREAD_NOTE[c.tag])}</li>`);
+  items.push(`<li>${L("<b>Resonance</b>: played as your Answer while the Echo sits on this card's thread.", "<b>共鳴</b>：迴響停在這張牌的絲線上時，以它作為回應打出。")}</li>`);
+  if (c.key) items.push(`<li>${L("<b>Key Memory</b>: it may be inscribed in the Book even without Resonating.", "<b>關鍵記憶</b>：即使沒有共鳴，也可以銘刻進憶念之書。")}</li>`);
+  else if (c.slot) items.push(`<li>${L("<b>Memory</b>: when it Resonates, its line may be inscribed in the Book as this Reach's " + c.slot + ".", `<b>記憶</b>：產生共鳴時，可以把這句話銘刻進憶念之書，作為本河段的${slotLabel(c.slot)}。`)}</li>`);
+  return `<ul class="gloss">${items.join("")}</ul>`;
+}
+
 function cardHTML(cid, opts = {}) {
   const c = CARDS[cid];
   const res = opts.resonant;
-  return `<div class="card t${c.tag} ${opts.playable ? "playable" : ""} ${opts.sel ? "sel" : ""} ${res ? "resonant" : ""} ${opts.dealt ? "dealt" : ""}" data-cid="${cid}" ${opts.playable ? 'role="button" tabindex="0"' : ""}>
+  return `<div class="card t${c.tag} ${opts.playable ? "playable" : ""} ${opts.sel ? "sel" : ""} ${res ? "resonant" : ""} ${opts.dealt ? "dealt" : ""} ${opts.cls || ""}" data-cid="${cid}" ${opts.style ? `style="${opts.style}"` : ""} ${opts.focus ? 'role="button" tabindex="0"' : ""}>
     <div class="top">${svgUse(TAG_ICONS[c.tag], TAGCLS[c.tag])}<div><div class="nm">${esc(cardName(cid))}</div><div class="tag">${tagName(c.tag)}${c.key ? ` · <span class="key">${L("Key Memory", "關鍵記憶")}</span>` : ""}</div></div></div>
     <div class="eff">${esc(ops(c.eff))}</div>
     <div class="res"><b>${L("Resonance:", "共鳴：")}</b> ${c.rr ? L("instead, ", "改為") : ""}${esc(ops(c.res))}</div>
+    ${opts.gloss ? cardGloss(cid) : ""}
     ${c.slot ? `<div class="band">${svgUse(SLOT_ICON[c.slot], "", "color:#E6D3A3")}<span>${esc(cardBand(cid))}</span></div>` : `<div class="band"><span class="muted">${L("An Oblivion card is forgotten after use.", "忘卻牌使用後會被遺忘。")}</span></div>`}
-    ${opts.sel ? `<div class="modes">
-      <button type="button" data-play="up">${L(`Play face up${res ? " · Resonates" : ""}`, `正面打出${res ? " · 共鳴" : ""}`)}</button>
-      <button type="button" data-play="down">${L("Face down · 1 Root, no knot", "背面打出 · 放1個根，不打結")}</button>
-      <button type="button" data-play="burn">${L("Burn · twice, then forget it and 1 more", "焚燒 · 效果兩次，再遺忘此牌與另1張")}</button>
-      ${E.canSeek(S) ? `<button type="button" data-play="seek">${L(`Seek · discard this, draw 1${S.played === 0 ? " (the Echo passes)" : ""}`, `尋覓 · 棄掉此牌，抽1張${S.played === 0 ? "（放過迴響）" : ""}`)}</button>` : ""}</div>` : ""}
   </div>`;
+}
+
+// ---------------------------------------------------------------- the hand: a fan of cards in a panel along the foot of the window
+function setDock(open) {
+  dockOpen = open;
+  try { localStorage.setItem("nb-dock", open ? "1" : "0"); } catch { /* storage blocked */ }
+  $("dock")?.classList.toggle("open", open);
+  $("docktoggle")?.setAttribute("aria-expanded", String(open));
+  if (S) drawHand();
+}
+
+// Whether this screen may see the faces of a player's cards.
+function seesHand(p) {
+  if (S.n === 1) return true;
+  if (mode === "online") return p === mySeat;
+  return uncovered === p;
+}
+
+// Fan angles: the cards splay from a point below the hand, the way they are held.
+function fanPose(i, n) {
+  const spread = Math.min(4.5, 18 / Math.max(1, n - 1));
+  const off = i - (n - 1) / 2;
+  return `--r:${(off * spread).toFixed(2)}deg;--y:${(off * off * 2).toFixed(1)}px;--z:${i + 1}`;
 }
 
 function drawHand() {
   const el = $("hand");
+  if (!el) return;
   const seat = viewSeat();
-  if (S.result) { el.innerHTML = ""; prevHand = []; return; }
+  const tog = $("docktoggle");
+  if (S.result) { el.innerHTML = ""; prevHand = []; if (tog) tog.innerHTML = dockLabel(L("Hand", "手牌"), 0); return; }
   if (seat < 0) {
-    el.innerHTML = Array.from({ length: S.hands[S.cur].length }, () => `<div class="card back">${svgUse("nb-bloom")}</div>`).join("");
+    const n = S.hands[S.cur].length;
+    el.innerHTML = Array.from({ length: n }, (_, i) => `<div class="card back" style="${fanPose(i, n)}">${svgUse("nb-bloom")}</div>`).join("");
+    if (tog) tog.innerHTML = dockLabel(L(`${pname(S.names[S.cur])}'s hand · hidden`, `${pname(S.names[S.cur])}的手牌 · 蓋著`), n);
     prevHand = [];
     return;
   }
   const hand = S.hands[seat];
   const playable = seat === S.cur && canPlayCards();
-  el.innerHTML = (seat !== S.cur ? `<div class="muted" style="width:100%">${L("Your hand", "你的手牌")} (${esc(pname(S.names[seat]))})</div>` : "") + hand.map(cid => cardHTML(cid, {
-    playable, sel: playable && selected === cid, dealt: !prevHand.includes(cid),
+  const n = hand.length;
+  el.innerHTML = hand.map((cid, i) => cardHTML(cid, {
+    playable, focus: true, sel: selected === cid, dealt: !prevHand.includes(cid) && !arriving.has(cid),
     resonant: playable && S.played === 0 && S.echo === CARDS[cid].tag,
+    cls: arriving.has(cid) ? "await" : "", style: fanPose(i, n),
   })).join("");
-  prevHand = [...hand];
-  if (!playable) return;
-  el.querySelectorAll(".card.playable").forEach(card => {
+  prevHand = hand.filter(cid => !arriving.has(cid));
+  if (tog) tog.innerHTML = dockLabel(seat !== S.cur || S.n > 1 ? L(`${pname(S.names[seat])}'s hand`, `${pname(S.names[seat])}的手牌`) : L("Your hand", "你的手牌"), n);
+  $("dock")?.classList.toggle("yourturn", playable);
+  el.querySelectorAll(".card[data-cid]").forEach(card => {
     const cid = +card.dataset.cid;
-    const pick = e => {
-      if (e.target.closest("[data-play]")) return;
-      selected = selected === cid ? null : cid;
-      drawHand();
-    };
-    card.addEventListener("click", pick);
-    card.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(e); } });
-    card.querySelectorAll("[data-play]").forEach(b => b.onclick = () => playSelected(cid, b.dataset.play));
+    const open = () => openZoom(cid);
+    card.addEventListener("click", open);
+    card.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
   });
+  if (selected !== null && !$("zoom").classList.contains("hidden")) {
+    if (hand.includes(selected)) openZoom(selected); else closeZoom();
+  }
+}
+const dockLabel = (who, n) => `<span class="chev">${dockOpen ? "▾" : "▴"}</span><span>${esc(who)}</span><b>${n}</b>`;
+
+// A card held up close: its full text, and (on your turn) the ways to play it.
+function openZoom(cid) {
+  const z = $("zoom");
+  if (!z || !S) return;
+  const seat = viewSeat();
+  if (seat < 0 || !S.hands[seat].includes(cid)) return;
+  selected = cid;
+  const playable = seat === S.cur && canPlayCards();
+  const res = playable && S.played === 0 && S.echo === CARDS[cid].tag;
+  const tag = CARDS[cid].tag;
+  const modes = playable ? `<div class="zmodes">
+      <button type="button" class="tokbtn primary" data-play="up">${tokIcon("card", tag)}<span><b>${L("Play face up", "正面打出")}</b>${res ? `<small>${L("Resonates with the Echo", "與迴響產生共鳴")}</small>` : `<small>${L("its effect, and a knot on its thread", "執行效果，並在其絲線上打結")}</small>`}</span></button>
+      <button type="button" class="tokbtn" data-play="down">${tokIcon("down")}<span><b>${L("Face down", "背面打出")}</b><small>${L("1 Root, no knot", "放1個根，不打結")}</small></span></button>
+      <button type="button" class="tokbtn" data-play="burn">${tokIcon("burn", tag)}<span><b>${L("Burn", "焚燒")}</b><small>${L("its effect twice, then forget it and 1 more", "效果兩次，再遺忘此牌與另1張")}</small></span></button>
+      ${E.canSeek(S) ? `<button type="button" class="tokbtn" data-play="seek">${tokIcon("seek")}<span><b>${L("Seek", "尋覓")}</b><small>${L(`discard this, draw 1${S.played === 0 ? " (the Echo passes)" : ""}`, `棄掉此牌，抽1張${S.played === 0 ? "（放過迴響）" : ""}`)}</small></span></button>` : ""}
+    </div>` : `<p class="muted zwait">${seat === S.cur ? L("You can play it once the table is ready.", "桌面準備好後就能打出。") : L("Not your turn: study it while you wait.", "還沒輪到你：等待時可以先研究。")}</p>`;
+  z.innerHTML = `<div class="zoombox">
+    ${cardHTML(cid, { cls: "big", resonant: res, gloss: true })}
+    <div class="zside">${modes}<button type="button" class="ghost" data-close>${L("Back to the hand", "放回手牌")}</button></div></div>`;
+  z.classList.remove("hidden");
+  z.querySelectorAll("[data-play]").forEach(b => b.onclick = () => playSelected(cid, b.dataset.play));
+  (z.querySelector("[data-play]") || z.querySelector("[data-close]"))?.focus();
+  $("hand")?.querySelectorAll(".card").forEach(c => c.classList.toggle("sel", +c.dataset.cid === cid));
+}
+function closeZoom() {
+  const z = $("zoom");
+  if (!z || z.classList.contains("hidden")) return;
+  z.classList.add("hidden");
+  z.innerHTML = "";
+  selected = null;
+  $("hand")?.querySelectorAll(".card.sel").forEach(c => c.classList.remove("sel"));
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeZoom(); });
+
+// ---------------------------------------------------------------- action tokens
+// Each action a player takes is marked with a token on the turn tray, as it would be at a real table.
+const TOKS = {
+  card: { icon: t => TAG_ICONS[t], col: t => TAGCOL[t], en: "Card played face up", zh: "正面打出一張牌" },
+  burn: { icon: () => "nb-tok-burn", col: t => TAGCOL[t], en: "Card Burned", zh: "焚燒一張牌" },
+  down: { icon: () => "nb-tok-down", col: () => "#E6D3A3", en: "Card played face down: 1 Root", zh: "背面打出：放1個根" },
+  seek: { icon: () => "nb-tok-seek", col: () => "#8FD6E1", en: "Seek: discard 1, draw 1", zh: "尋覓：棄1張，抽1張" },
+  recall: { icon: () => "nb-tok-recall", col: () => "#E6D3A3", en: "Recall: Light spent to bring a memory back", zh: "喚回：花光把一段記憶帶回" },
+  push: { icon: () => "nb-tok-push", col: () => "#D7263D", en: "Push Through the Grievances", zh: "強行穿過怨念" },
+  summon: { icon: () => "nb-tok-summon", col: m => TAGCOL[MANTLES[m]?.tag ?? 1], en: "Mantle summoned with Light", zh: "以光召喚稱號" },
+  hold: { icon: () => "nb-tok-hold", col: () => "#8FD6E1", en: "Hold Fast", zh: "堅守" },
+};
+// The web table's own pieces: the action tokens on the turn tray, explained in the Player Aid.
+function tokenLegend() {
+  const row = (a, arg, en, zhT) => `<span>${tokIcon(a, arg)}${L(en, zhT)}</span>`;
+  return `<h3>${L("Action tokens", "行動標記")}</h3><p>${L("Each action this turn is marked with a token on the tray under the river.", "本回合的每個行動，都會在河流下方的托盤上放一個標記。")}</p>
+    <div class="aidicons tokenlegend">${row("card", 0, "Card face up (its thread)", "正面打出（其絲線）")}${row("down", 0, "Face down", "背面打出")}${row("burn", 0, "Burn", "焚燒")}${row("seek", 0, "Seek", "尋覓")}
+    ${row("recall", 0, "Recall · 3 Light", "喚回 · 3點光")}${row("summon", "bringer", "Summon · Light", "召喚 · 光")}${row("push", 0, "Push Through", "強行穿過")}${row("hold", 0, "Hold Fast (beside the soul)", "堅守（放在亡魂旁）")}</div>`;
+}
+function tokIcon(a, arg) {
+  const k = TOKS[a];
+  return `<span class="tokico" style="--tc:${k.col(arg)}">${svgUse(k.icon(arg))}</span>`;
+}
+function tokHTML(act, cls = "") {
+  const k = TOKS[act.a];
+  const arg = act.a === "summon" ? act.m : act.tag;
+  const light = act.a === "recall" ? S.cfg.recallCost : act.a === "summon" ? S.cfg.mantleCost : 0;
+  const title = L(k.en, k.zh) + (act.a === "card" || act.a === "burn" ? ` · ${tagName(act.tag)}` : "") + (act.res ? L(" · Resonated", " · 共鳴") : "")
+    + (act.a === "summon" ? ` · ${mantleInfo(act.m).name}` : "");
+  return `<span class="tok tok-${act.a} ${act.res ? "res" : ""} ${cls}" style="--tc:${k.col(arg)}" title="${esc(title)}">${svgUse(k.icon(arg))}${light ? `<i class="lightcost">${svgUse("nb-light")}${light}</i>` : ""}</span>`;
+}
+let trayShown = 0;
+function drawTray() {
+  const el = $("tray");
+  if (!el || !S) return;
+  const acts = vs().acts || [];
+  const turn = view?.turn ?? S.turn, who = view?.cur ?? S.cur;
+  if (acts.length < trayShown) trayShown = 0;     // a new turn cleared the tray
+  const sum = acts.filter(x => x.a === "summon");
+  const main = acts.filter(x => x.a !== "summon");
+  const fresh = i => (i >= trayShown ? "stampin" : "");
+  const idx = x => acts.indexOf(x);
+  const slots = [L("Answer", "回應"), L("Steer", "掌舵")].slice(0, S.cfg.cardsPerTurn).map((name, i) =>
+    `<div class="tslot">${main[i] ? tokHTML(main[i], fresh(idx(main[i]))) : `<span class="tok empty"></span>`}<small>${name}</small></div>`).join("");
+  el.innerHTML = `<div class="trayh">${L(`Turn ${turn || 1}`, `第${turn || 1}回合`)}<small>${esc(pname(S.names[who]))}</small></div>
+    ${sum.length ? `<div class="tslot">${sum.map(x => tokHTML(x, fresh(idx(x)))).join("")}<small>${L("Summon", "召喚")}</small></div>` : ""}${slots}`;
+  trayShown = acts.length;
+}
+// A token stamped onto the river, where an action struck it.
+function boardToken(a, at) {
+  const fx = $("fx");
+  if (!fx || !at) return;
+  const k = TOKS[a];
+  const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  g.setAttribute("class", "boardtok");
+  g.setAttribute("transform", `translate(${at[0]},${at[1]})`);
+  g.innerHTML = `<g class="stampin"><circle r="20" fill="#17161B" stroke="${k.col()}" stroke-width="2"/><use href="#${k.icon()}" x="-13" y="-13" width="26" height="26" style="color:${k.col()}"/></g>`;
+  fx.appendChild(g);
+  setTimeout(() => g.remove(), 2200);
 }
 
-function flyCard(cid) {
-  const src = document.querySelector(`.card[data-cid="${cid}"]`);
-  const board = $("boardwrap");
-  if (!src || !board || !src.animate) return;
-  const a = src.getBoundingClientRect(), b = board.getBoundingClientRect();
-  const clone = src.cloneNode(true);
-  clone.classList.add("flycard");
-  clone.querySelector(".modes")?.remove();
-  Object.assign(clone.style, { left: `${a.left}px`, top: `${a.top}px`, width: `${a.width}px`, margin: 0 });
-  document.body.appendChild(clone);
-  const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
-  clone.animate([{ transform: "none", opacity: 1 }, { transform: `translate(${dx}px, ${dy}px) scale(.35) rotate(-8deg)`, opacity: 0, filter: "blur(2px)" }],
-    { duration: 750, easing: "cubic-bezier(.3,.6,.2,1)" }).onfinish = () => clone.remove();
+// ---------------------------------------------------------------- the piles: deck, discard and forgotten
+const miniFace = cid => (cid < 0 ? miniBack() : `<div class="mc t${CARDS[cid].tag}">${svgUse(TAG_ICONS[CARDS[cid].tag], TAGCLS[CARDS[cid].tag])}<span class="mcn">${esc(cardName(cid))}</span><span class="mct">${tagName(CARDS[cid].tag)}</span></div>`);
+const miniBack = () => `<div class="mc back">${svgUse("nb-bloom")}</div>`;
+let pilesHeld = {};   // a pile a card is flying towards keeps its old look until the card lands
+function drawPiles() {
+  const el = $("piles");
+  if (!el || !S) return;
+  const s = vs();
+  const now = s.pile || { deck: S.deck.length, disc: S.discard.length, top: S.discard.at(-1) ?? -1, ft: S.forgotten.at(-1) ?? -1 };
+  const f = s.forgotten.length;
+  const pv = { ...now, f, ...pilesHeld };
+  const stack = n => `--layers:${Math.min(6, Math.ceil(n / 4))}`;
+  el.innerHTML = `
+    <button type="button" class="pile deck" id="pile-deck" title="${L("The deck, face down", "牌庫（背面朝上）")}">
+      <span class="pst ${pv.deck ? "" : "none"}" style="${stack(pv.deck)}">${pv.deck ? miniBack() : ""}</span><span class="plbl">${L("Deck", "牌庫")} <b>${pv.deck}</b></span></button>
+    <button type="button" class="pile disc" id="pile-disc" data-list="disc" title="${L("The discard pile: click to look through it", "棄牌堆：點擊查看")}">
+      <span class="pst ${pv.disc ? "" : "none"}" style="${stack(pv.disc)}">${pv.disc ? miniFace(pv.top) : ""}</span><span class="plbl">${L("Discard", "棄牌堆")} <b>${pv.disc}</b></span></button>
+    <button type="button" class="pile forg" id="pile-forg" data-list="forg" title="${L("Forgotten memories: click to look through them", "被遺忘的記憶：點擊查看")}">
+      <span class="pst ${pv.f ? "" : "none"}" style="${stack(pv.f)}">${pv.f ? miniFace(pv.ft) : ""}</span><span class="plbl">${L("Forgotten", "遺忘")} <b>${pv.f}</b>/${S.cfg.forgottenLimit}</span></button>`;
+  el.querySelectorAll("[data-list]").forEach(b => b.onclick = () => pileDialog(b.dataset.list));
+}
+function pileDialog(which) {
+  const cards = which === "disc" ? [...S.discard].reverse() : [...S.forgotten].reverse();
+  const title = which === "disc" ? L("Discard pile", "棄牌堆") : L("Forgotten memories", "被遺忘的記憶");
+  const note = which === "disc" ? L("Top card first. When the deck runs out, these are shuffled into a new deck.", "最上面的牌排在最前。牌庫用完時，這些牌會洗混成為新的牌庫。")
+    : L(`Most recent first. ${S.cfg.forgottenLimit} forgotten and the soul Fades. Spend ${S.cfg.recallCost} Light as your Answer to Recall one.`, `最近遺忘的排在最前。遺忘達到${S.cfg.forgottenLimit}張，亡魂就會消散。以回應花費${S.cfg.recallCost}點光可以喚回一張。`);
+  veil(`<div class="dialog wide"><h2>${title} · ${cards.length}</h2><p class="muted">${note}</p>
+    <div class="pilelist">${cards.length ? cards.map(cid => miniFace(cid)).join("") : `<span class="muted">${L("Empty.", "空的。")}</span>`}</div>
+    <div class="row"><button type="button" id="cancel">${L("Close", "關閉")}</button></div></div>`, "pile");
+  $("cancel").onclick = closeVeil;
+}
+
+// ---------------------------------------------------------------- cards and Light in flight
+const centre = el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+function handPoint(cid) {
+  const card = cid !== undefined ? document.querySelector(`#hand .card[data-cid="${cid}"]`) : null;
+  if (card && dockOpen) return centre(card);
+  const tog = $("docktoggle");
+  return tog ? centre(tog) : [innerWidth / 2, innerHeight - 30];
+}
+const boardPoint = () => ($("boardwrap") ? centre($("boardwrap")) : [innerWidth / 2, innerHeight / 3]);
+const pilePoint = name => ($(`pile-${name}`)?.querySelector(".pst") ? centre($(`pile-${name}`).querySelector(".pst")) : boardPoint());
+
+// One card travelling across the table, turning over on the way if it should.
+function fly(from, to, { cid = -1, up0 = true, up1 = true, ms = 650, delay = 0, onland } = {}) {
+  ms *= fxSpeed; delay *= fxSpeed;
+  const el = document.createElement("div");
+  el.className = "flight";
+  el.innerHTML = `<div class="fl-in"><div class="fl-f">${miniFace(cid)}</div><div class="fl-b">${miniBack()}</div></div>`;
+  el.style.left = `${from[0]}px`; el.style.top = `${from[1]}px`;
+  document.body.appendChild(el);
+  const dx = to[0] - from[0], dy = to[1] - from[1], lift = Math.min(90, Math.hypot(dx, dy) * 0.18);
+  const r0 = up0 ? 0 : 180, r1 = up1 ? 0 : 180;
+  const go = el.animate([
+    { transform: "translate(-50%,-50%) scale(.9)", opacity: 0 },
+    { transform: `translate(calc(-50% + ${dx * 0.5}px), calc(-50% + ${dy * 0.5 - lift}px)) scale(1.12)`, opacity: 1, offset: 0.5 },
+    { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.92)`, opacity: 1 },
+  ], { duration: ms, delay, easing: "cubic-bezier(.35,.1,.25,1)", fill: "both" });
+  el.firstElementChild.animate([{ transform: `rotateY(${r0}deg)` }, { transform: `rotateY(${(r0 + r1) / 2 + (r0 === r1 ? 0 : 0)}deg)`, offset: 0.5 }, { transform: `rotateY(${r1}deg)` }],
+    { duration: ms, delay, easing: "ease-in-out", fill: "both" });
+  go.onfinish = () => { el.remove(); onland?.(); };
+  return delay + ms;
+}
+// Light spent: motes of lantern-light drift from the Light counter to where it is used.
+function motes(toPt, n) {
+  // From the Light counter on the Soul board; when that is scrolled out of sight or under the hand, from the turn tray.
+  const visible = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight - ($("dock")?.offsetHeight || 0) && r.width > 0; };
+  const src = visible($("sb-light")) ? $("sb-light") : $("tray");
+  if (!src) return;
+  const a = centre(src);
+  for (let i = 0; i < n; i++) {
+    const m = document.createElement("div");
+    m.className = "mote";
+    m.style.left = `${a[0]}px`; m.style.top = `${a[1]}px`;
+    document.body.appendChild(m);
+    const dx = toPt[0] - a[0], dy = toPt[1] - a[1];
+    m.animate([{ transform: "translate(-50%,-50%) scale(.4)", opacity: 0 }, { transform: `translate(calc(-50% + ${dx * 0.45 + (i - 1) * 24}px), calc(-50% + ${dy * 0.45 - 40}px)) scale(1)`, opacity: 1, offset: 0.45 },
+      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.5)`, opacity: 0 }],
+    { duration: 900 * fxSpeed, delay: i * 140 * fxSpeed, easing: "ease-in-out", fill: "both" }).onfinish = () => m.remove();
+  }
+}
+// Hold a pile at its old look until the card arrives.
+function holdPile(keys, before) {
+  const b = before?.pile;
+  if (!b) return () => {};
+  for (const k of keys) {
+    if (k === "disc") { pilesHeld.disc = b.disc; pilesHeld.top = b.top; }
+    if (k === "forg") { pilesHeld.f = before.forgotten; pilesHeld.ft = b.ft; }
+    if (k === "deck") pilesHeld.deck = b.deck;
+  }
+  drawPiles();
+  return () => { for (const k of keys) { if (k === "disc") { delete pilesHeld.disc; delete pilesHeld.top; } if (k === "forg") { delete pilesHeld.f; delete pilesHeld.ft; } if (k === "deck") delete pilesHeld.deck; } drawPiles(); };
+}
+// A card arriving in the hand takes its place in the fan.
+function landInHand(cid) {
+  arriving.delete(cid);
+  const c = document.querySelector(`#hand .card[data-cid="${cid}"]`);
+  if (c) { c.classList.remove("await"); c.classList.add("dealt"); }
+  if (!prevHand.includes(cid)) prevHand.push(cid);
+}
+
+// The local player's card leaves the hand for the river.
+function flyCard(cid, how = "up") {
+  const src = document.querySelector(`#hand .card[data-cid="${cid}"]`);
+  const from = src && dockOpen ? centre(src) : handPoint();
+  fly(from, boardPoint(), { cid, up0: true, up1: how !== "down", ms: 700 });
 }
 
 // ---------------------------------------------------------------- the turn guide
@@ -876,7 +1210,7 @@ function flyCard(cid) {
 // (Soul Step, then the Mist, then the draw) before moving on to the next player's first card.
 const GUIDE = [
   ["summon", "Summon", "optional · before your Answer", "召喚", "可選 · 在回應之前"],
-  ["card1", "Answer", "first action · a card matching the Echo Resonates", "回應", "第一個行動 · 與迴響相同的牌產生共鳴"],
+  ["card1", "Answer", "first action · a card matching the Echo Resonates, or Recall with 3 Light", "回應", "第一個行動 · 與迴響相同的牌產生共鳴，或花3點光喚回"],
   ["card2", "Steer", "second action · a card, Seek, or Push Through", "掌舵", "第二個行動 · 打出一張牌、尋覓或強行穿過"],
   ["bringer", "Bloom-Bringer", "free Bloom", "引花人", "免費綻放"],
   ["soul", "Soul Step", "move if the next space is Lit", "亡魂步驟", "下一格被照亮就前進"],
@@ -920,7 +1254,7 @@ function guideHint() {
   const wounds = E.pushCost(S);
   const push = E.canPush(S) ? `<span class="pushwarn">${L(`Grievances hold both banks ahead, so the soul will Linger. You may spend an action to <b>Push Through</b>: both Grievances scatter and the soul steps forward now, at ${wounds} Fracture${wounds > 1 ? "s" : ""} and 1 forgotten card. Each Ferryman may do this only once in the whole game.`, `前方兩岸都被怨念佔據，亡魂將會徘徊。你可以花1個行動<b>強行穿過</b>：兩個怨念四散，亡魂立刻前進一格，代價是${wounds}道裂痕並遺忘1張牌。每位擺渡人整局只能這麼做一次。`)}</span>`
     : E.blockedByGrievances(S) && E.hasPushed(S) ? `<span class="pushwarn">${L("Grievances hold both banks ahead. You have already used your one Push Through this game: clear a bank with your cards.", "前方兩岸都被怨念佔據。你本局的強行穿過已經用過了：請用手牌清出一側河岸。")}</span>` : "";
-  return L(`Pick a card in your hand, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `從手牌中選一張牌，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`) + push;
+  return L(`Click a card in your hand to hold it up close, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `點擊手牌中的一張牌把它拿近細看，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`) + push;
 }
 
 function drawGuide() {
@@ -978,7 +1312,7 @@ function openDrawer(tab) {
   d.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
   $("dsearch").classList.toggle("hidden", tab !== "rules");
   d.classList.toggle("wide", tab === "rules");
-  if (tab === "aid") $("dbody").innerHTML = playerAid(S?.cfg);
+  if (tab === "aid") $("dbody").innerHTML = playerAid(S?.cfg).replace(/<\/section>\s*$/, `${tokenLegend()}</section>`);
   else {
     const book = rulebook();
     $("dbody").innerHTML = `<nav class="toc">${book.map(r => `<a href="#r-${r.id}">${esc(r.title.replace(/^\d+\. /, ""))}</a>`).join("")}</nav>` +
@@ -1035,19 +1369,23 @@ function refresh() {
   if (!S || !$("board")) return;
   A.lullaby(S.cfg.soul);
   if (!$("dyn")) drawBoardStatic();
+  animateEvents();
+  if (!playingBack()) arriving.clear();
   drawStatus();
-  drawBoard();
-  drawLoom();
-  drawSoulboard();
-  drawBook();
-  drawLog();
   drawPrompt();
   drawHand();
   drawGuide();
   topbar();
-  animateEvents();
+  if (playingBack()) return;     // the board, Loom, Soul board, piles, Book and Chronicle catch up step by step
+  drawBoard();
+  drawLoom();
+  drawSoulboard();
+  drawPiles();
+  drawTray();
+  drawBook();
+  drawLog();
   refreshBook(S);
-  prev = { tok: [...S.tok], griev: [...S.griev], revealed: [...S.revealed], flooded: [...S.flooded], soul: S.soul, karma: [...S.karma], forgotten: S.forgotten.length };
+  prev = finalPrev();
 }
 
 // ---------------------------------------------------------------- event animations and sound
@@ -1061,10 +1399,12 @@ async function runQueue() {
   running = true;
   while (queue.length) {
     const ms = queue.shift()();
-    await new Promise(r => setTimeout(r, ms));
+    await new Promise(r => setTimeout(r, Math.round((ms || 0) * fxSpeed)));
   }
   running = false;
+  if (view) { prev = asPrev(view); view = null; }
   if (guideStep) setGuide(null);
+  refresh();
   idleWaiters.splice(0).forEach(r => r());
 }
 const idle = () => (running || queue.length ? new Promise(r => idleWaiters.push(r)) : Promise.resolve());
@@ -1073,45 +1413,147 @@ function animateEvents() {
   const evs = S.ev.filter(e => e.id > lastEv);
   if (!evs.length) return;
   lastEv = evs[evs.length - 1].id;
-  const sounds = new Set();
+  if (!view && !running && !queue.length) view = prev ? { ...prevAsSnap(prev) } : null;
   const endOfTurn = evs.some(e => e.kind === "mist");
   let soulShown = false;
   for (const ev of evs) {
     if (endOfTurn && !soulShown && (ev.kind === "move" || ev.kind === "linger" || ev.kind === "adrift" || ev.kind === "mist")) {
       soulShown = true;
-      enqueue(() => { setGuide("soul"); return 1100; });
+      enqueue(() => { setGuide("soul"); return 700; });
     }
-    switch (ev.kind) {
-      case "root": sounds.add("root"); break;
-      case "bloom": sounds.add("bloom"); break;
-      case "flood": sounds.add("flood"); break;
-      case "drain": sounds.add("drain"); break;
-      case "grievance": sounds.add("grievance"); break;
-      case "forget": sounds.add("forget"); break;
-      case "move": sounds.add("move"); break;
-      case "linger": sounds.add("linger"); toast(say(ev)); break;
-      case "play":
-        if (!seats.has(ev.p) || mode === "local") toast(say(ev), ev.cid >= 0 ? CARDS[ev.cid].tag : 1);
-        if (!seats.has(ev.p)) sounds.add("card");
-        if (ev.res) { sounds.add("resonance"); enqueue(() => banner(L("Resonance", "共鳴"), L("The card answers the Echo", "這張牌回應了迴響"), "obl")); }
-        break;
-      case "ghost": toast(say(ev), ev.tag); sounds.add("card"); break;
-      case "seek": if (!seats.has(ev.p) || mode === "local") toast(say(ev), 1); sounds.add("card"); break;
-      case "push": enqueue(() => { A.sfx("fracture"); flash(); shake(); return banner(L("Through the shades", "穿過怨念"), say(ev), "obs"); }); break;
-      case "inscribe": toast(say(ev), 1); if (!seats.has(S.cur)) sounds.add("inscribe"); break;
-      case "blessing": enqueue(() => { A.sfx("inscribe"); return banner(L("Chapter Blessing", "章節祝福"), say(ev).replace(/^(Chapter Blessing: |章節祝福：)/, ""), "good"); }); break;
-      case "summon": enqueue(() => { A.sfx("summon"); const mi = mantleInfo(ev.mantle); return banner(say(ev), mi.text, ["obs", "acc", "obl"][mi.tag]); }); break;
-      case "mist": enqueue(() => { setGuide("mist"); return mistCard(ev.name); }); enqueue(() => { setGuide("draw"); return 700; }); break;
-      case "backlash": enqueue(() => { A.sfx("backlash"); shake(); return banner(L(`Backlash · ${tagName(ev.tag)}`, `反噬 · ${tagName(ev.tag)}`), backlashText(ev.tag), ["obs", "acc", "obl"][ev.tag]); }); break;
-      case "fracture": enqueue(() => { A.sfx("fracture"); flash(); shake(); return 900; }); break;
-      case "reach": enqueue(() => { A.sfx("summon"); return banner(L(`Reach ${ROMAN[ev.reach]}`, `第${ZHNUM[ev.reach]}河段`), reachName(ev.reach), "good"); }); break;
-      case "turn": if (mode !== "local") sounds.add("turn"); break;
-      case "win": enqueue(() => { A.sfx("win"); return 400; }); break;
-      case "loss": enqueue(() => { A.sfx("loss"); return 400; }); break;
-    }
+    if (ev.kind === "draw" && ev.cids && viewSeat() === ev.p && seesHand(ev.p)) ev.cids.forEach(c => arriving.add(c));
+    enqueue(() => stepEvent(ev));
   }
-  let delay = 0;
-  for (const snd of sounds) { setTimeout(() => A.sfx(snd), delay); delay += 90; }
+}
+// The previous finished state, in snapshot form, so the first step of a playback starts from what was on screen.
+const prevAsSnap = p => ({ tok: p.tok, griev: p.griev, flooded: p.flooded, revealed: p.revealed, soul: p.soul, karma: p.karma, f: p.forgotten,
+  fract: S.fract, light: S.light, bw: S.bw, echo: S.echo, ...(p.pile ? { deck: p.pile.deck, disc: p.pile.disc, top: p.pile.top, ft: p.pile.ft } : {}), hold: p.hold, acts: p.acts });
+
+// Show one effect: move the table to the moment just after it, mark where it happened, sound it and caption it.
+// Returns how long to hold the step before the next one.
+function stepEvent(ev) {
+  if (ev.b) {
+    if (view) prev = asPrev(view);
+    view = ev.b;
+    drawBoard();
+    drawLoom();
+    drawSoulboard();
+    drawPiles();
+    drawTray();
+  }
+  const text = say(ev);
+  const at = ev.k !== undefined ? slotXY(ev.k) : ev.sp !== undefined ? [X(ev.sp), Y(ev.sp)] : null;
+  const cap = (cls = "") => { if (text) caption(text, cls); };
+  switch (ev.kind) {
+    case "start": cap(); return 1400;
+    case "turn": cap(); if (mode !== "local") A.sfx("turn"); return 700;
+    case "play":
+      if (!seats.has(ev.p)) fly([innerWidth / 2, 40], boardPoint(), { cid: ev.cid, up0: ev.cid >= 0, up1: ev.cid >= 0, ms: 750 });
+      if (!seats.has(ev.p) || mode === "local") toast(text, ev.cid >= 0 ? CARDS[ev.cid].tag : 1);
+      cap(ev.cid >= 0 ? ["obs", "acc", "obl"][CARDS[ev.cid].tag] : "");
+      if (!seats.has(ev.p)) A.sfx("card");
+      if (ev.res) { A.sfx("resonance"); enqueueFront(() => banner(L("Resonance", "共鳴"), L("The card answers the Echo", "這張牌回應了迴響"), "obl")); }
+      return 1100;
+    case "ghost": toast(text, ev.tag); cap(["obs", "acc", "obl"][ev.tag]); A.sfx("card"); return 1300;
+    case "seek": if (!seats.has(ev.p) || mode === "local") toast(text, 1); cap(); A.sfx("card"); return 900;
+    case "root": ring(at, "#E6D3A3"); cap(); A.sfx("root"); return 800;
+    case "bloom": ring(at, "#D7263D"); cap(); A.sfx("bloom"); return 850;
+    case "wither": ring(at, "#9A948C"); cap("bad"); A.sfx("forget"); return 950;
+    case "reveal": if (at) ring(at, "#8FD6E1"); cap(); A.sfx("chime"); return 1000;
+    case "fog": ring(at, "#9A948C"); cap("bad"); A.sfx("mist"); return 900;
+    case "grievance": ring(at, "#8FD6E1"); cap("bad"); A.sfx("grievance"); return 1100;
+    case "banish": ring(at, "#E6D3A3"); cap("good"); A.sfx("drain"); return 950;
+    case "flood": ring(at, "#8FD6E1"); cap("bad"); A.sfx("flood"); return 1200;
+    case "drain": ring(at, "#E6D3A3"); cap("good"); A.sfx("drain"); return 1000;
+    case "move": ring([X(Math.min(ev.to, 12)), Y(Math.min(ev.to, 12))], "#EFE7D6"); cap(); A.sfx("move"); return 1100;
+    case "light": cap("good"); A.sfx("chime"); return 900;
+    case "keepsake": cap("good"); A.sfx("inscribe"); return 1000;
+    case "knot": cap(["obs", "acc", "obl"][ev.tag]); A.sfx("chime"); return 750;
+    case "echo": cap(ev.tag >= 0 ? ["obs", "acc", "obl"][ev.tag] : "bad"); return 750;
+    case "forget": {
+      const done = holdPile(["forg"], prev);
+      fly(ev.from === "deck" ? pilePoint("deck") : boardPoint(), pilePoint("forg"), { cid: ev.cid ?? -1, up0: ev.from !== "deck", up1: true, ms: 750, onland: done });
+      cap("bad"); A.sfx("forget"); return 1100;
+    }
+    case "discard": {
+      const done = holdPile(["disc"], prev);
+      fly(ev.from === "hand" ? handPoint() : boardPoint(), pilePoint("disc"), { cid: ev.cid, up0: ev.cid >= 0, up1: ev.cid >= 0, ms: 600, onland: done });
+      caption(ev.cid >= 0 ? L(`${cardName(ev.cid)} goes to the discard pile.`, `「${cardName(ev.cid)}」放入棄牌堆。`) : L("The face-down card goes to the discard pile.", "背面打出的牌放入棄牌堆。"));
+      A.sfx("card");
+      return 750;
+    }
+    case "fracture": cap("bad"); A.sfx("fracture"); flash(); shake(); return 1200;
+    case "shield": case "mend": case "release": case "guide": cap("good"); A.sfx("chime"); return 1000;
+    case "linger": case "adrift": cap("bad"); A.sfx("linger"); toast(text); return 1300;
+    case "inscribe":
+      if ($("book")) fly(boardPoint(), centre($("book")), { cid: ev.cid, ms: 850 });
+      toast(text, 1); cap("good"); if (!seats.has(S.cur)) A.sfx("inscribe"); return 1300;
+    case "draw": {
+      const cids = ev.cids || [];
+      const see = viewSeat() === ev.p && seesHand(ev.p);
+      cids.forEach((cid, i) => fly(pilePoint("deck"), handPoint(see ? cid : undefined), { cid: see ? cid : -1, up0: false, up1: see, ms: 650, delay: i * 220, onland: () => landInHand(cid) }));
+      if (text) cap(); else caption(L(`${pname(S.names[ev.p])} draws a card.`, `${pname(S.names[ev.p])}抽一張牌。`));
+      A.sfx("card");
+      return cids.length ? 650 + 220 * cids.length : 700;
+    }
+    case "recall": {
+      motes(pilePoint("forg"), S.cfg.recallCost);
+      const done = holdPile(["disc"], prev);
+      fly(pilePoint("forg"), pilePoint("disc"), { cid: ev.cid, ms: 800, delay: 650, onland: done });
+      cap("good"); A.sfx("inscribe"); toast(text, 1); return 1700;
+    }
+    case "info": {
+      const m = ev.m?.[0];
+      if (m === "reshuffle") {
+        const done = holdPile(["deck"], prev);
+        const n = Math.min(6, ev.n || 4);
+        for (let i = 0; i < n; i++) fly(pilePoint("disc"), pilePoint("deck"), { up0: i === 0, up1: false, ms: 520, delay: i * 110, onland: i === n - 1 ? done : undefined });
+        cap(); A.sfx("card"); return 700 + n * 110;
+      }
+      if (m === "hold" || m === "holding") {    // the Hold Fast token goes down beside the soul, and is shown again when it takes effect
+        if (m === "holding") boardToken("hold", [X(Math.min(vs().soul, 12)), Y(Math.min(vs().soul, 12)) - 58]);
+        cap(m === "holding" ? "good" : ""); A.sfx("chime"); return 1400;
+      }
+      cap(); return 1200;
+    }
+    case "push": A.sfx("fracture"); flash(); shake(); cap("bad"); boardToken("push", [X(ev.sp), Y(ev.sp)]); return banner(L("Through the shades", "穿過怨念"), text, "obs");
+    case "blessing":
+      if (ev.cid !== undefined) { const done = holdPile(["disc"], prev); fly(pilePoint("forg"), pilePoint("disc"), { cid: ev.cid, ms: 800, delay: 500, onland: done }); }
+      A.sfx("inscribe"); cap("good"); return banner(L("Chapter Blessing", "章節祝福"), text.replace(/^(Chapter Blessing: |章節祝福：)/, ""), "good");
+    case "summon": {
+      A.sfx("summon"); cap("good");
+      if ($("tray")) motes(centre($("tray")), S.cfg.mantleCost);
+      const mi = mantleInfo(ev.mantle); return banner(text, mi.text, ["obs", "acc", "obl"][mi.tag]);
+    }
+    case "mist": setGuide("mist"); cap("bad"); return mistCard(ev.name) + 300;
+    case "backlash": A.sfx("backlash"); shake(); cap("bad"); return banner(L(`Backlash · ${tagName(ev.tag)}`, `反噬 · ${tagName(ev.tag)}`), backlashText(ev.tag), ["obs", "acc", "obl"][ev.tag]);
+    case "reach": A.sfx("summon"); cap("good"); return banner(L(`Reach ${ROMAN[ev.reach]}`, `第${ZHNUM[ev.reach]}河段`), reachName(ev.reach), "good");
+    case "win": A.sfx("win"); cap("good"); return 900;
+    case "loss": A.sfx("loss"); cap("bad"); return 900;
+    default: cap(); return text ? 900 : 0;
+  }
+}
+function enqueueFront(fn) { queue.unshift(fn); if (!running) runQueue(); }
+
+// A ring of light where an effect lands on the river.
+function ring(at, color) {
+  const fx = $("fx");
+  if (!fx || !at) return;
+  const g = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  g.setAttribute("cx", at[0]); g.setAttribute("cy", at[1]); g.setAttribute("r", "30");
+  g.setAttribute("class", "fxring"); g.setAttribute("style", `stroke:${color}`);
+  fx.appendChild(g);
+  setTimeout(() => g.remove(), 1400);
+}
+// The caption line along the foot of the board names each effect as it is carried out.
+let capTimer = 0;
+function caption(text, cls = "") {
+  const el = $("boardcap");
+  if (!el) return;
+  el.className = `boardcap on ${cls}`;
+  el.textContent = text;
+  clearTimeout(capTimer);
+  capTimer = setTimeout(() => el.classList.remove("on"), 3200);
 }
 
 function mistCard(name) {
