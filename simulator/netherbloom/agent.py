@@ -142,6 +142,8 @@ class EchoAgent:
         if (s.cfg.push_action and not s.stats.get("pushed") and s.blocked_by_grievances()
                 and not (s.cfg.push_once_each and s.stats.get(f"pushed_p{s.cur}"))):
             out.append((None, "push"))
+        if seek:   # only the Answer (first) action may spend Light
+            out += [(None, m) for m in E.light_actions(s)]
         if seek and s.cfg.seek and not s.stats.get("sought") and len(hand) > 1:
             out += [(cid, "seek") for cid in dict.fromkeys(hand)]
         for cid in hand:
@@ -165,7 +167,7 @@ class EchoAgent:
         firsts = []
         for cid, mode in self.options(s, seek=True):
             c = s.clone()
-            res = mode not in ("down", "seek", "push") and c.echo == CARD[cid].tag
+            res = cid is not None and mode not in ("down", "seek") and c.echo == CARD[cid].tag
             self._apply(c, cid, mode, True)
             bonus = (self.w.echo_follow if res else 0) + (self.w.seek_value if mode == "seek" else 0)
             score = self._after_step(c.clone()) + bonus
@@ -175,7 +177,7 @@ class EchoAgent:
         n_cards = min(s.cfg.cards_per_turn, len(s.hands[s.cur]))
         if n_cards == 1:
             for sc, cid, mode, c, res, bonus in firsts:
-                if mode not in ("seek", "push"):
+                if mode not in ("seek", "push", "recall", "mend", "drainl"):
                     return [(cid, mode)]
         for sc1, cid1, mode1, c1, res, bonus in firsts[:self.beam]:
             if c1.result is not None:
@@ -206,12 +208,16 @@ class EchoAgent:
         cost = s.cfg.mantle_cost
         if s.light < cost or len(s.hands[s.cur]) < s.cfg.cards_per_turn + 1:
             return
-        if any(h == s.cur for h in s.mantles.values()):
+        held = next((m for m, h in s.mantles.items() if h == s.cur), None)
+        if held and not (s.cfg.solo_resummon and s.n == 1 and s.stats["summons"] < s.cfg.max_summons):
             return
         order = ["bringer", "weaver", "breaker", "warden"]
         if len(s.forgotten) >= s.cfg.adrift_at - 2:
             order = ["warden", "bringer", "weaver", "breaker"]
         from .cards import MANTLES
+        if held:
+            # Solo re-summon: trade up only for a Mantle the situation ranks above the one held.
+            order = order[:order.index(held)] if held in order else order
         for m in order:
             if s.mantles[m] != -1:
                 continue

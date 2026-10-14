@@ -6,7 +6,10 @@ TURN_LIMIT = 120
 
 
 def label(cid, mode):
-    return "Push Through" if mode == "push" else f"{CARD[cid].cid} {CARD[cid].name} ({mode})"
+    if cid is None:
+        return {"push": "Push Through", "recall": "Spend Light: a memory returns", "mend": "Spend Light: mend a Fracture",
+                "drainl": "Spend Light: drain Black Water"}[mode]
+    return f"{CARD[cid].cid} {CARD[cid].name} ({mode})"
 
 
 def play_game(cfg, agent=None, record=False):

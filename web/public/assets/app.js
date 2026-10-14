@@ -34,6 +34,11 @@ let pending = null;        // a choice the active player must make
 let busy = false;          // a card is resolving
 let selected = null;       // card picked in the hand
 let lastEv = 0;            // last event animated
+// Step-by-step playback: while effects are being shown, the table is drawn from the snapshot of the step on
+// screen (`view`) rather than from the finished state, so every effect happens in order, as at a real table.
+let view = null;
+let fxSpeed = 1;
+try { fxSpeed = +localStorage.getItem("nb-fx") || 1; } catch { /* storage blocked */ }
 let prev = null;           // board as last drawn, for change animations
 let prevHand = [];
 let prevBookIds = new Set();
@@ -73,6 +78,11 @@ async function boot() {
   }
   document.addEventListener("pointerdown", () => { if (A.isMusicOn()) A.start(); else A.setSfx(A.isSfxOn()); }, { once: true });
   $("btn-music").onclick = () => { A.setMusic(!A.isMusicOn()); topbar(); };
+  $("btn-fx").onclick = () => {
+    fxSpeed = fxSpeed < 1 ? 1 : 0.45;
+    try { localStorage.setItem("nb-fx", String(fxSpeed)); } catch { /* storage blocked */ }
+    topbar();
+  };
   $("btn-sfx").onclick = () => { A.setSfx(!A.isSfxOn()); topbar(); };
   buildDrawer();
   $("btn-rules").onclick = () => openDrawer("rules");
@@ -117,6 +127,8 @@ function relang() {
 function topbar() {
   $("btn-music").textContent = L(`Music: ${A.isMusicOn() ? "on" : "off"}`, `音樂：${A.isMusicOn() ? "開" : "關"}`);
   $("btn-sfx").textContent = L(`Sound: ${A.isSfxOn() ? "on" : "off"}`, `音效：${A.isSfxOn() ? "開" : "關"}`);
+  $("btn-fx").textContent = L(`Effects: ${fxSpeed < 1 ? "fast" : "step by step"}`, `效果：${fxSpeed < 1 ? "快速" : "逐步"}`);
+  $("btn-fx").title = L("How quickly each effect is played out on the table", "每個效果在桌面上演示的速度");
   $("btn-lang").textContent = zh() ? "English" : "中文";
   $("btn-lang").title = L("Switch to Traditional Chinese", "切換為英文");
   $("btn-aid").textContent = L("Player Aid", "玩家輔助卡");
@@ -410,7 +422,7 @@ function canAct() {
   if (mode === "local" && S.n > 1 && uncovered !== S.cur) return false;
   return true;
 }
-const canPlayCards = () => canAct() && !busy && !pending && S.phase === "play" && S.played < S.cfg.cardsPerTurn && S.hands[S.cur].length > 0;
+const canPlayCards = () => canAct() && !busy && !pending && !playingBack() && S.phase === "play" && S.played < S.cfg.cardsPerTurn && S.hands[S.cur].length > 0;
 
 async function tick() {
   if (!S) return;
@@ -454,8 +466,11 @@ const chooser = {
 };
 function ask(p) {
   return new Promise(resolve => {
-    pending = { ...p, resolve };
     commit();
+    idle().then(() => {
+      pending = { ...p, resolve };
+      refresh();
+    });
   });
 }
 function answer(v) {
@@ -546,6 +561,7 @@ function buildTable() {
       <div class="status" id="status"></div>
       <div class="boardwrap" id="boardwrap">
         <div class="boardscroll"><svg id="board" viewBox="0 0 1120 400" role="img" aria-label="${L("The river", "河流")}"></svg></div>
+        <div class="boardcap" id="boardcap" aria-live="polite"></div>
       </div>
       <div class="prompt" id="prompt"></div>
       <div class="hand" id="hand"></div>
@@ -623,11 +639,22 @@ function drawBoardStatic() {
   <g id="soulG"><g class="bob">
     <circle class="soulglow" r="34" fill="url(#soulGrad)"/>
     <g id="soulFig" data-soul="${S?.cfg.soul || ""}">${soulMiniature(S?.cfg.soul || "open")}</g>
-  </g></g>`;
+  </g></g>
+  <g id="fx"></g>`;
 }
 
+// The game as the table should show it right now: mid-playback, the snapshot of the step on screen.
+function vs() {
+  if (!view) return S;
+  return { ...S, tok: view.tok, griev: view.griev, flooded: view.flooded, revealed: view.revealed, soul: view.soul, fract: view.fract,
+    light: view.light, bw: view.bw, karma: view.karma, echo: view.echo, forgotten: { length: view.f } };
+}
+const asPrev = b => ({ tok: b.tok, griev: b.griev, revealed: b.revealed, flooded: b.flooded, soul: b.soul, karma: b.karma, forgotten: b.f });
+const finalPrev = () => ({ tok: [...S.tok], griev: [...S.griev], revealed: [...S.revealed], flooded: [...S.flooded], soul: S.soul, karma: [...S.karma], forgotten: S.forgotten.length });
+const playingBack = () => running || queue.length > 0;
+
 function drawBoard() {
-  const s = S;
+  const s = vs();
   const p = prev || { tok: s.tok, griev: s.griev, revealed: s.revealed, flooded: s.flooded, soul: s.soul };
   const targets = pending && canAct() && pending.targets ? new Set(pending.targets) : new Set();
   let h = "";
@@ -688,6 +715,7 @@ function slotTitle(k) {
 
 // ---------------------------------------------------------------- side panels
 function drawLoom() {
+  const S = vs();
   const cap = S.cfg.karmaCap;
   $("loom").innerHTML = [0, 1, 2].map(t => {
     let knots = "";
@@ -702,6 +730,7 @@ function drawLoom() {
 }
 
 function drawSoulboard() {
+  const S = vs();
   const c = S.cfg, f = S.forgotten.length;
   let cells = "";
   for (let n = 1; n <= c.forgottenLimit; n++) {
@@ -792,7 +821,7 @@ function drawPrompt() {
     $("skip").onclick = () => answer(null);
     return;
   }
-  if (busy) { setPrompt(`<span class="msg">…</span>`, true); return; }
+  if (busy || playingBack()) { setPrompt(`<span class="msg">${L("Carrying out each effect on the table…", "正在桌面上逐一執行效果……")}</span>`, true); return; }
   const n = S.played + 1;
   const echo = S.echo >= 0 && S.played === 0 ? L(` The Echo is <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>: an Answer of that thread Resonates.`,
     `迴響是<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>：以同絲線的牌回應便會產生共鳴。`) : "";
@@ -1035,19 +1064,20 @@ function refresh() {
   if (!S || !$("board")) return;
   A.lullaby(S.cfg.soul);
   if (!$("dyn")) drawBoardStatic();
+  animateEvents();
   drawStatus();
+  drawPrompt();
+  drawHand();
+  drawGuide();
+  topbar();
+  if (playingBack()) return;     // the board, Loom, Soul board, Book and Chronicle catch up step by step
   drawBoard();
   drawLoom();
   drawSoulboard();
   drawBook();
   drawLog();
-  drawPrompt();
-  drawHand();
-  drawGuide();
-  topbar();
-  animateEvents();
   refreshBook(S);
-  prev = { tok: [...S.tok], griev: [...S.griev], revealed: [...S.revealed], flooded: [...S.flooded], soul: S.soul, karma: [...S.karma], forgotten: S.forgotten.length };
+  prev = finalPrev();
 }
 
 // ---------------------------------------------------------------- event animations and sound
@@ -1061,10 +1091,12 @@ async function runQueue() {
   running = true;
   while (queue.length) {
     const ms = queue.shift()();
-    await new Promise(r => setTimeout(r, ms));
+    await new Promise(r => setTimeout(r, Math.round((ms || 0) * fxSpeed)));
   }
   running = false;
+  if (view) { prev = asPrev(view); view = null; }
   if (guideStep) setGuide(null);
+  refresh();
   idleWaiters.splice(0).forEach(r => r());
 }
 const idle = () => (running || queue.length ? new Promise(r => idleWaiters.push(r)) : Promise.resolve());
@@ -1073,45 +1105,98 @@ function animateEvents() {
   const evs = S.ev.filter(e => e.id > lastEv);
   if (!evs.length) return;
   lastEv = evs[evs.length - 1].id;
-  const sounds = new Set();
+  if (!view && !running && !queue.length) view = prev ? { ...prevAsSnap(prev) } : null;
   const endOfTurn = evs.some(e => e.kind === "mist");
   let soulShown = false;
   for (const ev of evs) {
     if (endOfTurn && !soulShown && (ev.kind === "move" || ev.kind === "linger" || ev.kind === "adrift" || ev.kind === "mist")) {
       soulShown = true;
-      enqueue(() => { setGuide("soul"); return 1100; });
+      enqueue(() => { setGuide("soul"); return 700; });
     }
-    switch (ev.kind) {
-      case "root": sounds.add("root"); break;
-      case "bloom": sounds.add("bloom"); break;
-      case "flood": sounds.add("flood"); break;
-      case "drain": sounds.add("drain"); break;
-      case "grievance": sounds.add("grievance"); break;
-      case "forget": sounds.add("forget"); break;
-      case "move": sounds.add("move"); break;
-      case "linger": sounds.add("linger"); toast(say(ev)); break;
-      case "play":
-        if (!seats.has(ev.p) || mode === "local") toast(say(ev), ev.cid >= 0 ? CARDS[ev.cid].tag : 1);
-        if (!seats.has(ev.p)) sounds.add("card");
-        if (ev.res) { sounds.add("resonance"); enqueue(() => banner(L("Resonance", "共鳴"), L("The card answers the Echo", "這張牌回應了迴響"), "obl")); }
-        break;
-      case "ghost": toast(say(ev), ev.tag); sounds.add("card"); break;
-      case "seek": if (!seats.has(ev.p) || mode === "local") toast(say(ev), 1); sounds.add("card"); break;
-      case "push": enqueue(() => { A.sfx("fracture"); flash(); shake(); return banner(L("Through the shades", "穿過怨念"), say(ev), "obs"); }); break;
-      case "inscribe": toast(say(ev), 1); if (!seats.has(S.cur)) sounds.add("inscribe"); break;
-      case "blessing": enqueue(() => { A.sfx("inscribe"); return banner(L("Chapter Blessing", "章節祝福"), say(ev).replace(/^(Chapter Blessing: |章節祝福：)/, ""), "good"); }); break;
-      case "summon": enqueue(() => { A.sfx("summon"); const mi = mantleInfo(ev.mantle); return banner(say(ev), mi.text, ["obs", "acc", "obl"][mi.tag]); }); break;
-      case "mist": enqueue(() => { setGuide("mist"); return mistCard(ev.name); }); enqueue(() => { setGuide("draw"); return 700; }); break;
-      case "backlash": enqueue(() => { A.sfx("backlash"); shake(); return banner(L(`Backlash · ${tagName(ev.tag)}`, `反噬 · ${tagName(ev.tag)}`), backlashText(ev.tag), ["obs", "acc", "obl"][ev.tag]); }); break;
-      case "fracture": enqueue(() => { A.sfx("fracture"); flash(); shake(); return 900; }); break;
-      case "reach": enqueue(() => { A.sfx("summon"); return banner(L(`Reach ${ROMAN[ev.reach]}`, `第${ZHNUM[ev.reach]}河段`), reachName(ev.reach), "good"); }); break;
-      case "turn": if (mode !== "local") sounds.add("turn"); break;
-      case "win": enqueue(() => { A.sfx("win"); return 400; }); break;
-      case "loss": enqueue(() => { A.sfx("loss"); return 400; }); break;
-    }
+    enqueue(() => stepEvent(ev));
   }
-  let delay = 0;
-  for (const snd of sounds) { setTimeout(() => A.sfx(snd), delay); delay += 90; }
+}
+// The previous finished state, in snapshot form, so the first step of a playback starts from what was on screen.
+const prevAsSnap = p => ({ tok: p.tok, griev: p.griev, flooded: p.flooded, revealed: p.revealed, soul: p.soul, karma: p.karma, f: p.forgotten,
+  fract: S.fract, light: S.light, bw: S.bw, echo: S.echo });
+
+// Show one effect: move the table to the moment just after it, mark where it happened, sound it and caption it.
+// Returns how long to hold the step before the next one.
+function stepEvent(ev) {
+  if (ev.b) {
+    if (view) prev = asPrev(view);
+    view = ev.b;
+    drawBoard();
+    drawLoom();
+    drawSoulboard();
+  }
+  const text = say(ev);
+  const at = ev.k !== undefined ? slotXY(ev.k) : ev.sp !== undefined ? [X(ev.sp), Y(ev.sp)] : null;
+  const cap = (cls = "") => { if (text) caption(text, cls); };
+  switch (ev.kind) {
+    case "start": cap(); return 1400;
+    case "turn": cap(); if (mode !== "local") A.sfx("turn"); return 700;
+    case "play":
+      if (!seats.has(ev.p) || mode === "local") toast(text, ev.cid >= 0 ? CARDS[ev.cid].tag : 1);
+      cap(ev.cid >= 0 ? ["obs", "acc", "obl"][CARDS[ev.cid].tag] : "");
+      if (!seats.has(ev.p)) A.sfx("card");
+      if (ev.res) { A.sfx("resonance"); enqueueFront(() => banner(L("Resonance", "共鳴"), L("The card answers the Echo", "這張牌回應了迴響"), "obl")); }
+      return 1100;
+    case "ghost": toast(text, ev.tag); cap(["obs", "acc", "obl"][ev.tag]); A.sfx("card"); return 1300;
+    case "seek": if (!seats.has(ev.p) || mode === "local") toast(text, 1); cap(); A.sfx("card"); return 900;
+    case "root": ring(at, "#E6D3A3"); cap(); A.sfx("root"); return 800;
+    case "bloom": ring(at, "#D7263D"); cap(); A.sfx("bloom"); return 850;
+    case "wither": ring(at, "#9A948C"); cap("bad"); A.sfx("forget"); return 950;
+    case "reveal": if (at) ring(at, "#8FD6E1"); cap(); A.sfx("chime"); return 1000;
+    case "fog": ring(at, "#9A948C"); cap("bad"); A.sfx("mist"); return 900;
+    case "grievance": ring(at, "#8FD6E1"); cap("bad"); A.sfx("grievance"); return 1100;
+    case "banish": ring(at, "#E6D3A3"); cap("good"); A.sfx("drain"); return 950;
+    case "flood": ring(at, "#8FD6E1"); cap("bad"); A.sfx("flood"); return 1200;
+    case "drain": ring(at, "#E6D3A3"); cap("good"); A.sfx("drain"); return 1000;
+    case "move": ring([X(Math.min(ev.to, 12)), Y(Math.min(ev.to, 12))], "#EFE7D6"); cap(); A.sfx("move"); return 1100;
+    case "light": cap("good"); A.sfx("chime"); return 900;
+    case "keepsake": cap("good"); A.sfx("inscribe"); return 1000;
+    case "knot": cap(["obs", "acc", "obl"][ev.tag]); A.sfx("chime"); return 750;
+    case "echo": cap(ev.tag >= 0 ? ["obs", "acc", "obl"][ev.tag] : "bad"); return 750;
+    case "forget": cap("bad"); A.sfx("forget"); return 1000;
+    case "fracture": cap("bad"); A.sfx("fracture"); flash(); shake(); return 1200;
+    case "shield": case "mend": case "release": case "guide": cap("good"); A.sfx("chime"); return 1000;
+    case "linger": case "adrift": cap("bad"); A.sfx("linger"); toast(text); return 1300;
+    case "inscribe": toast(text, 1); cap("good"); if (!seats.has(S.cur)) A.sfx("inscribe"); return 1200;
+    case "draw": cap(); A.sfx("card"); return 700;
+    case "info": cap(); return 1200;
+    case "push": A.sfx("fracture"); flash(); shake(); cap("bad"); return banner(L("Through the shades", "穿過怨念"), text, "obs");
+    case "blessing": A.sfx("inscribe"); cap("good"); return banner(L("Chapter Blessing", "章節祝福"), text.replace(/^(Chapter Blessing: |章節祝福：)/, ""), "good");
+    case "summon": { A.sfx("summon"); cap("good"); const mi = mantleInfo(ev.mantle); return banner(text, mi.text, ["obs", "acc", "obl"][mi.tag]); }
+    case "mist": setGuide("mist"); cap("bad"); return mistCard(ev.name) + 300;
+    case "backlash": A.sfx("backlash"); shake(); cap("bad"); return banner(L(`Backlash · ${tagName(ev.tag)}`, `反噬 · ${tagName(ev.tag)}`), backlashText(ev.tag), ["obs", "acc", "obl"][ev.tag]);
+    case "reach": A.sfx("summon"); cap("good"); return banner(L(`Reach ${ROMAN[ev.reach]}`, `第${ZHNUM[ev.reach]}河段`), reachName(ev.reach), "good");
+    case "win": A.sfx("win"); cap("good"); return 900;
+    case "loss": A.sfx("loss"); cap("bad"); return 900;
+    default: cap(); return text ? 900 : 0;
+  }
+}
+function enqueueFront(fn) { queue.unshift(fn); if (!running) runQueue(); }
+
+// A ring of light where an effect lands on the river.
+function ring(at, color) {
+  const fx = $("fx");
+  if (!fx || !at) return;
+  const g = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  g.setAttribute("cx", at[0]); g.setAttribute("cy", at[1]); g.setAttribute("r", "30");
+  g.setAttribute("class", "fxring"); g.setAttribute("style", `stroke:${color}`);
+  fx.appendChild(g);
+  setTimeout(() => g.remove(), 1400);
+}
+// The caption line along the foot of the board names each effect as it is carried out.
+let capTimer = 0;
+function caption(text, cls = "") {
+  const el = $("boardcap");
+  if (!el) return;
+  el.className = `boardcap on ${cls}`;
+  el.textContent = text;
+  clearTimeout(capTimer);
+  capTimer = setTimeout(() => el.classList.remove("on"), 3200);
 }
 
 function mistCard(name) {

@@ -672,3 +672,16 @@ html:lang(zh-Hant-TW) .drawer .body { line-height: 1.75; }
   .bk-chapterprose { height: auto; }
   .bk-dropcap { font-size: 1rem; }
 }
+
+/* ================================================================ step-by-step effects on the table */
+.fxring { fill: none; stroke-width: 3; transform-box: fill-box; transform-origin: center; animation: fxring 1.3s ease-out both; }
+@keyframes fxring { 0% { opacity: 0; transform: scale(.5); } 20% { opacity: 1; } 100% { opacity: 0; transform: scale(1.9); } }
+.boardcap { position: absolute; left: 50%; bottom: 10px; transform: translate(-50%, 6px); max-width: min(760px, calc(100% - 24px));
+  padding: 6px 14px; border-radius: 18px; background: rgba(18,17,23,.92); border: 1px solid var(--ash); color: var(--paper);
+  font-size: .92rem; text-align: center; opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; z-index: 3; }
+.boardcap.on { opacity: 1; transform: translate(-50%, 0); }
+.boardcap.good { border-color: rgba(230,211,163,.7); }
+.boardcap.bad { border-color: rgba(215,38,61,.7); }
+.boardcap.obs { border-color: var(--crimson); } .boardcap.acc { border-color: var(--bone); } .boardcap.obl { border-color: var(--cyan); }
+@media (max-width: 640px) { .boardcap { font-size: .8rem; bottom: 6px; } }
+@media (prefers-reduced-motion: reduce) { .fxring { animation-duration: .01s; } }

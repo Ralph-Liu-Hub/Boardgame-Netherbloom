@@ -121,10 +121,15 @@ function trail(s, entry) {
 }
 
 // ---------------------------------------------------------------- events (for animation, sound and the log)
+// Every event carries a snapshot of the table as it stood just after that effect, so the game can be played
+// back step by step, the way players would carry each effect out by hand.
+const snap = s => (s.tok ? { tok: [...s.tok], griev: [...s.griev], flooded: [...s.flooded], revealed: [...s.revealed], soul: s.soul,
+  fract: s.fract, light: s.light, f: s.forgotten.length, bw: s.bw, karma: [...s.karma], echo: s.echo, deck: s.deck.length } : null);
 export function note(s, kind, msg, data = {}) {
   s.evn += 1;
-  s.ev.push({ id: s.evn, kind, msg, ...data });
+  s.ev.push({ id: s.evn, kind, msg, ...data, b: snap(s) });
   if (s.ev.length > 120) s.ev.splice(0, s.ev.length - 120);
+  if (s.ev.length > 60) delete s.ev[s.ev.length - 61].b;   // older snapshots are no longer needed
   if (msg) {
     s.log.push({ id: s.evn, turn: s.turn, kind, msg, m: data.m });
     if (s.log.length > 80) s.log.splice(0, s.log.length - 80);
@@ -201,7 +206,7 @@ function placeRoot(s, k, stonyOk) {
     }
   } else if (s.tile[k] === GRAVE || (s.tile[k] === STONY && !stonyOk)) return false;
   s.tok[k] = ROOT;
-  note(s, "root", "", { k });
+  note(s, "root", `A Root takes hold at ${slotName(k)}.`, { k, m: ["root", k] });
   return true;
 }
 
@@ -264,8 +269,11 @@ function placeBW(s, sp) {
   if (s.bw <= 0) lose(s, "Deluge");
   s.flooded[x] = true;
   s.bw -= 1;
-  for (const b of [0, 1]) if (s.tok[x * 2 + b] === BLOOM) s.tok[x * 2 + b] = ROOT;
   note(s, "flood", `Black Water floods space ${x}. ${s.bw} left in the supply.`, { sp: x, m: ["flood", x, s.bw] });
+  for (const b of [0, 1]) if (s.tok[x * 2 + b] === BLOOM) {
+    s.tok[x * 2 + b] = ROOT;
+    note(s, "wither", `Under the Black Water the Bloom at ${slotName(x * 2 + b)} withers to a Root.`, { k: x * 2 + b, m: ["drown", x * 2 + b] });
+  }
 }
 function drain(s, sp) {
   if (s.flooded[sp]) {
@@ -284,9 +292,11 @@ function placeGriev(s, sp, bank) {
   for (const [x, b] of order) {
     const k = x * 2 + b;
     if (!s.griev[k]) {
+      const had = s.tok[k];
       s.griev[k] = true;
       s.tok[k] = NONE;
-      note(s, "grievance", `A Grievance takes ${slotName(k)}.`, { k, m: ["griev", k] });
+      note(s, "grievance", `A Grievance takes ${slotName(k)}${had === BLOOM ? " and smothers the Bloom there" : had === ROOT ? " and smothers the Root there" : ""}.`,
+        { k, m: had === NONE ? ["griev", k] : ["grievOver", k, had === BLOOM] });
       return;
     }
   }
@@ -294,7 +304,7 @@ function placeGriev(s, sp, bank) {
 
 function tieKnot(s, tag) {
   s.karma[tag] += 1;
-  note(s, "knot", "", { tag });
+  note(s, "knot", `A knot is tied on the ${TAG_NAMES[tag]} thread (${s.karma[tag]} of ${s.cfg.karmaCap}).`, { tag, m: ["knot", tag, s.karma[tag], s.cfg.karmaCap] });
   if (s.karma[tag] >= s.cfg.karmaCap) {
     s.karma[tag] = 0;
     backlash(s, tag);
@@ -337,7 +347,7 @@ async function doOp(s, op, ch) {
       const t = await ch.bloomTarget(s, ts, i + 1, op[1]);
       if (t === null || t === undefined) break;
       s.tok[t] = BLOOM;
-      note(s, "bloom", "", { k: t });
+      note(s, "bloom", `The Root at ${slotName(t)} Blooms.`, { k: t, m: ["bloomAt", t] });
     }
   } else if (kind === "hold") {
     s.hold = true;
@@ -499,6 +509,7 @@ export async function playCard(s, cid, mode, ch) {
   }
   tieKnot(s, card.tag);
   s.echo = card.tag;
+  note(s, "echo", `The Echo shuttle moves to the ${TAG_NAMES[card.tag]} thread.`, { tag: card.tag, m: ["echoOn", card.tag] });
   if (mode === "burn") {
     s.stats.burns += 1;
     forgetCard(s, cid);
@@ -575,7 +586,8 @@ function moveSoul(s, steps) {
     }
     s.soul += 1;
     trail(s, { k: "m", f: old, to: s.soul, b: blooms });
-    note(s, "move", "", { from: old, to: s.soul });
+    note(s, "move", s.soul >= FAR ? "The soul steps onto the Far Shore." : `The soul steps to space ${s.soul}.`, { from: old, to: s.soul, m: ["move", s.soul] });
+    if (blooms) note(s, "light", `The soul takes the light of the ${blooms === 1 ? "Bloom" : "Blooms"} it leaves behind: +${blooms} Light.`, { m: ["passLight", blooms] });
     if (s.soul >= FAR) win(s);
     const nr = reachOf(s.soul);
     if (nr !== s.reach) {
@@ -663,7 +675,7 @@ function linger(s, force) {
     s.bridePulled = true;
     s.soul -= 1;
     trail(s, { k: "p", f: s.soul + 1, to: s.soul });
-    note(s, "move", "", { from: s.soul + 1, to: s.soul });
+    note(s, "move", `The soul is pulled back to space ${s.soul}.`, { from: s.soul + 1, to: s.soul, m: ["pulled", s.soul] });
     note(s, "linger", "In the dark she looks back, and is pulled one space toward the living.", { m: ["bridePull"] });
     return;
   }
@@ -697,23 +709,26 @@ function mistStep(s) {
       else placeGriev(s, Math.min(11, S + 1), 0);
     } else if (k === "wither") {
       let n = op[1];
-      for (let x = NSLOT - 1; x >= 2 * (S + 1) && n > 0; x--) if (s.tok[x] === BLOOM) { s.tok[x] = ROOT; n--; note(s, "wither", "", { k: x }); }
+      for (let x = NSLOT - 1; x >= 2 * (S + 1) && n > 0; x--) if (s.tok[x] === BLOOM) { s.tok[x] = ROOT; n--; note(s, "wither", `The Bloom at ${slotName(x)} withers to a Root.`, { k: x, m: ["wither", x] }); }
     } else if (k === "wither_far") {
-      for (let x = 2 * (S + op[1] + 1); x < NSLOT; x++) if (s.tok[x] === BLOOM) { s.tok[x] = ROOT; note(s, "wither", "", { k: x }); }
+      for (let x = 2 * (S + op[1] + 1); x < NSLOT; x++) if (s.tok[x] === BLOOM) { s.tok[x] = ROOT; note(s, "wither", `The Bloom at ${slotName(x)} withers to a Root.`, { k: x, m: ["wither", x] }); }
     } else if (k === "wither_at") {
       const sp = S + op[1];
-      if (sp <= 11) for (const b of [0, 1]) if (s.tok[sp * 2 + b] === BLOOM) { s.tok[sp * 2 + b] = ROOT; note(s, "wither", "", { k: sp * 2 + b }); }
+      if (sp <= 11) for (const b of [0, 1]) if (s.tok[sp * 2 + b] === BLOOM) { s.tok[sp * 2 + b] = ROOT; note(s, "wither", `The Bloom at ${slotName(sp * 2 + b)} withers to a Root.`, { k: sp * 2 + b, m: ["wither", sp * 2 + b] }); }
     } else if (k === "fog") {
       let n = op[1];
       for (let x = NSLOT - 1; x >= 2 * (S + 1); x--) {
-        if (n && s.revealed[x] && s.tok[x] === NONE && !s.griev[x] && x >= 4) { s.revealed[x] = false; n--; }
+        if (n && s.revealed[x] && s.tok[x] === NONE && !s.griev[x] && x >= 4) {
+          s.revealed[x] = false; n--;
+          note(s, "fog", `The fog closes over ${slotName(x)} again.`, { k: x, m: ["fogBack", x] });
+        }
       }
     } else if (k === "forget") forgetTop(s, op[1]);
-    else if (k === "sever") s.echo = -1;
+    else if (k === "sever") { s.echo = -1; note(s, "echo", "The Echo is torn from the Loom.", { tag: -1, m: ["sever"] }); }
     else if (k === "karma_all") for (const t of [0, 1, 2]) tieKnot(s, t);
     else if (k === "dark_wind") {
-      if (s.light >= 2) s.light -= 2;
-      else addFracture(s);
+      if (s.light >= 2) { s.light -= 2; note(s, "light", "The Dark Wind blows out 2 Light.", { m: ["darkWind"] }); }
+      else { note(s, "info", "The Dark Wind finds no Light to take, and wounds the soul.", { m: ["darkWindHurt"] }); addFracture(s); }
     }
   }
 }
@@ -737,11 +752,14 @@ function endOfTurnChecks(s) {
 }
 
 function drawUp(s, p) {
+  let n = 0;
   while (s.hands[p].length < s.cfg.hand) {
     if (!s.deck.length) reshuffle(s);
     if (!s.deck.length) break;
     s.hands[p].push(s.deck.pop());
+    n += 1;
   }
+  if (n) note(s, "draw", `${s.names[p]} draws ${n} card${n === 1 ? "" : "s"} back up to ${s.cfg.hand}.`, { p, n, m: ["draw", s.names[p], n] });
 }
 
 function ghostTurn(s) {
@@ -758,7 +776,7 @@ function ghostTurn(s) {
     if (ts.length) {
       const k = act === "bloom_near" ? Math.min(...ts) : Math.max(...ts);
       s.tok[k] = BLOOM;
-      note(s, "bloom", "", { k });
+      note(s, "bloom", `The Root at ${slotName(k)} Blooms.`, { k, m: ["bloomAt", k] });
     }
   } else if (act === "banish_forget") {
     const g = urgentGrievance(s);
@@ -770,6 +788,7 @@ function ghostTurn(s) {
   }
   tieKnot(s, tag);
   s.echo = tag;
+  note(s, "echo", `The Echo shuttle moves to the ${TAG_NAMES[tag]} thread.`, { tag, m: ["echoOn", tag] });
 }
 
 // Everything after the cards: Soul Step, Mist, threats, draw, the Ghost, then pass the turn.

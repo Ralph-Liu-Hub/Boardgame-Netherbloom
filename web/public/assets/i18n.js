@@ -114,6 +114,21 @@ const ZH_MSG = {
   drink: sp => `兩岸的根吸乾了第${sp}格的洪水。`,
   trapped: k => `被花朵包夾，${bankZh(k)}的怨念在光中消融。`,
   ghost: (tag, act) => `幽靈打出${tagName(tag)}：${GHOST_ZH[act]}。`,
+  root: k => `${bankZh(k)}扎下了一個根。`,
+  bloomAt: k => `${bankZh(k)}的根綻放了。`,
+  wither: k => `${bankZh(k)}的花凋零為根。`,
+  drown: k => `黑水之下，${bankZh(k)}的花凋零為根。`,
+  grievOver: (k, bloom) => `一個怨念佔據了${bankZh(k)}，吞沒了那裡的${bloom ? "花" : "根"}。`,
+  knot: (tag, n, cap) => `${tagName(tag)}絲線打上一個結（${n}／${cap}）。`,
+  move: sp => (sp >= 12 ? "亡魂踏上了彼岸。" : `亡魂走到第${sp}格。`),
+  pulled: sp => `亡魂被拉回第${sp}格。`,
+  passLight: n => `亡魂帶走了身後${n}朵花的光：+${n}點光。`,
+  fogBack: k => `霧氣再次籠罩${bankZh(k)}。`,
+  sever: () => "迴響從織機上被扯下。",
+  darkWind: () => "黑風吹熄了2點光。",
+  darkWindHurt: () => "黑風找不到可以帶走的光，轉而傷了亡魂。",
+  draw: (p, n) => `${pname(p)}抽了${n}張牌，補回手牌上限。`,
+  echoOn: tag => `迴響梭移到${tagName(tag)}絲線上。`,
 };
 const BACKLASH_ZH = ["攫取：一個怨念撲向亡魂。", "認命：亡魂將坐下並徘徊。", "漲潮：黑水淹沒前方。"];
 const GHOST_ZH = { root_far: "在遠方扎根", root_near: "在近處扎根", bloom_near: "使最近的根綻放", bloom_far: "使最遠的根綻放", banish_forget: "清出道路", none: "靜靜地飄過" };
