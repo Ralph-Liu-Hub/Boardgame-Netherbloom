@@ -109,6 +109,7 @@ export function newGame(cfg, seed = (Math.random() * 2 ** 31) | 0, names = []) {
   s.lastMist = null;
   s.stats = { resonances: 0, inscribed: 0, blessings: 0, backlashes: 0, lingers: 0, burns: 0, summons: 0 };
   s.trail = [];  // the soul's journey, replayed in the Book of Remembrance
+  s.acts = [];   // the action tokens laid this turn, for the table's turn tray
   note(s, "start", `The soul wakes at the near shore. ${REACH_NAMES[0]} lies ahead.`, { m: ["start"] });
   return s;
 }
@@ -126,7 +127,8 @@ function trail(s, entry) {
 // Every event carries a snapshot of the table as it stood just after that effect, so the game can be played
 // back step by step, the way players would carry each effect out by hand.
 const snap = s => (s.tok ? { tok: [...s.tok], griev: [...s.griev], flooded: [...s.flooded], revealed: [...s.revealed], soul: s.soul,
-  fract: s.fract, light: s.light, f: s.forgotten.length, bw: s.bw, karma: [...s.karma], echo: s.echo, deck: s.deck.length } : null);
+  fract: s.fract, light: s.light, f: s.forgotten.length, bw: s.bw, karma: [...s.karma], echo: s.echo, deck: s.deck.length,
+  disc: s.discard?.length ?? 0, top: s.discard?.at(-1) ?? -1, ft: s.forgotten.at(-1) ?? -1, hold: !!s.hold, acts: [...(s.acts || [])], turn: s.turn, cur: s.cur } : null);
 export function note(s, kind, msg, data = {}) {
   s.evn += 1;
   s.ev.push({ id: s.evn, kind, msg, ...data, b: snap(s) });
@@ -238,9 +240,10 @@ function addFracture(s) {
 
 function reshuffle(s) {
   if (s.discard.length) {
+    const n = s.discard.length;
     s.deck = shuffle(s, s.discard);
     s.discard = [];
-    note(s, "info", "The discard pile is shuffled into a new deck.", { m: ["reshuffle"] });
+    note(s, "info", "The discard pile is shuffled into a new deck.", { n, m: ["reshuffle"] });
   }
 }
 function forgetTop(s, n = 1) {
@@ -249,14 +252,19 @@ function forgetTop(s, n = 1) {
     if (!s.deck.length) return;
     const cid = s.deck.pop();
     s.forgotten.push(cid);
-    note(s, "forget", `Forgotten: ${CARDS[cid].name}.`, { cid, m: ["forgot", cid] });
+    note(s, "forget", `Forgotten: ${CARDS[cid].name}.`, { cid, from: "deck", m: ["forgot", cid] });
     checkFaded(s);
   }
 }
 function forgetCard(s, cid) {
   s.forgotten.push(cid);
-  note(s, "forget", `Forgotten: ${CARDS[cid].name}.`, { cid, m: ["forgot", cid] });
+  note(s, "forget", `Forgotten: ${CARDS[cid].name}.`, { cid, from: "play", m: ["forgot", cid] });
   checkFaded(s);
+}
+// A card set down on the discard pile. The event has no text of its own: the table shows the card travelling there.
+function toDiscard(s, cid, from = "play") {
+  s.discard.push(cid);
+  note(s, "discard", "", { cid, from });
 }
 function checkFaded(s) {
   if (s.forgotten.length >= s.cfg.forgottenLimit) lose(s, "Faded");
@@ -450,6 +458,7 @@ export function beginTurn(s) {
   s.played = 0;
   s.sought = false;
   s.pushed = false;
+  s.acts = [];
   s.lastMist = null;
   note(s, "turn", `Turn ${s.turn}: ${s.names[p]}.`, { p, m: ["turn", s.turn, s.names[p]] });
 }
@@ -461,13 +470,18 @@ export const canSeek = s => s.phase === "play" && !s.sought && s.played < s.cfg.
 export function seek(s, cid) {
   const hand = s.hands[s.cur];
   hand.splice(hand.indexOf(cid), 1);
-  if (!s.deck.length) reshuffle(s);
-  if (s.deck.length) hand.push(s.deck.pop());
-  s.discard.push(cid);
   s.played += 1;
   s.sought = true;
   s.stats.seeks = (s.stats.seeks || 0) + 1;
-  note(s, "seek", `${s.names[s.cur]} Seeks: discards a card and draws one.`, { p: s.cur, m: ["seek", s.names[s.cur]] });
+  (s.acts ||= []).push({ a: "seek" });
+  if (!s.deck.length) reshuffle(s);     // the new card is drawn before the old one lands, so it cannot come straight back
+  const got = s.deck.length ? s.deck.pop() : -1;
+  note(s, "seek", `${s.names[s.cur]} Seeks: discards a card and draws one.`, { p: s.cur, cid, m: ["seek", s.names[s.cur]] });
+  toDiscard(s, cid, "hand");
+  if (got >= 0) {
+    hand.push(got);
+    note(s, "draw", "", { p: s.cur, n: 1, cids: [got] });
+  }
 }
 
 // A Mantle's holder: -1 while it is free, the player's seat while held, -2 once laid down for good (solo re-summon).
@@ -483,7 +497,7 @@ export function summon(s, mantle, cid) {
   const p = s.cur, old = heldMantle(s, p);
   s.light -= s.cfg.mantleCost;
   s.hands[p].splice(s.hands[p].indexOf(cid), 1);
-  s.discard.push(cid);
+  (s.acts ||= []).push({ a: "summon", m: mantle });
   if (old) {
     s.mantles[old] = -2;
     if (old === "warden") s.wardenReady = false;
@@ -491,6 +505,7 @@ export function summon(s, mantle, cid) {
   } else note(s, "summon", `${s.names[p]} takes up ${MANTLES[mantle].name}.`, { mantle, p, m: ["summon", s.names[p], mantle] });
   s.mantles[mantle] = p;
   s.stats.summons += 1;
+  toDiscard(s, cid, "hand");
 }
 
 // Recall: as the Answer (the turn's first action), spend Light to bring one forgotten card of your choice back to
@@ -504,6 +519,7 @@ export function recall(s, cid) {
   s.discard.push(cid);
   s.played += 1;
   s.stats.recalls = (s.stats.recalls || 0) + 1;
+  (s.acts ||= []).push({ a: "recall", cid });
   note(s, "recall", `${s.names[s.cur]} spends ${s.cfg.recallCost} Light: “${CARDS[cid].name}” is remembered and returns to the discard pile.`,
     { cid, p: s.cur, m: ["recall", s.names[s.cur], cid, s.cfg.recallCost] });
   return true;
@@ -517,12 +533,15 @@ export async function playCard(s, cid, mode, ch) {
   hand.splice(hand.indexOf(cid), 1);
   s.played += 1;
   if (mode === "down") {
+    (s.acts ||= []).push({ a: "down" });
     note(s, "play", `${s.names[s.cur]} plays a card face down: 1 Root.`, { cid: -1, mode, p: s.cur, m: ["playDown", s.names[s.cur]] });
     await doOp(s, ["root", 1, false], ch);
     s.discard.push(cid);
+    note(s, "discard", "", { cid: -1, from: "play" });   // still face down: nobody learns which card it was
     return false;
   }
   const resonated = first && s.echo === card.tag;
+  (s.acts ||= []).push({ a: mode === "burn" ? "burn" : "card", tag: card.tag, res: resonated });
   note(s, "play", `${s.names[s.cur]} plays ${card.name}${mode === "burn" ? " and Burns it" : ""}${resonated ? ". It Resonates with the Echo!" : "."}`,
     { cid, mode, p: s.cur, res: resonated, m: ["play", s.names[s.cur], cid, mode === "burn", resonated] });
   const reps = mode === "burn" ? 2 : 1;
@@ -543,8 +562,8 @@ export async function playCard(s, cid, mode, ch) {
   if (card.tag === OBL) {
     if (s.mantles.breaker === s.cur && !s.breakerUsed) {
       s.breakerUsed = true;
-      s.discard.push(cid);
       note(s, "info", "The Fog-Breaker keeps the memory from the river.", { m: ["breaker"] });
+      toDiscard(s, cid);
     } else forgetCard(s, cid);
     return resonated;
   }
@@ -562,7 +581,7 @@ export async function playCard(s, cid, mode, ch) {
     }
     return resonated;
   }
-  s.discard.push(cid);
+  toDiscard(s, cid);
   return resonated;
 }
 
@@ -580,8 +599,9 @@ function blessing(s) {
     note(s, "blessing", "Chapter Blessing: the Black Water recedes.", { m: ["bless_drain"] });
     drain(s, w);
   } else if (s.forgotten.length) {
-    s.discard.push(s.forgotten.pop());
-    note(s, "blessing", "Chapter Blessing: a forgotten memory returns.", { m: ["bless_return"] });
+    const cid = s.forgotten.pop();
+    s.discard.push(cid);
+    note(s, "blessing", "Chapter Blessing: a forgotten memory returns.", { cid, m: ["bless_return"] });
   } else note(s, "blessing", "Chapter Blessing: the page glows.", { m: ["bless_glow"] });
 }
 
@@ -665,6 +685,7 @@ export const pushCost = s => 1 + (s.stats.pushes || 0);
 export function pushAction(s) {
   s.played += 1;
   s.pushed = true;
+  (s.acts ||= []).push({ a: "push" });
   s.pushedBy = s.pushedBy || Array(s.n).fill(false);
   s.pushedBy[s.cur] = true;
   pushThrough(s);
@@ -776,14 +797,19 @@ function endOfTurnChecks(s) {
 }
 
 function drawUp(s, p) {
-  let n = 0;
+  let cids = [];
+  const told = () => {
+    if (cids.length) note(s, "draw", `${s.names[p]} draws ${cids.length} card${cids.length === 1 ? "" : "s"} back up to ${s.cfg.hand}.`, { p, n: cids.length, cids, m: ["draw", s.names[p], cids.length] });
+    cids = [];
+  };
   while (s.hands[p].length < s.cfg.hand) {
-    if (!s.deck.length) reshuffle(s);
+    if (!s.deck.length) { told(); reshuffle(s); }   // the cards drawn so far come off the old deck, before the shuffle
     if (!s.deck.length) break;
-    s.hands[p].push(s.deck.pop());
-    n += 1;
+    const cid = s.deck.pop();
+    s.hands[p].push(cid);
+    cids.push(cid);
   }
-  if (n) note(s, "draw", `${s.names[p]} draws ${n} card${n === 1 ? "" : "s"} back up to ${s.cfg.hand}.`, { p, n, m: ["draw", s.names[p], n] });
+  told();
 }
 
 function ghostTurn(s) {
