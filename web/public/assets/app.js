@@ -816,8 +816,8 @@ function tableTokens(s) {
   const out = [];
   for (let p = 0; p < S.n; p++) {
     const spent = !!s.pushedBy?.[p];
-    out.push(chip("push", S.n > 1 ? pname(S.names[p]) : L("Push Through", "強行穿過"), !spent,
-      spent ? L(`${pname(S.names[p])} has used their Push Through`, `${pname(S.names[p])}已用掉強行穿過`) : L(`${pname(S.names[p])} can still Push Through once`, `${pname(S.names[p])}還能強行穿過一次`)));
+    out.push(chip("push", S.n > 1 ? pname(S.names[p]) : L("Push Through", "破浪"), !spent,
+      spent ? L(`${pname(S.names[p])} has used their Push Through`, `${pname(S.names[p])}的破浪標記已翻面：奮力駛過已用掉`) : L(`${pname(S.names[p])} can still Push Through once`, `${pname(S.names[p])}的破浪標記：還能奮力駛過一次`)));
   }
   if (s.shieldOn) out.push(chip("shield", L("Shield", "護盾"), true, L("Shield: the next Fracture before the raiser's next turn is stopped", "護盾：在升起者的下個回合前，擋下下一道裂痕")));
   if (s.hold) out.push(chip("hold", L("Hold Fast", "堅守")));
@@ -904,8 +904,8 @@ function drawPrompt() {
   const sum = E.canSummon(S) ? `<button type="button" id="summon" class="tokbtn">${tokIcon("summon")}${E.heldMantle(S) ? L(`Summon a new Mantle (${S.cfg.mantleCost} Light)`, `召喚新的稱號（${S.cfg.mantleCost}點光）`) : L(`Summon a Mantle (${S.cfg.mantleCost} Light)`, `召喚稱號（${S.cfg.mantleCost}點光）`)}</button>` : "";
   const rec = E.canRecall(S) ? `<button type="button" id="recall" class="recallbtn tokbtn">${tokIcon("recall")}${L(`Recall a memory · ${S.cfg.recallCost} Light`, `喚回記憶 · ${S.cfg.recallCost}點光`)}</button>` : "";
   const cost = E.pushCost(S);
-  const push = E.canPush(S) ? `<button type="button" id="push" class="pushbtn tokbtn">${tokIcon("push")}${L(`Push Through · ${cost} Fracture${cost > 1 ? "s" : ""}, forget 1 · once a game`, `強行穿過 · ${cost}道裂痕，遺忘1張 · 整局一次`)}</button>` : "";
-  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, ` : ""}${n === 1 ? (S.n > 1 ? "your <b>Answer</b>" : "Your <b>Answer</b>") : (S.n > 1 ? "now <b>Steer</b>" : "Now <b>Steer</b>")}: play a card${E.canSeek(S) ? ", Seek" : ""}${rec ? ", Recall" : ""}${push ? " or Push Through" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，` : ""}${n === 1 ? "你的<b>回應</b>" : "接著<b>掌舵</b>"}：打出一張牌${E.canSeek(S) ? "、尋覓" : ""}${rec ? "、喚回記憶" : ""}${push ? "或強行穿過" : ""}。`)}${echo}</span>${push}${rec}${sum}`, true);
+  const push = E.canPush(S) ? `<button type="button" id="push" class="pushbtn tokbtn">${tokIcon("push")}${L(`Push Through · ${cost} Fracture${cost > 1 ? "s" : ""}, forget 1 · once a game`, `奮力駛過 · ${cost}道裂痕，遺忘1張 · 整局一次`)}</button>` : "";
+  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, ` : ""}${n === 1 ? (S.n > 1 ? "your <b>Answer</b>" : "Your <b>Answer</b>") : (S.n > 1 ? "now <b>Steer</b>" : "Now <b>Steer</b>")}: play a card${E.canSeek(S) ? ", Seek" : ""}${rec ? ", Recall" : ""}${push ? " or Push Through" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，` : ""}${n === 1 ? "你的<b>回應</b>" : "接著<b>掌舵</b>"}：打出一張牌${E.canSeek(S) ? "、尋覓" : ""}${rec ? "、喚回記憶" : ""}${push ? "或奮力駛過" : ""}。`)}${echo}</span>${push}${rec}${sum}`, true);
   if (sum) $("summon").onclick = summonDialog;
   if (rec) $("recall").onclick = recallDialog;
   if (push) $("push").onclick = pushNow;
@@ -1069,7 +1069,7 @@ const TOKS = {
   down: { icon: () => "nb-tok-down", col: () => "#E6D3A3", en: "Card played face down: 1 Root", zh: "背面打出：放1個根" },
   seek: { icon: () => "nb-tok-seek", col: () => "#8FD6E1", en: "Seek: discard 1, draw 1", zh: "尋覓：棄1張，抽1張" },
   recall: { icon: () => "nb-tok-recall", col: () => "#E6D3A3", en: "Recall: Light spent to bring a memory back", zh: "喚回：花光把一段記憶帶回" },
-  push: { icon: () => "nb-tok-push", col: () => "#D7263D", en: "Push Through the Grievances", zh: "強行穿過怨念" },
+  push: { icon: () => "nb-tok-push", col: () => "#D7263D", en: "Push Through the Grievances", zh: "奮力駛過怨念" },
   summon: { icon: () => "nb-tok-summon", col: m => TAGCOL[MANTLES[m]?.tag ?? 1], en: "Mantle summoned with Light", zh: "以光召喚稱號" },
   hold: { icon: () => "nb-tok-hold", col: () => "#8FD6E1", en: "Hold Fast", zh: "堅守" },
   shield: { icon: () => "nb-tok-shield", col: () => "#E6D3A3", en: "Shield", zh: "護盾" },
@@ -1081,7 +1081,7 @@ function tokenLegend() {
   const row = (a, arg, en, zhT) => `<span>${tokIcon(a, arg)}${L(en, zhT)}</span>`;
   return `<h3>${L("Turn tray (web table)", "回合托盤（網頁版）")}</h3><p>${L("On this screen, each action this turn is also marked on the tray under the river. These marks are only a record: at a real table the played cards show it.", "在這個畫面上，本回合的每個行動也會標在河流下方的托盤上。這些只是紀錄：在真實的桌面上，打出的牌就說明了一切。")}</p>
     <div class="aidicons tokenlegend">${row("card", 0, "Card face up (its thread)", "正面打出（其絲線）")}${row("down", 0, "Face down", "背面打出")}${row("burn", 0, "Burn", "焚燒")}${row("seek", 0, "Seek", "尋覓")}
-    ${row("recall", 0, "Recall · 3 Light", "喚回 · 3點光")}${row("summon", "bringer", "Summon · Light", "召喚 · 光")}${row("push", 0, "Push Through", "強行穿過")}</div>`;
+    ${row("recall", 0, "Recall · 3 Light", "喚回 · 3點光")}${row("summon", "bringer", "Summon · Light", "召喚 · 光")}${row("push", 0, "Push Through", "奮力駛過")}</div>`;
 }
 function tokIcon(a, arg) {
   const k = TOKS[a];
@@ -1241,7 +1241,7 @@ function flyCard(cid, how = "up") {
 const GUIDE = [
   ["summon", "Summon", "optional · before your Answer", "召喚", "可選 · 在回應之前"],
   ["card1", "Answer", "first action · a card matching the Echo Resonates, or Recall with 3 Light", "回應", "第一個行動 · 與迴響相同的牌產生共鳴，或花3點光喚回"],
-  ["card2", "Steer", "second action · a card, Seek, or Push Through", "掌舵", "第二個行動 · 打出一張牌、尋覓或強行穿過"],
+  ["card2", "Steer", "second action · a card, Seek, or Push Through", "掌舵", "第二個行動 · 打出一張牌、尋覓或奮力駛過"],
   ["bringer", "Bloom-Bringer", "free Bloom", "引花人", "免費綻放"],
   ["soul", "Soul Step", "move if the next space is Lit", "亡魂步驟", "下一格被照亮就前進"],
   ["mist", "The Mist", "one card from this Reach", "迷霧", "翻開本河段的一張牌"],
@@ -1271,7 +1271,7 @@ function guideHint() {
   if (S.result) return S.result === "win" ? L("The crossing is complete. Open the Book to read the soul's story.", "渡河完成。翻開書本，讀讀亡魂的故事。")
     : L("The crossing has failed. Open the Book to read what was kept.", "渡河失敗了。翻開書本，看看留下了什麼。");
   const anim = guideStep && S.played === 0 && !pending && !busy;
-  if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers. Grievances on both banks ahead also make it Linger, unless a player spent an action to Push Through.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。前方兩岸都被怨念佔據時也會徘徊，除非有玩家花了行動強行穿過。");
+  if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers. Grievances on both banks ahead also make it Linger, unless a player spent an action to Push Through.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。前方兩岸都被怨念佔據時也會徘徊，除非有玩家花了行動奮力駛過。");
   if (anim && guideStep === "mist") return L("The Mist turns a card for this Reach.", "迷霧為本河段翻開一張牌。");
   if (anim && guideStep === "draw") return L("The river settles and hands are refilled.", "河面平靜下來，玩家補滿手牌。");
   const who = esc(pname(S.names[S.cur]));
@@ -1282,8 +1282,8 @@ function guideHint() {
   if (pending?.type === "inscribe") return L("Write this memory into the <b>Book</b>, or keep the card in the deck.", "將這段記憶寫進<b>憶念之書</b>，或把這張牌留在牌庫中。");
   const echo = S.echo >= 0 && S.played === 0 ? L(` A <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b> card will Resonate.`, `<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>牌會產生共鳴。`) : "";
   const wounds = E.pushCost(S);
-  const push = E.canPush(S) ? `<span class="pushwarn">${L(`Grievances hold both banks ahead, so the soul will Linger. You may spend an action to <b>Push Through</b>: both Grievances scatter and the soul steps forward now, at ${wounds} Fracture${wounds > 1 ? "s" : ""} and 1 forgotten card. Each Ferryman may do this only once in the whole game.`, `前方兩岸都被怨念佔據，亡魂將會徘徊。你可以花1個行動<b>強行穿過</b>：兩個怨念四散，亡魂立刻前進一格，代價是${wounds}道裂痕並遺忘1張牌。每位擺渡人整局只能這麼做一次。`)}</span>`
-    : E.blockedByGrievances(S) && E.hasPushed(S) ? `<span class="pushwarn">${L("Grievances hold both banks ahead. You have already used your one Push Through this game: clear a bank with your cards.", "前方兩岸都被怨念佔據。你本局的強行穿過已經用過了：請用手牌清出一側河岸。")}</span>` : "";
+  const push = E.canPush(S) ? `<span class="pushwarn">${L(`Grievances hold both banks ahead, so the soul will Linger. You may spend an action to <b>Push Through</b>: both Grievances scatter and the soul steps forward now, at ${wounds} Fracture${wounds > 1 ? "s" : ""} and 1 forgotten card. Each Ferryman may do this only once in the whole game.`, `前方兩岸都被怨念佔據，亡魂將會徘徊。你可以花1個行動<b>奮力駛過</b>：兩個怨念四散，亡魂立刻前進一格，代價是${wounds}道裂痕並遺忘1張牌。每位擺渡人整局只能這麼做一次。`)}</span>`
+    : E.blockedByGrievances(S) && E.hasPushed(S) ? `<span class="pushwarn">${L("Grievances hold both banks ahead. You have already used your one Push Through this game: clear a bank with your cards.", "前方兩岸都被怨念佔據。你本局的奮力駛過已經用過了：請用手牌清出一側河岸。")}</span>` : "";
   return L(`Click a card in your hand to hold it up close, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `點擊手牌中的一張牌把它拿近細看，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`) + push;
 }
 
@@ -1549,7 +1549,7 @@ function stepEvent(ev) {
       }
       cap(); return 1200;
     }
-    case "push": A.sfx("fracture"); flash(); shake(); cap("bad"); boardToken("push", [X(ev.sp), Y(ev.sp)]); return banner(L("Through the shades", "穿過怨念"), text, "obs");
+    case "push": A.sfx("fracture"); flash(); shake(); cap("bad"); boardToken("push", [X(ev.sp), Y(ev.sp)]); return banner(L("Through the shades", "駛過怨念"), text, "obs");
     case "blessing":
       if (ev.cid !== undefined) { const done = holdPile(["disc"], prev); fly(pilePoint("forg"), pilePoint("disc"), { cid: ev.cid, up1: false, ms: 800, delay: 500, onland: done }); }
       A.sfx("inscribe"); cap("good"); return banner(L("Chapter Blessing", "章節祝福"), text.replace(/^(Chapter Blessing: |章節祝福：)/, ""), "good");
