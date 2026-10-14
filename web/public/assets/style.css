@@ -636,3 +636,39 @@ html:lang(zh-Hant-TW) .drawer .body { line-height: 1.75; }
 .rpieces td { font-size: .8rem; line-height: 1.4; }
 @media (max-width: 600px) { .rpieces td:first-child { white-space: normal; } }
 .drawer.wide { width: min(660px, 100vw); }
+
+/* ================================================================ v4: Book pages sized to the page, typed prose, a slim ledger */
+.bk-page, .bk-face { container-type: size; }
+.bk-theatre .pp { max-height: 36cqh; }
+.bk-theatre.portrait .pp { max-height: 30cqh; }
+.bk-title h1 { font-size: clamp(1.3rem, 7.5cqh, 2.6rem); }
+.bk-title h2, .bk-script { font-size: clamp(1.3rem, 7cqh, 2.6rem); }
+.bk-blurb { font-size: clamp(.75rem, 3cqh, 1rem); }
+.bk-slots { font-size: clamp(.68rem, 2.6cqh, .9rem); gap: 2px 14px; }
+.bk-contents li { font-size: clamp(.85rem, 3.6cqh, 1.25rem); }
+.bk-note { font-size: clamp(.7rem, 2.7cqh, .92rem); }
+.bk-dropcap { font-size: clamp(.8rem, 4.1cqh, 1.3rem); line-height: 1.62; }
+.bk-dropcap::first-letter { font-size: 3em; }
+/* The chapter prose fills the page; the memories sit in one slim line at the foot. */
+.bk-inner:has(> .bk-chapterprose) { align-content: stretch; }
+.bk-chapterprose { height: 100%; min-height: 0; padding-bottom: 4.5cqh; grid-template-rows: 1fr auto; align-items: center; gap: 6px; }
+.bk-ledger { display: grid; gap: 3px; justify-items: center; }
+.bk-ledger .bk-rule { margin: 0 auto; height: 16px; width: 40px; }
+.bk-ledger .bk-rule svg { width: 16px; height: 16px; }
+.bk-ledger .bk-rule::before, .bk-ledger .bk-rule::after { width: 48px; }
+.bk-ledger ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 12px;
+  font-size: clamp(.62rem, 2.2cqh, .78rem); color: #9a8466; }
+.bk-ledger li { display: inline-flex; align-items: center; gap: 4px; max-width: 46%; white-space: nowrap; }
+.bk-ledger li span { overflow: hidden; text-overflow: ellipsis; }
+.bk-ledger li svg { width: 12px; height: 12px; flex: none; }
+.bk-ledger li.on { color: #3a2817; } .bk-ledger li.on svg { color: #a32a30; }
+.bk-ledger .bk-foot { font-size: clamp(.58rem, 2cqh, .72rem); }
+/* While the pen is writing, a small red nib blinks at the end of the line. */
+.bk-typing .bk-dropcap::after { content: ""; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -.12em;
+  background: #a32a30; animation: bkcaret .9s steps(2, jump-none) infinite; }
+@keyframes bkcaret { 50% { opacity: 0; } }
+@media (max-width: 760px) {
+  .bk-page, .bk-face { container-type: normal; }
+  .bk-chapterprose { height: auto; }
+  .bk-dropcap { font-size: 1rem; }
+}

@@ -145,6 +145,7 @@ function leaveGame() {
 // ---------------------------------------------------------------- menu
 function menu(which = "solo") {
   S = null;
+  A.lullaby(null);
   screen = ["menu", which];
   topbar();
   const soulBtns = Object.keys(SOULS).map(k => [k, soulInfo(k)]).map(([k, v]) =>
@@ -1032,6 +1033,7 @@ function searchRules(q) {
 // ---------------------------------------------------------------- refresh everything
 function refresh() {
   if (!S || !$("board")) return;
+  A.lullaby(S.cfg.soul);
   if (!$("dyn")) drawBoardStatic();
   drawStatus();
   drawBoard();
@@ -1212,7 +1214,7 @@ async function showEnd(now = false) {
   </div>`, "end");
   $("tomenu").onclick = () => { leaveGame(); menu(); };
   $("stay").onclick = closeVeil;
-  $("readbook").onclick = () => { closeVeil(); openBook(S, 4); };
+  $("readbook").onclick = () => { closeVeil(); openBook(S, 0); };
   if (canRestart) $("again").onclick = () => {
     if (mode === "online") {
       const names = S.names;

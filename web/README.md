@@ -10,7 +10,7 @@ A playable browser version of Netherbloom for publisher previews, hosted on Verc
 - **Login**: every page and asset sits behind `/login`. The account, password and cookie-signing secret are Vercel environment variables (`NB_USER`, `NB_PASS`, `NB_SECRET`), never source code.
 - **Help while playing**: a *Player Aid* and a searchable *Rulebook* slide in from the side. A turn guide beside the board lights up the current step and follows the Soul Step and the Mist as they play out.
 - **Book of Remembrance**: click the Book on the table to open the illustrated two-page edition, with chapter pages, wax-seal blessings and an epilogue at the end of the game.
-- **Music**: an original soundtrack generated live with the Web Audio API: a drone, the river, Aeolian bells and the occasional minor-second swell. Nothing is sampled, so there is no licence to clear.
+- **Music**: synthesised live with the Web Audio API: a drone, the river and wind in the reeds, with one public-domain lullaby at a time played softly on a felt piano. Each Soul has the lullaby of the land its story comes from: Brahms' Lullaby for the game and the Nameless Soul, *Schlaf, Kindlein, schlaf* for the Child, *Can Ye Sew Cushions* for the Garland Girl, *All Through the Night* for the King and the Greek ballad *The Death-Bride* for the Bride. Nothing is sampled, so there is no licence to clear.
 
 The rules engine `public/assets/engine.js` is a port of `simulator/netherbloom/engine.py`, using the tuned defaults from the balance report. Keep the two in step.
 

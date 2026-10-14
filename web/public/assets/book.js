@@ -15,6 +15,9 @@ const L = (en, zhText) => (zh() ? zhText : en);
 const titles = () => bookFrames().map(([t]) => t.split(" · ")[1]);
 
 let S = null, at = 0, seen = new Set(), turning = false, onKey = null;
+// Auto-turn: each spread waits for its shadow play to finish one pass and for the right page to finish typing,
+// then rests a moment and turns. Turning a page by hand pauses it.
+let auto = true, autoTimer = 0, visit = null, typing = 0;
 let shown = { left: null, right: null }, pageStops = [], bandStop = null, bandFocus = undefined;
 const REACH_SPAN = [[1, 4], [5, 8], [9, 11]];
 
@@ -127,13 +130,15 @@ function rightPage(i) {
     }
     return lost ? `<span class="bk-lost">${L("…but this, the river has taken", "……但這一段，已被河水帶走")}</span>` : `<span class="bk-blank">${use(SLOT_ICON[slot])}${zh() ? slotLabel(slot) : slot.toLowerCase()}</span>`;
   });
-  const margin = SLOTS.map(slot => {
+  const ledger = SLOTS.map(slot => {
     const cid = page[slot];
-    return `<li class="${cid === undefined ? "" : "on"}">${use(SLOT_ICON[slot])}<b>${slotLabel(slot)}</b><span>${cid === undefined ? (lost ? L("lost to the river", "被河水帶走") : L("unwritten", "未寫下")) : esc(cardName(cid))}</span></li>`;
+    const what = cid === undefined ? (lost ? L("lost", "已流失") : "—") : esc(cardName(cid));
+    return `<li class="${cid === undefined ? "" : "on"}" title="${slotLabel(slot)}">${use(SLOT_ICON[slot])}<span>${what}</span></li>`;
   }).join("");
-  return `<div class="bk-prose"><p class="bk-dropcap">${html}</p><div class="bk-rule">${use("nb-bloom")}</div>
-    <ul class="bk-margin">${margin}</ul>
-    <p class="bk-foot">${L(`${filled(r)} of 4 memories${S.blessed[r] ? " · blessed" : ""}`, `記憶 ${filled(r)}／4${S.blessed[r] ? " · 已受祝福" : ""}`)}</p>${vignette()}</div>`;
+  return `<div class="bk-prose bk-chapterprose"><p class="bk-dropcap">${html}</p>
+    <div class="bk-ledger"><div class="bk-rule">${use("nb-bloom")}</div>
+      <ul>${ledger}</ul>
+      <p class="bk-foot">${L(`${filled(r)} of 4 memories${S.blessed[r] ? " · blessed" : ""}`, `記憶 ${filled(r)}／4${S.blessed[r] ? " · 已受祝福" : ""}`)}</p></div></div>`;
 }
 
 const pageNo = (i, side) => `<span class="bk-pno">${i * 2 + side + 1}</span>`;
@@ -144,11 +149,14 @@ function render(force = false) {
   const lhs = leftPage(at) + pageNo(at, 0), rhs = rightPage(at) + pageNo(at, 1);
   let changed = false;
   if (force || lhs !== shown.left) { book.querySelector(".bk-left .bk-inner").innerHTML = lhs; shown.left = lhs; changed = true; }
-  if (force || rhs !== shown.right) { book.querySelector(".bk-right .bk-inner").innerHTML = rhs; shown.right = rhs; changed = true; }
+  if (force || rhs !== shown.right) {
+    book.querySelector(".bk-right .bk-inner").innerHTML = rhs; shown.right = rhs; changed = true;
+    if (!force && typing) { stopTyping(); mark("typed"); }
+  }
   if (changed) {
     pageStops.forEach(stop => stop());
     pageStops = [...book.querySelectorAll(".bk-page .bk-theatre")].map(host =>
-      mountPuppet(host, S, { lo: +host.dataset.lo || 1, hi: +host.dataset.hi || 11, mode: host.dataset.mode }));
+      mountPuppet(host, S, { lo: +host.dataset.lo || 1, hi: +host.dataset.hi || 11, mode: host.dataset.mode, onCycle: () => mark("puppet") }));
   }
   const focus = at >= 1 && at <= 3 ? at - 1 : null;
   if (focus !== bandFocus) {
@@ -156,13 +164,105 @@ function render(force = false) {
     if (bandStop) bandStop();
     bandStop = mountReplay(document.getElementById("bk-band"), S, { lo: 1, hi: 11, look: "night", focus });
   }
+  if (changed) fitPages(book);
   document.getElementById("bk-dots").innerHTML = spreads().map(i =>
     `<button type="button" class="${i === at ? "on" : ""}" data-go="${i}" aria-label="${L(`Spread ${i + 1}`, `第${i + 1}個跨頁`)}"></button>`).join("");
   document.getElementById("bk-prev").disabled = at === 0;
   document.getElementById("bk-next").disabled = at === spreads().length - 1;
-  book.querySelectorAll("[data-go]").forEach(b => b.onclick = () => go(+b.dataset.go));
-  document.querySelectorAll("#bk-dots [data-go]").forEach(b => b.onclick = () => go(+b.dataset.go));
+  book.querySelectorAll("[data-go]").forEach(b => b.onclick = () => byHand(+b.dataset.go));
+  document.querySelectorAll("#bk-dots [data-go]").forEach(b => b.onclick = () => byHand(+b.dataset.go));
+  autoButton();
 }
+
+// Shrink a page's contents (never grow them) until they fit inside its frame, whatever the window or language.
+function fitPages(root) {
+  root.querySelectorAll(".bk-inner").forEach(inner => {
+    inner.style.zoom = "";
+    const spills = () => {
+      const box = inner.getBoundingClientRect();
+      return [...inner.children].some(k => {
+        if (k.classList.contains("bk-pno")) return false;   // the page number sits below the text block on purpose
+        const r = k.getBoundingClientRect();
+        return r.top < box.top - 1 || r.bottom > box.bottom + 1 || k.scrollHeight > k.clientHeight + 1;
+      });
+    };
+    for (let z = 0.96; z >= 0.6 && spills(); z -= 0.04) inner.style.zoom = z.toFixed(2);
+  });
+}
+
+// ---------------------------------------------------------------- typing and auto-turn
+const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function textNodes(el) {
+  const out = [], w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  while (w.nextNode()) out.push(w.currentNode);
+  return out;
+}
+// Empty a page's prose so it can be typed out later (used on the leaf while it turns).
+function blankProse(el) { el?.querySelectorAll(".bk-dropcap").forEach(p => textNodes(p).forEach(n => { n.textContent = ""; })); }
+
+function stopTyping() { clearTimeout(typing); typing = 0; document.querySelector("#bk-book .bk-right")?.classList.remove("bk-typing"); }
+
+// Type the right page's prose out letter by letter, as if a pen were writing it.
+function typeRight() {
+  stopTyping();
+  const page = document.querySelector("#bk-book .bk-right"), p = page?.querySelector(".bk-dropcap");
+  if (!p || reduced()) { mark("typed"); return; }
+  p.querySelectorAll(".bk-ink.write").forEach(e => e.classList.remove("write"));   // the pen writes it; no fade on top
+  const nodes = textNodes(p), full = nodes.map(n => n.textContent);
+  nodes.forEach(n => { n.textContent = ""; });
+  page.classList.add("bk-typing");
+  const step = zh() ? 85 : 30;
+  let i = 0, c = 0;
+  const tick = () => {
+    if (!p.isConnected) return;
+    while (i < nodes.length && c >= full[i].length) { i++; c = 0; }
+    if (i >= nodes.length) { stopTyping(); mark("typed"); return; }
+    c += 1;
+    nodes[i].textContent = full[i].slice(0, c);
+    const ch = full[i][c - 1];
+    typing = setTimeout(tick, /[.,;:!?。，；：！？、—]/.test(ch) ? step * 7 : step);
+  };
+  typing = setTimeout(tick, 350);
+}
+
+function beginVisit() {
+  clearTimeout(autoTimer);
+  visit = { at, puppet: !document.querySelector("#bk-book .bk-left .bk-theatre"), typed: false };
+  if (auto) autoTimer = setTimeout(advance, 60000);   // a long shadow play never holds the page for more than a minute
+  typeRight();
+}
+function mark(kind) {
+  if (!visit || visit.at !== at || visit[kind]) return;
+  visit[kind] = true;
+  if (auto && visit.puppet && visit.typed) {
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(advance, 3200);   // a breath to read the finished page
+  }
+}
+function advance() {
+  if (!auto || !bookOpen()) return;
+  if (turning) { autoTimer = setTimeout(advance, 500); return; }
+  if (at < spreads().length - 1) go(at + 1);
+  else { auto = false; autoButton(); }
+}
+function setAuto(on) {
+  auto = on;
+  clearTimeout(autoTimer);
+  if (on) {
+    if (at >= spreads().length - 1) { auto = false; }
+    else if (visit && visit.puppet && visit.typed) autoTimer = setTimeout(advance, 1200);
+    else autoTimer = setTimeout(advance, 60000);
+  }
+  autoButton();
+}
+function autoButton() {
+  const b = document.getElementById("bk-auto");
+  if (!b) return;
+  b.textContent = auto ? L("❚❚ Pause pages", "❚❚ 暫停翻頁") : L("▸ Turn pages", "▸ 自動翻頁");
+  b.setAttribute("aria-pressed", String(auto));
+}
+function byHand(to) { if (auto) setAuto(false); go(to); }
 
 function go(to) {
   const max = spreads().length - 1;
@@ -170,7 +270,7 @@ function go(to) {
   if (to === at || turning) return;
   const book = document.getElementById("bk-book");
   const narrow = window.matchMedia("(max-width: 760px)").matches || window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (narrow) { at = to; render(); return; }
+  if (narrow) { at = to; render(true); beginVisit(); return; }
   turning = true;
   const fwd = to > at, from = at;
   const leaf = document.createElement("div");
@@ -183,8 +283,11 @@ function go(to) {
   const kept = book.querySelector(`${keepSide} .bk-inner`).innerHTML;
   render(true);
   book.querySelector(`${keepSide} .bk-inner`).innerHTML = kept;
+  stopTyping();
+  if (fwd) blankProse(book.querySelector(".bk-right")); else blankProse(leaf.querySelector(".backside"));
   book.appendChild(leaf);
-  leaf.addEventListener("animationend", () => { leaf.remove(); turning = false; render(true); }, { once: true });
+  fitPages(leaf);
+  leaf.addEventListener("animationend", () => { leaf.remove(); turning = false; render(true); beginVisit(); }, { once: true });
 }
 
 export function openBook(state, spread = null) {
@@ -207,25 +310,29 @@ export function openBook(state, spread = null) {
         <button type="button" id="bk-prev" aria-label="${L("Previous page", "上一頁")}">‹</button>
         <div class="bk-dots" id="bk-dots"></div>
         <button type="button" id="bk-next" aria-label="${L("Next page", "下一頁")}">›</button>
+        <button type="button" id="bk-auto" class="bk-x" aria-pressed="true"></button>
         <button type="button" id="bk-lang" class="bk-x" title="${L("Switch to Traditional Chinese", "切換為英文")}">${zh() ? "English" : "中文"}</button>
         <button type="button" id="bk-close" class="bk-x">${L("Close the Book", "闔上書本")}</button>
       </div>
     </div>`;
   document.body.appendChild(v);
   v.addEventListener("click", e => { if (e.target === v) closeBook(); });
-  document.getElementById("bk-prev").onclick = () => go(at - 1);
-  document.getElementById("bk-next").onclick = () => go(at + 1);
+  document.getElementById("bk-prev").onclick = () => byHand(at - 1);
+  document.getElementById("bk-next").onclick = () => byHand(at + 1);
+  document.getElementById("bk-auto").onclick = () => setAuto(!auto);
   document.getElementById("bk-close").onclick = closeBook;
   document.getElementById("bk-lang").onclick = () => setLang(zh() ? "en" : "zh");
   onKey = e => {
     if (e.key === "Escape") closeBook();
-    if (e.key === "ArrowRight") go(at + 1);
-    if (e.key === "ArrowLeft") go(at - 1);
+    if (e.key === "ArrowRight") byHand(at + 1);
+    if (e.key === "ArrowLeft") byHand(at - 1);
   };
   document.addEventListener("keydown", onKey);
   shown = { left: null, right: null };
   bandFocus = undefined;
+  auto = !reduced() && at < spreads().length - 1;
   render();
+  beginVisit();
   storyTheme(S.cfg.soul);
   document.getElementById("bk-next").focus({ preventScroll: true });
   v.scrollTop = 0;
@@ -242,6 +349,9 @@ export function closeBook() {
   if (onKey) document.removeEventListener("keydown", onKey);
   onKey = null;
   turning = false;
+  stopTyping();
+  clearTimeout(autoTimer);
+  visit = null;
 }
 
 export const bookOpen = () => !!document.getElementById("bk-veil");
