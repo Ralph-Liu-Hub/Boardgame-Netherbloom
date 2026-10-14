@@ -1,15 +1,15 @@
 // Original generative soundtrack and sound effects, synthesised live with the Web Audio API.
-// Nothing is sampled or recorded, so there is no copyright to clear.
-// Mood: a tranquil river at night, sad but tender. A slow D-minor song (harp, heartbeat, a warm pad, and a
-// felt-piano, flute or music-box melody) over a low drone and running water, bells between its rounds, and
-// now and then a slow minor-second swell to remind us where we are.
+// Nothing is sampled or recorded, and every melody is a public-domain lullaby, so there is no copyright to clear.
+// Mood: a tranquil river at night, sad but tender. A low drone and running water, wind in the reeds, and
+// over them one old lullaby at a time, played softly on a felt piano. Each Soul has the lullaby of the land
+// its story comes from; the game itself and the nameless soul have Brahms'. Every melody here is in the
+// public domain, transposed to D so it sits on the drone. Between verses there is silence, and now and then a slow swell.
 
 let ctx = null, master = null, musicBus = null, sfxBus = null, wet = null;
-let amb = null, storyBus = null, storyTimer = null, storySoul = null;  // ambient layers can be ducked under a Soul's theme
+let amb = null, lull = null;  // the ambient bed and the lullaby, mixed separately so the Book can bring the song forward
 let musicOn = true, sfxOn = true, started = false, timers = [];
 
 const NOTE = n => 440 * Math.pow(2, (n - 69) / 12);
-const BELLS = [62, 65, 67, 69, 72, 74, 77, 70, 81];   // D4 F4 G4 A4 C5 D5 F5 Bb4 A5
 const SWELLS = [[57, 58], [62, 63], [50, 51], [69, 70]];
 
 function prefs() {
@@ -60,9 +60,8 @@ function init() {
   musicBus.connect(wet);
   amb = ctx.createGain();
   amb.connect(musicBus);
-  storyBus = ctx.createGain();
-  storyBus.gain.value = 0;
-  storyBus.connect(musicBus);
+  lull = ctx.createGain();
+  lull.connect(musicBus);
   sfxBus = ctx.createGain();
   sfxBus.gain.value = sfxOn ? 0.8 : 0;
   sfxBus.connect(master);
@@ -133,17 +132,6 @@ function bell(freq, when, vol = 0.08, bus = amb, length = 5) {
   if (pan) { pan.pan.value = Math.random() * 1.2 - 0.6; g.connect(pan).connect(bus); } else g.connect(bus);
 }
 
-function phrase() {
-  if (melodyOn) { timers.push(setTimeout(phrase, 4000)); return; }
-  const t = ctx.currentTime + 0.1;
-  const count = 1 + Math.floor(Math.random() * 3);
-  let idx = Math.floor(Math.random() * 6);
-  for (let i = 0; i < count; i++) {
-    idx = Math.max(0, Math.min(BELLS.length - 1, idx + Math.floor(Math.random() * 5) - 2));
-    bell(NOTE(BELLS[idx]), t + i * (0.6 + Math.random() * 0.9), 0.05 + Math.random() * 0.04);
-  }
-  timers.push(setTimeout(phrase, 3500 + Math.random() * 5500));
-}
 
 function swell() {
   const [a, b] = SWELLS[Math.floor(Math.random() * SWELLS.length)];
@@ -169,7 +157,6 @@ function swell() {
     }
   }
   lp.connect(g).connect(amb);
-  timers.push(setTimeout(swell, 22000 + Math.random() * 26000));
 }
 
 function whisper() {
@@ -191,92 +178,8 @@ function whisper() {
   timers.push(setTimeout(whisper, 30000 + Math.random() * 40000));
 }
 
-// ---------------------------------------------------------------- the song of the river
-// A slow piece in D minor (84 bpm) over the drone: a harp arpeggio, a soft heartbeat, a warm pad holding
-// each chord, and a melody that comes and goes. Each 8-bar round picks a voice: the felt piano (always the
-// first round), the flute, a music-box answer an octave up, or only the harp, so the bells have room to ring.
-const BPM = 84, BEAT = 60 / BPM, BAR = BEAT * 4;
-const PROG = [            // [bass, chord tones] per bar: Dm Bb F C | Dm Gm Bb A
-  [38, [62, 65, 69]], [34, [62, 65, 70]], [41, [60, 65, 69]], [36, [60, 64, 67]],
-  [38, [62, 65, 69]], [43, [62, 67, 70]], [34, [62, 65, 70]], [45, [61, 64, 69]],
-];
-const MELODY = [          // [midi, beats] per bar; 0 is a rest
-  [[69, 1], [74, 1], [76, .5], [77, 1.5]],
-  [[76, 1], [74, 1], [77, 2]],
-  [[72, 1], [69, 1], [72, .5], [74, 1.5]],
-  [[76, 3], [0, 1]],
-  [[69, 1], [74, 1], [76, .5], [77, 1.5]],
-  [[79, 1], [77, 1], [74, 2]],
-  [[77, 1], [76, 1], [74, 1], [70, 1]],
-  [[73, 1.5], [76, .5], [74, 2]],
-];
-// The piano's line: a lullaby that keeps to the chord tones, moves in small steps and comes to rest,
-// sung in sweet thirds and sixths on its long notes. Tender rather than uneasy.
-const PIANO = [           // [midi, beats] per bar
-  [[69, 1.5], [67, .5], [65, 1], [69, 1]],
-  [[70, 2], [69, 1], [67, 1]],
-  [[69, 3], [72, 1]],
-  [[72, 1.5], [70, .5], [69, 1], [67, 1]],
-  [[69, 1.5], [67, .5], [65, 1], [74, 1]],
-  [[74, 2], [72, 1], [70, 1]],
-  [[65, 1], [67, 1], [69, 1], [70, 1]],
-  [[69, 4]],
-];
-let songBar = 0, songNext = 0, songVoice = "piano", melodyOn = false;
-
-function pluck(freq, when, vol, len = 1.6, pan = 0) {
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0, when);
-  g.gain.linearRampToValueAtTime(vol, when + 0.005);
-  g.gain.exponentialRampToValueAtTime(0.0001, when + len);
-  const lp = ctx.createBiquadFilter();
-  lp.type = "lowpass";
-  lp.frequency.setValueAtTime(2600, when);
-  lp.frequency.exponentialRampToValueAtTime(500, when + len);
-  for (const [type, r, a] of [["triangle", 1, 1], ["sine", 2, 0.3]]) {
-    const o = ctx.createOscillator(), og = ctx.createGain();
-    o.type = type;
-    o.frequency.value = freq * r;
-    og.gain.value = a;
-    o.connect(og).connect(lp);
-    o.start(when);
-    o.stop(when + len + 0.05);
-  }
-  const p = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-  if (p) { p.pan.value = pan; lp.connect(g).connect(p).connect(amb); } else lp.connect(g).connect(amb);
-}
-
-function flute(freq, when, dur, vol = 0.06) {
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0, when);
-  g.gain.linearRampToValueAtTime(vol, when + 0.09);
-  g.gain.setValueAtTime(vol, when + Math.max(0.1, dur - 0.18));
-  g.gain.linearRampToValueAtTime(0, when + dur + 0.25);
-  const vib = ctx.createOscillator(), vibAmt = ctx.createGain();
-  vib.frequency.value = 5.2;
-  vibAmt.gain.setValueAtTime(0, when);
-  vibAmt.gain.linearRampToValueAtTime(freq * 0.006, when + 0.4);
-  vib.connect(vibAmt);
-  const lp = ctx.createBiquadFilter();
-  lp.type = "lowpass";
-  lp.frequency.value = 2200;
-  for (const [type, r, a] of [["sine", 1, 1], ["triangle", 2, 0.12]]) {
-    const o = ctx.createOscillator(), og = ctx.createGain();
-    o.type = type;
-    o.frequency.value = freq * r;
-    vibAmt.connect(o.frequency);
-    og.gain.value = a;
-    o.connect(og).connect(lp);
-    o.start(when);
-    o.stop(when + dur + 0.3);
-  }
-  vib.start(when);
-  vib.stop(when + dur + 0.3);
-  lp.connect(g).connect(amb);
-}
-
 // A felt piano: a soft hammer, a few gently decaying partials and a muffled tone that darkens as it rings.
-function piano(freq, when, vol = 0.05, len = 3.2, pan = 0.2) {
+function piano(freq, when, vol = 0.05, len = 3.2, pan = 0.2, out = amb) {
   const g = ctx.createGain();
   g.gain.setValueAtTime(0, when);
   g.gain.linearRampToValueAtTime(vol, when + 0.012);
@@ -298,101 +201,100 @@ function piano(freq, when, vol = 0.05, len = 3.2, pan = 0.2) {
     o.stop(when + len + 0.05);
   }
   const p = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
-  if (p) { p.pan.value = pan; lp.connect(g).connect(p).connect(amb); } else lp.connect(g).connect(amb);
+  if (p) { p.pan.value = pan; lp.connect(g).connect(p).connect(out); } else lp.connect(g).connect(out);
 }
 
 // A warm pad, like strings or a hummed choir far off: soft detuned tones that swell into each chord
-// and overlap into the next, so the harmony never drops away.
-function warmPad(notes, when, dur) {
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0, when);
-  g.gain.linearRampToValueAtTime(0.016, when + dur * 0.45);
-  g.gain.setValueAtTime(0.016, when + dur * 0.8);
-  g.gain.linearRampToValueAtTime(0, when + dur + 0.9);
-  const lp = ctx.createBiquadFilter();
-  lp.type = "lowpass";
-  lp.frequency.value = 1100;
-  lp.Q.value = 0.3;
-  for (const n of notes) {
-    for (const det of [-7, 7]) {
-      const o = ctx.createOscillator();
-      o.type = "triangle";
-      o.frequency.value = NOTE(n);
-      o.detune.value = det;
-      o.connect(lp);
-      o.start(when);
-      o.stop(when + dur + 1);
+
+// ---------------------------------------------------------------- the lullabies
+// Written as "note/beats" with a quarter note as one beat, "r" for a rest and "|" between bars, in the key of
+// the source; `shift` moves each one to D. All five are traditional or long out of copyright.
+const LULLABIES = {
+  // Brahms, "Wiegenlied", Op. 49 No. 4 (1868): the game's own song, and the nameless soul's.
+  open: { title: "Brahms' Lullaby", bpm: 72, shift: -3, tune: `
+    A4/.5 A4/.5 | C5/1.5 A4/.5 A4/1 | C5/2 A4/.5 C5/.5 | F5/1 E5/1.5 D5/.5 | D5/1 C5/1 G4/.5 A4/.5 |
+    Bb4/1 G4/1 G4/.5 A4/.5 | Bb4/2 G4/.5 Bb4/.5 | E5/.5 D5/.5 C5/1 E5/1 | F5/2 F4/.5 F4/.5 |
+    F5/2 D5/.5 Bb4/.5 | C5/2 A4/.5 F4/.5 | Bb4/1 C5/1 D5/1 | C5/2 F4/.5 F4/.5 |
+    F5/2 D5/.5 Bb4/.5 | C5/2 A4/.5 F4/.5 | Bb4/1 A4/1 G4/1 | F4/3` },
+  // "Schlaf, Kindlein, schlaf" (melody printed 1781, after a folk tune): the cradle song of the north, for the
+  // child in the snow. Notation from the Essen folksong collection (Böhme).
+  child: { title: "Schlaf, Kindlein, schlaf", bpm: 63, shift: -3, tune: `
+    A4/1 G4/.5 G4/.5 | F4/1 r/.5 F4/.25 A4/.25 | C5/.5 C5/.5 Bb4/.5 Bb4/.5 | A4/1 r/.5 A4/.5 |
+    Bb4/.5 Bb4/.5 G4/.5 G4/.5 | C5/.5 C5/.5 A4/.5 A4/.5 | Bb4/.5 Bb4/.5 G4/.5 G4/.5 | C5/.5 C5/.5 A4/1 |
+    Bb4/1 G4/.5 G4/.5 | F4/2` },
+  // "Can Ye Sew Cushions", a Scottish mother's lullaby (Aird's Selection, c. 1782), for the girl who sang to
+  // the willow. Slow strain, as Aird prints it.
+  garland: { title: "Can Ye Sew Cushions", bpm: 58, shift: -5, tune: `
+    G4/.5 | G4/.75 B4/.25 G5/.75 E5/.25 D5/.5 B4/1 r/.25 G4/.25 | G4/.75 B4/.25 G5/.75 E5/.25 D5/1.5 E5/.5 |
+    D5/.75 B4/.25 B4/.75 A4/.25 G4/.75 G4/.25 G4/.75 A4/.25 | B4/.75 A4/.25 A4/.75 G4/.25 G4/1.5 G4/.5 |
+    G4/.75 B4/.25 G5/.75 E5/.25 D5/.5 B4/1 r/.25 G4/.25 | G4/.75 B4/.25 G5/.75 E5/.25 D5/1.5 E5/.5 |
+    D5/.75 B4/.25 B4/.75 A4/.25 G4/.25 G4/.75 G4/.75 A4/.25 | B4/.75 A4/.25 A4/.75 G4/.25 G4/2` },
+  // "Ar Hyd y Nos" (All Through the Night), Welsh, first printed 1784: the land the old king's legend came from.
+  king: { title: "All Through the Night", bpm: 66, shift: -5, tune: `
+    G4/1.5 F#4/.5 E4/1 G4/1 | A4/1.5 G4/.5 F#4/1 D4/1 | E4/1.5 F#4/.5 G4/1 E4/1 | D4/2 r/2 |
+    G4/1.5 F#4/.5 E4/1 G4/1 | A4/1.5 G4/.5 F#4/1 D4/1 | E4/1.5 F#4/.5 G4/1 E4/1 | D4/2 r/2 |
+    D5/1.5 C5/.5 B4/1 D5/1 | C5/1.5 B4/.5 A4/1 C5/1 | B4/1.5 A4/.5 G4/1 B4/1 | A4/1.5 G4/.5 F#4/1 D4/1 |
+    G4/1.5 F#4/.5 E4/1 G4/1 | A4/1.5 G4/.5 F#4/1 D4/1 | E4/1.5 F#4/.5 G4/1 E4/1 | D4/3` },
+  // "The Death-Bride", a Greek folk ballad in 7/8 (Essen collection), sung slowly as a lullaby for the bride
+  // death kept. Its raised and lowered steps are the old Greek colour.
+  bride: { title: "The Death-Bride", bpm: 60, shift: -5, repeat: 2, tune: `
+    C5/.5 | C5/2 G4/1 F4/.5 | G4/1 Ab4/.5 B4/1 Ab4/1 | G4/2.5 r/1 |
+    G4/1 Ab4/.5 Ab4/.5 F4/1.5 | G4/1 Ab4/.5 B4/.5 Ab4/.5 F4/1 | G4/2.5 r/1 |
+    G4/1 Ab4/.5 Ab4/.5 F4/1.5 | G4/1 Ab4/.5 B4/.5 Ab4/.5 F4/1 | G4/3` },
+};
+const STEP = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+function parseTune(text, shift) {
+  return text.trim().split(/[\s|]+/).filter(Boolean).map(tok => {
+    const [n, b] = tok.split("/");
+    if (n === "r") return [0, +b];
+    const m = n.match(/^([A-G])(#|b)?(\d)$/);
+    return [12 * (+m[3] + 1) + STEP[m[1]] + (m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0) + shift, +b];
+  });
+}
+export const lullabyTitle = soul => (LULLABIES[soul] || LULLABIES.open).title;
+
+let lullSoul = "open", verse = null, verseTimer = 0;
+
+// One verse of the current Soul's lullaby, then a silence (with, now and then, the low swell) before the next.
+function playVerse() {
+  if (!ctx) return;
+  const lb = LULLABIES[lullSoul] || LULLABIES.open, beat = 60 / lb.bpm;
+  const notes = parseTune(lb.tune, lb.shift);
+  verse = ctx.createGain();
+  verse.connect(lull);
+  let t = ctx.currentTime + 0.3;
+  for (let rep = 0; rep < (lb.repeat || 1); rep++) {
+    for (const [n, b] of notes) {
+      if (n) piano(NOTE(n), t, 0.055, Math.max(1.8, b * beat * 2.2), 0.12, verse);
+      t += b * beat;
     }
+    t += beat;
   }
-  lp.connect(g).connect(amb);
+  const len = t - ctx.currentTime;
+  const rest = 9 + Math.random() * 8;
+  if (Math.random() < 0.45) timers.push(setTimeout(swell, (len + 2) * 1000));
+  verseTimer = setTimeout(playVerse, (len + rest) * 1000);
+  timers.push(verseTimer);
 }
 
-// The voice a sixth or third below a melody note, from the bar's chord.
-function harmonyBelow(n, tones) {
-  const cands = tones.flatMap(t => [t - 12, t, t + 12]).filter(t => n - t >= 3 && n - t <= 9);
-  return cands.length ? Math.max(...cands) : 0;
+// soul: the Soul whose lullaby should play (null or "open" for the game's own). The verse playing now fades
+// out and the new lullaby begins a moment later.
+export function lullaby(soul) {
+  const want = soul && LULLABIES[soul] ? soul : "open";
+  if (want === lullSoul) return;
+  lullSoul = want;
+  if (!ctx || !started) return;
+  clearTimeout(verseTimer);
+  if (verse) {
+    const old = verse;
+    old.gain.setTargetAtTime(0, ctx.currentTime, 0.4);
+    setTimeout(() => old.disconnect(), 2500);
+    verse = null;
+  }
+  verseTimer = setTimeout(playVerse, 2200);
+  timers.push(verseTimer);
 }
 
-function heartbeat(when, vol) {
-  for (const [dt, v] of [[0, vol], [0.24, vol * 0.6]]) {
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.type = "sine";
-    o.frequency.setValueAtTime(70, when + dt);
-    o.frequency.exponentialRampToValueAtTime(38, when + dt + 0.25);
-    g.gain.setValueAtTime(v, when + dt);
-    g.gain.exponentialRampToValueAtTime(0.0001, when + dt + 0.32);
-    o.connect(g).connect(amb);
-    o.start(when + dt);
-    o.stop(when + dt + 0.35);
-  }
-}
-
-function songBarAt(t) {
-  const i = songBar % 8;
-  if (i === 0) {
-    // a new round: choose who sings it
-    const r = Math.random();
-    songVoice = songBar === 0 || r < 0.4 ? "piano" : r < 0.65 ? "flute" : r < 0.85 ? "box" : "harp";
-    melodyOn = songVoice !== "harp";
-  }
-  const [bass, tones] = PROG[i];
-  pluck(NOTE(bass), t, 0.07, BAR * 0.95, -0.1);
-  const arp = [tones[0], tones[1], tones[2], tones[0] + 12, tones[2], tones[1], tones[0], tones[1]];
-  arp.forEach((n, k) => pluck(NOTE(n - 12), t + k * BEAT / 2, k % 2 ? 0.022 : 0.03, 1.4, 0.35));
-  warmPad([...new Set([bass + 12, ...tones.map(n => n - 12)])], t, BAR);
-  heartbeat(t, 0.12);
-  heartbeat(t + BEAT * 2, 0.08);
-  if (songVoice === "piano") {
-    let x = t;
-    for (const [n, b] of PIANO[i]) {
-      const len = Math.max(2.2, b * BEAT * 2.5);
-      piano(NOTE(n), x, 0.05, len);
-      const h = b >= 2 && harmonyBelow(n, tones);
-      if (h) piano(NOTE(h), x + 0.03, 0.026, len, 0.05);
-      x += b * BEAT;
-    }
-  } else if (melodyOn) {
-    let x = t;
-    for (const [n, b] of MELODY[i]) {
-      if (n) {
-        if (songVoice === "flute") flute(NOTE(n), x, b * BEAT);
-        else bell(NOTE(n + 12), x, 0.045, amb, Math.max(1.5, b * BEAT * 2));
-      }
-      x += b * BEAT;
-    }
-  }
-  songBar += 1;
-}
-
-function song() {
-  // schedule bars a little ahead of time, so the rhythm stays steady even when the page is busy
-  if (!songNext || songNext < ctx.currentTime) songNext = ctx.currentTime + 0.2;
-  while (songNext < ctx.currentTime + 1.2) {
-    songBarAt(songNext);
-    songNext += BAR;
-  }
-  timers.push(setTimeout(song, 300));
-}
 
 export function start() {
   init();
@@ -401,9 +303,8 @@ export function start() {
   started = true;
   drone();
   river();
-  timers.push(setTimeout(phrase, 2500));
-  timers.push(setTimeout(song, 6000));
-  timers.push(setTimeout(swell, 15000));
+  verseTimer = setTimeout(playVerse, 4000);
+  timers.push(verseTimer);
   timers.push(setTimeout(whisper, 26000));
 }
 
@@ -423,90 +324,18 @@ export function setSfx(on) {
 }
 
 // ---------------------------------------------------------------- the Souls' themes (played while the Book is open)
-// Each Soul has a short music-box melody over a soft drone; the river soundtrack sinks beneath it.
-// Melodies are [midi note, beats]; 0 is a rest.
-const THEMES = {
-  open: { bpm: 66, notes: [[74, 1], [77, 1], [81, 2], [79, 1], [77, 1], [76, 2], [74, 1], [72, 1], [74, 3], [0, 1]], bass: [50, 45] },
-  child: { bpm: 80, notes: [[69, 1], [74, 2], [76, 1], [77, 2], [76, 1], [74, 2], [72, 1], [74, 3], [69, 1], [72, 1], [74, 1], [76, 3], [0, 2]], bass: [50, 57] },
-  garland: { bpm: 76, notes: [[74, .5], [76, .5], [77, 1], [81, 1], [79, .5], [77, .5], [76, 1], [72, 1], [74, 2], [77, .5], [76, .5], [74, 1], [69, 1], [74, 2], [0, 1]], bass: [50, 53] },
-  king: { bpm: 54, notes: [[62, 2], [69, 2], [67, 1], [65, 1], [64, 2], [62, 2], [60, 1], [62, 3], [0, 1]], bass: [38, 45], low: true },
-  bride: { bpm: 58, notes: [[69, 1.5], [70, .5], [69, 1], [65, 1], [64, 1.5], [65, .5], [62, 2], [61, 1], [62, 3], [0, 1]], bass: [50, 46] },
-};
 
-function musicBox(freq, when, vol, len) {
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0, when);
-  g.gain.linearRampToValueAtTime(vol, when + 0.006);
-  g.gain.exponentialRampToValueAtTime(0.0001, when + len);
-  [[1, 1], [3.01, 0.18], [6.1, 0.05], [2, 0.12]].forEach(([r, a]) => {
-    const o = ctx.createOscillator(), og = ctx.createGain();
-    o.type = "sine";
-    o.frequency.value = freq * r;
-    og.gain.value = a;
-    o.connect(og).connect(g);
-    o.start(when);
-    o.stop(when + len + 0.1);
-  });
-  g.connect(storyBus);
-}
-
-function pad(freq, when, dur) {
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0, when);
-  g.gain.linearRampToValueAtTime(0.03, when + dur * 0.4);
-  g.gain.linearRampToValueAtTime(0, when + dur);
-  const lp = ctx.createBiquadFilter();
-  lp.type = "lowpass";
-  lp.frequency.value = 600;
-  for (const det of [-6, 6]) {
-    const o = ctx.createOscillator();
-    o.type = "triangle";
-    o.frequency.value = freq;
-    o.detune.value = det;
-    o.connect(lp);
-    o.start(when);
-    o.stop(when + dur + 0.1);
-  }
-  lp.connect(g).connect(storyBus);
-}
-
-function themePhrase() {
-  const th = THEMES[storySoul];
-  if (!th || !ctx) return;
-  const beat = 60 / th.bpm;
-  let t = ctx.currentTime + 0.15, total = 0;
-  for (const [n, b] of th.notes) {
-    if (n) {
-      musicBox(NOTE(n), t, th.low ? 0.075 : 0.06, Math.max(1.6, b * beat * 2.2));
-      if (th.low) musicBox(NOTE(n - 12), t, 0.035, b * beat * 2);
-    }
-    t += b * beat;
-    total += b;
-  }
-  const len = total * beat;
-  pad(NOTE(th.bass[0]), ctx.currentTime + 0.15, len / 2 + 0.6);
-  pad(NOTE(th.bass[1]), ctx.currentTime + 0.15 + len / 2, len / 2 + 0.6);
-  storyTimer = setTimeout(themePhrase, (len + beat * 2) * 1000);
-}
-
-// soul: a Soul key to play its theme, or null to return to the river.
+// ---------------------------------------------------------------- the Book
+// While the Book is open the river and drone sink back and the Soul's lullaby comes forward. There is no
+// second melody, so nothing plays against the song.
 export function storyTheme(soul) {
   if (!ctx) return;
-  clearTimeout(storyTimer);
-  storyTimer = null;
   const now = ctx.currentTime;
-  if (soul && musicOn) {
-    storySoul = soul;
-    amb.gain.setTargetAtTime(0.22, now, 0.8);
-    storyBus.gain.cancelScheduledValues(now);
-    storyBus.gain.setTargetAtTime(1, now, 0.5);
-    themePhrase();
-  } else {
-    storySoul = null;
-    amb.gain.setTargetAtTime(1, now, 1.2);
-    storyBus.gain.setTargetAtTime(0, now, 0.4);
-  }
+  if (soul) lullaby(soul);
+  amb.gain.setTargetAtTime(soul && musicOn ? 0.45 : 1, now, 0.8);
+  lull.gain.setTargetAtTime(soul && musicOn ? 1.25 : 1, now, 0.8);
 }
+
 
 // ---------------------------------------------------------------- sound effects
 function thump(freq, vol, dur) {

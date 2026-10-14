@@ -233,7 +233,7 @@ function walkPose(base, phase, L) {
 }
 
 // ---------------------------------------------------------------- the stage
-export function mountPuppet(host, S, { lo = 1, hi = 11, mode = "chapter" } = {}) {
+export function mountPuppet(host, S, { lo = 1, hi = 11, mode = "chapter", onCycle = null } = {}) {
   const id = ++uid;
   const soul = S.cfg.soul;
   const G = GESTURES[soul] || GESTURES.open;
@@ -344,6 +344,7 @@ export function mountPuppet(host, S, { lo = 1, hi = 11, mode = "chapter" } = {})
   function next(now) {
     current = queue.shift();
     if (!current) {
+      if (onCycle) { const f = onCycle; onCycle = null; setTimeout(f, 0); }   // one pass of the story has been told
       svg.classList.add("pp-fade");
       setTimeout(() => { if (!alive) return; svg.classList.remove("pp-fade"); script(); next(performance.now()); }, 1500);
       current = { hold: true, ms: 1e9, p: pose };
