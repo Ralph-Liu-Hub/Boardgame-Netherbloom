@@ -533,6 +533,28 @@ async function finishTurn() {
   tick();
 }
 
+// Recall: choose which forgotten card comes back.
+function recallDialog() {
+  const rows = [...new Set(S.forgotten)].reverse().map(cid => {
+    const c = CARDS[cid];
+    return `<button type="button" class="recallopt t${c.tag}" data-rc="${cid}"><b>${esc(cardName(cid))}</b>${c.key ? ` <span class="firsttag">${L("Key Memory", "關鍵記憶")}</span>` : ""}
+      <small>${esc(tagName(c.tag))}${c.band ? ` · <i>${esc(cardBand(cid))}</i>` : ""}</small></button>`;
+  }).join("");
+  veil(`<div class="dialog wide"><h2>${L("Recall a memory", "喚回一段記憶")}</h2>
+    <p>${L(`As your <b>Answer</b>, spend <b>${S.cfg.recallCost} Light</b>: one forgotten card of your choice returns to the discard pile. This is your Answer, so it cannot Resonate.`,
+      `以你的<b>回應</b>花費<b>${S.cfg.recallCost}點光</b>：選一張被遺忘的牌回到棄牌堆。這就是你的回應，因此無法產生共鳴。`)}</p>
+    <div class="recallgrid">${rows}</div>
+    <div class="row"><button type="button" id="cancel">${L("Not now", "暫時不要")}</button></div></div>`, "recall");
+  $("cancel").onclick = closeVeil;
+  document.querySelectorAll("[data-rc]").forEach(b => b.onclick = async () => {
+    closeVeil();
+    if (!canPlayCards() || !E.canRecall(S)) return;
+    selected = null;
+    E.recall(S, +b.dataset.rc);
+    await afterAction();
+  });
+}
+
 function summonDialog() {
   const p = S.cur, hand = S.hands[p];
   const rows = Object.keys(MANTLES).filter(m => S.mantles[m] === -1).map(m => {
@@ -542,8 +564,12 @@ function summonDialog() {
       <div class="row">${cards.length ? cards.map(cid => `<button type="button" data-m="${m}" data-cid="${cid}">${L("Discard", "棄掉")} ${esc(cardName(cid))}</button>`).join("")
         : `<span class="muted">${L(`Needs a ${tagName(info.tag)} card.`, `需要一張${tagName(info.tag)}牌。`)}</span>`}</div></div>`;
   }).join("");
-  veil(`<div class="dialog wide"><h2>${L("Summon a Mantle", "召喚稱號")}</h2>
-    <p>${L(`Pay <b>${S.cfg.mantleCost} Light</b> and discard a card of the Mantle's thread. You keep the Mantle for the rest of the game.`, `支付<b>${S.cfg.mantleCost}點光</b>，並棄掉一張與該稱號同絲線的牌。你將持有這個稱號直到遊戲結束。`)}</p>
+  const old = E.heldMantle(S, p), left = S.cfg.maxSummons - S.stats.summons;
+  const swap = old ? `<p class="pushwarn">${L(`You hold <b>${esc(mantleInfo(old).name)}</b>. Summoning a new Mantle lays it down for good: no one can summon it again. Summons left this game: <b>${left}</b>.`,
+    `你持有<b>${esc(mantleInfo(old).name)}</b>。召喚新的稱號會將它永久放下，之後再也無法召喚。本局剩餘召喚次數：<b>${left}</b>。`)}</p>` : "";
+  veil(`<div class="dialog wide"><h2>${old ? L("Summon a new Mantle", "召喚新的稱號") : L("Summon a Mantle", "召喚稱號")}</h2>
+    <p>${L(`Pay <b>${S.cfg.mantleCost} Light</b> and discard a card of the Mantle's thread. ${S.cfg.resummon ? `Solo: you may later trade it for another, up to ${S.cfg.maxSummons} summons in a game.` : "You keep the Mantle for the rest of the game."}`,
+      `支付<b>${S.cfg.mantleCost}點光</b>，並棄掉一張與該稱號同絲線的牌。${S.cfg.resummon ? `單人模式：之後可以換成另一個稱號，一局最多召喚${S.cfg.maxSummons}次。` : "你將持有這個稱號直到遊戲結束。"}`)}</p>${swap}
     ${rows}<div class="row"><button type="button" id="cancel">${L("Not now", "暫時不要")}</button></div></div>`, "summon");
   $("cancel").onclick = closeVeil;
   document.querySelectorAll("[data-m]").forEach(b => b.onclick = () => {
@@ -741,7 +767,7 @@ function drawSoulboard() {
   for (let n = 0; n < c.bwSupply; n++) bw += svgUse("nb-blackwater", n < S.bw ? "" : "dim", "color:#9A948C");
   const fr = [0, 1, 2].map(n => svgUse("nb-fracture", n < S.fract ? "" : "dim", "color:#D7263D")).join("");
   const mantles = Object.keys(MANTLES).map(m => [m, mantleInfo(m)]).map(([m, info]) =>
-    `<div title="${esc(info.text)}"><span class="${TAGCLS[info.tag]}">${esc(info.name.replace("The ", ""))}</span><b>${S.mantles[m] >= 0 ? esc(pname(S.names[S.mantles[m]])) : `<span class="muted">${L("free", "未取得")}</span>`}</b></div>`).join("");
+    `<div title="${esc(info.text)}"><span class="${TAGCLS[info.tag]}">${esc(info.name.replace("The ", ""))}</span><b>${S.mantles[m] >= 0 ? esc(pname(S.names[S.mantles[m]])) : S.mantles[m] === -2 ? `<span class="muted">${L("laid down", "已放下")}</span>` : `<span class="muted">${L("free", "未取得")}</span>`}</b></div>`).join("");
   $("soulboard").innerHTML = `<div class="soulgrid">
     <div class="lbl wide">${L(`Forgotten ${f} of ${c.forgottenLimit}`, `遺忘 ${f}／${c.forgottenLimit}`)} <span class="muted" style="text-transform:none;letter-spacing:0">· ${L("Ash", "灰燼")} ${c.ashAt}${c.adriftAt < 99 ? ` · ${L("Adrift", "漂離")} ${c.adriftAt}` : ""}</span></div>
     <div class="track wide" style="grid-template-columns:repeat(${c.forgottenLimit},minmax(0,1fr))">${cells}</div>
@@ -825,11 +851,13 @@ function drawPrompt() {
   const n = S.played + 1;
   const echo = S.echo >= 0 && S.played === 0 ? L(` The Echo is <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>: an Answer of that thread Resonates.`,
     `迴響是<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>：以同絲線的牌回應便會產生共鳴。`) : "";
-  const sum = E.canSummon(S) ? `<button type="button" id="summon">${L(`Summon a Mantle (${S.cfg.mantleCost} Light)`, `召喚稱號（${S.cfg.mantleCost}點光）`)}</button>` : "";
+  const sum = E.canSummon(S) ? `<button type="button" id="summon">${E.heldMantle(S) ? L(`Summon a new Mantle (${S.cfg.mantleCost} Light)`, `召喚新的稱號（${S.cfg.mantleCost}點光）`) : L(`Summon a Mantle (${S.cfg.mantleCost} Light)`, `召喚稱號（${S.cfg.mantleCost}點光）`)}</button>` : "";
+  const rec = E.canRecall(S) ? `<button type="button" id="recall" class="recallbtn">${L(`Recall a memory · ${S.cfg.recallCost} Light`, `喚回記憶 · ${S.cfg.recallCost}點光`)}</button>` : "";
   const cost = E.pushCost(S);
   const push = E.canPush(S) ? `<button type="button" id="push" class="pushbtn">${L(`Push Through · ${cost} Fracture${cost > 1 ? "s" : ""}, forget 1 · once a game`, `強行穿過 · ${cost}道裂痕，遺忘1張 · 整局一次`)}</button>` : "";
-  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, ` : ""}${n === 1 ? (S.n > 1 ? "your <b>Answer</b>" : "Your <b>Answer</b>") : (S.n > 1 ? "now <b>Steer</b>" : "Now <b>Steer</b>")}: play a card${E.canSeek(S) ? ", Seek" : ""}${push ? " or Push Through" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，` : ""}${n === 1 ? "你的<b>回應</b>" : "接著<b>掌舵</b>"}：打出一張牌${E.canSeek(S) ? "、尋覓" : ""}${push ? "或強行穿過" : ""}。`)}${echo}</span>${push}${sum}`, true);
+  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, ` : ""}${n === 1 ? (S.n > 1 ? "your <b>Answer</b>" : "Your <b>Answer</b>") : (S.n > 1 ? "now <b>Steer</b>" : "Now <b>Steer</b>")}: play a card${E.canSeek(S) ? ", Seek" : ""}${rec ? ", Recall" : ""}${push ? " or Push Through" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，` : ""}${n === 1 ? "你的<b>回應</b>" : "接著<b>掌舵</b>"}：打出一張牌${E.canSeek(S) ? "、尋覓" : ""}${rec ? "、喚回記憶" : ""}${push ? "或強行穿過" : ""}。`)}${echo}</span>${push}${rec}${sum}`, true);
   if (sum) $("summon").onclick = summonDialog;
+  if (rec) $("recall").onclick = recallDialog;
   if (push) $("push").onclick = pushNow;
 }
 
@@ -905,7 +933,7 @@ function flyCard(cid) {
 // (Soul Step, then the Mist, then the draw) before moving on to the next player's first card.
 const GUIDE = [
   ["summon", "Summon", "optional · before your Answer", "召喚", "可選 · 在回應之前"],
-  ["card1", "Answer", "first action · a card matching the Echo Resonates", "回應", "第一個行動 · 與迴響相同的牌產生共鳴"],
+  ["card1", "Answer", "first action · a card matching the Echo Resonates, or Recall with 3 Light", "回應", "第一個行動 · 與迴響相同的牌產生共鳴，或花3點光喚回"],
   ["card2", "Steer", "second action · a card, Seek, or Push Through", "掌舵", "第二個行動 · 打出一張牌、尋覓或強行穿過"],
   ["bringer", "Bloom-Bringer", "free Bloom", "引花人", "免費綻放"],
   ["soul", "Soul Step", "move if the next space is Lit", "亡魂步驟", "下一格被照亮就前進"],
@@ -1164,6 +1192,7 @@ function stepEvent(ev) {
     case "linger": case "adrift": cap("bad"); A.sfx("linger"); toast(text); return 1300;
     case "inscribe": toast(text, 1); cap("good"); if (!seats.has(S.cur)) A.sfx("inscribe"); return 1200;
     case "draw": cap(); A.sfx("card"); return 700;
+    case "recall": cap("good"); A.sfx("inscribe"); toast(text, 1); return 1300;
     case "info": cap(); return 1200;
     case "push": A.sfx("fracture"); flash(); shake(); cap("bad"); return banner(L("Through the shades", "穿過怨念"), text, "obs");
     case "blessing": A.sfx("inscribe"); cap("good"); return banner(L("Chapter Blessing", "章節祝福"), text.replace(/^(Chapter Blessing: |章節祝福：)/, ""), "good");

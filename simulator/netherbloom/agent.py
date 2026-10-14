@@ -33,7 +33,8 @@ class Weights:
 
 
 class EchoAgent:
-    def __init__(self, beam=4, weights=None, use_book=True, allow_burn=True):
+    def __init__(self, beam=4, weights=None, use_book=True, allow_burn=True, careful_resummon=True):
+        self.careful_resummon = careful_resummon
         self.beam = beam
         self.w = weights or Weights()
         self.use_book = use_book
@@ -211,6 +212,8 @@ class EchoAgent:
         held = next((m for m, h in s.mantles.items() if h == s.cur), None)
         if held and not (s.cfg.solo_resummon and s.n == 1 and s.stats["summons"] < s.cfg.max_summons):
             return
+        if held and self.careful_resummon and s.forgotten:
+            return   # Light is better spent on a Recall while there is something to bring back
         order = ["bringer", "weaver", "breaker", "warden"]
         if len(s.forgotten) >= s.cfg.adrift_at - 2:
             order = ["warden", "bringer", "weaver", "breaker"]

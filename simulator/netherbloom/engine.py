@@ -62,11 +62,11 @@ class Config:
         self.push_action = True      # push-through is an action a player takes (False: the soul pushes on its own at the Soul Step)
         self.seek = True             # one action per turn may be Seek: discard a card and draw one (that turn's next card cannot Resonate)
         # Light sinks (experiments; off by default)
-        self.light_action = None     # None, "recall" (the Answer action: spend Light, a forgotten card returns) or
+        self.light_action = "recall" # None, "recall" (the Answer action: spend Light, a forgotten card returns) or
                                      # "kindle" (spend Light for one of: a forgotten card returns, mend a Fracture, drain a Black Water)
         self.light_action_cost = 3
         self.light_action_limit = 99 # times per game
-        self.solo_resummon = False   # solo: summon a new Mantle while holding one; the old one is retired; each Mantle once
+        self.solo_resummon = True    # solo: summon a new Mantle while holding one; the old one is retired; each Mantle once
         self.max_summons = 3         # with solo_resummon: summons per game
         for k, v in overrides.items():
             if not hasattr(self, k):

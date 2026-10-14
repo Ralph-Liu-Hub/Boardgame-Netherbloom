@@ -13,7 +13,7 @@
 //   Soul Step 亡魂步驟 · deck 牌庫 · discard pile 棄牌堆 · hand 手牌 · draw 抽牌 · turn 回合 · round 輪
 //   Place 地點 · Person 人物 · Deed 事蹟 · Feeling 感受
 //   Ferrymen 擺渡人（玩家：冥府的僕役，既非生者也非亡魂）· old ferryman 老擺渡人（傳說中只載付了船資的亡者）· Keeper 守岸人
-//   action 行動 · Answer (first action) 回應 · Steer (second action) 掌舵 · Seek 尋覓 · discard 棄掉 · push through 強行穿過 · Chronicle 紀事
+//   action 行動 · Answer (first action) 回應 · Steer (second action) 掌舵 · Seek 尋覓 · discard 棄掉 · push through 強行穿過 · Recall 喚回 · lay down (a Mantle, for good) 永久放下 · Chronicle 紀事
 //   Backlash 反噬：Grasping 攫取 / Resignation 認命 / The Tide Rises 漲潮
 
 export const ZH_LANTERNS = { 1: "溫和", 2: "標準", 3: "困難", 4: "英雄" };

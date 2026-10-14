@@ -22,11 +22,11 @@ def job(a):
 ZH_NAMES = {"child": "最後火光的孩子", "garland": "花環少女", "open": "無名渡河", "king": "渡船上的國王", "bride": "留在冥府的新娘"}
 ZH_LANS = {1: "溫和", 2: "標準", 3: "困難", 4: "英雄"}
 TEXT = {
-    "en": dict(title="# Win-rate matrix (current rules: Seek and Push Through as actions)",
+    "en": dict(title="# Win-rate matrix (current rules: Seek, Push Through and Recall as actions; solo Mantle trading)",
                intro="{n} AI games per cell, Echo-following AI. Rows: Soul × player count; columns: Lantern.",
                players="Players", soul="Soul", avg_all="Average over all player counts",
                avg_nc="Average over the four Souls other than the Child", turns="Average turns per game (all Souls)"),
-    "zh": dict(title="# 勝率矩陣（現行規則：尋覓與強行穿過皆為行動）",
+    "zh": dict(title="# 勝率矩陣（現行規則：尋覓、強行穿過與喚回皆為行動；單人可更換稱號）",
                intro="每格 {n} 場 AI 對局，由跟隨迴響的 AI 進行。列：亡魂 × 玩家人數；欄：燈籠。",
                players="玩家人數", soul="亡魂", avg_all="所有玩家人數的平均",
                avg_nc="孩子以外四個亡魂的平均", turns="每局平均回合數（所有亡魂）"),

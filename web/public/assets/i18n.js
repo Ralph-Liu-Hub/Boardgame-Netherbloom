@@ -129,6 +129,8 @@ const ZH_MSG = {
   darkWindHurt: () => "黑風找不到可以帶走的光，轉而傷了亡魂。",
   draw: (p, n) => `${pname(p)}抽了${n}張牌，補回手牌上限。`,
   echoOn: tag => `迴響梭移到${tagName(tag)}絲線上。`,
+  resummon: (p, old, m) => `${pname(p)}永久放下了${mantleInfo(old).name}，改為取得${mantleInfo(m).name}。`,
+  recall: (p, cid, n) => `${pname(p)}花費${n}點光：「${cardName(cid)}」被想起，回到棄牌堆。`,
 };
 const BACKLASH_ZH = ["攫取：一個怨念撲向亡魂。", "認命：亡魂將坐下並徘徊。", "漲潮：黑水淹沒前方。"];
 const GHOST_ZH = { root_far: "在遠方扎根", root_near: "在近處扎根", bloom_near: "使最近的根綻放", bloom_far: "使最遠的根綻放", banish_forget: "清出道路", none: "靜靜地飄過" };

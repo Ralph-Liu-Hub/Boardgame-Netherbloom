@@ -23,6 +23,8 @@ export function makeConfig({ players = 3, soul = "open", lantern = STANDARD_LANT
     karmaCap: { 1: 5, 2: 4, 3: 4, 4: 5 }[players], ashAt: 6, adriftAt: 9, mantleCost: 3,
     hand: { 1: 4, 2: 3, 3: 3, 4: 3 }[players], cardsPerTurn: 2, blessingAt: 3, startLight: 0,
     burnForget: 2, extraMist: 2,
+    recallCost: 3,                       // Light spent, as the Answer, to bring one forgotten card back
+    resummon: players === 1, maxSummons: 3,   // solo: a new Mantle may replace the one held; each Mantle once, 3 summons a game
   };
   if (soul === "king") cfg.mantleCost = 2;
   if (soul === "garland") cfg.blessingAt = 2;
@@ -468,21 +470,43 @@ export function seek(s, cid) {
   note(s, "seek", `${s.names[s.cur]} Seeks: discards a card and draws one.`, { p: s.cur, m: ["seek", s.names[s.cur]] });
 }
 
+// A Mantle's holder: -1 while it is free, the player's seat while held, -2 once laid down for good (solo re-summon).
+export const heldMantle = (s, p = s.cur) => Object.keys(s.mantles).find(m => s.mantles[m] === p) ?? null;
 export function canSummon(s) {
   const p = s.cur;
   if (s.phase !== "play" || s.played > 0 || s.light < s.cfg.mantleCost) return false;
-  if (Object.values(s.mantles).includes(p)) return false;
+  if (heldMantle(s, p) && !(s.cfg.resummon && s.stats.summons < s.cfg.maxSummons)) return false;
   return Object.entries(s.mantles).some(([m, h]) => h === -1 && s.hands[p].some(cid => CARDS[cid].tag === MANTLES[m].tag));
 }
 
 export function summon(s, mantle, cid) {
-  const p = s.cur;
+  const p = s.cur, old = heldMantle(s, p);
   s.light -= s.cfg.mantleCost;
   s.hands[p].splice(s.hands[p].indexOf(cid), 1);
   s.discard.push(cid);
+  if (old) {
+    s.mantles[old] = -2;
+    if (old === "warden") s.wardenReady = false;
+    note(s, "summon", `${s.names[p]} lays down ${MANTLES[old].name} for good and takes up ${MANTLES[mantle].name}.`, { mantle, old, p, m: ["resummon", s.names[p], old, mantle] });
+  } else note(s, "summon", `${s.names[p]} takes up ${MANTLES[mantle].name}.`, { mantle, p, m: ["summon", s.names[p], mantle] });
   s.mantles[mantle] = p;
   s.stats.summons += 1;
-  note(s, "summon", `${s.names[p]} takes up ${MANTLES[mantle].name}.`, { mantle, p, m: ["summon", s.names[p], mantle] });
+}
+
+// Recall: as the Answer (the turn's first action), spend Light to bring one forgotten card of your choice back to
+// the discard pile. The Answer is the only action that can Resonate, so a Recall gives that up.
+export const canRecall = s => s.phase === "play" && s.played === 0 && s.light >= s.cfg.recallCost && s.forgotten.length > 0;
+export function recall(s, cid) {
+  const i = s.forgotten.indexOf(cid);
+  if (i < 0 || !canRecall(s)) return false;
+  s.light -= s.cfg.recallCost;
+  s.forgotten.splice(i, 1);
+  s.discard.push(cid);
+  s.played += 1;
+  s.stats.recalls = (s.stats.recalls || 0) + 1;
+  note(s, "recall", `${s.names[s.cur]} spends ${s.cfg.recallCost} Light: “${CARDS[cid].name}” is remembered and returns to the discard pile.`,
+    { cid, p: s.cur, m: ["recall", s.names[s.cur], cid, s.cfg.recallCost] });
+  return true;
 }
 
 // mode: "up", "down" or "burn". Returns true if the card Resonated.

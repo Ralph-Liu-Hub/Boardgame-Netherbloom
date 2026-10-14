@@ -685,3 +685,9 @@ html:lang(zh-Hant-TW) .drawer .body { line-height: 1.75; }
 .boardcap.obs { border-color: var(--crimson); } .boardcap.acc { border-color: var(--bone); } .boardcap.obl { border-color: var(--cyan); }
 @media (max-width: 640px) { .boardcap { font-size: .8rem; bottom: 6px; } }
 @media (prefers-reduced-motion: reduce) { .fxring { animation-duration: .01s; } }
+/* Recall: the forgotten cards to choose from */
+.recallgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; max-height: 50vh; overflow: auto; }
+.recallopt { display: grid; gap: 3px; text-align: left; border-left: 3px solid var(--bone); }
+.recallopt.t0 { border-left-color: var(--crimson); } .recallopt.t2 { border-left-color: var(--cyan); }
+.recallopt small { color: var(--mist); }
+.recallbtn { border-color: var(--bone); }
