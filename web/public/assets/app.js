@@ -173,7 +173,7 @@ function menu(which = "solo") {
       <svg class="lily" aria-hidden="true"><use href="#nb-bloom"/></svg>
       <div class="eyebrow">${L("Publisher preview", "出版社試玩版")}</div>
       <h1>Netherbloom${zh() ? '<span class="zhtitle">彼岸花渡</span>' : ""}</h1>
-      <p>${L("Grow a path of spider lilies across the river of forgetting, and carry one soul to the Far Shore before it forgets who it was. A silent co-operative game for 1 to 4.",
+      <p>${L("Grow a path of Netherblooms across the river of forgetting, and carry one soul to the Far Shore before it forgets who it was. A silent co-operative game for 1 to 4.",
         "在遺忘之河上種出一條彼岸花小徑，趕在亡魂忘記自己是誰之前，護送它抵達彼岸。一款1至4人的無聲合作遊戲。")}</p>
     </div>
     <div class="modes">
@@ -598,13 +598,14 @@ function buildTable() {
       </div>
       <div class="tabletop">
         <div class="piles" id="piles"></div>
+        <section class="guide" id="guide" aria-live="polite"></section>
+        <div class="tokstrip" id="tokstrip" aria-label="${L("Tokens in play", "場上的標記")}"></div>
         <div class="tray" id="tray" aria-label="${L("Actions this turn", "本回合的行動")}"></div>
       </div>
       <section class="panel"><h2>${L("Book of Remembrance", "憶念之書")} <button type="button" class="link openbook" id="openbook">${svgUse("nb-seal")}${L("Open the Book", "翻開書本")}</button></h2>
         <div class="bookstrip" id="book" title="${L("Open the Book of Remembrance", "翻開憶念之書")}"></div></section>
     </div>
     <aside class="side">
-      <section class="panel guide" id="guide" aria-live="polite"></section>
       <section class="panel"><h2>${L("Loom of the Fates", "命運織機")}</h2><div class="loom" id="loom"></div></section>
       <section class="panel"><h2>${L("The Soul", "亡魂")}</h2><div id="soulboard"></div></section>
       <section class="panel chron"><h2>${L("Chronicle", "紀事")}</h2><div class="log" id="log"></div></section>
@@ -615,12 +616,24 @@ function buildTable() {
       <button type="button" class="docktoggle" id="docktoggle" aria-expanded="${dockOpen}" aria-controls="hand"></button>
       <div class="prompt" id="prompt"></div>
     </div>
-    <div class="fanwrap"><div class="fan" id="hand"></div></div>
+    <div class="fanwrap"><div class="dockinfo" id="dockinfo"></div><div class="fan" id="hand"></div></div>
   </section>
   <div class="zoom hidden" id="zoom" role="dialog" aria-modal="true"></div>`;
+  // the close-up lives at the top of the page, so it can also rise above a dialog (the forgotten pile)
+  document.querySelectorAll("body > .zoom").forEach(z => z.remove());
+  document.body.appendChild($("zoom"));
   $("docktoggle").onclick = () => setDock(!dockOpen);
   $("zoom").addEventListener("click", e => { if (e.target.id === "zoom" || e.target.closest("[data-close]")) closeZoom(); });
-  new ResizeObserver(() => document.documentElement.style.setProperty("--dockh", `${$("dock")?.offsetHeight || 0}px`)).observe($("dock"));
+  // the heights the layout needs: the whole hand panel, its bar alone, and the top bar
+  const sizes = () => {
+    const r = document.documentElement.style;
+    r.setProperty("--dockh", `${$("dock")?.offsetHeight || 0}px`);
+    r.setProperty("--barh", `${$("dock")?.querySelector(".dockbar")?.offsetHeight || 0}px`);
+    r.setProperty("--toph", `${document.querySelector(".topbar")?.offsetHeight || 0}px`);
+  };
+  const ro = new ResizeObserver(sizes);
+  ro.observe($("dock"));
+  if (document.querySelector(".topbar")) ro.observe(document.querySelector(".topbar"));
   drawBoardStatic();
   $("board").addEventListener("click", e => {
     const g = e.target.closest(".slot.target");
@@ -784,6 +797,7 @@ function drawLoom() {
     return `<div class="thread ${TAGCLS[t]} ${S.echo === t ? "echo" : ""}">${svgUse(TAG_ICONS[t])}
       <span>${tagName(t)}${S.echo === t ? ` <span class="echotag">${L("ECHO", "迴響")}</span>` : ""}</span><span class="knots">${knots}</span></div>`;
   }).join("") + (S.echo < 0 ? `<small class="muted">${L("No Echo on the Loom.", "織機上沒有迴響。")}</small>` : "");
+  drawDockInfo();
 }
 
 function drawSoulboard() {
@@ -806,27 +820,32 @@ function drawSoulboard() {
     <div><div class="lbl">${L("Light", "光")}</div><div class="icons" id="sb-light">${svgUse("nb-light", "", "color:#E6D3A3")}<span style="font-family:var(--display);font-size:1.25rem;color:var(--bone)">${S.light}</span></div></div>
     <div class="wide"><div class="lbl">${L("Black Water supply", "黑水供應")}</div><div class="icons">${bw}</div></div>
     <div class="wide"><div class="lbl">${L(`Mantles · cost ${c.mantleCost} Light`, `稱號 · 花費${c.mantleCost}點光`)}</div><div class="mantles" id="sb-mantles">${mantles}</div></div>
-    <div class="wide"><div class="lbl">${L("On the table", "桌上的標記")}</div><div class="tabletoks">${tableTokens(S)}</div></div>
   </div>`;
+  drawTokStrip();
 }
 
-// The tabletop tokens and turned cards that keep track of a rule over time, as they lie on a real table.
-function tableTokens(s) {
-  const chip = (a, label, on = true, title = label) => `<span class="ttok ${on ? "" : "spent"}" title="${esc(title)}">${tokIcon(a)}<small>${esc(label)}</small></span>`;
-  const out = [];
+// The tabletop tokens and turned cards that keep track of a rule over time, as they lie on a real table:
+// each one lights up while it is in force (or still to be used) and goes dark once it is spent.
+function drawTokStrip() {
+  const el = $("tokstrip");
+  if (!el || !S) return;
+  const s = vs();
+  const chip = (a, label, on, title) => `<span class="ttok ${on ? "on" : "off"}" title="${esc(title)}">${tokIcon(a)}<small>${esc(label)}</small></span>`;
+  const out = [
+    chip("shield", L("Shield", "護盾"), !!s.shieldOn, s.shieldOn ? L("Shield up: the next Fracture before the raiser's next turn is stopped", "護盾升起：在升起者的下個回合前，擋下下一道裂痕") : L("Shield: not raised", "護盾：未升起")),
+    chip("hold", L("Hold Fast", "堅守"), !!s.hold, s.hold ? L("Hold Fast: if the soul cannot step this turn, it waits without forgetting", "堅守：若亡魂本回合無法前進，它會停留而不遺忘") : L("Hold Fast: not in play", "堅守：未使用")),
+    chip("resign", L("Resignation", "認命"), !!s.resign, s.resign ? L("Resignation: the soul will sit down and Linger at its next step", "認命：亡魂下一步會坐下徘徊") : L("Resignation: not in play", "認命：未出現")),
+  ];
   for (let p = 0; p < S.n; p++) {
     const spent = !!s.pushedBy?.[p];
     out.push(chip("push", S.n > 1 ? pname(S.names[p]) : L("Push Through", "破浪"), !spent,
       spent ? L(`${pname(S.names[p])} has used their Push Through`, `${pname(S.names[p])}的破浪標記已翻面：奮力駛過已用掉`) : L(`${pname(S.names[p])} can still Push Through once`, `${pname(S.names[p])}的破浪標記：還能奮力駛過一次`)));
   }
-  if (s.shieldOn) out.push(chip("shield", L("Shield", "護盾"), true, L("Shield: the next Fracture before the raiser's next turn is stopped", "護盾：在升起者的下個回合前，擋下下一道裂痕")));
-  if (s.hold) out.push(chip("hold", L("Hold Fast", "堅守")));
-  if (s.resign) out.push(chip("resign", L("Resignation", "認命")));
-  const turned = [];
-  if (S.mantles.warden >= 0 && !S.wardenReady) turned.push(L("Spirit Warden turned sideways: used this round", "守魂者橫放：本輪已使用"));
-  if (S.cfg.soul === "child" && S.reach < 3 && !S.childShield[S.reach]) turned.push(L("Soul card turned sideways: the little flame is spent this Reach", "亡魂牌橫放：本河段的小小火光已用掉"));
-  if (S.cfg.soul === "bride" && S.bridePulled) turned.push(L("Soul card turned sideways: she has been pulled back once", "亡魂牌橫放：她已被拉回過一次"));
-  return out.join("") + turned.map(x => `<span class="turned">${esc(x)}</span>`).join("");
+  const turned = (label, on, title) => `<span class="ttok turn ${on ? "on" : "off"}" title="${esc(title)}"><i class="tcard"></i><small>${esc(label)}</small></span>`;
+  if (S.mantles.warden >= 0) out.push(turned(L("Warden", "守魂者"), S.wardenReady, S.wardenReady ? L("Spirit Warden upright: ready this round", "守魂者直放：本輪可用") : L("Spirit Warden turned sideways: used this round", "守魂者橫放：本輪已使用")));
+  if (S.cfg.soul === "child" && S.reach < 3) out.push(turned(L("Little flame", "小小火光"), !!S.childShield[S.reach], S.childShield[S.reach] ? L("Soul card upright: the little flame still burns this Reach", "亡魂牌直放：本河段的小小火光仍在") : L("Soul card turned sideways: the little flame is spent this Reach", "亡魂牌橫放：本河段的小小火光已用掉")));
+  if (S.cfg.soul === "bride") out.push(turned(L("Pull back", "拉回"), !S.bridePulled, S.bridePulled ? L("Soul card turned sideways: she has been pulled back once", "亡魂牌橫放：她已被拉回過一次") : L("Soul card upright: she can still be pulled back once", "亡魂牌直放：她還能被拉回一次")));
+  el.innerHTML = `<div class="stripk">${L("Tokens", "標記")}</div><div class="tabletoks">${out.join("")}</div>`;
 }
 
 function drawBook() {
@@ -921,7 +940,7 @@ function viewSeat() {
 const GLOSS = {
   root: ["<b>Root</b>: a seed on an empty bank at or ahead of the soul. It must touch the network: the soul's own space or the next, the opposite bank, or the same bank one space before or after a token. Placing it on fog reveals the tile.",
     "<b>根</b>：放在亡魂所在格或前方的空河岸上，必須與根網相連：亡魂所在格或下一格、同格對岸，或同側前後一格有標記。放在霧上會翻開地塊。"],
-  bloom: ["<b>Bloom</b>: one of your Roots, at or ahead of the soul, opens into a spider lily. A space with a Bloom is Lit, and the soul only steps onto Lit spaces.",
+  bloom: ["<b>Bloom</b>: one of your Roots, at or ahead of the soul, opens into a Netherbloom. A space with a Bloom is Lit, and the soul only steps onto Lit spaces.",
     "<b>綻放</b>：亡魂所在格或前方的一個根開成彼岸花。有花的格子即被照亮，亡魂只會踏上被照亮的格子。"],
   hold: ["<b>Hold Fast</b>: if the soul cannot step this turn, it waits without forgetting a card. The token stays beside the soul until the turn ends.",
     "<b>堅守</b>：若亡魂本回合無法前進，它會停留而不遺忘任何牌。標記放在亡魂旁，直到回合結束。"],
@@ -1028,10 +1047,18 @@ function drawHand() {
 const dockLabel = (who, n) => `<span class="chev">${dockOpen ? "▾" : "▴"}</span><span>${esc(who)}</span><b>${n}</b>`;
 
 // A card held up close: its full text, and (on your turn) the ways to play it.
-function openZoom(cid) {
+// With look set, the card is only looked at (a forgotten memory): no ways to play it.
+function openZoom(cid, look = false) {
   const z = $("zoom");
   if (!z || !S) return;
   const seat = viewSeat();
+  if (look) {
+    z.innerHTML = `<div class="zoombox">${cardHTML(cid, { cls: "big", gloss: true })}
+      <div class="zside"><p class="muted zwait">${L("A forgotten memory. Spend Light as your Answer to Recall it.", "一段被遺忘的記憶。以回應花費光可以喚回它。")}</p><button type="button" class="ghost" data-close>${L("Close", "關閉")}</button></div></div>`;
+    z.classList.remove("hidden");
+    z.querySelector("[data-close]")?.focus();
+    return;
+  }
   if (seat < 0 || !S.hands[seat].includes(cid)) return;
   selected = cid;
   const playable = seat === S.cur && canPlayCards();
@@ -1147,16 +1174,34 @@ function drawPiles() {
     <button type="button" class="pile forg" id="pile-forg" data-list="forg" title="${L("Forgotten memories: click to look through them", "被遺忘的記憶：點擊查看")}">
       <span class="pst ${pv.f ? "" : "none"}" style="${stack(pv.f)}">${pv.f ? miniFace(pv.ft) : ""}</span><span class="plbl">${L("Forgotten", "遺忘")} <b>${pv.f}</b>/${S.cfg.forgottenLimit}</span></button>`;
   el.querySelectorAll("[data-list]").forEach(b => b.onclick = () => pileDialog(b.dataset.list));
+  drawDockInfo();
 }
-// The forgotten pile is face up, so anyone may look through it (the discard pile is face down and stays closed).
+// Beside the open hand: what the table shows under the cards, so a choice can be made without closing the hand.
+function drawDockInfo() {
+  const el = $("dockinfo");
+  if (!el || !S) return;
+  const s = vs();
+  const f = s.forgotten.length, ft = pilesHeld.ft ?? s.pile?.ft ?? S.forgotten.at(-1) ?? -1;
+  const fn = pilesHeld.f ?? f;
+  const echo = s.echo;
+  el.innerHTML = `<button type="button" class="pile forg" data-list="forg" title="${L("Forgotten memories: click to look through them", "被遺忘的記憶：點擊查看")}">
+      <span class="pst ${fn ? "" : "none"}" style="--layers:${Math.min(6, Math.ceil(fn / 4))}">${fn ? miniFace(ft) : ""}</span><span class="plbl">${L("Forgotten", "遺忘")} <b>${fn}</b>/${S.cfg.forgottenLimit}</span></button>
+    <div class="dockecho ${echo >= 0 ? TAGCLS[echo] : ""}" title="${esc(L("The Echo on the Loom: a card of this thread played as your Answer Resonates", "織機上的迴響：以回應打出此絲線的牌會產生共鳴"))}">
+      <span class="stripk">${L("Echo", "迴響")}</span>
+      ${echo >= 0 ? `${svgUse(TAG_ICONS[echo], TAGCLS[echo])}<b>${tagName(echo)}</b><small>${L("Resonates as your Answer", "作為回應打出即共鳴")}</small>` : `<small class="muted">${L("No Echo on the Loom", "織機上沒有迴響")}</small>`}
+    </div>`;
+  el.querySelector("[data-list]").onclick = () => pileDialog();
+}
+// The forgotten pile is face up, so anyone may look through it, and hold any card up close (the discard pile is face down and stays closed).
 function pileDialog() {
   const cards = [...S.forgotten].reverse();
   const title = L("Forgotten memories", "被遺忘的記憶");
   const note = L(`Most recent first. ${S.cfg.forgottenLimit} forgotten and the soul Fades. Spend ${S.cfg.recallCost} Light as your Answer to Recall one.`, `最近遺忘的排在最前。遺忘達到${S.cfg.forgottenLimit}張，亡魂就會消散。以回應花費${S.cfg.recallCost}點光可以喚回一張。`);
   veil(`<div class="dialog wide"><h2>${title} · ${cards.length}</h2><p class="muted">${note}</p>
-    <div class="pilelist">${cards.length ? cards.map(cid => miniFace(cid)).join("") : `<span class="muted">${L("Empty.", "空的。")}</span>`}</div>
+    <div class="pilelist">${cards.length ? cards.map(cid => `<button type="button" class="mcbtn" data-cid="${cid}" title="${esc(cardName(cid))}">${miniFace(cid)}</button>`).join("") : `<span class="muted">${L("Empty.", "空的。")}</span>`}</div>
     <div class="row"><button type="button" id="cancel">${L("Close", "關閉")}</button></div></div>`, "pile");
   $("cancel").onclick = closeVeil;
+  $("veil").querySelectorAll(".mcbtn").forEach(b => b.onclick = () => openZoom(+b.dataset.cid, true));
 }
 
 // ---------------------------------------------------------------- cards and Light in flight
@@ -1287,15 +1332,16 @@ function guideHint() {
   return L(`Click a card in your hand to hold it up close, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `點擊手牌中的一張牌把它拿近細看，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`) + push;
 }
 
+// The turn reminder beside the piles: the seven steps of a turn as a row of beads, the current one named.
 function drawGuide() {
   const el = $("guide");
   if (!el) return;
   const steps = guideState();
-  el.innerHTML = `<h2><span>${L(`Turn ${S.turn || 1}`, `第${S.turn || 1}回合`)} <span class="muted" style="font-family:var(--body);font-size:.85rem">${esc(pname(S.names[S.cur]))}${S.n === 1 ? L(" · then the Ghost", " · 接著是幽靈") : ""}</span></span>
-    <button type="button" class="link" data-aid>${L("Player Aid", "玩家輔助卡")}</button></h2>
-    <ol class="gsteps">${steps.map((g, i) => `<li class="${g.cls}"><span class="gi"><span>${i + 1}</span></span><div><b>${g.title}</b>${g.sub ? `<small>${g.sub}</small>` : ""}</div></li>`).join("")}</ol>
+  const now = steps.find(g => g.cls === "now") || steps.find(g => g.cls === "avail");
+  el.innerHTML = `<div class="ghead"><span class="stripk">${L("Turn reminder", "回合提示")}</span>
+    <ol class="gsteps">${steps.map((g, i) => `<li class="${g.cls}" title="${esc(`${i + 1}. ${g.title}${g.sub ? ` · ${g.sub}` : ""}`)}"><span class="gi"><span>${i + 1}</span></span><b>${g.title}</b></li>`).join("")}</ol></div>
+    ${now ? `<div class="gnow"><b>${now.title}</b>${now.sub ? ` <small>${now.sub}</small>` : ""}</div>` : ""}
     <div class="ghint">${guideHint()}</div>`;
-  el.querySelector("[data-aid]").onclick = () => openDrawer("aid");
 }
 function setGuide(step) { guideStep = step; if (S && $("guide")) drawGuide(); }
 

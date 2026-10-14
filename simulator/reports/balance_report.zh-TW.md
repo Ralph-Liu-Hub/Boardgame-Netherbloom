@@ -1,6 +1,6 @@
 [English](balance_report.md) | 正體中文
 
-# Netherbloom（暫定中文名：彼岸花渡）模擬器——平衡報告
+# 《彼岸花渡》Netherbloom 模擬器——平衡報告
 
 每種主要設定各 1000 場（變體設定為其一半）。由跟隨迴響的 AI 玩家進行。執行時間 103 秒。
 

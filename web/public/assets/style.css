@@ -834,3 +834,109 @@ html:lang(zh-Hant-TW) .drawer .body { line-height: 1.75; }
 .tabletoks .turned { flex-basis: 100%; font-size: .76rem; color: var(--mist); font-style: italic; }
 .trayh .oar { display: block; margin-bottom: 2px; }
 .trayh .oar .tokico { width: 24px; height: 24px; }
+
+/* v3 layout: on a desktop window the whole table fits one screen (no page scroll). The side column holds the Loom,
+   the Soul and the Chronicle from top to bottom; the hand slides up over the main column only. */
+:root { --toph: 53px; --barh: 52px; --sidew: 330px; }
+.zoom { z-index: 56; }
+.zoombox { padding: 14px 8px 8px; }
+.fan .card.resonant::after { top: auto; bottom: 8px; right: 8px; }
+.tabletop { flex-wrap: wrap; gap: 8px; }
+.piles { flex: none; gap: 8px; }
+.pile { min-width: 80px; padding: 6px 8px 5px; }
+.guide, .tokstrip { display: grid; gap: 4px; align-content: start; padding: 6px 10px; background: rgba(23,22,27,.7); border: 1px solid var(--ash); border-radius: 10px; min-width: 0; }
+.guide { flex: 1 1 300px; }
+.tokstrip { flex: 0 1 250px; }
+.tray { flex: none; padding: 6px 12px; }
+.stripk { font-family: var(--mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mist); }
+.ghead { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.guide .gsteps { display: flex; gap: 4px; }
+.guide .gsteps li { display: block; padding: 0; border: 0; background: none; box-shadow: none; }
+.guide .gsteps li b, .guide .gsteps li small { display: none; }
+.guide .gsteps li .gi { width: 20px; height: 20px; font-size: .68rem; }
+.guide .gsteps li.now .gi { box-shadow: 0 0 10px rgba(215,38,61,.6); }
+.gnow { font-size: .86rem; line-height: 1.3; }
+.gnow b { color: var(--bone); font-weight: 500; }
+.gnow small { color: var(--mist); font-size: .76rem; }
+.guide .ghint { font-size: .78rem; line-height: 1.35; padding: 4px 8px; max-height: 6.2em; overflow-y: auto; scrollbar-width: thin; }
+.guide .ghint .pushwarn { display: block; margin-top: 3px; }
+.tokstrip .tabletoks { gap: 5px 9px; }
+.ttok { gap: 4px; transition: opacity .3s, filter .3s; }
+.ttok .tokico { width: 24px; height: 24px; } .ttok .tokico svg { width: 15px; height: 15px; }
+.ttok small { font-size: .72rem; }
+.ttok.on .tokico { box-shadow: 0 0 10px 1px color-mix(in srgb, var(--tc) 70%, transparent); background: color-mix(in srgb, var(--tc) 16%, var(--ink)); }
+.ttok.on small { color: var(--paper); }
+.ttok.off { opacity: .38; filter: grayscale(1); }
+.ttok .tcard { display: inline-block; width: 13px; height: 19px; margin: 0 5px; border: 1.5px solid var(--bone); border-radius: 2px; background: #2a2430; transition: transform .3s; }
+.ttok.turn.on .tcard { box-shadow: 0 0 8px rgba(230,211,163,.6); }
+.ttok.turn.off .tcard { transform: rotate(90deg); }
+.mcbtn { padding: 0; border: 0; background: none; border-radius: 7px; cursor: zoom-in; transition: transform .2s; }
+.mcbtn:hover, .mcbtn:focus-visible { transform: translateY(-3px); box-shadow: 0 0 0 1px var(--bone); }
+/* beside the open hand: the forgotten pile and the Echo */
+.fanwrap { display: flex; align-items: flex-start; }
+.fan { flex: 1 1 auto; min-width: 0; }
+.dockinfo { flex: none; display: grid; gap: 6px; align-content: start; width: 150px; padding: 12px 0 0 14px; }
+.dockinfo .pst, .dockinfo .pst > .mc { width: 44px; height: 61px; }
+.dockinfo .pst .mc .mct { display: none; }
+.dockinfo .pile { width: 100%; cursor: pointer; }
+.dockecho { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px 6px; padding: 5px 8px; text-align: center; border: 1px solid var(--ash); border-radius: 10px; background: rgba(23,22,27,.7); }
+.dockecho svg { width: 22px; height: 22px; }
+.dockecho b { font-weight: 500; font-size: .9rem; }
+.dockecho small { flex-basis: 100%; font-size: .7rem; color: var(--mist); line-height: 1.2; }
+.dockecho .stripk { flex-basis: 100%; }
+.dockecho.c-obs { border-color: rgba(215,38,61,.6); } .dockecho.c-acc { border-color: rgba(230,211,163,.6); } .dockecho.c-obl { border-color: rgba(143,214,225,.6); }
+@media (min-width: 1001px) {
+  .app { padding-bottom: 0; }
+  .table { max-width: none; height: calc(100vh - var(--toph)); min-height: 600px; padding: 8px 14px 8px; grid-template-columns: minmax(0, 1fr) var(--sidew);
+    grid-template-rows: minmax(0, 1fr); align-items: stretch; }
+  .main { display: flex; flex-direction: column; gap: 8px; min-height: 0; padding-bottom: var(--barh); }
+  .main > * { flex: none; }
+  .main > .boardwrap { flex: 1 1 auto; min-height: 150px; display: flex; flex-direction: column; }
+  .boardscroll { flex: 1 1 auto; min-height: 0; display: flex; overflow: hidden; }
+  #board { width: 100%; height: 100%; min-width: 0; max-height: none; min-height: 0; }
+  .main > .panel { padding: 8px 12px; gap: 6px; }
+  .bookstrip .page { padding: 7px 10px; font-size: .82rem; line-height: 1.4; }
+  .side { position: static; height: 100%; max-height: none; overflow: hidden; display: flex; flex-direction: column; gap: 8px; }
+  .side > .panel { padding: 10px 12px; gap: 6px; }
+  .side > .chron { flex: 1 1 auto; min-height: 0; }
+  .side > .chron .log { min-height: 0; }
+  .dock { right: calc(var(--sidew) + 20px); border-right: 1px solid var(--ash); border-top-right-radius: 12px; }
+  .toasts { bottom: calc(var(--barh) + 16px); }
+}
+/* short desktop windows: tighten the Soul board so the Chronicle keeps some room */
+@media (min-width: 1001px) and (max-height: 760px) {
+  .soulgrid { gap: 4px 10px; }
+  .loom { gap: 4px; }
+  .bookstrip .page { font-size: .78rem; }
+}
+@media (max-width: 1000px) {
+  .guide { flex: 1 1 100%; order: 3; }
+  .tokstrip { flex: 1 1 auto; order: 4; }
+  .piles { order: 1; } .tray { order: 2; margin-left: auto; }
+}
+@media (max-width: 640px) {
+  .tabletop { flex-direction: row; }
+  .guide, .tokstrip, .tray { min-width: 0; max-width: 100%; }
+  .piles { flex: 1 1 100%; }
+  .tray { margin: 0; flex: 1 1 100%; justify-content: center; }
+  .tokstrip { flex: 1 1 100%; }
+  .dock.open .fanwrap { max-height: 262px; }
+  .fanwrap { flex-direction: column; align-items: stretch; }
+  .dockinfo { width: auto; display: flex; gap: 8px; padding: 6px 10px 0; }
+  .dockinfo .pile { width: auto; flex: 0 0 auto; display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 6px; }
+  .dockinfo .pst, .dockinfo .pst > .mc { width: 30px; height: 42px; }
+  .dockinfo .pst .mc .mcn, .dockinfo .pst .mc .mct { display: none; }
+  .dockinfo .pst .mc svg { width: 16px; height: 16px; }
+  .dockecho { flex: 1 1 auto; display: flex; align-items: center; gap: 6px; padding: 4px 10px; text-align: left; }
+  .dockecho small { flex: 1; flex-basis: auto; }
+  .dockecho .stripk { flex-basis: auto; }
+  .fan { height: 206px; padding-top: 26px; }
+}
+.log { align-content: start; }
+/* phones: the top bar stays one row; its buttons scroll sideways instead of wrapping onto a second row */
+@media (max-width: 640px) {
+  .topbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .topbar::-webkit-scrollbar { display: none; }
+  .topbar > * { flex: none; }
+  .tray { padding: 4px 10px; } .tray .tok { width: 36px; height: 36px; }
+}
