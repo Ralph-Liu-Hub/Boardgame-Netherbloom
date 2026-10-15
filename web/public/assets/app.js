@@ -1002,7 +1002,8 @@ function drawLoom() {
     for (let k = 0; k < cap; k++) {
       const on = k < S.karma[t];
       const isNew = on && prev && k >= (prev.karma?.[t] ?? 0);
-      knots += `<span class="kn ${on ? "on" : ""} ${on && S.karma[t] >= cap - 1 ? "hot" : ""} ${isNew ? "new" : ""}">${on ? svgUse("nb-knot") : ""}</span>`;
+      const undone = !on && view && prev && k < (prev.karma?.[t] ?? 0);     // a Backlash unties the thread
+      knots += `<span class="kn ${on ? "on" : ""} ${on && S.karma[t] >= cap - 1 ? "hot" : ""} ${isNew ? "new" : ""} ${undone ? "undone" : ""}">${on || undone ? svgUse("nb-knot") : ""}</span>`;
     }
     return `<div class="thread ${TAGCLS[t]} ${S.echo === t ? "echo" : ""}">${svgUse(TAG_ICONS[t])}
       <span>${tagName(t)}${S.echo === t ? ` <span class="echotag">${L("ECHO", "迴響")}</span>` : ""}</span><span class="knots">${knots}</span></div>`;
@@ -1025,10 +1026,10 @@ function drawSoulboard() {
     `<div title="${esc(info.text)}"><span class="${TAGCLS[info.tag]}">${esc(info.name.replace("The ", ""))}</span><b>${S.mantles[m] >= 0 ? esc(pname(S.names[S.mantles[m]])) : S.mantles[m] === -2 ? `<span class="muted">${L("laid down", "已放下")}</span>` : `<span class="muted">${L("free", "未取得")}</span>`}</b></div>`).join("");
   $("soulboard").innerHTML = `<div class="soulgrid">
     <div class="lbl wide">${L(`Forgotten ${f} of ${c.forgottenLimit}`, `遺忘 ${f}／${c.forgottenLimit}`)} <span class="muted" style="text-transform:none;letter-spacing:0">· ${L("Ash", "灰燼")} ${c.ashAt}${c.adriftAt < 99 ? ` · ${L("Adrift", "漂離")} ${c.adriftAt}` : ""}</span></div>
-    <div class="track wide" style="grid-template-columns:repeat(${c.forgottenLimit},minmax(0,1fr))">${cells}</div>
-    <div><div class="lbl">${L("Fractures", "裂痕")}</div><div class="icons">${fr}</div></div>
+    <div class="track wide" id="sb-track" style="grid-template-columns:repeat(${c.forgottenLimit},minmax(0,1fr))">${cells}</div>
+    <div><div class="lbl">${L("Fractures", "裂痕")}</div><div class="icons" id="sb-fract">${fr}</div></div>
     <div><div class="lbl">${L("Light", "光")}</div><div class="icons" id="sb-light">${svgUse("nb-light", "", "color:#E6D3A3")}<span style="font-family:var(--display);font-size:1.25rem;color:var(--bone)">${S.light}</span></div></div>
-    <div class="wide"><div class="lbl">${L("Black Water supply", "黑水供應")}</div><div class="icons">${bw}</div></div>
+    <div class="wide"><div class="lbl">${L("Black Water supply", "黑水供應")}</div><div class="icons" id="sb-bw">${bw}</div></div>
     <div class="wide"><div class="lbl">${L(`Mantles · cost ${c.mantleCost} Light`, `稱號 · 花費${c.mantleCost}點光`)}</div><div class="mantles" id="sb-mantles">${mantles}</div></div>
   </div>`;
   drawTokStrip();
@@ -1685,7 +1686,7 @@ async function runQueue() {
   running = true;
   while (queue.length) {
     const ms = queue.shift()();
-    await new Promise(r => setTimeout(r, Math.round((ms || 0) * fxSpeed)));
+    await new Promise(r => setTimeout(r, Math.round((ms || 0) * pace())));
   }
   running = false;
   if (view) { prev = asPrev(view); view = null; }
@@ -1693,6 +1694,10 @@ async function runQueue() {
   refresh();
   idleWaiters.splice(0).forEach(r => r());
 }
+// Step by step goes at the pace of a real table, where each effect is carried out by hand: every step is held long
+// enough to read its caption and see where it lands before the next one starts.
+const stepping = () => fxSpeed >= 1;
+const pace = () => (stepping() ? 1.8 : fxSpeed);
 const idle = () => (running || queue.length ? new Promise(r => idleWaiters.push(r)) : Promise.resolve());
 
 function animateEvents() {
@@ -1708,6 +1713,7 @@ function animateEvents() {
       enqueue(() => { setGuide("soul"); return 700; });
     }
     if (ev.kind === "draw" && ev.cids && viewSeat() === ev.p && seesHand(ev.p)) ev.cids.forEach(c => arriving.add(c));
+    if (stepping() && LEADS.has(ev.kind)) enqueue(() => lead(ev));
     enqueue(() => stepEvent(ev));
   }
 }
@@ -1715,6 +1721,69 @@ function animateEvents() {
 const prevAsSnap = p => ({ tok: p.tok, griev: p.griev, flooded: p.flooded, revealed: p.revealed, soul: p.soul, karma: p.karma, f: p.forgotten,
   fract: S.fract, light: S.light, bw: S.bw, echo: S.echo, ...(p.pile ? { deck: p.pile.deck, disc: p.pile.disc, top: p.pile.top, ft: p.pile.ft } : {}), hold: p.hold, acts: p.acts,
   shield: p.shield, resign: p.resign, pushed: p.pushed });
+
+// Step by step, before an effect changes the table, what it is about to change glows for a moment while the caption
+// names what is coming: first the cause, then where it lands, then the change itself. This is the order a player
+// carries the effect out at a real table. Fast effects skip straight to the change.
+const LEADS = new Set(["backlash", "grievance", "wither", "fog", "banish", "bloom", "flood", "drain", "fracture", "mend", "forget", "linger", "adrift"]);
+function lead(ev) {
+  const text = say(ev);
+  const s = vs();
+  const cap = cls => { if (text) caption(text, cls); };
+  const onSlot = (col, cls, ms) => {
+    if (ev.k === undefined) return 0;
+    shineSlot(ev.k); spot(slotXY(ev.k), col); cap(cls); return ms;
+  };
+  const soulAt = () => [X(Math.min(s.soul, 12)), Y(Math.min(s.soul, 12))];
+  switch (ev.kind) {
+    case "backlash":
+      shine(loomRow(ev.tag), 2000);
+      caption(L(`The ${tagName(ev.tag)} thread is full of knots.`, `${tagName(ev.tag)}之線的結已打滿。`), ["obs", "acc", "obl"][ev.tag]);
+      A.sfx("chime"); return 1700;
+    case "grievance": return onSlot("#8FD6E1", "bad", 1300);
+    case "wither": return onSlot("#9A948C", "bad", 1000);
+    case "fog": return onSlot("#9A948C", "bad", 900);
+    case "banish": return onSlot("#E6D3A3", "good", 1000);
+    case "bloom": return onSlot("#D7263D", "", 800);
+    case "flood": spot([X(ev.sp), Y(ev.sp)], "#8FD6E1", 40); shine($("sb-bw"), 1300); cap("bad"); return 1200;
+    case "drain": spot([X(ev.sp), Y(ev.sp)], "#E6D3A3", 40); cap("good"); return 900;
+    case "fracture": shine($("sb-fract"), 1100); spot(soulAt(), "#D7263D", 36); cap("bad"); return 1000;
+    case "mend": shine($("sb-fract"), 1000); cap("good"); return 800;
+    case "forget": shine($("sb-track")?.children[s.forgotten.length], 1000); cap("bad"); return 800;
+    case "linger": case "adrift": spot(soulAt(), "#EFE7D6", 36); cap("bad"); return 1000;
+    default: return 0;
+  }
+}
+const loomRow = t => $("loom")?.querySelectorAll(".thread")[t];
+// A part of the table glows, then settles. Panels redraw at the next step, which clears it in any case.
+function shine(el, ms = 1200) {
+  if (!el) return;
+  el.classList.remove("shine");
+  void el.getBoundingClientRect();
+  el.classList.add("shine");
+  setTimeout(() => el.classList.remove("shine"), ms * pace());
+}
+function shineSlot(k) { $("dyn")?.querySelector(`.slot[data-k="${k}"]`)?.classList.add("shine"); }
+// A soft light that pulses over the spot on the river an effect is about to touch.
+function spot(at, color, r = 32) {
+  const fx = $("fx");
+  if (!fx || !at) return;
+  const g = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  g.setAttribute("cx", at[0]); g.setAttribute("cy", at[1]); g.setAttribute("r", r);
+  g.setAttribute("class", "fxspot"); g.setAttribute("style", `stroke:${color};fill:${color};color:${color}`);
+  fx.appendChild(g);
+  setTimeout(() => g.remove(), 1500 * pace());
+}
+// A short line in the middle of the screen for an effect worth stopping on, smaller than a banner.
+function callout(title, sub, cls = "") {
+  const el = document.createElement("div");
+  el.className = `callout ${cls}`;
+  el.style.animationDuration = `${2.1 * pace()}s`;
+  el.innerHTML = `<b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ""}`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2100 * pace());
+  return 1600;
+}
 
 // Show one effect: move the table to the moment just after it, mark where it happened, sound it and caption it.
 // Returns how long to hold the step before the next one.
@@ -1750,17 +1819,22 @@ function stepEvent(ev) {
     case "fog": ring(at, "#9A948C"); cap("bad"); A.sfx("mist"); return 900;
     case "grievance": ring(at, "#8FD6E1"); cap("bad"); A.sfx("grievance"); return 1100;
     case "banish": ring(at, "#E6D3A3"); cap("good"); A.sfx("drain"); return 950;
-    case "flood": ring(at, "#8FD6E1"); cap("bad"); A.sfx("flood"); return 1200;
+    case "flood":
+      ring(at, "#8FD6E1"); cap("bad"); A.sfx("flood");
+      if (ev.m?.[2] === 0) return Math.max(1200, callout(L("The last Black Water", "最後一塊黑水"), L("The next flood is the Deluge.", "下一次淹沒就會滅頂。"), "bad"));
+      return 1200;
     case "drain": ring(at, "#E6D3A3"); cap("good"); A.sfx("drain"); return 1000;
     case "move": ring([X(Math.min(ev.to, 12)), Y(Math.min(ev.to, 12))], "#EFE7D6"); cap(); A.sfx("move"); return 1100;
     case "light": cap("good"); A.sfx("chime"); return 900;
     case "keepsake": cap("good"); A.sfx("inscribe"); return 1000;
-    case "knot": cap(["obs", "acc", "obl"][ev.tag]); A.sfx("chime"); return 750;
-    case "echo": cap(ev.tag >= 0 ? ["obs", "acc", "obl"][ev.tag] : "bad"); return 750;
+    case "knot": shine(loomRow(ev.tag), 900); cap(["obs", "acc", "obl"][ev.tag]); A.sfx("chime"); return 750;
+    case "echo": if (ev.tag >= 0) shine(loomRow(ev.tag), 900); cap(ev.tag >= 0 ? ["obs", "acc", "obl"][ev.tag] : "bad"); return 750;
     case "forget": {
       const done = holdPile(["forg"], prev);
       fly(ev.from === "deck" ? pilePoint("deck") : boardPoint(), pilePoint("forg"), { cid: ev.cid ?? -1, up0: ev.from !== "deck", up1: true, ms: 750, onland: done });
-      cap("bad"); A.sfx("forget"); return 1100;
+      cap("bad"); A.sfx("forget");
+      if (ev.b && ev.b.f === S.cfg.forgottenLimit - 1) return Math.max(1100, callout(L("One memory from Fading", "再遺忘一張就會消散"), L(`${ev.b.f} of ${S.cfg.forgottenLimit} forgotten.`, `已遺忘 ${ev.b.f}／${S.cfg.forgottenLimit}。`), "bad"));
+      return 1100;
     }
     case "discard": {
       const done = holdPile(["disc"], prev);
@@ -1771,12 +1845,31 @@ function stepEvent(ev) {
       A.sfx("card");
       return 750;
     }
-    case "fracture": cap("bad"); A.sfx("fracture"); flash(); shake(); return 1200;
-    case "shield": case "mend": case "release": case "guide": cap("good"); A.sfx("chime"); return 1000;
-    case "linger": case "adrift": cap("bad"); A.sfx("linger"); toast(text); return 1300;
+    case "fracture": {
+      cap("bad"); A.sfx("fracture"); flash(); shake();
+      const [, n, lim] = ev.m || [];
+      if (!n) return 1200;
+      return banner(L(`Fracture ${n} of ${lim}`, `裂痕 ${n}／${lim}`), n === lim - 1 ? L("One more Fracture and the soul shatters.", "再一道裂痕，亡魂就會破碎。") : text, "obs");
+    }
+    case "shield": {
+      cap("good"); A.sfx("chime");
+      const m = ev.m?.[0];
+      if (m === "shieldHold" || m === "childShield") return callout(L("The Fracture is stopped", "裂痕被擋下了"), text, "good");
+      if (m === "wardenDrift" || m === "wardenSteady") return callout(L("The Spirit Warden holds", "守魂者穩住了亡魂"), text, "good");
+      return 1000;
+    }
+    case "mend": case "release": case "guide": cap("good"); A.sfx("chime"); return 1000;
+    case "linger": {
+      cap("bad"); A.sfx("linger"); toast(text);
+      const m = ev.m?.[0];
+      const title = { linger: L("The soul Lingers", "亡魂徘徊"), waitLit: L("The soul waits", "亡魂停留"), bridePull: L("Pulled back", "被拉回"), resign: L("Resignation", "認命") }[m];
+      return title ? Math.max(1300, callout(title, text, "bad")) : 1300;
+    }
+    case "adrift": cap("bad"); A.sfx("linger"); toast(text); return banner(L("Adrift", "漂離"), text, "obs");
     case "inscribe":
       if ($("book")) fly(boardPoint(), centre($("book")), { cid: ev.cid, ms: 850 });
-      toast(text, 1); cap("good"); if (!seats.has(S.cur)) A.sfx("inscribe"); return 1300;
+      toast(text, 1); cap("good"); if (!seats.has(S.cur)) A.sfx("inscribe");
+      return Math.max(1300, callout(L("Written into the Book", "銘刻進憶念之書"), ev.cid >= 0 ? cardName(ev.cid) : "", "good"));
     case "draw": {
       const cids = ev.cids || [];
       const see = viewSeat() === ev.p && seesHand(ev.p);
@@ -1799,9 +1892,12 @@ function stepEvent(ev) {
         for (let i = 0; i < n; i++) fly(pilePoint("disc"), pilePoint("deck"), { up0: false, up1: false, ms: 520, delay: i * 110, onland: i === n - 1 ? done : undefined });
         cap(); A.sfx("card"); return 700 + n * 110;
       }
+      if (m === "ash") { cap("good"); A.sfx("chime"); return callout(L("Light as Ash", "輕如灰燼"), text, "good"); }
+      if (m === "feed" || m === "darkWindHurt") { cap("bad"); A.sfx("linger"); return callout(m === "feed" ? L("A Grievance feeds", "怨念吞噬亡魂") : L("The Dark Wind wounds", "黑風傷了亡魂"), text, "bad"); }
       if (m === "hold" || m === "holding") {    // the Hold Fast token goes down beside the soul, and is shown again when it takes effect
         if (m === "holding") boardToken("hold", [X(Math.min(vs().soul, 12)), Y(Math.min(vs().soul, 12)) - 58]);
-        cap(m === "holding" ? "good" : ""); A.sfx("chime"); return 1400;
+        cap(m === "holding" ? "good" : ""); A.sfx("chime");
+        return m === "holding" ? Math.max(1400, callout(L("Hold Fast", "堅守"), text, "good")) : 1400;
       }
       cap(); return 1200;
     }
@@ -1842,7 +1938,7 @@ function caption(text, cls = "") {
   el.className = `boardcap on ${cls}`;
   el.textContent = text;
   clearTimeout(capTimer);
-  capTimer = setTimeout(() => el.classList.remove("on"), 3200);
+  capTimer = setTimeout(() => el.classList.remove("on"), 3200 * Math.max(1, pace()));
 }
 
 function mistCard(name) {
@@ -1852,17 +1948,19 @@ function mistCard(name) {
   el.className = `mistcard ${harsh ? "harsh" : ""}`;
   el.innerHTML = `<div class="k">${harsh ? L("Harsh Mist", "凶霧") : L("The Mist", "迷霧")}</div>${svgUse("nb-fog")}<h3>${esc(mistName(name))}</h3><p>${esc(mistText(name))}</p>`;
   document.body.appendChild(el);
-  // Crisp while it is read; it only blurs as it leaves. 2 seconds in all.
-  setTimeout(() => el.classList.add("out"), 1550);
-  setTimeout(() => el.remove(), 2000);
+  // Crisp while it is read; it only blurs as it leaves. 2 seconds in all, longer step by step.
+  const t = Math.max(1, pace());
+  setTimeout(() => el.classList.add("out"), 2000 * t - 450);
+  setTimeout(() => el.remove(), 2000 * t);
   return 2000;
 }
 function banner(title, sub, cls) {
   const el = document.createElement("div");
   el.className = `banner ${cls || ""}`;
   el.innerHTML = `${esc(title)}${sub ? `<small>${esc(sub)}</small>` : ""}`;
+  el.style.animationDuration = `${2.4 * Math.max(1, pace())}s`;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 2500);
+  setTimeout(() => el.remove(), 2500 * Math.max(1, pace()));
   return 1900;
 }
 function flash() {
