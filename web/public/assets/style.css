@@ -940,3 +940,7 @@ html:lang(zh-Hant-TW) .drawer .body { line-height: 1.75; }
   .topbar > * { flex: none; }
   .tray { padding: 4px 10px; } .tray .tok { width: 36px; height: 36px; }
 }
+/* The box cover (Cover E, The Gathering) behind every screen: clear on the menus, dimmed and softened under the table. */
+.coverbg { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(23,22,27,.35), rgba(23,22,27,.75) 70%, var(--ink)), url("cover-e.jpg") center 30% / cover no-repeat; opacity: .45; transition: opacity .6s, filter .6s; }
+body:has(.table) .coverbg { opacity: .2; filter: blur(2px) saturate(.8); }
+@media (max-width: 640px) { .coverbg { background-position: center top; } body:has(.table) .coverbg { opacity: .14; } }
