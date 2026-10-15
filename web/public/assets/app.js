@@ -1697,7 +1697,7 @@ async function runQueue() {
 // Step by step goes at the pace of a real table, where each effect is carried out by hand: every step is held long
 // enough to read its caption and see where it lands before the next one starts.
 const stepping = () => fxSpeed >= 1;
-const pace = () => (stepping() ? 1.4 : fxSpeed);
+const pace = () => (stepping() ? 1.2 : fxSpeed);
 const idle = () => (running || queue.length ? new Promise(r => idleWaiters.push(r)) : Promise.resolve());
 
 function animateEvents() {
