@@ -50,6 +50,7 @@ let net = null;            // online session
 let guideStep = null;      // set while the end-of-turn animations play, so the guide can follow them
 let screen = null;         // what fills the window, so a language change can redraw it: ["menu", which] | ["lobby", note] | ["game"]
 const setup = load("nb-setup", { players: 3, soul: "child", lantern: STANDARD_LANTERN, names: ["", "", "", ""], name: "" });
+if (![2, 3, 4].includes(setup.tableSize)) setup.tableSize = 3;   // online: how many seats the host opens
 // Saved before the four named Lanterns: Lanterns 1–5 become Gentle, Gentle, Standard, Hard, Heroic.
 if (hasStored("nb-setup") && !setup.lv) setup.lantern = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4 }[setup.lantern] || STANDARD_LANTERN;
 setup.lv = 2;
@@ -217,7 +218,9 @@ function menu(which = "solo") {
     if (setup.players < 2) { setup.players = 3; }
     $("go").onclick = () => { saveNames(); startLocal("local", setup.players); };
   } else {
+    const sizes = [2, 3, 4].map(n => `<button type="button" data-size="${n}" class="${setup.tableSize === n ? "on" : ""}">${L(`${n} players`, `${n}人`)}</button>`).join("");
     mp.innerHTML = `<h2>${L("Online", "線上模式")}</h2>
+      <div class="field"><span>${L("Players at a new table", "新開牌桌的人數")}</span><div class="lanterns">${sizes}</div></div>
       <div class="form">
         <label class="field"><span>${L("Your name", "你的名字")}</span><input id="nmo" maxlength="18" value="${esc(setup.name)}" placeholder="${L("Your name", "你的名字")}"></label>
         <label class="field"><span>${L("Table code (to join)", "桌號（加入時填寫）")}</span><input id="code" maxlength="5" placeholder="${L("e.g. K7QXM", "例如 K7QXM")}" style="text-transform:uppercase;letter-spacing:.2em"></label>
@@ -225,6 +228,7 @@ function menu(which = "solo") {
       <div class="row"><button type="button" class="primary" id="hostbtn">${L("Host a new table", "開新桌")}</button><button type="button" id="joinbtn">${L("Join a table", "加入牌桌")}</button><span class="muted" id="neterr"></span></div>
       <p class="muted" style="margin:0;font-size:.88rem">${L("Players connect browser to browser. Everyone signs in with the publisher account, then the host shares the five-letter code.", "玩家之間以瀏覽器直接連線。所有人都用出版社帳號登入，再由主持人分享5個字母的桌號。")}</p>`;
     const nm = () => { setup.name = $("nmo").value.trim() || "Player"; store("nb-setup", setup); return setup.name; };
+    mp.querySelectorAll("[data-size]").forEach(b => b.onclick = () => { setup.name = $("nmo").value.trim(); setup.tableSize = +b.dataset.size; store("nb-setup", setup); menu("online"); });
     $("hostbtn").onclick = () => hostTable(nm());
     $("joinbtn").onclick = () => {
       const code = $("code").value.trim().toUpperCase();
@@ -279,13 +283,13 @@ function beginGame(s) {
 function hostTable(name) {
   const code = N.newCode();
   mode = "online";
-  net = { role: "host", code, started: false, players: [{ name, cid: N.clientId(), conn: null, online: true }] };
+  net = { role: "host", code, started: false, capacity: setup.tableSize, players: [{ name, cid: N.clientId(), conn: null, online: true }] };
   mySeat = 0;
   seats = new Set([0]);
   lobby(L("Opening the table…", "正在開桌…"));
   net.api = N.host(code, {
     open: () => lobby(),
-    error: e => { lobby(L(`Connection problem: ${e.type || e.message}`, `連線問題：${e.type || e.message}`)); },
+    error: e => { const text = netError(e); if (net?.started) toast(text); else lobby(text); },
     message: (connId, msg) => hostMessage(connId, msg),
     leave: connId => {
       const p = net.players.find(x => x.conn === connId);
@@ -306,7 +310,7 @@ function hostMessage(connId, msg) {
     const name = String(msg.name || "Player").slice(0, 18);
     let p = net.players.find(x => x.cid === msg.cid);
     if (p) { p.conn = connId; p.online = true; p.name = name; }
-    else if (!net.started && net.players.length < 4) { p = { name, cid: msg.cid, conn: connId, online: true }; net.players.push(p); }
+    else if (!net.started && net.players.length < net.capacity) { p = { name, cid: msg.cid, conn: connId, online: true }; net.players.push(p); }
     else { net.api.send(connId, { t: "full" }); return; }
     const seat = net.players.indexOf(p);
     if (net.started) { seats.delete(seat); toast(L(`${p.name} is back at the table.`, `${p.name}回到牌桌了。`)); }
@@ -328,7 +332,7 @@ function hostMessage(connId, msg) {
 
 function sendLobby() {
   if (net?.role !== "host") return;
-  net.api.broadcast({ t: "lobby", players: net.players.map(p => ({ name: p.name, online: p.online })), soul: setup.soul, lantern: setup.lantern, started: net.started });
+  net.api.broadcast({ t: "lobby", players: net.players.map(p => ({ name: p.name, online: p.online })), capacity: net.capacity, soul: setup.soul, lantern: setup.lantern, started: net.started });
 }
 
 function joinTable(code, name) {
@@ -347,7 +351,7 @@ function joinTable(code, name) {
     },
     error: e => {
       if (!net) return;
-      const text = e?.type === "peer-unavailable" ? L("No open table with that code.", "找不到這個桌號的牌桌。") : L(`Connection problem: ${e?.type || e?.message || e}`, `連線問題：${e?.type || e?.message || e}`);
+      const text = netError(e);
       if (S) toast(text); else lobby(text);
     },
   });
@@ -359,6 +363,7 @@ function guestMessage(msg) {
   else if (msg.t === "full") lobby(L("That table is full or its game has already begun.", "這張牌桌已滿，或遊戲已經開始。"));
   else if (msg.t === "lobby") {
     net.players = msg.players;
+    net.capacity = msg.capacity || 4;
     net.soul = msg.soul;
     net.lantern = msg.lantern;
     net.started = msg.started;
@@ -367,6 +372,19 @@ function guestMessage(msg) {
     if (!S || msg.s.gid !== S.gid) { beginGame(msg.s); return; }
     if (msg.s.ver > S.ver) { S = msg.s; onRemoteState(); }
   }
+}
+
+// Plain words for what went wrong with a connection.
+function netError(e) {
+  const type = e?.type || e?.message || String(e);
+  if (type === "peer-unavailable") return L("No open table with that code.", "找不到這個桌號的牌桌。");
+  if (type === "negotiation-failed" || type === "webrtc")
+    return N.hasRelay() ? L("Your two networks could not reach each other, even through the relay. Try again, or try another network.", "雙方的網路即使透過中繼伺服器也無法連通。請再試一次，或換一個網路。")
+      : L("Your two networks could not reach each other directly (a strict router or a mobile network). Online play needs a relay server for this; ask the site owner to set one up.", "雙方的網路無法直接連通（例如嚴格的路由器或行動網路）。這種情況需要中繼伺服器；請網站管理者設定。");
+  if (type === "unavailable-id") return L("That table code is already in use. Host again for a new code.", "這個桌號已被使用。請重新開桌取得新的桌號。");
+  if (type === "network" || type === "server-error" || type === "socket-error" || type === "socket-closed")
+    return L("Could not reach the matchmaking server. Check your connection and try again.", "無法連上配對伺服器。請檢查網路後再試一次。");
+  return L(`Connection problem: ${type}`, `連線問題：${type}`);
 }
 
 function lobby(note = "") {
@@ -384,15 +402,25 @@ function lobby(note = "") {
       ${note ? `<p style="margin:0;color:var(--crimson)">${esc(note)}</p>` : ""}
     </section>
     <section class="panel">
-      <h2>${L("At the table", "牌桌上的玩家")} (${(net.players || []).length}/4)</h2>
+      <h2>${L("At the table", "牌桌上的玩家")} (${(net.players || []).length}/${net.capacity || 4})</h2>
       <div class="plist">${list || `<span class="muted">${L("Connecting…", "連線中…")}</span>`}</div>
       <div class="muted">${L("Soul", "亡魂")}: <b style="color:var(--bone)">${esc(soulInfo(soul)?.name || "—")}</b> · ${L("Lantern", "燈籠")} ${lan ? esc(lanternName(lan)) : "—"}</div>
-      ${host ? `<div class="row"><button type="button" class="primary" id="start" ${net.players.length < 2 ? "disabled" : ""}>${L("Begin the crossing", "開始渡河")}</button>
-        <span class="muted">${net.players.length < 2 ? L("Needs at least 2 players.", "至少需要2名玩家。") : ""}</span></div>
+      ${host ? `<div class="field"><span>${L("Players", "人數")}</span><div class="lanterns">${[2, 3, 4].map(n => `<button type="button" data-cap="${n}" class="${net.capacity === n ? "on" : ""}" ${n < net.players.length ? "disabled" : ""}>${L(`${n} players`, `${n}人`)}</button>`).join("")}</div></div>
+        <div class="row"><button type="button" class="primary" id="start" ${net.players.length < net.capacity ? "disabled" : ""}>${L("Begin the crossing", "開始渡河")}</button>
+        <span class="muted">${net.players.length < net.capacity ? L(`Waiting for ${net.capacity - net.players.length} more ${net.capacity - net.players.length === 1 ? "player" : "players"}.`, `還在等待${net.capacity - net.players.length}名玩家。`) : L("Everyone is here.", "所有人都到齊了。")}</span></div>
         <p class="muted" style="margin:0;font-size:.88rem">${L("To change the soul or Lantern, go back to the menu, choose them, then host again.", "若要更換亡魂或燈籠，請回到主選單重新選擇，再開一次桌。")}</p>` : ""}
     </section>
   </div>`;
-  if (host) $("start").onclick = startOnline;
+  if (host) {
+    $("start").onclick = startOnline;
+    document.querySelectorAll("[data-cap]").forEach(b => b.onclick = () => {
+      net.capacity = +b.dataset.cap;
+      setup.tableSize = net.capacity;
+      store("nb-setup", setup);
+      sendLobby();
+      lobby();
+    });
+  }
 }
 
 function startOnline() {
