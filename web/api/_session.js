@@ -59,5 +59,6 @@ export function accounts(env) {
   }
   return list;
 }
-// Who may open the play dashboard: NB_ADMINS (comma-separated), or the main NB_USER account.
-export const isAdmin = (env, user) => !!user && (env.NB_ADMINS ? env.NB_ADMINS.split(",").map(s => s.trim()) : [env.NB_USER]).includes(user);
+// Who may open the play dashboard: only the accounts named in NB_ADMINS (comma-separated).
+// The shared publisher login is never an admin unless it is named there.
+export const isAdmin = (env, user) => !!user && String(env.NB_ADMINS || "").split(",").map(s => s.trim()).filter(Boolean).includes(user);

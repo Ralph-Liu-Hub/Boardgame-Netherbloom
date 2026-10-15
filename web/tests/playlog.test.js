@@ -14,6 +14,8 @@ assert.equal((await login(req({ user: "alice", pass: "pw2" }))).status, 401);
 const owner = await cookieOf("owner", "pw0"), alice = await cookieOf("alice", "pw1");
 const get = c => stats(new Request("https://x.test/api/stats", { headers: { cookie: c } }));
 assert.equal((await get(alice)).status, 403);                        // not an admin
+assert.equal((await get(owner)).status, 403);                        // the main login is not an admin by default
+process.env.NB_ADMINS = "owner";
 const o = await (await get(owner)).json();
 assert.equal(o.ok, true); assert.equal(o.logging, false);           // admin, but no store yet
 process.env.NB_ADMINS = "alice";
