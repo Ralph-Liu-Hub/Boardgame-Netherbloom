@@ -64,7 +64,7 @@ export const RULEBOOK = [
     ${lore("Whoever drinks from the River Lethe forgets.")}
     <p>Below the world of the living runs a black river. The dead must cross it to reach the <b>Far Shore</b>, where a veiled <b>Keeper</b> waits with one cup of river water. Drink it, and the weight of a whole life slips away.</p>
     <p>An old ferryman carries the dead across, but only those who were buried with a coin for the fare. The others, the <b>coinless dead</b>, wake alone on the <b>near shore</b> and wander the bank. Fog fills them, and they begin to forget: first the small things, then the faces, then their own names. A soul that forgets everything simply fades into the mist.</p>
-    <p>You are the <b>Ferrymen</b>: servants of the underworld, neither living nor dead. The coinless the old ferryman will not carry are given to you. You have no boat. You have something stranger. Along the banks of Lethe grows the <b>Netherbloom</b>, a crimson flower shaped like a spider lily, blooming on a bare stalk with no leaves, because <i>flower and leaf never meet</i>. Its glow is the only light in the fog that a lost soul can follow. Where you plant Netherblooms, a soul can walk.</p>
+    <p>You are the <b>Ferrymen</b>: servants of the underworld, neither living nor dead. The coinless the old ferryman will not carry are given to you. You have no boat. You have something stranger. Along the banks of Lethe grows the <b>Netherbloom</b>, a crimson flower of long, curling petals, blooming on a bare stalk with no leaves, because <i>flower and leaf never meet</i>. Its glow is the only light in the fog that a lost soul can follow. Where you plant Netherblooms, a soul can walk.</p>
     <p>One more thing: the servants of the river are bound to silence. No Ferryman may speak on the water, not to the dead and not to one another. Whatever you mean to say to each other, you must say with the flowers you plant and the choices you make.</p>` },
 
   { id: "mission", title: "2. Your mission", keys: "goal mission objective win lose escort remember purpose", body: `
@@ -148,7 +148,7 @@ export const RULEBOOK = [
 
   { id: "tokens", title: "7. Roots, Blooms and the network", keys: "root bloom lit network touch place", body: `
     ${lore("A Netherbloom grows only from another. Your path must be one unbroken thread of light.")}
-    <p>${ico("nb-root", "#E6D3A3")} A <b>Root</b> is a seed in the dark. ${ico("nb-bloom", "#D7263D")} A <b>Bloom</b> is a Root that has opened into a spider lily.</p>
+    <p>${ico("nb-root", "#E6D3A3")} A <b>Root</b> is a seed in the dark. ${ico("nb-bloom", "#D7263D")} A <b>Bloom</b> is a Root that has opened into a Netherbloom.</p>
     <p>A space is <b>Lit</b> when at least one of its banks holds a Bloom. The soul only steps onto a Lit space.</p>
     <p><b>Placing a Root.</b> A Root goes on an empty bank at or ahead of the soul that <b>touches the network</b>:</p>
     <ul><li>it is on the soul's own space or the next one, or</li><li>the opposite bank of the same space holds a token, or</li><li>the same bank of the space before or after holds a token.</li></ul>

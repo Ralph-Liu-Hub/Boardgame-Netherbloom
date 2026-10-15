@@ -23,6 +23,6 @@ ${noIcons(aid(null)).replace(/<h3>/g, "<h3>").replace(/<\/?section[^>]*>/g, "")}
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, "netherbloom-rulebook.en.html"), doc("en", "Netherbloom — Rulebook",
   "The same text as the Rulebook inside the web game (netherbloom.vercel.app). Generated from web/public/assets/rules.js.", RULEBOOK, playerAid));
-writeFileSync(join(out, "netherbloom-rulebook.zh-TW.html"), doc("zh-Hant-TW", "Netherbloom（暫定中文名：彼岸花渡）— 規則書",
+writeFileSync(join(out, "netherbloom-rulebook.zh-TW.html"), doc("zh-Hant-TW", "《彼岸花渡》Netherbloom — 規則書",
   "本文與網頁試玩版內的規則書相同，由 web/public/assets/rules_zh.js 產生。", RULEBOOK_ZH, playerAidZh));
 console.log("wrote", out);

@@ -11,7 +11,7 @@ ENDS = {"inscribed": "已銘刻", "unspoken": "未曾說出", "forgotten": "已�
 SIGNALS = {"resonance rate": "共鳴率", "burns": "焚燒次數", "lingers": "徘徊次數", "summons": "召喚次數",
            "oblivion played": "打出的忘卻牌", "keepsakes": "信物", "final forgotten": "最終遺忘數"}
 FIXED = {
-    "# Netherbloom Simulator — Balance Report": "# Netherbloom（暫定中文名：彼岸花渡）模擬器——平衡報告",
+    "# Netherbloom Simulator — Balance Report": "# 《彼岸花渡》Netherbloom 模擬器——平衡報告",
     "## 1. Player counts (Standard Lantern, Open Crossing)": "## 1. 玩家人數（標準燈籠，無名渡河）",
     "| Players | Win rate | Loss split Faded / Shattered / Deluge | Turns (mean) | Turns per Reach I/II/III | Tracks half-full (of 3) | Near-miss wins | Backlash per Reach |":
         "| 玩家人數 | 勝率 | 落敗原因分布 消散／破碎／滅頂 | 回合數（平均） | 各河段回合數 第一／第二／第三 | 半滿的落敗軌道數（共 3 條） | 驚險勝利 | 每河段反噬次數 |",

@@ -1,6 +1,6 @@
 [English](README.md) | 正體中文
 
-# Netherbloom（暫定中文名：彼岸花渡）網頁牌桌
+# 《彼岸花渡》Netherbloom 網頁牌桌
 
 可在瀏覽器中遊玩的 Netherbloom 版本，供出版商試玩預覽，託管於 Vercel。
 

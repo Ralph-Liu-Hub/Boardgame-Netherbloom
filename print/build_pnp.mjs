@@ -139,7 +139,7 @@ function lanternCard() {
 function contents() {
   const n = { memory: CORE_IDS.length + ECHO_IDS.length + Object.values(SOUL_PACKS).flat().length, mist: MIST.flat().length + MIST_EXTRA.length * MIST.length + HARSH.length };
   return `<section class="sheet cover"><svg class="ic hero" aria-hidden="true"><use href="#nb-bloom"/></svg>
-    <h1>Netherbloom<span>彼岸花渡（暫定中文名）</span></h1><p class="tag">無聲合作遊戲 · 1–4人 · 正體中文 印刷試玩版（Print &amp; Play）</p>
+    <h1>Netherbloom<span>《彼岸花渡》</span></h1><p class="tag">無聲合作遊戲 · 1–4人 · 正體中文 印刷試玩版（Print &amp; Play）</p>
     <table class="lt"><thead><tr><th>配件</th><th>數量</th><th>頁</th></tr></thead><tbody>
       <tr><td>記憶牌（基本牌庫32、迴響牌8、亡魂專屬牌4×8）</td><td>${n.memory}</td><td>卡牌</td></tr>
       <tr><td>迷霧牌（每河段${MIST[0].length + MIST_EXTRA.length}張）＋凶霧牌</td><td>${MIST.flat().length + MIST_EXTRA.length * MIST.length}＋${HARSH.length}</td><td>卡牌</td></tr>

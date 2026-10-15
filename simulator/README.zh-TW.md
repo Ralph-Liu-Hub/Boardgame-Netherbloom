@@ -1,6 +1,6 @@
 [English](README.md) | 正體中文
 
-# Netherbloom（暫定中文名：彼岸花渡）模擬器
+# 《彼岸花渡》Netherbloom 模擬器
 
 由跟隨迴響的 AI 玩家進行數千場 Netherbloom 對局，並回報遊戲的平衡程度與節奏表現。它依據 **GDD v0.4**（遊戲設計文件）中的規則，以及 **Card Compendium v0.2**（卡牌與配件總覽）與 **Soul Roster v3**（亡魂名冊）中的卡牌建立模型。
 
