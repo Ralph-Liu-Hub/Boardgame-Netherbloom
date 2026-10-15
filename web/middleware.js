@@ -1,7 +1,7 @@
 // Everything except the login page and login API needs a valid session cookie.
 import { COOKIE, readCookie, verifyToken } from "./api/_session.js";
 
-export const config = { matcher: ["/((?!login|api/login|favicon\\.svg).*)"] };
+export const config = { matcher: ["/((?!login|api/login|favicon\\.svg|_vercel).*)"] };
 
 export default async function middleware(request) {
   if (await verifyToken(process.env.NB_SECRET, readCookie(request, COOKIE))) return;

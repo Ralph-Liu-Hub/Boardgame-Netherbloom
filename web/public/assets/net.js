@@ -16,45 +16,67 @@ export function clientId() {
   } catch { return Math.random().toString(36).slice(2, 12); }
 }
 
-function peerOpts() {
-  return { debug: 0, config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] } };
+// A restored game keeps the seat it had: its browser id comes back with it.
+export function setClientId(id) { try { if (id) sessionStorage.setItem("nb-client", id); } catch { /* storage blocked */ } }
+
+// The ICE servers come from /api/ice: STUN, plus TURN relays when the deployment has them configured.
+let iceCache = null;
+async function peerOpts() {
+  if (!iceCache) {
+    try {
+      const r = await fetch("/api/ice", { cache: "no-store" });
+      iceCache = r.ok ? await r.json() : null;
+    } catch { iceCache = null; }
+  }
+  const iceServers = iceCache?.iceServers?.length ? iceCache.iceServers : [{ urls: "stun:stun.l.google.com:19302" }];
+  return { debug: 0, config: { iceServers } };
 }
+export const hasRelay = () => !!iceCache?.relay;
 
 // ---------------------------------------------------------------- host
 export function host(code, handlers) {
-  const peer = new window.Peer(PREFIX + code, peerOpts());
+  let peer = null, closed = false;
   const conns = new Map();   // peer connection id -> conn
-  peer.on("open", () => handlers.open?.());
-  peer.on("error", e => handlers.error?.(e));
-  peer.on("disconnected", () => { try { peer.reconnect(); } catch { /* closed */ } });
-  peer.on("connection", conn => {
-    conn.on("open", () => conns.set(conn.connectionId, conn));
-    conn.on("data", msg => handlers.message?.(conn.connectionId, msg));
-    const gone = () => { if (conns.delete(conn.connectionId)) handlers.leave?.(conn.connectionId); };
-    conn.on("close", gone);
-    conn.on("error", gone);
+  peerOpts().then(opts => {
+    if (closed) return;
+    peer = new window.Peer(PREFIX + code, opts);
+    peer.on("open", () => handlers.open?.());
+    peer.on("error", e => handlers.error?.(e));
+    peer.on("disconnected", () => { try { peer.reconnect(); } catch { /* closed */ } });
+    peer.on("connection", conn => {
+      conn.on("open", () => conns.set(conn.connectionId, conn));
+      conn.on("data", msg => handlers.message?.(conn.connectionId, msg));
+      const gone = () => { if (conns.delete(conn.connectionId)) handlers.leave?.(conn.connectionId); };
+      conn.on("close", gone);
+      conn.on("error", gone);
+      // a link that never opens (no route between the two networks) is reported to the host too
+      conn.on("iceStateChanged", st => { if (st === "failed") handlers.error?.({ type: "negotiation-failed" }); });
+    });
   });
   return {
     send(id, msg) { const c = conns.get(id); if (c && c.open) c.send(msg); },
     broadcast(msg, except) { for (const [id, c] of conns) if (id !== except && c.open) c.send(msg); },
-    close() { peer.destroy(); },
+    close() { closed = true; peer?.destroy(); },
   };
 }
 
 // ---------------------------------------------------------------- guest
 export function join(code, handlers) {
-  const peer = new window.Peer(peerOpts());
-  let conn = null;
-  peer.on("open", () => {
-    conn = peer.connect(PREFIX + code.toUpperCase(), { reliable: true });
-    conn.on("open", () => handlers.open?.());
-    conn.on("data", msg => handlers.message?.(msg));
-    conn.on("close", () => handlers.close?.());
-    conn.on("error", e => handlers.error?.(e));
+  let peer = null, conn = null, closed = false;
+  peerOpts().then(opts => {
+    if (closed) return;
+    peer = new window.Peer(opts);
+    peer.on("open", () => {
+      conn = peer.connect(PREFIX + code.toUpperCase(), { reliable: true });
+      conn.on("open", () => handlers.open?.());
+      conn.on("data", msg => handlers.message?.(msg));
+      conn.on("close", () => handlers.close?.());
+      conn.on("error", e => handlers.error?.(e));
+    });
+    peer.on("error", e => handlers.error?.(e));
   });
-  peer.on("error", e => handlers.error?.(e));
   return {
     send(msg) { if (conn && conn.open) conn.send(msg); },
-    close() { peer.destroy(); },
+    close() { closed = true; peer?.destroy(); },
   };
 }

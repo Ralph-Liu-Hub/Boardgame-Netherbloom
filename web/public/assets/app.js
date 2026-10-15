@@ -50,6 +50,7 @@ let net = null;            // online session
 let guideStep = null;      // set while the end-of-turn animations play, so the guide can follow them
 let screen = null;         // what fills the window, so a language change can redraw it: ["menu", which] | ["lobby", note] | ["game"]
 const setup = load("nb-setup", { players: 3, soul: "child", lantern: STANDARD_LANTERN, names: ["", "", "", ""], name: "" });
+if (![2, 3, 4].includes(setup.tableSize)) setup.tableSize = 3;   // online: how many seats the host opens
 // Saved before the four named Lanterns: Lanterns 1–5 become Gentle, Gentle, Standard, Hard, Heroic.
 if (hasStored("nb-setup") && !setup.lv) setup.lantern = { 1: 1, 2: 1, 3: 2, 4: 3, 5: 4 }[setup.lantern] || STANDARD_LANTERN;
 setup.lv = 2;
@@ -98,7 +99,32 @@ async function boot() {
     menu();
   };
   topbar();
-  if (hasChosenLang()) menu(); else chooseLanguage();
+  guardBack();
+  const saved = readSave();
+  if (!hasChosenLang()) chooseLanguage();
+  else if (ownsSave(saved)) resumeGame(saved);
+  else menu();
+}
+
+// The Back button closes what is open (a card, a dialog) and never drops a game by accident:
+// at the table it asks first, the way the Menu button does.
+function guardBack() {
+  const arm = () => { try { history.pushState({ nb: 1 }, ""); } catch { /* history blocked */ } };
+  arm();
+  addEventListener("popstate", () => {
+    arm();
+    if (!$("zoom")?.classList.contains("hidden")) { closeZoom(); return; }
+    if ($("drawer")?.classList.contains("open")) { closeDrawer(); return; }
+    if ($("veil") && $("veil").dataset.kind !== "pass" && $("veil").dataset.kind !== "leave") { closeVeil(); return; }
+    if (S && !S.result || (mode === "online" && net)) askLeave();
+  });
+}
+function askLeave() {
+  veil(`<div class="dialog"><h2>${L("Leave the table?", "要離開牌桌嗎？")}</h2>
+    <p class="muted">${L("A refresh never loses the game; leaving does. Leaving ends this crossing on this device.", "重新整理不會失去遊戲，但離開會。離開後，這台裝置上的這場渡河就結束了。")}</p>
+    <div class="row"><button type="button" class="primary" id="stayhere">${L("Stay at the table", "留在牌桌")}</button><button type="button" id="leavenow">${L("Leave the game", "離開遊戲")}</button></div></div>`, "leave");
+  $("stayhere").onclick = closeVeil;
+  $("leavenow").onclick = () => { closeVeil(); leaveGame(); menu(); };
 }
 
 // The first visit asks for a language; afterwards the top-bar button switches at any time.
@@ -107,7 +133,7 @@ function chooseLanguage() {
     <div class="hero"><svg class="lily" aria-hidden="true"><use href="#nb-bloom"/></svg><h1>Netherbloom</h1><p>Choose your language · 請選擇語言</p></div>
     <div class="langopts">${Object.entries(LANGS).map(([k, v]) => `<button type="button" data-lang="${k}" class="${k === lang() ? "on" : ""}">${v}</button>`).join("")}</div>
   </div>`;
-  document.querySelectorAll("[data-lang]").forEach(b => b.onclick = () => { setLang(b.dataset.lang); menu(); });
+  document.querySelectorAll("[data-lang]").forEach(b => b.onclick = () => { setLang(b.dataset.lang); const saved = readSave(); if (ownsSave(saved)) resumeGame(saved); else menu(); });
 }
 
 // Redraw everything on screen in the new language. The game itself is unchanged.
@@ -146,6 +172,11 @@ function topbar() {
 }
 
 function leaveGame() {
+  if (S && !S.result) track("beat", { result: "left" });
+  clearInterval(beatTimer);
+  dropSave();
+  clearTimeout(net?.retry);
+  if (net) net.closed = true;
   if (net?.api) net.api.close();
   net = null;
   S = null;
@@ -198,6 +229,16 @@ function menu(which = "solo") {
   const [bw, lim, harsh] = LANTERN[setup.lantern];
   $("lanhelp").textContent = L(`${lanternName(setup.lantern)}${setup.lantern === STANDARD_LANTERN ? " (the game as designed)" : ""}: ${bw} Black Water in the supply, Faded at ${lim} forgotten, ${harsh} harsh Mist card${harsh === 1 ? "" : "s"} per Reach.`,
     `${lanternName(setup.lantern)}燈籠${setup.lantern === STANDARD_LANTERN ? "（遊戲設計的本來面貌）" : ""}：黑水供應${bw}個，遺忘${lim}張時消散，每個河段${harsh}張凶霧。`);
+  const saved = readSave();
+  if (saved) {
+    const box = document.createElement("section");
+    box.className = "panel resumebox";
+    box.innerHTML = `<div><div class="eyebrow">${L("Crossing in progress", "進行中的渡河")}</div><b>${esc(saveSummary(saved))}</b></div>
+      <div class="row"><button type="button" class="primary" id="resumego">${L("Resume", "繼續")}</button><button type="button" id="resumedrop">${L("Discard", "捨棄")}</button></div>`;
+    document.querySelector("#app .hero")?.after(box);
+    $("resumego").onclick = () => { dropSave(saved); resumeGame(saved); };
+    $("resumedrop").onclick = () => { dropSave(saved); menu(which); };
+  }
   const mp = $("modepanel");
   if (which === "solo") {
     mp.innerHTML = `<h2>${L("Solo", "單人模式")}</h2><div class="form"><label class="field"><span>${L("Your name", "你的名字")}</span><input id="nm0" maxlength="18" value="${esc(setup.names[0])}" placeholder="${L("Player 1", "玩家1")}"></label></div>
@@ -217,7 +258,9 @@ function menu(which = "solo") {
     if (setup.players < 2) { setup.players = 3; }
     $("go").onclick = () => { saveNames(); startLocal("local", setup.players); };
   } else {
+    const sizes = [2, 3, 4].map(n => `<button type="button" data-size="${n}" class="${setup.tableSize === n ? "on" : ""}">${L(`${n} players`, `${n}人`)}</button>`).join("");
     mp.innerHTML = `<h2>${L("Online", "線上模式")}</h2>
+      <div class="field"><span>${L("Players at a new table", "新開牌桌的人數")}</span><div class="lanterns">${sizes}</div></div>
       <div class="form">
         <label class="field"><span>${L("Your name", "你的名字")}</span><input id="nmo" maxlength="18" value="${esc(setup.name)}" placeholder="${L("Your name", "你的名字")}"></label>
         <label class="field"><span>${L("Table code (to join)", "桌號（加入時填寫）")}</span><input id="code" maxlength="5" placeholder="${L("e.g. K7QXM", "例如 K7QXM")}" style="text-transform:uppercase;letter-spacing:.2em"></label>
@@ -225,6 +268,7 @@ function menu(which = "solo") {
       <div class="row"><button type="button" class="primary" id="hostbtn">${L("Host a new table", "開新桌")}</button><button type="button" id="joinbtn">${L("Join a table", "加入牌桌")}</button><span class="muted" id="neterr"></span></div>
       <p class="muted" style="margin:0;font-size:.88rem">${L("Players connect browser to browser. Everyone signs in with the publisher account, then the host shares the five-letter code.", "玩家之間以瀏覽器直接連線。所有人都用出版社帳號登入，再由主持人分享5個字母的桌號。")}</p>`;
     const nm = () => { setup.name = $("nmo").value.trim() || "Player"; store("nb-setup", setup); return setup.name; };
+    mp.querySelectorAll("[data-size]").forEach(b => b.onclick = () => { setup.name = $("nmo").value.trim(); setup.tableSize = +b.dataset.size; store("nb-setup", setup); menu("online"); });
     $("hostbtn").onclick = () => hostTable(nm());
     $("joinbtn").onclick = () => {
       const code = $("code").value.trim().toUpperCase();
@@ -272,20 +316,41 @@ function beginGame(s) {
   topbar();
   buildTable();
   refresh();
+  saveGame();
+  trackGame(S.turn <= 1 && !S.played);
   tick();
 }
 
 // ---------------------------------------------------------------- online
-function hostTable(name) {
-  const code = N.newCode();
+// restore: a saved table to open again under the same code (after a refresh or a closed tab).
+function hostTable(name, restore = null, tries = 0) {
+  const code = restore?.code || N.newCode();
   mode = "online";
-  net = { role: "host", code, started: false, players: [{ name, cid: N.clientId(), conn: null, online: true }] };
-  mySeat = 0;
-  seats = new Set([0]);
-  lobby(L("Opening the table…", "正在開桌…"));
+  if (!net || net.code !== code) {
+    net = { role: "host", code, started: !!restore?.started, capacity: restore?.capacity || setup.tableSize,
+      players: restore?.players ? restore.players.map((p, i) => ({ ...p, conn: null, online: i === 0 })) : [{ name, cid: N.clientId(), conn: null, online: true }] };
+    mySeat = 0;
+    // players who have not reconnected yet are played by the host, as when anyone drops out mid-game
+    seats = new Set([0, ...(restore?.started ? net.players.map((_, i) => i).filter(i => i > 0) : [])]);
+    if (restore?.s) beginGame(restore.s);
+    else lobby(L("Opening the table…", "正在開桌…"));
+  }
   net.api = N.host(code, {
-    open: () => lobby(),
-    error: e => { lobby(L(`Connection problem: ${e.type || e.message}`, `連線問題：${e.type || e.message}`)); },
+    open: () => {
+      if (net.started) toast(L(`Table ${code} is open again. The other players rejoin as their browsers reconnect.`, `牌桌 ${code} 已重新開啟。其他玩家的瀏覽器重新連線後就會回到牌桌。`));
+      else lobby();
+      saveGame();
+    },
+    error: e => {
+      // after a refresh the old table can take a few seconds to be released: try the same code again
+      if (e?.type === "unavailable-id" && restore && tries < 20) {
+        net.api.close();
+        net.retry = setTimeout(() => { if (net && !net.closed) hostTable(name, restore, tries + 1); }, 2500);
+        return;
+      }
+      const text = netError(e);
+      if (net?.started) toast(text); else lobby(text);
+    },
     message: (connId, msg) => hostMessage(connId, msg),
     leave: connId => {
       const p = net.players.find(x => x.conn === connId);
@@ -295,6 +360,7 @@ function hostTable(name) {
       if (net.started) { seats.add(net.players.indexOf(p)); toast(L(`${p.name} lost connection. You will play their turns until they return.`, `${p.name}斷線了。在對方回來之前，由你代為進行其回合。`)); }
       else net.players.splice(net.players.indexOf(p), 1);
       sendLobby();
+      saveGame();
       if (net.started) { refresh(); tick(); } else lobby();
     },
   });
@@ -306,12 +372,13 @@ function hostMessage(connId, msg) {
     const name = String(msg.name || "Player").slice(0, 18);
     let p = net.players.find(x => x.cid === msg.cid);
     if (p) { p.conn = connId; p.online = true; p.name = name; }
-    else if (!net.started && net.players.length < 4) { p = { name, cid: msg.cid, conn: connId, online: true }; net.players.push(p); }
+    else if (!net.started && net.players.length < net.capacity) { p = { name, cid: msg.cid, conn: connId, online: true }; net.players.push(p); }
     else { net.api.send(connId, { t: "full" }); return; }
     const seat = net.players.indexOf(p);
     if (net.started) { seats.delete(seat); toast(L(`${p.name} is back at the table.`, `${p.name}回到牌桌了。`)); }
     net.api.send(connId, { t: "welcome", seat, code: net.code });
     sendLobby();
+    saveGame();
     if (net.started && S) net.api.send(connId, { t: "state", s: S });
     if (!net.started) lobby();
     else refresh();
@@ -328,26 +395,47 @@ function hostMessage(connId, msg) {
 
 function sendLobby() {
   if (net?.role !== "host") return;
-  net.api.broadcast({ t: "lobby", players: net.players.map(p => ({ name: p.name, online: p.online })), soul: setup.soul, lantern: setup.lantern, started: net.started });
+  net.api.broadcast({ t: "lobby", players: net.players.map(p => ({ name: p.name, online: p.online })), capacity: net.capacity, soul: setup.soul, lantern: setup.lantern, started: net.started });
 }
 
-function joinTable(code, name) {
+// restore: a saved seat at a table (after a refresh), or a reconnection after the link dropped.
+function joinTable(code, name, restore = null) {
   mode = "online";
-  net = { role: "guest", code, started: false, players: [], soul: null, lantern: null };
-  seats = new Set();
-  lobby(L("Looking for the table…", "正在尋找牌桌…"));
+  if (!net || net.code !== code || net.role !== "guest") {
+    net = { role: "guest", code, started: false, players: [], soul: null, lantern: null, capacity: 4, name };
+    seats = new Set();
+    if (restore?.s) { mySeat = restore.seat ?? 0; seats = new Set([mySeat]); net.started = true; beginGame(restore.s); }
+    else lobby(L("Looking for the table…", "正在尋找牌桌…"));
+  }
+  if (restore?.rejoin) net.rejoining = true;
+  const reconnect = () => {
+    // keep trying for ten minutes: the host may be refreshing their page or briefly offline
+    if (!net || net.closed) return;
+    net.rejoining = true;
+    net.since ||= Date.now();
+    if (Date.now() - net.since > 10 * 60e3) {
+      net.rejoining = false;
+      if (S) setPrompt(`<span class="msg">${L("The host has not come back. <b>The game cannot continue.</b>", "主持人一直沒有回來。<b>遊戲無法繼續。</b>")}</span>`);
+      else lobby(L("The host closed the table.", "主持人關閉了牌桌。"));
+      return;
+    }
+    if (S) setPrompt(`<span class="msg">${L("Reconnecting to the host…", "正在重新連線到主持人…")}</span>`);
+    else lobby(L("Reconnecting to the host…", "正在重新連線到主持人…"));
+    net.api?.close();
+    net.retry = setTimeout(() => { if (net && !net.closed) joinTable(code, name, { rejoin: true }); }, 3000);
+  };
   net.api = N.join(code, {
-    open: () => net.api.send({ t: "hello", name, cid: N.clientId() }),
+    open: () => { net.since = 0; net.api.send({ t: "hello", name, cid: N.clientId() }); },
     message: msg => guestMessage(msg),
     close: () => {
-      if (!net) return;
-      toast(L("The connection to the host was lost.", "與主持人的連線中斷了。"));
-      if (S) setPrompt(`<span class="msg">${L("The host has left the table. <b>The game cannot continue.</b>", "主持人已離開牌桌。<b>遊戲無法繼續。</b>")}</span>`);
+      if (!net || net.closed) return;
+      if (net.started || net.joined) { toast(L("Lost the connection to the host. Reconnecting…", "與主持人的連線中斷了，正在重新連線…")); reconnect(); }
       else lobby(L("The host closed the table.", "主持人關閉了牌桌。"));
     },
     error: e => {
-      if (!net) return;
-      const text = e?.type === "peer-unavailable" ? L("No open table with that code.", "找不到這個桌號的牌桌。") : L(`Connection problem: ${e?.type || e?.message || e}`, `連線問題：${e?.type || e?.message || e}`);
+      if (!net || net.closed) return;
+      if (net.rejoining || net.started) { reconnect(); return; }
+      const text = netError(e);
       if (S) toast(text); else lobby(text);
     },
   });
@@ -355,10 +443,16 @@ function joinTable(code, name) {
 
 function guestMessage(msg) {
   if (!msg || typeof msg !== "object" || !net) return;
-  if (msg.t === "welcome") { mySeat = msg.seat; seats = new Set([mySeat]); if (!S) lobby(); }
+  if (msg.t === "welcome") {
+    mySeat = msg.seat; seats = new Set([mySeat]); net.joined = true;
+    if (net.rejoining) { net.rejoining = false; toast(L("Back at the table.", "回到牌桌了。")); }
+    saveGame();
+    if (!S) lobby(); else refresh();
+  }
   else if (msg.t === "full") lobby(L("That table is full or its game has already begun.", "這張牌桌已滿，或遊戲已經開始。"));
   else if (msg.t === "lobby") {
     net.players = msg.players;
+    net.capacity = msg.capacity || 4;
     net.soul = msg.soul;
     net.lantern = msg.lantern;
     net.started = msg.started;
@@ -367,6 +461,19 @@ function guestMessage(msg) {
     if (!S || msg.s.gid !== S.gid) { beginGame(msg.s); return; }
     if (msg.s.ver > S.ver) { S = msg.s; onRemoteState(); }
   }
+}
+
+// Plain words for what went wrong with a connection.
+function netError(e) {
+  const type = e?.type || e?.message || String(e);
+  if (type === "peer-unavailable") return L("No open table with that code.", "找不到這個桌號的牌桌。");
+  if (type === "negotiation-failed" || type === "webrtc")
+    return N.hasRelay() ? L("Your two networks could not reach each other, even through the relay. Try again, or try another network.", "雙方的網路即使透過中繼伺服器也無法連通。請再試一次，或換一個網路。")
+      : L("Your two networks could not reach each other directly (a strict router or a mobile network). Online play needs a relay server for this; ask the site owner to set one up.", "雙方的網路無法直接連通（例如嚴格的路由器或行動網路）。這種情況需要中繼伺服器；請網站管理者設定。");
+  if (type === "unavailable-id") return L("That table code is already in use. Host again for a new code.", "這個桌號已被使用。請重新開桌取得新的桌號。");
+  if (type === "network" || type === "server-error" || type === "socket-error" || type === "socket-closed")
+    return L("Could not reach the matchmaking server. Check your connection and try again.", "無法連上配對伺服器。請檢查網路後再試一次。");
+  return L(`Connection problem: ${type}`, `連線問題：${type}`);
 }
 
 function lobby(note = "") {
@@ -384,15 +491,25 @@ function lobby(note = "") {
       ${note ? `<p style="margin:0;color:var(--crimson)">${esc(note)}</p>` : ""}
     </section>
     <section class="panel">
-      <h2>${L("At the table", "牌桌上的玩家")} (${(net.players || []).length}/4)</h2>
+      <h2>${L("At the table", "牌桌上的玩家")} (${(net.players || []).length}/${net.capacity || 4})</h2>
       <div class="plist">${list || `<span class="muted">${L("Connecting…", "連線中…")}</span>`}</div>
       <div class="muted">${L("Soul", "亡魂")}: <b style="color:var(--bone)">${esc(soulInfo(soul)?.name || "—")}</b> · ${L("Lantern", "燈籠")} ${lan ? esc(lanternName(lan)) : "—"}</div>
-      ${host ? `<div class="row"><button type="button" class="primary" id="start" ${net.players.length < 2 ? "disabled" : ""}>${L("Begin the crossing", "開始渡河")}</button>
-        <span class="muted">${net.players.length < 2 ? L("Needs at least 2 players.", "至少需要2名玩家。") : ""}</span></div>
+      ${host ? `<div class="field"><span>${L("Players", "人數")}</span><div class="lanterns">${[2, 3, 4].map(n => `<button type="button" data-cap="${n}" class="${net.capacity === n ? "on" : ""}" ${n < net.players.length ? "disabled" : ""}>${L(`${n} players`, `${n}人`)}</button>`).join("")}</div></div>
+        <div class="row"><button type="button" class="primary" id="start" ${net.players.length < net.capacity ? "disabled" : ""}>${L("Begin the crossing", "開始渡河")}</button>
+        <span class="muted">${net.players.length < net.capacity ? L(`Waiting for ${net.capacity - net.players.length} more ${net.capacity - net.players.length === 1 ? "player" : "players"}.`, `還在等待${net.capacity - net.players.length}名玩家。`) : L("Everyone is here.", "所有人都到齊了。")}</span></div>
         <p class="muted" style="margin:0;font-size:.88rem">${L("To change the soul or Lantern, go back to the menu, choose them, then host again.", "若要更換亡魂或燈籠，請回到主選單重新選擇，再開一次桌。")}</p>` : ""}
     </section>
   </div>`;
-  if (host) $("start").onclick = startOnline;
+  if (host) {
+    $("start").onclick = startOnline;
+    document.querySelectorAll("[data-cap]").forEach(b => b.onclick = () => {
+      net.capacity = +b.dataset.cap;
+      setup.tableSize = net.capacity;
+      store("nb-setup", setup);
+      sendLobby();
+      lobby();
+    });
+  }
 }
 
 function startOnline() {
@@ -407,6 +524,7 @@ function startOnline() {
 }
 
 function onRemoteState() {
+  saveGame();
   if (selected !== null && !canPlayCards()) selected = null;
   refresh();
   tick();
@@ -419,7 +537,99 @@ function commit() {
     if (net.role === "host") net.api.broadcast({ t: "state", s: S });
     else net.api.send({ t: "state", s: S });
   }
+  saveGame();
   refresh();
+}
+
+// ---------------------------------------------------------------- the play log
+// Each browser reports the game it is playing: when it starts, a sign of life every five minutes, and how it ended.
+// The site owner reads this on the Play log page (/admin). Nothing here affects the game if the log is off.
+let beatTimer = 0, trackedEnd = "";
+function track(ev, extra = {}) {
+  if (!S || !S.gid) return;
+  const body = JSON.stringify({
+    sid: `${S.gid}-${mySeat}`, ev, mode, players: S.n, soul: S.cfg.soul, lantern: S.cfg.lantern,
+    names: S.names, table: mode === "online" ? net?.code : "", turn: S.turn, ...extra,
+  });
+  try {
+    if (ev === "beat" && document.visibilityState === "hidden" && navigator.sendBeacon) navigator.sendBeacon("/api/track", body);
+    else fetch("/api/track", { method: "POST", body, keepalive: true, headers: { "Content-Type": "application/json" } }).catch(() => {});
+  } catch { /* the log never stops play */ }
+}
+function trackGame(starting) {
+  clearInterval(beatTimer);
+  if (!S) return;
+  track(starting ? "start" : "beat");
+  beatTimer = setInterval(() => { if (S && !S.result && document.visibilityState === "visible") track("beat"); }, 5 * 60e3);
+}
+function trackEnd() {
+  if (!S || !S.result || trackedEnd === S.gid) return;
+  trackedEnd = S.gid;
+  clearInterval(beatTimer);
+  track("end", { result: S.result, cause: S.cause || "" });
+}
+addEventListener("pagehide", () => { if (S && !S.result) track("beat"); });
+
+// ---------------------------------------------------------------- the saved game
+// The game in progress is kept in this browser, so a refresh, a Back press or a closed tab never loses it.
+// It is cleared only when the crossing ends or a player leaves it from the menu.
+const SAVE = "nb-save:";   // one slot per tab, so two tabs in the same browser never overwrite each other
+const SAVE_HOURS = 48;
+function saveGame() {
+  if (!mode || (S && S.result)) { dropSave(); return; }
+  const online = mode === "online" && net ? {
+    role: net.role, code: net.code, capacity: net.capacity, started: net.started, cid: N.clientId(), name: setup.name,
+    players: net.role === "host" ? net.players.map(p => ({ name: p.name, cid: p.cid })) : undefined,
+  } : null;
+  if (!S && !online) return;
+  const tab = N.clientId();
+  try { localStorage.setItem(SAVE + tab, JSON.stringify({ v: 1, at: Date.now(), tab, mode, s: S, seats: [...seats], mySeat, online })); } catch { /* storage full or blocked */ }
+}
+function dropSave(d) { try { localStorage.removeItem(SAVE + (d?.tab || N.clientId())); } catch { /* storage blocked */ } }
+// This tab's own saved game if it has one, otherwise the most recent game saved in this browser.
+function readSave() {
+  const all = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k || !k.startsWith(SAVE)) continue;
+      let d = null;
+      try { d = JSON.parse(localStorage.getItem(k)); } catch { /* damaged */ }
+      if (!d || d.v !== 1 || Date.now() - d.at > SAVE_HOURS * 3600e3 || (d.s && d.s.result)) { localStorage.removeItem(k); i--; continue; }
+      all.push(d);
+    }
+  } catch { return null; }
+  let own = null;
+  try { own = all.find(d => d.tab === sessionStorage.getItem("nb-client")); } catch { /* storage blocked */ }
+  return own || all.sort((a, b) => b.at - a.at)[0] || null;
+}
+// A refreshed tab picks its own game straight back up; another tab only offers it from the menu,
+// so two tabs never play the same seat.
+const ownsSave = d => { try { return !!d && sessionStorage.getItem("nb-client") === d.tab; } catch { return false; } };
+function saveSummary(d) {
+  const kind = { solo: L("Solo", "單人"), local: L("Same screen", "同一螢幕"), online: L(`Online table ${d.online?.code || ""}`, `線上牌桌 ${d.online?.code || ""}`) }[d.mode];
+  const turn = d.s ? L(` · turn ${d.s.turn}`, ` · 第${d.s.turn}回合`) : L(" · in the lobby", " · 等待開始");
+  const soul = d.s ? ` · ${soulInfo(d.s.cfg.soul)?.name || ""}` : "";
+  return kind + soul + turn;
+}
+// Bring a saved game back exactly where it was.
+function resumeGame(d) {
+  N.setClientId(d.tab);
+  mode = d.mode;
+  mySeat = d.mySeat || 0;
+  if (d.mode !== "online") {
+    seats = new Set(d.seats);
+    beginGame(d.s);
+    toast(L("Your crossing was saved. It carries on where you left it.", "已保存的渡河從你離開的地方繼續。"));
+    return;
+  }
+  const o = d.online;
+  if (o.role === "host") {
+    // The host opens the same table again; every other player shows as away until their browser reconnects.
+    hostTable(o.name || setup.name || "Player", { code: o.code, capacity: o.capacity, players: o.players, started: o.started, s: d.s });
+  } else {
+    joinTable(o.code, o.name || setup.name || "Player", { s: d.s, seat: mySeat, rejoin: true });
+  }
 }
 
 const controls = seat => seats.has(seat);
@@ -432,7 +642,7 @@ const canPlayCards = () => canAct() && !busy && !pending && !playingBack() && S.
 
 async function tick() {
   if (!S) return;
-  if (S.result) { showEnd(); return; }
+  if (S.result) { trackEnd(); showEnd(); return; }
   if (!controls(S.cur)) return;
   if (mode === "local" && S.n > 1 && uncovered !== S.cur) {
     if (passOpen) return;
