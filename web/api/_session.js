@@ -42,3 +42,22 @@ export function readCookie(request, name) {
   }
   return null;
 }
+
+// The account name inside a valid session cookie, or null.
+export async function sessionUser(secret, token) {
+  if (!(await verifyToken(secret, token))) return null;
+  try { return JSON.parse(atob(token.split(".")[0].replace(/-/g, "+").replace(/_/g, "/"))).u || null; } catch { return null; }
+}
+
+// Accounts: NB_USER / NB_PASS, plus any in NB_USERS written "name:password, name2:password2".
+export function accounts(env) {
+  const list = [];
+  if (env.NB_USER && env.NB_PASS) list.push([env.NB_USER, env.NB_PASS]);
+  for (const pair of String(env.NB_USERS || "").split(",")) {
+    const i = pair.indexOf(":");
+    if (i > 0) list.push([pair.slice(0, i).trim(), pair.slice(i + 1).trim()]);
+  }
+  return list;
+}
+// Who may open the play dashboard: NB_ADMINS (comma-separated), or the main NB_USER account.
+export const isAdmin = (env, user) => !!user && (env.NB_ADMINS ? env.NB_ADMINS.split(",").map(s => s.trim()) : [env.NB_USER]).includes(user);

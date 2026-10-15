@@ -16,6 +16,9 @@ export function clientId() {
   } catch { return Math.random().toString(36).slice(2, 12); }
 }
 
+// A restored game keeps the seat it had: its browser id comes back with it.
+export function setClientId(id) { try { if (id) sessionStorage.setItem("nb-client", id); } catch { /* storage blocked */ } }
+
 // The ICE servers come from /api/ice: STUN, plus TURN relays when the deployment has them configured.
 let iceCache = null;
 async function peerOpts() {
