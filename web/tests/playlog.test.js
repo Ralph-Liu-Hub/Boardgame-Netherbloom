@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 process.env.NB_USER = "owner"; process.env.NB_PASS = "pw0"; process.env.NB_SECRET = "s".repeat(32);
 process.env.NB_USERS = "alice:pw1, bob:pw2";
-delete process.env.BLOB_READ_WRITE_TOKEN;
+for (const k of Object.keys(process.env)) if (k.endsWith("READ_WRITE_TOKEN")) delete process.env[k];
 const { POST: login } = await import("../api/login.js");
 const { GET: stats } = await import("../api/stats.js");
 const { POST: track } = await import("../api/track.js");

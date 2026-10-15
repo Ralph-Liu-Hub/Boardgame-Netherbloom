@@ -31,6 +31,6 @@ export async function POST(request) {
     result: b.ev === "end" || b.result === "left" ? clean(b.result, 8) : old.result || "",
     cause: b.ev === "end" ? clean(b.cause, 20) : old.cause || "",
   };
-  try { await writeJson(path, rec); } catch { return Response.json({ ok: false }, { status: 502 }); }
+  try { await writeJson(path, rec); } catch (e) { console.error("play log: session not recorded", e?.message); return Response.json({ ok: false }, { status: 502 }); }
   return Response.json({ ok: true });
 }
