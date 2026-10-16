@@ -18,6 +18,12 @@ Lossless PNG exports of every painting at full resolution, which is the size Can
 | `king-field.png`, `king-barge.png`, `king-lake.png` | 1088 × 1456 | 20–22 | The King's Book, Reach I–III |
 | `bride-wedding.png`, `bride-stair.png`, `bride-shore.png` | 1088 × 1456 | 23–25 | The Bride's Book, Reach I–III |
 | `nameless-road.png`, `nameless-mourners.png`, `nameless-lethe.png` | 1088 × 1456 | 26–28 | Open Crossing's Book, Reach I–III |
+| `card-obsession.png`, `card-acceptance.png`, `card-oblivion.png` | 1456 × 1092 | 29–31 | Art window of the core and Echo Memory cards, by thread (Soul-pack cards use their Soul's Book paintings) |
+| `card-mist-1.png`, `card-mist-2.png`, `card-mist-3.png`, `card-harsh.png` | 1456 × 1092 | 32–35 | Mist cards of Reach I, II, III and the Harsh Mist |
+| `card-ghost.png` | 1456 × 1092 | 36 | Ghost cards (solo) |
+| `card-mantle-weaver.png`, `card-mantle-warden.png`, `card-mantle-bringer.png`, `card-mantle-breaker.png` | 1456 × 1092 | 37–40 | The four Mantle cards |
+| `card-bank-fertile.png`, `card-bank-stony.png`, `card-bank-memory.png`, `card-bank-grave.png` | 1088 × 1456 | 41–44 | Bank cards (seen from above) |
+| `card-fog.png` | 1088 × 1456 | 45 | Bank card back, the fog side |
 
 ## Print resolution
 
@@ -31,3 +37,5 @@ At 300 dpi the masters print at these sizes:
 | River textures, 1776 × 896 px | 150 × 76 mm | A3 river panel, 420 × 297 mm (4961 × 3508 px) |
 
 The card art is print-ready. The box, the river board and full-page Book art need an upscaled copy (about 3–4×) before they go to a printer. Keep these masters as the source, and put upscaled copies in `print/` beside them.
+
+The factory files for every component are built from these masters by `print/factory/` (see its README).
