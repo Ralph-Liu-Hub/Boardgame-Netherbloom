@@ -1600,7 +1600,9 @@ function buildDrawer() {
   d.innerHTML = `<header><div class="tabs"><button type="button" data-tab="aid"></button><button type="button" data-tab="rules"></button></div>
       <button type="button" id="drawer-x"></button></header>
     <div class="search" id="dsearch"><input type="search" id="dq"><span class="count" id="dcount"></span></div>
-    <div class="body" id="dbody"></div>`;
+    <div class="body" id="dbody"></div>
+    <div class="dnav hidden" id="dnav"><div class="dtoc hidden" id="dtoc" role="menu"></div>
+      <button type="button" id="dtocbtn" aria-expanded="false"></button><button type="button" id="dtop" class="hidden"></button></div>`;
   document.body.appendChild(d);
   const tab = document.createElement("button");
   tab.type = "button";
@@ -1611,6 +1613,12 @@ function buildDrawer() {
   d.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => openDrawer(b.dataset.tab));
   $("drawer-x").onclick = closeDrawer;
   $("dq").addEventListener("input", () => searchRules($("dq").value));
+  // In the Rulebook: a Contents list and a Back to top button float at the bottom right of the drawer.
+  const toggleToc = open => { $("dtoc").classList.toggle("hidden", !open); $("dtocbtn").setAttribute("aria-expanded", String(open)); };
+  $("dtocbtn").onclick = () => toggleToc($("dtoc").classList.contains("hidden"));
+  $("dtop").onclick = () => { toggleToc(false); $("dbody").scrollTo({ top: 0, behavior: "smooth" }); };
+  $("dbody").addEventListener("scroll", () => $("dtop").classList.toggle("hidden", $("dbody").scrollTop < 300), { passive: true });
+  $("dbody").addEventListener("pointerdown", () => toggleToc(false));
   document.addEventListener("keydown", e => { if (e.key === "Escape" && d.classList.contains("open")) closeDrawer(); });
   rebuildDrawer();
 }
@@ -1625,6 +1633,9 @@ function rebuildDrawer() {
   $("dq").placeholder = L("Search the rules… e.g. Backlash, Stony, Linger", "搜尋規則…例如：反噬、石地、徘徊");
   $("dq").setAttribute("aria-label", L("Search the rules", "搜尋規則"));
   $("aid-tab").textContent = L("Player Aid · Rules", "輔助卡 · 規則");
+  $("dtocbtn").textContent = L("☰ Contents", "☰ 目錄");
+  $("dtop").textContent = L("↑ Top", "↑ 回到頂端");
+  $("dtop").title = L("Back to top", "回到頂端");
   if (d.classList.contains("open")) openDrawer(drawerTab);
 }
 
@@ -1633,15 +1644,22 @@ function openDrawer(tab) {
   const d = $("drawer");
   d.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
   $("dsearch").classList.toggle("hidden", tab !== "rules");
+  $("dnav").classList.toggle("hidden", tab !== "rules");
+  $("dtoc").classList.add("hidden");
+  $("dtop").classList.add("hidden");
   d.classList.toggle("wide", tab === "rules");
   if (tab === "aid") $("dbody").innerHTML = playerAid(S?.cfg).replace(/<\/section>\s*$/, `${tokenLegend()}</section>`);
   else {
     const book = rulebook();
     $("dbody").innerHTML = `<nav class="toc">${book.map(r => `<a href="#r-${r.id}">${esc(r.title.replace(/^\d+\. /, ""))}</a>`).join("")}</nav>` +
       book.map(r => `<section class="rsec" id="r-${r.id}" data-keys="${esc(r.keys || "")}"><h3>${r.title}</h3>${r.body}</section>`).join("");
-    $("dbody").querySelectorAll(".toc a").forEach(a => a.onclick = e => {
+    $("dtoc").innerHTML = book.map(r => `<a href="#r-${r.id}" role="menuitem">${esc(r.title)}</a>`).join("");
+    d.querySelectorAll(".toc a, .dtoc a").forEach(a => a.onclick = e => {
       e.preventDefault();
-      document.getElementById(a.getAttribute("href").slice(1))?.scrollIntoView({ behavior: "smooth", block: "start" });
+      $("dtoc").classList.add("hidden"); $("dtocbtn").setAttribute("aria-expanded", "false");
+      const sec = document.getElementById(a.getAttribute("href").slice(1));
+      if (sec?.classList.contains("hide")) { $("dq").value = ""; searchRules(""); }
+      sec?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     searchRules($("dq").value);
   }
