@@ -4,10 +4,10 @@ import { join } from "node:path";
 import { BLEED, C, doc, render } from "./lib.mjs";
 
 const SW = 297, SH = 210;
-const BIG = 25, SMALL = 18, CUT_BLEED = 1.5;   // disc diameters; art runs 1.5 mm past the cut
+export const BIG = 25, SMALL = 18, CUT_BLEED = 1.5;   // disc diameters; art runs 1.5 mm past the cut
 // [front icon, front colour, back icon, back colour, count, diameter]. Root and Bloom are one double-sided disc:
 // a Bloom withers to a Root and a Root blooms by flipping it, and the river never holds more than 24 (two banks x 12 spaces).
-const TOKENS = [
+export const TOKENS = [
   ["nb-tok-oar", C.bone, "nb-tok-oar", C.bone, 1, BIG],
   ["nb-tok-push", C.crimson, "nb-tok-push", C.mist, 4, BIG],     // back: spent this crossing
   ["nb-tok-hold", C.cyan, "nb-tok-hold", C.cyan, 1, BIG],

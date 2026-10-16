@@ -1,6 +1,7 @@
 // One Book of Remembrance per Soul: an 8-page A4 saddle-stitched booklet (210 x 297 mm, 3 mm bleed).
 //   1 cover · 2 keeping the Book · 3 the Soul's tale · 4-6 one page per Reach, four 63 x 88 mm card wells each · 7 the Far Shore · 8 back
-// The wells hold inscribed cards by four die-cut photo-corner slits; the last page of each PDF is the slit die line for pages 4-6.
+// The wells hold inscribed cards by four clear self-adhesive photo corners stuck on the printed corner marks (48 per Book).
+// Not die-cut slits: in the saddle stitch page 4 backs onto page 3, so slits for its wells would cut through page 3's text.
 // Text comes from the rulebook (web/public/assets/rules.js, rules_zh.js) and the card data.
 import { join } from "node:path";
 import { BLEED, C, doc, artImg, ghostArt, render, icon, esc, SLOT_ICON } from "./lib.mjs";
@@ -27,12 +28,12 @@ const loreOf = (book, id) => strip((section(book, id).match(/<p class="lore">([\
 
 const W = {
   en: { book: RULEBOOK, title: "Book of Remembrance", soul: k => SOULS[k], frames: BOOK_FRAMES, slot: s => s, reach: r => `Reach ${["I", "II", "III"][r]} · ${REACH_NAMES[r]}`,
-    keeping: "Keeping the Book", tuck: "Tuck an inscribed card into the well for its slot: slide its four corners under the slits. Slide it out again to reuse the card next game.",
+    keeping: "Keeping the Book", tuck: "Tuck an inscribed card into the well for its slot: slide its four corners into the photo corners. Slide it out again to reuse the card next game.",
     taken: "…but this, the river has taken", blessing: "Chapter Blessing", keepsakes: "Keepsakes", tale: "The soul of this Book", ferry: "What the Ferrymen know", twist: "Twist", key: "Key Memory",
     far: "The Far Shore", sign: ["Ferrymen", "Lantern", "Date"], read: "Read the Book aloud, page by page.", band: id => CARDS.find(c => c.id === id).band,
     outcomes: ["Inscribed in the Book", "Forgotten", "Never written"] },
   zh: { book: RULEBOOK_ZH, title: "憶念之書", soul: k => ZH_SOULS[k], frames: ZH_BOOK_FRAMES, slot: s => ZH_SLOTS[s], reach: r => `第${["一", "二", "三"][r]}河段 · ${ZH_REACHES[r]}`,
-    keeping: "保管這本書", tuck: "將銘刻的牌插入其欄位的牌槽：把四個角塞進切口下方。下一局要再用這張牌時，將它滑出即可。",
+    keeping: "保管這本書", tuck: "將銘刻的牌插入其欄位的牌槽：把四個角塞進相角裡。下一局要再用這張牌時，將它滑出即可。",
     taken: "……但這一段，已被河水帶走", blessing: "章節祝福", keepsakes: "信物", tale: "本書的亡魂", ferry: "擺渡人所知道的", twist: "特色規則", key: "關鍵記憶",
     far: "彼岸", sign: ["擺渡人", "燈籠", "日期"], read: "逐頁朗讀憶念之書。", band: id => ZH_BANDS[id] || CARDS.find(c => c.id === id).band,
     outcomes: ["已銘刻於書中", "已遺忘", "未曾說出"] },
@@ -78,9 +79,6 @@ h3 { font-family: var(--f-display); font-weight: 400; font-size: 14pt; text-alig
 .note { border: .3mm solid #c9b48a; border-radius: 2mm; padding: 4mm 5mm; background: rgba(244,236,216,.6); }
 .sign { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6mm; margin-top: 8mm; font-family: var(--f-mono); font-size: 7pt; letter-spacing: .2em; text-transform: uppercase; color: #8a6a3e; }
 .sign span { border-top: .3mm solid #8a6a3e; padding-top: 1.5mm; }
-.slits { display: none; position: absolute; inset: -.3mm; width: ${WELL_W}mm; height: ${WELL_H}mm; }
-.dieonly .paper { background: #fff; } .dieonly * { visibility: hidden; } .dieonly .slits { display: block; visibility: visible; }
-.dieonly .slits * { visibility: visible; } .dieonly .ghost, .dieonly .gilt { display: none; }
 .dark { position: absolute; inset: 0; background: ${C.ink}; color: ${C.bone}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6mm; }
 .dark .ic { width: 22mm; height: 22mm; }
 .dark .t { font-family: "IM Fell English SC", Georgia, serif; font-size: 16pt; letter-spacing: .2em; }
@@ -102,11 +100,6 @@ function leads(frame) {
   }
   return out;
 }
-
-// The photo-corner slits: an 11 mm diagonal across each corner of a well. Drawn in every well but shown only on the die-line page,
-// which repeats a Reach page with everything else hidden, so the slits sit exactly where the wells print.
-const SLITS = `<svg class="slits" viewBox="0 0 ${WELL_W} ${WELL_H}">${[[0, 11, 11, 0], [WELL_W - 11, 0, WELL_W, 11], [0, WELL_H - 11, 11, WELL_H], [WELL_W - 11, WELL_H, WELL_W, WELL_H - 11]]
-  .map(([a, b, c, d]) => `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#ec008c" stroke-width=".3"/>`).join("")}</svg>`;
 
 function soulBook(lang, k) {
   const w = W[lang], s = w.soul(k), st = STORIES[k][lang], bookParas = paras(w.book, "book");
@@ -130,7 +123,7 @@ function soulBook(lang, k) {
     const wells = leads(frame).map(([slot, lead]) => `<div class="wl"><div class="lead">${esc(lead)}</div><div class="well">
       <span class="corner" style="left:0;top:0"></span><span class="corner" style="right:0;top:0;transform:rotate(90deg)"></span>
       <span class="corner" style="left:0;bottom:0;transform:rotate(-90deg)"></span><span class="corner" style="right:0;bottom:0;transform:rotate(180deg)"></span>
-      ${icon(SLOT_ICON[slot], "#8a6a3e")}<b>${w.slot(slot)}</b><i>${w.taken}</i>${SLITS}</div></div>`).join("");
+      ${icon(SLOT_ICON[slot], "#8a6a3e")}<b>${w.slot(slot)}</b><i>${w.taken}</i></div></div>`).join("");
     pages.push(page(`<div class="eyebrow">${w.reach(r)}</div><h2>${esc(title)}</h2><div class="wells">${wells}</div>
       <div class="foot" style="margin-top:6mm"><span><span class="box"></span>${w.blessing}</span><span>${w.keepsakes} <span class="box"></span><span class="box"></span><span class="box"></span></span><span>${4 + r}</span></div>`, PAINT[k][r]));
   });
@@ -140,11 +133,7 @@ function soulBook(lang, k) {
     <p style="margin-top:6mm">${end[end.length - 1]}</p>
     <div class="sign">${w.sign.map(t => `<span>${t}</span>`).join("")}</div>${folio(7, w, k)}`, PAINT[k][2], "50% 60%"));
   pages.push(`<div class="dark">${icon("nb-bloom", C.crimson)}<div class="t">NETHERBLOOM</div>${lang === "zh" ? `<div style="font-family:'Noto Serif TC',serif;letter-spacing:.3em">《彼岸花渡》</div>` : ""}<small>RALPH LAUXIE</small></div>`);
-  // die line: the Reach I page again with only the slits visible, plus the trim
-  pages.push(`<div class="dieonly" style="position:absolute;inset:0">${pages[3]}</div><svg class="die" viewBox="0 0 ${PW} ${PH}">
-    <rect x="${BLEED}" y="${BLEED}" width="210" height="297" fill="none" stroke="#00a0e0" stroke-width=".3" stroke-dasharray="2 1"/>
-    <text x="${BLEED + 6}" y="${PH - BLEED - 6}" font-family="IBM Plex Mono, monospace" font-size="3" fill="#ec008c">DIE LINE · pages 4–6 · photo-corner slits (magenta), 11 mm diagonals at each corner of the four 66 × 91 mm wells · trim (blue)</text></svg>`);
-  return pages.map((html, i) => ({ name: `book-${k}-${String(i + 1).padStart(2, "0")}${i === 8 ? "-dieline" : ""}`, html }));
+  return pages.map((html, i) => ({ name: `book-${k}-${String(i + 1).padStart(2, "0")}`, html }));
 }
 
 export async function build(lang, dir, { png }) {
