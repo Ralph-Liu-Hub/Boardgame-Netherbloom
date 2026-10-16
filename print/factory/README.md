@@ -22,9 +22,10 @@ Output goes to `print/out/factory/<en|zh-TW>/`. **Send the factory `MANUAL.pdf`*
 | Bank cards (6 / 8 / 6 for Reaches I / II / III) | 20 | 63 × 88 mm | `cards/cards-bank.pdf`, back `back-bank-1`, `-2`, `-3` by Reach (the fog side) |
 | Card backs | 8 | 63 × 88 mm | `cards/card-backs.pdf` |
 | River board panels (one per Reach, joined edge to edge) | 3 | A3, 420 × 297 mm | `board/river-board.pdf` |
+| Loom of the Fates board: three threads with five 22 mm knot circles each (a thread snaps at 4 knots with 2–3 players, 5 solo or with 4), an Echo ring and its Backlash | 1 | A4 landscape, 297 × 210 mm | `loom/loom-of-the-fates.pdf` (page 2 is the trim line) |
 | Punchboard: 9 large discs (25 mm) and 69 small (18 mm) | 1 sheet | 297 × 210 mm | `tokens/punchboard.pdf`: front, back (mirrored for duplex), die line |
 | Books of Remembrance, one per Soul, 8 pages saddle-stitched: cover, the Soul's tale, what the Ferrymen know and how to keep the Book, three Reach pages, the Far Shore, back | 5 | A4 | `books/book-of-remembrance-<soul>.pdf`; 48 clear self-adhesive photo corners per Book go on the printed corner marks of pages 4–6 |
-| Rulebook, saddle-stitched | 1 | A4 | `rulebook/rulebook.pdf` (padded with Notes pages to a multiple of 4) |
+| Rulebook, saddle-stitched | 1 | A4 | `rulebook/rulebook.pdf`: pages 2–3 are the Setting up spread, the whole table with every component numbered and labelled; padded with Notes pages to a multiple of 4 |
 | Player Aid, two-sided | 4 | A5 | `rulebook/player-aid.pdf` |
 | Box lid wrap (top + four sides, 15 mm turn-ins) | 1 | lid 300 × 300 × 75 mm | `box/box-lid-wrap.pdf`, `box/box-lid-dieline.pdf` |
 | Box base wrap (bottom = the box back) | 1 | base 296 × 296 × 73 mm | `box/box-base-wrap.pdf`, `box/box-base-dieline.pdf` |
@@ -42,3 +43,25 @@ Card PDFs have one card per page, fronts only, in deck order; each deck uses the
 ## Art rules the build enforces
 
 - **A figure's head is never cropped.** `HEADS` in `lib.mjs` records where each Soul painting's head sits (top and bottom, crown or hood included). Whenever a painting is cut down to fit a frame (a card's art window, a Book plate, a cameo), the build shifts it so the whole head and a little headroom stay in view, and shows the painting whole instead if it cannot. Book plates never get wider than 3:2, so a portrait is not sliced into a strip. Add every new figure painting to `HEADS`.
+
+## Parked: story cards and the Nameless Souls module
+
+The Soul Roster v3 and Card Compendium v0.2 also describe components that the rulebook and the web game do not use yet. Their cards are designed and illustrated but **parked**: they are not in the factory files, the manual or the box until they have rules.
+
+| Component | Count | Back |
+|---|---|---|
+| Keepsakes (9 per named Soul, 3 per Reach) | 36 | Keepsake |
+| Chapter cards (3 per named Soul) | 12 | Story |
+| Ending cards (A–D per named Soul, and the hidden ending for the King, the Garland Girl and the Bride) | 19 | Story |
+| Nameless Soul Memory cards (G01–G24; G17–G24 are the Lives' Key Memories) | 24 | Memory |
+| Lives, Wounds, Last Wishes | 8 each | Life, Wound, Last Wish |
+| Wish endings (Be Forgotten has no "fulfilled, remembered" ending) | 23 | Story |
+| Wish tiles: the Sea and the Waiting Soul | 2 | Fog, Reach III and II |
+| Book of Crossings pad sheet (A5) and Ending Gallery (A4) | 1 each | — |
+
+The words are in `data/compendium.json`, parsed from the two docs in both languages; the templates are in `compendium.mjs` and `extras.mjs`. To look at them:
+
+```bash
+node print/factory/parked.mjs --lang en      # → print/out/factory/en/parked/
+```
+

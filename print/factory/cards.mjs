@@ -148,7 +148,7 @@ const card = (cls, inner, extra = "") => `<div class="card ${cls}"><div class="t
 const artBox = (name, seal = false, pos = "50% 50%") => `<div class="art">${artImg(name, pos)}${seal ? `<svg class="seal"><use href="#nb-seal"/></svg>` : ""}</div>`;
 
 function memoryFace(L, cid, packLabel, artName) {
-  const c = CARDS[cid];
+  const c = typeof cid === "object" ? cid : CARDS[cid];
   const res = `<span class="res"><b>${L.res}</b> ${c.rr ? L.resInstead : ""}${esc(L.ops(c.res))}</span>`;
   const band = c.slot
     ? `<div class="band">${icon(SLOT_ICON[c.slot], "#5c4a3a")}<span><i>${L.slot(c.slot)}</i>${esc(L.band(c))}</span></div>`
@@ -239,10 +239,11 @@ function bankCards(lang) {
   const L = T[lang], icons = ["nb-fertile", "nb-stony", "nb-memorysite", "nb-grave"], names = ["fertile", "stony", "memory", "grave"];
   const out = [];
   TILES.forEach(([, list], r) => list.forEach((t, i) => out.push({ name: `bank-${r + 1}-${String(i + 1).padStart(2, "0")}-${names[t]}`,
-    html: `<div class="card bank"><div class="full">${artImg(`card-bank-${names[t]}`)}</div><div class="frame"></div>
-      <div class="lab">${icon(icons[t], ["#c9c1b2", C.mist, C.bone, C.cyan][t])}<b>${esc(L.tile(t))}</b><small>${esc(L.tileText[t])}</small><em>${L.reach(r)} · ${esc(L.reachName(r))}</em></div></div>` })));
+    html: bankCard(`card-bank-${names[t]}`, icon(icons[t], ["#c9c1b2", C.mist, C.bone, C.cyan][t]), L.tile(t), L.tileText[t], `${L.reach(r)} · ${L.reachName(r)}`) })));
   return out;
 }
+const bankCard = (art, ic, name, text, foot) => `<div class="card bank"><div class="full">${artImg(art)}</div><div class="frame"></div>
+      <div class="lab">${ic}<b>${esc(name)}</b><small>${esc(text)}</small><em>${esc(foot)}</em></div></div>`;
 
 // Backs. Memory, Mist, Ghost and Soul use their painted backs; Mantles share the Soul back; bank cards are fog, one per Reach.
 function backs(lang) {
@@ -268,3 +269,5 @@ export function decks(lang) {
 }
 export const cardBacks = backs;
 export const cardDoc = (lang, title, pages) => doc({ lang, title, w: CW, h: CH, css: CSS, pages });
+// The card parts, for the parked story cards (parked.mjs).
+export const parts = { card, artBox, memoryFace, bankCard, CSS };

@@ -3,12 +3,15 @@
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { BLEED, C, FONTS, FACE, SYMBOLS, artImg, render } from "./lib.mjs";
+import { setupSpread, SPREAD_CSS } from "./setup.mjs";
 import { RULEBOOK, playerAid } from "../../web/public/assets/rules.js";
 import { RULEBOOK_ZH, playerAidZh } from "../../web/public/assets/rules_zh.js";
 
 const W = {
-  en: { book: RULEBOOK, aid: playerAid, title: "Rulebook", aidTitle: "Player Aid", notes: "Notes", players: "1–4 players · 45–60 min · 14+" },
-  zh: { book: RULEBOOK_ZH, aid: playerAidZh, title: "規則書", aidTitle: "玩家輔助卡", notes: "筆記", players: "1–4人 · 45–60分鐘 · 14歲以上" },
+  en: { book: RULEBOOK, aid: playerAid, title: "Rulebook", aidTitle: "Player Aid", notes: "Notes", players: "1–4 players · 45–60 min · 14+",
+    setupRef: ["The picture shows the table set up", "The picture on pages 2 and 3 shows the table set up"] },
+  zh: { book: RULEBOOK_ZH, aid: playerAidZh, title: "規則書", aidTitle: "玩家輔助卡", notes: "筆記", players: "1–4人 · 45–60分鐘 · 14歲以上",
+    setupRef: ["下圖是以", "第2–3頁的圖是以"] },
 };
 const PW = 210 + 2 * BLEED, PH = 297 + 2 * BLEED;
 const M = BLEED + 18;   // text margin from the bleed edge
@@ -58,14 +61,16 @@ const pageCount = file => (readFileSync(file).toString("latin1").match(/\/Type\s
 export async function build(lang, dir, { png }) {
   const w = W[lang];
   const cover = `<section class="cover">${artImg("cover-f", "30% 50%")}<div class="t"><b>${lang === "zh" ? "《彼岸花渡》" : "Netherbloom"}</b><span>${lang === "zh" ? "NETHERBLOOM · " : ""}RALPH LAUXIE</span><i>${w.title}</i></div><div class="f">${w.players}</div></section>`;
-  const sections = w.book.map(s => `<h2>${s.title}</h2>${s.body}`).join("\n");
+  // The setup picture is the two-page spread on pages 2-3 (facing pages, right after the cover); the text points to it.
+  const sections = w.book.map(s => `<h2>${s.title}</h2>${s.body}`).join("\n").replace(/<div class="setupfig"[^>]*><\/div>/, "")
+    .replace(w.setupRef[0], w.setupRef[1]);
   const aid = `<h2 style="break-before:page">${w.aidTitle}</h2>${w.aid(null)}`;
-  const css = CSS(lang, PW, PH, M);
+  const css = CSS(lang, PW, PH, M) + SPREAD_CSS(lang);
   const file = join(dir, "rulebook");
   let notes = 0;
   for (let pass = 0; pass < 2; pass++) {
     const pad = Array.from({ length: notes }, () => `<div class="notes"><h2>${w.notes}</h2></div>`).join("");
-    await render(file, flowDoc(lang, w.title, css, cover + forPaper(sections + aid) + pad), { w: PW, h: PH, png });
+    await render(file, flowDoc(lang, w.title, css, cover + setupSpread(lang) + forPaper(sections + aid) + pad), { w: PW, h: PH, png });
     const n = pageCount(file + ".pdf");
     notes += (4 - (n % 4)) % 4;
     if (n % 4 === 0) { console.log(`  rulebook: ${n} pages`); break; }

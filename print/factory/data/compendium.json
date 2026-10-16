@@ -1,0 +1,1155 @@
+{
+ "souls": {
+  "king": {
+   "en": {
+    "keepsakes": [
+     [
+      "A torn banner",
+      "A dented helm",
+      "A round table, cracked down the middle"
+     ],
+     [
+      "A ring returned",
+      "A letter never sent",
+      "A green ribbon from a tournament"
+     ],
+     [
+      "A scabbard, empty",
+      "Three lanterns on the water",
+      "An apple from an orchard island"
+     ]
+    ],
+    "chapters": [
+     "He won every battle but the one that mattered.",
+     "The two people he loved most loved each other. He knew. He always knew.",
+     "The sword was lent, never given. The water wants it back."
+    ],
+    "endings": [
+     {
+      "code": "A",
+      "title": "The Sword Returned",
+      "text": "He gives the blade back to the water and drinks the cup gladly, a man at last rather than a king.",
+      "trigger": "Key in Book, 0–7 forgotten"
+     },
+     {
+      "code": "B",
+      "title": "The Sleeping King",
+      "text": "He refuses the cup. \"If they need me, I will wake.\" He sleeps on the far shore, waiting.",
+      "trigger": "Key in Book, 8 or more forgotten"
+     },
+     {
+      "code": "C",
+      "title": "The Friend at the Landing",
+      "text": "His old friend is waiting on the shore, and the king offers his hand before the friend can kneel.",
+      "trigger": "Key unspoken"
+     },
+     {
+      "code": "D",
+      "title": "The Barge Drifts",
+      "text": "The barge never quite arrives. On foggy nights, ferrymen still see its banner.",
+      "trigger": "Key forgotten"
+     },
+     {
+      "code": "H",
+      "title": "The Island of Apples",
+      "text": "The three veiled women steer the barge past the Far Shore, to an island of apple trees where he heals. The king who did not die.",
+      "trigger": "Key in Book and the apple Keepsake found and 0–3 forgotten (replaces A)"
+     }
+    ]
+   },
+   "zh": {
+    "keepsakes": [
+     [
+      "一面殘破的旌旗",
+      "一頂凹陷的頭盔",
+      "一張從正中裂開的圓桌"
+     ],
+     [
+      "一枚被退回的戒指",
+      "一封從未寄出的信",
+      "一條比武大會上的綠色緞帶"
+     ],
+     [
+      "一只空蕩的劍鞘",
+      "水面上的三盞燈籠",
+      "一顆來自果園之島的蘋果"
+     ]
+    ],
+    "chapters": [
+     "他贏下了每一場戰役，唯獨那一場真正要緊的，他輸了。",
+     "他最愛的兩個人，彼此相愛。他知道。他一直都知道。",
+     "那柄劍是借來的，從來不是贈予。湖水要把它討回去了。"
+    ],
+    "endings": [
+     {
+      "code": "A",
+      "title": "劍歸於湖",
+      "text": "他將劍交還給湖水，欣然飲下那一杯。終於，他不再是國王，只是一個人。",
+      "trigger": "關鍵記憶已銘刻於書中，遺忘0–7段"
+     },
+     {
+      "code": "B",
+      "title": "沉睡之王",
+      "text": "他拒絕了那一杯。「若他們需要我，我便會醒來。」他在彼岸沉睡，靜靜等待。",
+      "trigger": "關鍵記憶已銘刻於書中，遺忘8段以上"
+     },
+     {
+      "code": "C",
+      "title": "渡口的故友",
+      "text": "他的老友正在岸邊等候；不待老友屈膝，國王已先伸出了手。",
+      "trigger": "關鍵記憶未曾說出"
+     },
+     {
+      "code": "D",
+      "title": "渡船漂流",
+      "text": "那艘渡船始終未能真正靠岸。每逢霧夜，擺渡人仍會望見它的旌旗。",
+      "trigger": "關鍵記憶已遺忘"
+     },
+     {
+      "code": "H",
+      "title": "蘋果之島",
+      "text": "三位蒙紗的女子駕著渡船越過彼岸，駛向一座長滿蘋果樹的小島，他在那裡得到療癒。那是一位不曾死去的國王。",
+      "trigger": "關鍵記憶已銘刻於書中，且找到蘋果信物，且遺忘0–3段（取代結局A）"
+     }
+    ]
+   }
+  },
+  "garland": {
+   "en": {
+    "keepsakes": [
+     [
+      "A sprig for remembrance",
+      "A pressed violet",
+      "Her father's herb book"
+     ],
+     [
+      "A returned love letter",
+      "A black mourning ribbon",
+      "A cracked hand mirror"
+     ],
+     [
+      "A wet garland",
+      "A willow leaf",
+      "A last verse, half-written"
+     ]
+    ],
+    "chapters": [
+     "She had a flower for everyone. Everyone took one.",
+     "He said he had never loved her. Her father did not come home.",
+     "She gave the flowers away one by one, and sang, and the water was kind."
+    ],
+    "endings": [
+     {
+      "code": "A",
+      "title": "A Flower for Everyone",
+      "text": "At the shore she hands the Keeper a flower, too, and drinks smiling.",
+      "trigger": "Key in Book, 0–7 forgotten"
+     },
+     {
+      "code": "B",
+      "title": "Her Own Flower",
+      "text": "She keeps her last flower, and keeps herself. She refuses the cup and plants the flower on the far shore. It grows into the first Netherbloom.",
+      "trigger": "Key in Book, 8 or more forgotten"
+     },
+     {
+      "code": "C",
+      "title": "The Unsung Verse",
+      "text": "She crosses humming a song that stops one line from the end.",
+      "trigger": "Key unspoken"
+     },
+     {
+      "code": "D",
+      "title": "The Brook Keeps Her",
+      "text": "She turns back into the stream and becomes the water that sings under willows.",
+      "trigger": "Key forgotten"
+     },
+     {
+      "code": "H",
+      "title": "The Garland Complete",
+      "text": "She weaves one last garland and gives it to the Ferrymen, who never said a word. \"Thank you for listening.\"",
+      "trigger": "All three Book pages full (replaces whichever ending applies)"
+     }
+    ]
+   },
+   "zh": {
+    "keepsakes": [
+     [
+      "一枝寄託思念的香草",
+      "一朵壓乾的紫羅蘭",
+      "父親的草藥書"
+     ],
+     [
+      "一封被退回的情書",
+      "一條黑色的喪帶",
+      "一面碎裂的手鏡"
+     ],
+     [
+      "一個濕透的花環",
+      "一片柳葉",
+      "寫了一半的最後一段歌詞"
+     ]
+    ],
+    "chapters": [
+     "她為每個人都備了一朵花。每個人都收下了。",
+     "他說他從未愛過她。她的父親再也沒有回家。",
+     "她將花一朵一朵送了出去，一邊唱著歌；而溪水待她很溫柔。"
+    ],
+    "endings": [
+     {
+      "code": "A",
+      "title": "人人都有一朵花",
+      "text": "來到岸邊，她也遞給守岸人一朵花，然後含笑飲下那一杯。",
+      "trigger": "關鍵記憶已銘刻於書中，遺忘0–7段"
+     },
+     {
+      "code": "B",
+      "title": "她自己的花",
+      "text": "她留下了最後一朵花，也留住了自己。她拒絕了那一杯，將那朵花種在彼岸。它長成了世上第一朵彼岸花。",
+      "trigger": "關鍵記憶已銘刻於書中，遺忘8段以上"
+     },
+     {
+      "code": "C",
+      "title": "未唱完的一句",
+      "text": "她哼著一首歌渡河而去，那首歌在最後一句之前戛然而止。",
+      "trigger": "關鍵記憶未曾說出"
+     },
+     {
+      "code": "D",
+      "title": "溪水留住了她",
+      "text": "她轉身回到溪流之中，化作在垂柳下低吟的流水。",
+      "trigger": "關鍵記憶已遺忘"
+     },
+     {
+      "code": "H",
+      "title": "花環圓滿",
+      "text": "她編好最後一個花環，送給那些始終一語不發的擺渡人。「謝謝你們聽我說。」",
+      "trigger": "憶念之書三頁全部填滿（取代原本適用的結局）"
+     }
+    ]
+   }
+  },
+  "bride": {
+   "en": {
+    "keepsakes": [
+     [
+      "A wedding crown of meadow flowers",
+      "A cup of wedding wine",
+      "A smooth stone from the meadow"
+     ],
+     [
+      "His footprints in the dust",
+      "A strand of music",
+      "A lamp that would not stay lit"
+     ],
+     [
+      "A sliver of daylight",
+      "His turned shadow",
+      "Her veil, torn on a stone"
+     ]
+    ],
+    "chapters": [
+     "She danced barefoot in the grass, and did not see the stone.",
+     "He came for her. No one had ever come for anyone.",
+     "One step. He was one step from the light, and he turned."
+    ],
+    "endings": [
+     {
+      "code": "A",
+      "title": "She Forgives the Glance",
+      "text": "\"He only wanted to see me.\" She drinks, and the anger goes first.",
+      "trigger": "Key in Book, 0–7 forgotten"
+     },
+     {
+      "code": "B",
+      "title": "She Waits for Him",
+      "text": "She will not drink until he crosses too, and this time she will walk ahead.",
+      "trigger": "Key in Book, 8 or more forgotten"
+     },
+     {
+      "code": "C",
+      "title": "The Unturned Face",
+      "text": "She never decides. She crosses with her eyes closed.",
+      "trigger": "Key unspoken"
+     },
+     {
+      "code": "D",
+      "title": "A Stranger's Wedding",
+      "text": "She forgets him, and remembers only that there was music once.",
+      "trigger": "Key forgotten"
+     },
+     {
+      "code": "H",
+      "title": "She Looks Back",
+      "text": "At the shore she turns to look back, and this time he is there, following her.",
+      "trigger": "The soul never Lingered all game, and Key in Book (replaces A or B)"
+     }
+    ]
+   },
+   "zh": {
+    "keepsakes": [
+     [
+      "一頂草原野花編成的新娘花冠",
+      "一杯喜酒",
+      "一顆草原上的光滑石子"
+     ],
+     [
+      "他留在塵土中的足跡",
+      "一縷樂聲",
+      "一盞怎麼也點不亮的燈"
+     ],
+     [
+      "一線天光",
+      "他回首的身影",
+      "她被石頭勾破的頭紗"
+     ]
+    ],
+    "chapters": [
+     "她赤著腳在草地上起舞，沒有看見那塊石頭。",
+     "他為她而來。從來沒有人，曾為誰而來。",
+     "一步。離光明只差一步，他回頭了。"
+    ],
+    "endings": [
+     {
+      "code": "A",
+      "title": "她原諒了那一眼",
+      "text": "「他只是想看看我。」她飲下那一杯，最先消散的是她的怒氣。",
+      "trigger": "關鍵記憶已銘刻於書中，遺忘0–7段"
+     },
+     {
+      "code": "B",
+      "title": "她等著他",
+      "text": "在他也渡過河之前，她不肯飲下那一杯；而這一次，將由她走在前頭。",
+      "trigger": "關鍵記憶已銘刻於書中，遺忘8段以上"
+     },
+     {
+      "code": "C",
+      "title": "未曾回首的臉",
+      "text": "她始終沒有做出決定，就這樣閉著雙眼渡過了河。",
+      "trigger": "關鍵記憶未曾說出"
+     },
+     {
+      "code": "D",
+      "title": "陌生人的婚禮",
+      "text": "她忘了他，只記得曾經有過音樂。",
+      "trigger": "關鍵記憶已遺忘"
+     },
+     {
+      "code": "H",
+      "title": "她回眸",
+      "text": "來到岸邊時，換她轉身回望；而這一次，他就在那裡，一路跟隨著她。",
+      "trigger": "亡魂整局遊戲從未徘徊，且關鍵記憶已銘刻於書中（取代結局A或B）"
+     }
+    ]
+   }
+  },
+  "child": {
+   "en": {
+    "keepsakes": [
+     [
+      "A lost slipper",
+      "A bundle of unsold lights",
+      "A coin she never earned"
+     ],
+     [
+      "A painted stove",
+      "A goose on a plate",
+      "A tree full of candles"
+     ],
+     [
+      "A falling star",
+      "A shawl that smells of someone",
+      "Open arms"
+     ]
+    ],
+    "chapters": [
+     "No one bought a single light all day.",
+     "Each little flame showed her a different warm room.",
+     "With the last flame, someone came who did not leave."
+    ],
+    "endings": [
+     {
+      "code": "A",
+      "title": "Carried Home",
+      "text": "She is lifted up in familiar arms and drinks the cup like warm milk.",
+      "trigger": "Key in Book, 0–7 forgotten"
+     },
+     {
+      "code": "B",
+      "title": "The Last Flame Kept",
+      "text": "She stays on the river, lighting the way for lost children. One day she will carry a lantern like yours.",
+      "trigger": "Key in Book, 8 or more forgotten"
+     },
+     {
+      "code": "C",
+      "title": "Warm at Last",
+      "text": "She does not know who carried her, only that she was warm.",
+      "trigger": "Key unspoken (any), or Key forgotten with 0–7 forgotten"
+     },
+     {
+      "code": "D",
+      "title": "Morning",
+      "text": "In the morning, people found her smiling, and never knew why.",
+      "trigger": "Key forgotten, 8 or more forgotten"
+     }
+    ]
+   },
+   "zh": {
+    "keepsakes": [
+     [
+      "一隻遺落的拖鞋",
+      "一捆賣不出去的小火光",
+      "一枚她從未掙得的銅板"
+     ],
+     [
+      "一座彩繪的暖爐",
+      "盤中的一隻烤鵝",
+      "一棵綴滿燭光的樹"
+     ],
+     [
+      "一顆墜落的星星",
+      "一條帶著某人氣味的披肩",
+      "張開的雙臂"
+     ]
+    ],
+    "chapters": [
+     "一整天，沒有人買下任何一點火光。",
+     "每一朵小小的火焰，都讓她看見一個不同的溫暖房間。",
+     "點亮最後一朵火焰時，有個人來了，而且沒有離開。"
+    ],
+    "endings": [
+     {
+      "code": "A",
+      "title": "被抱回家",
+      "text": "她被一雙熟悉的手臂抱起，像喝下一杯溫熱的牛奶般，飲下了那一杯。",
+      "trigger": "關鍵記憶已銘刻於書中，遺忘0–7段"
+     },
+     {
+      "code": "B",
+      "title": "留住最後的火光",
+      "text": "她留在河上，為迷途的孩子照亮道路。總有一天，她也會提著一盞像你們手中那樣的燈籠。",
+      "trigger": "關鍵記憶已銘刻於書中，遺忘8段以上"
+     },
+     {
+      "code": "C",
+      "title": "終於溫暖",
+      "text": "她不知道是誰抱起了她，只知道自己很溫暖。",
+      "trigger": "關鍵記憶未曾說出（遺忘段數不限），或關鍵記憶已遺忘且遺忘0–7段"
+     },
+     {
+      "code": "D",
+      "title": "清晨",
+      "text": "清晨時分，人們發現她帶著微笑，卻永遠不明白為什麼。",
+      "trigger": "關鍵記憶已遺忘，遺忘8段以上"
+     }
+    ]
+   }
+  }
+ },
+ "generic": [
+  {
+   "id": "G01",
+   "tag": 0,
+   "shape": "C01",
+   "slot": "Place",
+   "band": {
+    "en": "the market at the edge of the salt road",
+    "zh": "鹽路盡頭的那座市集"
+   }
+  },
+  {
+   "id": "G02",
+   "tag": 0,
+   "shape": "C06",
+   "slot": "Person",
+   "band": {
+    "en": "a master who beat me and taught me everything",
+    "zh": "打過我、也教會我一切的師父"
+   }
+  },
+  {
+   "id": "G03",
+   "tag": 0,
+   "shape": "C08",
+   "slot": "Deed",
+   "band": {
+    "en": "swore an oath I was too young to understand",
+    "zh": "立下一個我當時年紀太小、還不懂的誓言"
+   }
+  },
+  {
+   "id": "G04",
+   "tag": 0,
+   "shape": "C10",
+   "slot": "Feeling",
+   "band": {
+    "en": "a hunger no bowl could fill",
+    "zh": "再多碗飯也填不滿的飢餓"
+   }
+  },
+  {
+   "id": "G05",
+   "tag": 0,
+   "shape": "C11",
+   "slot": "Place",
+   "band": {
+    "en": "the walls of a city that never let me in",
+    "zh": "一座從不讓我進去的城市的城牆"
+   }
+  },
+  {
+   "id": "G06",
+   "tag": 0,
+   "shape": "C04",
+   "slot": "Deed",
+   "band": {
+    "en": "worked until the lamp oil ran dry",
+    "zh": "工作到燈油燃盡"
+   }
+  },
+  {
+   "id": "G07",
+   "tag": 1,
+   "shape": "C14",
+   "slot": "Person",
+   "band": {
+    "en": "a neighbour who mended my sandals for nothing",
+    "zh": "分文不取替我修補涼鞋的鄰居"
+   }
+  },
+  {
+   "id": "G08",
+   "tag": 1,
+   "shape": "C17",
+   "slot": "Place",
+   "band": {
+    "en": "a courtyard full of drying herbs",
+    "zh": "曬滿草藥的庭院"
+   }
+  },
+  {
+   "id": "G09",
+   "tag": 1,
+   "shape": "C19",
+   "slot": "Feeling",
+   "band": {
+    "en": "the hush after the last song of the night",
+    "zh": "夜裡最後一首歌唱完後的靜默"
+   }
+  },
+  {
+   "id": "G10",
+   "tag": 1,
+   "shape": "C21",
+   "slot": "Deed",
+   "band": {
+    "en": "shared my last loaf of bread",
+    "zh": "把我最後一塊麵包分了出去"
+   }
+  },
+  {
+   "id": "G11",
+   "tag": 1,
+   "shape": "C22",
+   "slot": "Person",
+   "band": {
+    "en": "the one who waited at the ferry every evening",
+    "zh": "每天傍晚都在渡口等候的那個人"
+   }
+  },
+  {
+   "id": "G12",
+   "tag": 1,
+   "shape": "C24",
+   "slot": "Feeling",
+   "band": {
+    "en": "a lightness I had no name for",
+    "zh": "一種我叫不出名字的輕盈"
+   }
+  },
+  {
+   "id": "G13",
+   "tag": 2,
+   "shape": "C25",
+   "slot": null,
+   "band": null
+  },
+  {
+   "id": "G14",
+   "tag": 2,
+   "shape": "C25",
+   "slot": null,
+   "band": null
+  },
+  {
+   "id": "G15",
+   "tag": 2,
+   "shape": "C30",
+   "slot": null,
+   "band": null
+  },
+  {
+   "id": "G16",
+   "tag": 2,
+   "shape": "C31",
+   "slot": null,
+   "band": null
+  },
+  {
+   "id": "G17",
+   "tag": 1,
+   "shape": "C22",
+   "slot": "Person",
+   "band": {
+    "en": "my husband, who never came back across the river",
+    "zh": "再也沒有從河的那一頭回來的丈夫"
+   },
+   "key": true,
+   "life": "widow"
+  },
+  {
+   "id": "G18",
+   "tag": 0,
+   "shape": "C06",
+   "slot": "Deed",
+   "band": {
+    "en": "gave the wrong medicine to the magistrate's son",
+    "zh": "給地方官的兒子用錯了藥"
+   },
+   "key": true,
+   "life": "physician"
+  },
+  {
+   "id": "G19",
+   "tag": 1,
+   "shape": "C14",
+   "slot": "Place",
+   "band": {
+    "en": "the kiln I ran from on a winter night",
+    "zh": "我在一個冬夜逃離的那座窯"
+   },
+   "key": true,
+   "life": "apprentice"
+  },
+  {
+   "id": "G20",
+   "tag": 1,
+   "shape": "C24",
+   "slot": "Feeling",
+   "band": {
+    "en": "the last lantern I made, which I never lit",
+    "zh": "我做的最後一盞、始終沒有點亮的燈籠"
+   },
+   "key": true,
+   "life": "lantern"
+  },
+  {
+   "id": "G21",
+   "tag": 0,
+   "shape": "C01",
+   "slot": "Place",
+   "band": {
+    "en": "the watchtower where I left my brother",
+    "zh": "我丟下兄弟的那座瞭望塔"
+   },
+   "key": true,
+   "life": "soldier"
+  },
+  {
+   "id": "G22",
+   "tag": 1,
+   "shape": "C17",
+   "slot": "Deed",
+   "band": {
+    "en": "sang the final act while the playhouse burned",
+    "zh": "在戲院燃燒時唱完最後一幕"
+   },
+   "key": true,
+   "life": "player"
+  },
+  {
+   "id": "G23",
+   "tag": 0,
+   "shape": "C08",
+   "slot": "Feeling",
+   "band": {
+    "en": "a fortune I counted every night and never spent",
+    "zh": "一筆我每晚清點、卻從未花用的財富"
+   },
+   "key": true,
+   "life": "merchant"
+  },
+  {
+   "id": "G24",
+   "tag": 0,
+   "shape": "C10",
+   "slot": "Person",
+   "band": {
+    "en": "the abbot I could never please",
+    "zh": "我始終無法討好的修道院長"
+   },
+   "key": true,
+   "life": "gardener"
+  }
+ ],
+ "lives": [
+  {
+   "slug": "widow",
+   "name": {
+    "en": "Ferryman's Widow",
+    "zh": "擺渡人的遺孀"
+   },
+   "key": "G17",
+   "uses": [
+    "G01",
+    "G03",
+    "G05",
+    "G09",
+    "G11",
+    "G13",
+    "G14"
+   ],
+   "epilogue": {
+    "en": "She finally took the boat herself.",
+    "zh": "她終於自己搭上了那艘船。"
+   }
+  },
+  {
+   "slug": "physician",
+   "name": {
+    "en": "Disgraced Physician",
+    "zh": "蒙羞的醫師"
+   },
+   "key": "G18",
+   "uses": [
+    "G02",
+    "G06",
+    "G07",
+    "G08",
+    "G12",
+    "G13",
+    "G15"
+   ],
+   "epilogue": {
+    "en": "Somewhere, a boy grew up healthy, and never knew.",
+    "zh": "在某處，一個男孩健康地長大，卻從來不知道。"
+   }
+  },
+  {
+   "slug": "apprentice",
+   "name": {
+    "en": "Runaway Apprentice",
+    "zh": "出逃的學徒"
+   },
+   "key": "G19",
+   "uses": [
+    "G02",
+    "G03",
+    "G06",
+    "G07",
+    "G10",
+    "G14",
+    "G16"
+   ],
+   "epilogue": {
+    "en": "The kiln fire went out the night he crossed.",
+    "zh": "他渡河的那一夜，窯火熄了。"
+   }
+  },
+  {
+   "slug": "lantern",
+   "name": {
+    "en": "Lantern Maker",
+    "zh": "燈籠匠"
+   },
+   "key": "G20",
+   "uses": [
+    "G01",
+    "G04",
+    "G06",
+    "G09",
+    "G12",
+    "G13",
+    "G16"
+   ],
+   "epilogue": {
+    "en": "On the far shore, a lantern lit itself.",
+    "zh": "在彼岸，一盞燈籠自己亮了起來。"
+   }
+  },
+  {
+   "slug": "soldier",
+   "name": {
+    "en": "Border Soldier",
+    "zh": "邊境士兵"
+   },
+   "key": "G21",
+   "uses": [
+    "G03",
+    "G05",
+    "G10",
+    "G11",
+    "G12",
+    "G14",
+    "G15"
+   ],
+   "epilogue": {
+    "en": "The watchtower still stands. No one keeps it now.",
+    "zh": "瞭望塔依然矗立。如今已無人看守。"
+   }
+  },
+  {
+   "slug": "player",
+   "name": {
+    "en": "Travelling Player",
+    "zh": "巡迴演員"
+   },
+   "key": "G22",
+   "uses": [
+    "G02",
+    "G04",
+    "G05",
+    "G08",
+    "G09",
+    "G15",
+    "G16"
+   ],
+   "epilogue": {
+    "en": "The audience stayed until the last note.",
+    "zh": "觀眾一直留到最後一個音符。"
+   }
+  },
+  {
+   "slug": "merchant",
+   "name": {
+    "en": "Salt Merchant",
+    "zh": "鹽商"
+   },
+   "key": "G23",
+   "uses": [
+    "G01",
+    "G04",
+    "G07",
+    "G10",
+    "G11",
+    "G13",
+    "G14"
+   ],
+   "epilogue": {
+    "en": "His coins went to the river, one by one.",
+    "zh": "他的錢幣一枚接一枚，交給了河水。"
+   }
+  },
+  {
+   "slug": "gardener",
+   "name": {
+    "en": "Abbey Gardener",
+    "zh": "修道院園丁"
+   },
+   "key": "G24",
+   "uses": [
+    "G05",
+    "G06",
+    "G08",
+    "G10",
+    "G12",
+    "G15",
+    "G16"
+   ],
+   "epilogue": {
+    "en": "The abbot planted a plum tree by his grave.",
+    "zh": "修道院長在他的墳旁種下一棵李樹。"
+   }
+  }
+ ],
+ "wounds": [
+  {
+   "name": {
+    "en": "Unspoken Love",
+    "zh": "未說出口的愛"
+   },
+   "text": {
+    "en": "The Echo can never be followed twice in a row. If the previous player Resonated, you cannot.",
+    "zh": "迴響永遠不能被連續跟隨兩次。若前一位玩家已共鳴，你便不能共鳴。"
+   }
+  },
+  {
+   "name": {
+    "en": "Cowardice",
+    "zh": "怯懦"
+   },
+   "text": {
+    "en": "Whenever a Grievance rises, the soul steps back 1 space (if able). It does not Linger for this.",
+    "zh": "每當一個怨念升起，亡魂便後退1格（若可行）。亡魂不會因此徘徊。"
+   }
+  },
+  {
+   "name": {
+    "en": "Debt",
+    "zh": "債務"
+   },
+   "text": {
+    "en": "The Light pool starts at −3. No Mantle can be summoned while Light is below 0.",
+    "zh": "光池從−3開始。光低於0時，無法召喚任何稱號。"
+   }
+  },
+  {
+   "name": {
+    "en": "Pride",
+    "zh": "驕傲"
+   },
+   "text": {
+    "en": "You cannot Burn. Light as Ash triggers at 3 forgotten instead of 6.",
+    "zh": "你不能焚燒。輕如灰燼改為在遺忘3張時觸發，而非6張。"
+   }
+  },
+  {
+   "name": {
+    "en": "Betrayal",
+    "zh": "背叛"
+   },
+   "text": {
+    "en": "The first Fertile tile revealed in each Reach is treated as a Grave.",
+    "zh": "每個河段第一塊被掀開的沃土視為墳墓。"
+   }
+  },
+  {
+   "name": {
+    "en": "Grief",
+    "zh": "哀慟"
+   },
+   "text": {
+    "en": "Black Water supply is 4. Roots drink a flood if either bank holds a Root or Bloom.",
+    "zh": "黑水供應為4。只要任一河岸有根或花，根便會吸乾洪水。"
+   }
+  },
+  {
+   "name": {
+    "en": "Exile",
+    "zh": "放逐"
+   },
+   "text": {
+    "en": "The first player plays with their hand face up. At each Reach transition, pass the \"outsider\" role to the left.",
+    "zh": "起始玩家將手牌正面朝上進行遊戲。每次切換河段時，將「局外人」角色傳給左手邊的玩家。"
+   }
+  },
+  {
+   "name": {
+    "en": "Envy",
+    "zh": "嫉妒"
+   },
+   "text": {
+    "en": "When you summon a Mantle from a teammate, pay no Light (you still discard a card).",
+    "zh": "當你從隊友處召喚稱號時，不需支付光（仍須棄置1張牌）。"
+   }
+  }
+ ],
+ "wishes": [
+  {
+   "name": {
+    "en": "See the Sea Once More",
+    "zh": "再看一次大海"
+   },
+   "text": {
+    "en": "Seed the Sea tile in Reach III. Fulfilled if it holds a Bloom when the soul passes.",
+    "zh": "在第三河段預置大海板塊。若亡魂經過時該板塊上有花，即達成。"
+   },
+   "endings": [
+    {
+     "en": "Salt wind. A wide grey sea. Enough.",
+     "zh": "鹹鹹的風。一片寬闊的灰色大海。這樣就夠了。"
+    },
+    {
+     "en": "They saw the sea and did not know why they wept.",
+     "zh": "他們看見了海，卻不知道自己為何落淚。"
+    },
+    {
+     "en": "They crossed inland, always facing away from the water.",
+     "zh": "他們從內陸渡河，始終背對著水。"
+    }
+   ]
+  },
+  {
+   "name": {
+    "en": "Be Forgiven",
+    "zh": "得到原諒"
+   },
+   "text": {
+    "en": "Fulfilled if, once, a Grievance fed the soul and was not removed during that turn.",
+    "zh": "若曾有一次，怨念啃噬了亡魂，且在該回合中沒有被移除，即達成。"
+   },
+   "endings": [
+    {
+     "en": "The one they wronged walked beside them to the Far Shore.",
+     "zh": "他們曾虧欠的那個人，陪著他們走到了彼岸。"
+    },
+    {
+     "en": "Someone forgave them. They could not remember for what.",
+     "zh": "有人原諒了他們。他們卻想不起是為了什麼。"
+    },
+    {
+     "en": "They drank from the cup still apologising.",
+     "zh": "他們喝下那一杯時，仍在道歉。"
+    }
+   ]
+  },
+  {
+   "name": {
+    "en": "Be Forgotten",
+    "zh": "被遺忘"
+   },
+   "text": {
+    "en": "Fulfilled if the soul reaches the Far Shore with 8 or more forgotten.",
+    "zh": "若亡魂抵達彼岸時已遺忘8張或更多，即達成。"
+   },
+   "endings": [
+    null,
+    {
+     "en": "No name, no debt, no regret. Exactly as they wished.",
+     "zh": "無名、無債、無悔。正如他們所願。"
+    },
+    {
+     "en": "They were remembered, and it hurt.",
+     "zh": "他們被記住了，而那很痛。"
+    }
+   ]
+  },
+  {
+   "name": {
+    "en": "Give It Away",
+    "zh": "將它送出"
+   },
+   "text": {
+    "en": "Fulfilled if the Key Memory was Burned.",
+    "zh": "若關鍵記憶被焚燒，即達成。"
+   },
+   "endings": [
+    {
+     "en": "They gave away the dearest thing and felt it go.",
+     "zh": "他們送出了最珍貴的東西，並感覺到它離去。"
+    },
+    {
+     "en": "They gave away something. It must have mattered.",
+     "zh": "他們送出了某樣東西。那一定很重要。"
+    },
+    {
+     "en": "They held on. Their hands would not open.",
+     "zh": "他們緊抓不放。他們的手怎麼也張不開。"
+    }
+   ]
+  },
+  {
+   "name": {
+    "en": "Keep a Promise",
+    "zh": "信守承諾"
+   },
+   "text": {
+    "en": "At setup, mark one Book page. Fulfilled if that page is full.",
+    "zh": "設置時，標記憶念之書的一頁。若該頁填滿，即達成。"
+   },
+   "endings": [
+    {
+     "en": "The promise was kept, every word of it.",
+     "zh": "承諾信守了，一字不差。"
+    },
+    {
+     "en": "The promise was kept. Its words were gone.",
+     "zh": "承諾信守了。只是那些話語已不在。"
+    },
+    {
+     "en": "A blank page, where a promise should be.",
+     "zh": "一頁空白，本該寫著一個承諾。"
+    }
+   ]
+  },
+  {
+   "name": {
+    "en": "Say Goodbye",
+    "zh": "道別"
+   },
+   "text": {
+    "en": "Fulfilled if the soul Lingered by choice once in each Reach (not due to a Hold).",
+    "zh": "若亡魂在每個河段都曾主動徘徊一次（並非因為堅守），即達成。"
+   },
+   "endings": [
+    {
+     "en": "They looked back three times, and then not again.",
+     "zh": "他們回頭望了三次，之後便不再回頭。"
+    },
+    {
+     "en": "They waved at something in the fog.",
+     "zh": "他們朝霧中的某樣東西揮了揮手。"
+    },
+    {
+     "en": "They left without a word.",
+     "zh": "他們一語不發地離開了。"
+    }
+   ]
+  },
+  {
+   "name": {
+    "en": "Walk Alone",
+    "zh": "獨自前行"
+   },
+   "text": {
+    "en": "Fulfilled if no Mantle was held at any time in Reach III.",
+    "zh": "若在第三河段中任何時候都無人持有稱號，即達成。"
+   },
+   "endings": [
+    {
+     "en": "The last mile was theirs alone, and they were proud.",
+     "zh": "最後一哩路只屬於他們自己，他們為此自豪。"
+    },
+    {
+     "en": "Alone, and not sure it was a choice.",
+     "zh": "孤身一人，卻不確定那是否出於選擇。"
+    },
+    {
+     "en": "They were carried. They had wanted to walk.",
+     "zh": "他們是被人抬著走的。他們本想自己走。"
+    }
+   ]
+  },
+  {
+   "name": {
+    "en": "Find Someone",
+    "zh": "找到某人"
+   },
+   "text": {
+    "en": "Seed the Waiting Soul tile in Reach II. Fulfilled if it was Rooted and Lit before the soul passed.",
+    "zh": "在第二河段預置等待的亡魂板塊。若亡魂經過之前，該板塊已扎根並被照亮，即達成。"
+   },
+   "endings": [
+    {
+     "en": "Two souls reached the Far Shore together.",
+     "zh": "兩個亡魂一同抵達了彼岸。"
+    },
+    {
+     "en": "Someone held their hand. A stranger, they thought.",
+     "zh": "有人握住了他們的手。他們以為是個陌生人。"
+    },
+    {
+     "en": "Someone waited at the ferry, and is waiting still.",
+     "zh": "有人在渡口等待，至今仍在等待。"
+    }
+   ]
+  }
+ ],
+ "wishTiles": [
+  {
+   "slug": "sea",
+   "reach": 2,
+   "name": {
+    "en": "The Sea",
+    "zh": "大海"
+   }
+  },
+  {
+   "slug": "waiting",
+   "reach": 1,
+   "name": {
+    "en": "The Waiting Soul",
+    "zh": "等待的亡魂"
+   }
+  }
+ ]
+}
