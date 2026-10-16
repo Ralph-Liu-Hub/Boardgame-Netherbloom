@@ -36,6 +36,18 @@ At 300 dpi the masters print at these sizes:
 | Card backs, 1024 × 1536 px | 87 × 130 mm | Card 63 × 88 mm plus bleed (enough) |
 | River textures, 1776 × 896 px | 150 × 76 mm | A3 river panel, 420 × 297 mm (4961 × 3508 px) |
 
-The card art is print-ready. The box, the river board and full-page Book art need an upscaled copy (about 3–4×) before they go to a printer. Keep these masters as the source, and put upscaled copies in `print/` beside them.
+The card art is print-ready. The box and the river board use the upscaled copies in `print/` (below). Keep these masters as the source.
+
+## `print/`
+
+4× upscaled copies of the paintings that print largest, made with Real-ESRGAN (x4plus) with a faint grain added back to match the paper texture of the originals. Saved as quality-93 JPEG at 300 dpi.
+
+| File | Size (px) | Prints at 300 dpi | Used for |
+|---|---|---|---|
+| `cover-f.jpg` | 5056 × 5056 | 428 × 428 mm | Box lid (300 mm) and box sides A and C; the rulebook cover |
+| `tex-water.jpg` | 7104 × 3584 | 601 × 303 mm | River board water; box side B; inside the lid |
+| `tex-bank.jpg` | 7104 × 3584 | 601 × 303 mm | River board banks; box side D, the bottom and the base floor |
+
+The factory build (`print/factory/`) uses these automatically when they exist.
 
 The factory files for every component are built from these masters by `print/factory/` (see its README).

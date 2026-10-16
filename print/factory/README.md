@@ -1,6 +1,6 @@
 # Factory files (prototype manufacturing)
 
-Print-ready files for every component of Netherbloom, in English and Traditional Chinese (《彼岸花渡》). The card text, Book frames and rules come from the same data as the web game (`web/public/assets/cards.js`, `zh.js`, `rules.js`, `rules_zh.js`), so the printed game always matches the shipped rules. The art comes from `art/masters/`.
+Print-ready files for every component of Netherbloom, in English and Traditional Chinese (《彼岸花渡》). The card text, Book frames and rules come from the same data as the web game (`web/public/assets/cards.js`, `zh.js`, `rules.js`, `rules_zh.js`), so the printed game always matches the shipped rules. The art comes from `art/masters/`, or from the 4× upscaled copy in `art/print/` where one exists (the box and river board paintings). The Souls' longer tales for the Books are in `stories.mjs`.
 
 ```bash
 # needs playwright-core and Chromium; ImageMagick (convert) is optional and shrinks the PDFs about 5x
@@ -23,7 +23,7 @@ Output goes to `print/out/factory/<en|zh-TW>/`. Every PDF page is the finished s
 | Card backs | 8 | 63 × 88 mm | `cards/card-backs.pdf` |
 | River board panels (one per Reach, joined edge to edge) | 3 | A3, 420 × 297 mm | `board/river-board.pdf` |
 | Punchboard: 9 large discs (25 mm) and 69 small (18 mm) | 1 sheet | 297 × 210 mm | `tokens/punchboard.pdf`: front, back (mirrored for duplex), die line |
-| Books of Remembrance, one per Soul, 8 pages saddle-stitched | 5 | A4 | `books/book-of-remembrance-<soul>.pdf`, last page is the die line for the photo-corner slits on pages 4–6 |
+| Books of Remembrance, one per Soul, 8 pages saddle-stitched: cover, the Soul's tale, what the Ferrymen know and how to keep the Book, three Reach pages, the Far Shore, back | 5 | A4 | `books/book-of-remembrance-<soul>.pdf`, last page is the die line for the photo-corner slits on pages 4–6 |
 | Rulebook, saddle-stitched | 1 | A4 | `rulebook/rulebook.pdf` (padded with Notes pages to a multiple of 4) |
 | Player Aid, two-sided | 4 | A5 | `rulebook/player-aid.pdf` |
 | Box lid wrap (top + four sides, 15 mm turn-ins) | 1 | lid 300 × 300 × 75 mm | `box/box-lid-wrap.pdf`, `box/box-lid-dieline.pdf` |
@@ -38,3 +38,7 @@ Card PDFs have one card per page, fronts only, in deck order; each deck uses the
 - **Tokens.** The print-and-play counts are kept, but Root and Bloom are one double-sided disc (a Root blooms and a Bloom withers by flipping it; the river never holds more than 24). Push Through's back is its spent side, and the Soul's back is the Ghost for solo play. Wooden pieces can replace any of the small discs.
 - **Photo corners.** The Book's card wells hold an inscribed card by four die-cut slits per well. A cheaper prototype can skip the die cut and print the corners only; the cards then rest in the wells.
 - **Bank cards** replace the print-and-play tiles: they sit in the 66 × 91 mm wells on the river board, fog side up, and are turned over when a Root is placed.
+
+## Art rules the build enforces
+
+- **A figure's head is never cropped.** `HEADS` in `lib.mjs` records where each Soul painting's head sits (top and bottom, crown or hood included). Whenever a painting is cut down to fit a frame (a card's art window, a Book plate, a cameo), the build shifts it so the whole head and a little headroom stay in view, and shows the painting whole instead if it cannot. Book plates never get wider than 3:2, so a portrait is not sliced into a strip. Add every new figure painting to `HEADS`.

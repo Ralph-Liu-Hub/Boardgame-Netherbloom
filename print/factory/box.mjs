@@ -86,9 +86,9 @@ const CSS = `
 .top::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(7,6,10,.7) 0%, rgba(7,6,10,0) 28%, rgba(7,6,10,0) 80%, rgba(7,6,10,.55) 100%); }
 .top .tblock { position: absolute; z-index: 2; top: 4%; left: 50%; transform: translateX(-50%); white-space: nowrap; }
 .top .tfoot { position: absolute; z-index: 2; bottom: 2.6%; right: 3.4%; font-family: var(--f-body); font-size: 1.7cqw; letter-spacing: .3em; text-transform: uppercase; color: #b9b1a4; text-shadow: 0 .3mm 1mm #000; }
-.sa > .ai { filter: brightness(.55); }
+.sa { background: #000; } .sa > .ai { opacity: .55; }
 .sa .mid { height: 100%; display: flex; align-items: center; justify-content: center; gap: 4cqw; }
-.sb > .ai { filter: brightness(.7); }
+.sb { background: #000; } .sb > .ai { opacity: .7; }
 .sb { display: flex; align-items: center; gap: 4cqw; padding: 0 4cqw; }
 .sb .lab { font-family: var(--f-display); font-size: 4.4cqw; color: ${C.bone}; line-height: 1.1; white-space: nowrap; }
 .sb .lab small { display: block; font-family: var(--f-mono); font-size: 1.2cqw; letter-spacing: .3em; text-transform: uppercase; color: ${C.mist}; margin-bottom: .6cqw; }
@@ -96,12 +96,12 @@ const CSS = `
 .sb figure { margin: 0; display: grid; justify-items: center; gap: .6cqw; }
 .sb .cam { position: relative; width: 8.6cqw; height: 11.6cqw; border-radius: 50%; overflow: hidden; border: .3cqw solid ${C.gilt}; box-shadow: 0 0 0 .25cqw #050407; }
 .sb figcaption { font-family: var(--f-serif); font-style: italic; font-size: 1.35cqw; color: ${C.bone}; white-space: nowrap; }
-.sc > .ai { filter: brightness(.6); }
+.sc { background: #000; } .sc > .ai { opacity: .6; }
 .sc::before { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(90deg, rgba(7,6,10,.85) 0%, rgba(7,6,10,.5) 50%, rgba(7,6,10,0) 80%); }
 .sc .zhb { position: absolute; left: 6cqw; top: 50%; transform: translateY(-50%); }
 .sc .zh { font-family: "Noto Serif TC", serif; font-weight: 600; font-size: 8cqw; letter-spacing: .18em; color: ${C.paper}; text-shadow: 0 0 3cqw rgba(215,38,61,.6), 0 .4mm 0 #000; }
 .sc .zhen { font-family: "IM Fell English SC", Georgia, serif; font-size: 1.8cqw; letter-spacing: .4em; color: ${C.bone}; margin-top: .6cqw; padding-left: .4cqw; }
-.sd > .ai { filter: brightness(.42); }
+.sd { background: #000; } .sd > .ai { opacity: .42; }
 .sd { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 4cqw; gap: 3cqw; }
 .sd .lore { font-family: var(--f-serif); font-style: italic; font-size: 2.1cqw; color: ${C.bone}; line-height: 1.35; max-width: 22cqw; text-shadow: 0 .3mm 1mm #000; }
 .sd .facts { display: flex; gap: 3.4cqw; }
@@ -112,7 +112,7 @@ const CSS = `
 .ilid .rings { position: absolute; inset: 0; width: 100%; height: 100%; }
 .ilid .ilore { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; font-family: var(--f-serif); font-style: italic; font-size: 5.2cqw; color: ${C.bone}; line-height: 1.3; padding: 0 10cqw; text-shadow: 0 0 4cqw #000, 0 .3mm 1mm #000; }
 .ilid .ilore small { display: block; margin-top: 3cqw; font-size: 3.4cqw; color: ${C.mist}; }
-.ibase > .ai { filter: brightness(.55); }
+.ibase { background: #000; } .ibase > .ai { opacity: .55; }
 .ibase .glow { position: absolute; inset: 0; background: radial-gradient(circle at 50% 46%, rgba(215,38,61,.38), rgba(215,38,61,0) 32%); }
 .ibase .bloom { position: absolute; left: 42cqw; top: 36cqw; width: 16cqw; height: 16cqw; filter: drop-shadow(0 0 2cqw rgba(215,38,61,.8)); }
 .ibase .taken { position: absolute; bottom: 14cqw; left: 0; right: 0; text-align: center; font-family: var(--f-hand); font-style: italic; font-size: 4.4cqw; color: ${C.bone}; text-shadow: 0 .3mm 1mm #000; }

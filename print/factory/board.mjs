@@ -84,7 +84,7 @@ export function panel(ri, lang, pieces = {}) {
   let refl = "";
   for (let i = 0; i < 9; i++) refl += `<ellipse cx="${f(uni(r, 10, PW - 10))}" cy="${f(RY + (r() < .5 ? -1 : 1) * uni(r, 16, 24))}" rx="${f(uni(r, 3, 7))}" ry="${f(uni(r, 1, 2))}" fill="${C.crimson}" opacity="${uni(r, .14, .3).toFixed(2)}"/>`;
   o += `<g mask="url(#pd-band)"><rect x="${-B}" y="100" width="${PW + 2 * B}" height="100" fill="#071319"/>
-    ${water ? `<image href="${water}" x="${-ri * 140}" y="98" width="${(208 * 1.98).toFixed(0)}" height="104" preserveAspectRatio="none" transform="scale(1.4 1)" opacity=".95" style="mix-blend-mode:screen"/>` : ""}
+    ${water ? `<image href="${water}" x="${-ri * 140}" y="98" width="${(208 * 1.98).toFixed(0)}" height="104" preserveAspectRatio="none" transform="scale(1.4 1)" opacity=".9"/>` : ""}
     <rect x="${-B}" y="100" width="${PW + 2 * B}" height="100" fill="url(#pd-edge)"/><rect x="${-B}" y="100" width="${PW + 2 * B}" height="100" fill="url(#pd-deep)"/>
     <g filter="url(#pd-soft)">${refl}</g></g>`;
   o += sketch(`M${-B} ${RY - 27} C100 ${RY - 35} 210 ${RY - 19} 320 ${RY - 29} S${PW} ${RY - 27} ${PW + B} ${RY - 28}`, BONE, { w: .35, op: .35, seed: ri + 1 });

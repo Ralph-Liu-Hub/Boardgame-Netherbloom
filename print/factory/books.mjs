@@ -8,6 +8,7 @@ import { RULEBOOK } from "../../web/public/assets/rules.js";
 import { RULEBOOK_ZH } from "../../web/public/assets/rules_zh.js";
 import { SOULS, BOOK_FRAMES, CARDS, REACH_NAMES } from "../../web/public/assets/cards.js";
 import { ZH_SOULS, ZH_BOOK_FRAMES, ZH_SLOTS, ZH_REACHES, ZH_BANDS } from "../../web/public/assets/zh.js";
+import { STORIES } from "./stories.mjs";
 
 const PW = 210 + 2 * BLEED, PH = 297 + 2 * BLEED;
 const WELL_W = 66, WELL_H = 91, GAP = 14;
@@ -27,12 +28,12 @@ const loreOf = (book, id) => strip((section(book, id).match(/<p class="lore">([\
 const W = {
   en: { book: RULEBOOK, title: "Book of Remembrance", soul: k => SOULS[k], frames: BOOK_FRAMES, slot: s => s, reach: r => `Reach ${["I", "II", "III"][r]} · ${REACH_NAMES[r]}`,
     keeping: "Keeping the Book", tuck: "Tuck an inscribed card into the well for its slot: slide its four corners under the slits. Slide it out again to reuse the card next game.",
-    taken: "…but this, the river has taken", blessing: "Chapter Blessing", keepsakes: "Keepsakes", tale: "The soul of this Book", twist: "Twist", key: "Key Memory",
+    taken: "…but this, the river has taken", blessing: "Chapter Blessing", keepsakes: "Keepsakes", tale: "The soul of this Book", ferry: "What the Ferrymen know", twist: "Twist", key: "Key Memory",
     far: "The Far Shore", sign: ["Ferrymen", "Lantern", "Date"], read: "Read the Book aloud, page by page.", band: id => CARDS.find(c => c.id === id).band,
     outcomes: ["Inscribed in the Book", "Forgotten", "Never written"] },
   zh: { book: RULEBOOK_ZH, title: "憶念之書", soul: k => ZH_SOULS[k], frames: ZH_BOOK_FRAMES, slot: s => ZH_SLOTS[s], reach: r => `第${["一", "二", "三"][r]}河段 · ${ZH_REACHES[r]}`,
     keeping: "保管這本書", tuck: "將銘刻的牌插入其欄位的牌槽：把四個角塞進切口下方。下一局要再用這張牌時，將它滑出即可。",
-    taken: "……但這一段，已被河水帶走", blessing: "章節祝福", keepsakes: "信物", tale: "本書的亡魂", twist: "特色規則", key: "關鍵記憶",
+    taken: "……但這一段，已被河水帶走", blessing: "章節祝福", keepsakes: "信物", tale: "本書的亡魂", ferry: "擺渡人所知道的", twist: "特色規則", key: "關鍵記憶",
     far: "彼岸", sign: ["擺渡人", "燈籠", "日期"], read: "逐頁朗讀憶念之書。", band: id => ZH_BANDS[id] || CARDS.find(c => c.id === id).band,
     outcomes: ["已銘刻於書中", "已遺忘", "未曾說出"] },
 };
@@ -63,7 +64,17 @@ p { font-family: var(--f-serif); font-size: 11pt; line-height: 1.55; margin: 0 0
 .corner { position: absolute; width: 9mm; height: 9mm; background: linear-gradient(135deg, #8a6a3e 50%, transparent 50%); opacity: .85; }
 .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-family: var(--f-mono); font-size: 7pt; color: #8a6a3e; letter-spacing: .15em; }
 .box { display: inline-block; width: 4mm; height: 4mm; border: .3mm solid #8a6a3e; vertical-align: -.6mm; margin-right: 1.5mm; }
-.rules p { font-size: 10pt; } .rules b { color: #6b1520; font-weight: 600; }
+.rules p { font-size: 10pt; }
+.epi { margin: -1mm 10mm 5mm; font-size: 12pt; }
+.tale p { font-size: 12.5pt; line-height: 1.6; text-align: justify; hyphens: auto; margin-bottom: 4mm; }
+[lang="zh-Hant-TW"] .tale p { font-size: 12pt; line-height: 1.9; text-indent: 2em; }
+[lang="zh-Hant-TW"] .tale p.drop { text-indent: 0; }
+.ferry { font-family: var(--f-hand); font-style: italic; font-size: 13pt; line-height: 1.6; color: #3c2f22; }
+[lang="zh-Hant-TW"] .ferry { font-style: normal; font-size: 12.5pt; line-height: 1.85; }
+.rule { font-size: 10.5pt; margin-bottom: 2mm; }
+.plate { position: relative; flex: 1 1 auto; min-height: 30mm; margin: 3mm 6mm 4mm; border: .5mm solid #8a6a3e; outline: .2mm solid #8a6a3e; outline-offset: 1.2mm; box-shadow: 0 .6mm 2mm rgba(60,40,20,.35); overflow: hidden; }
+
+h3 { font-family: var(--f-display); font-weight: 400; font-size: 14pt; text-align: center; margin: 1mm 0 3mm; color: #3c2f22; } .rules b { color: #6b1520; font-weight: 600; }
 .note { border: .3mm solid #c9b48a; border-radius: 2mm; padding: 4mm 5mm; background: rgba(244,236,216,.6); }
 .sign { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6mm; margin-top: 8mm; font-family: var(--f-mono); font-size: 7pt; letter-spacing: .2em; text-transform: uppercase; color: #8a6a3e; }
 .sign span { border-top: .3mm solid #8a6a3e; padding-top: 1.5mm; }
@@ -98,16 +109,23 @@ const SLITS = `<svg class="slits" viewBox="0 0 ${WELL_W} ${WELL_H}">${[[0, 11, 1
   .map(([a, b, c, d]) => `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#ec008c" stroke-width=".3"/>`).join("")}</svg>`;
 
 function soulBook(lang, k) {
-  const w = W[lang], s = w.soul(k), tale = tales(w.book)[ORDER.indexOf(k)], bookParas = paras(w.book, "book");
+  const w = W[lang], s = w.soul(k), st = STORIES[k][lang], bookParas = paras(w.book, "book");
   const pages = [];
   pages.push(page(`<div class="eyebrow">Netherbloom${lang === "zh" ? " · 《彼岸花渡》" : ""}</div><h1>${w.title}</h1>
     <div class="cameo">${artImg(`soul-${ART[k]}`, "50% 10%")}</div><div class="name">${esc(s.name)}</div>
     <p class="lore" style="margin-top:auto">${esc(loreOf(w.book, "book"))}</p>`, PAINT[k][2]));
-  pages.push(page(`<div class="eyebrow">${w.title}</div><h2>${w.keeping}</h2><div class="rules">${bookParas.map(p => `<p>${p}</p>`).join("")}</div>
-    <div class="note"><p style="margin:0">${w.tuck}</p></div>${folio(2, w, k)}`));
-  pages.push(page(`<div class="eyebrow">${w.tale}</div><h2>${esc(s.name)}</h2>
-    <p class="drop">${esc(tale)}</p><p><b>${w.twist}:</b> ${esc(s.twist)}</p>
-    ${KEY[k] ? `<p><b>${w.key}:</b> <i>${esc(w.band(KEY[k]))}</i></p>` : ""}<p class="lore">${esc(s.blurb)}</p>${folio(3, w, k)}`, `soul-${ART[k]}`, "50% 15%"));
+  // 2 · the Soul's tale, told in full
+  pages.push(page(`<div class="eyebrow">${w.tale}</div><h2>${esc(s.name)}</h2><p class="lore epi">${esc(st.epigraph)}</p>
+    <div class="tale">${st.tale.map((t, i) => `<p${i ? "" : ' class="drop"'}>${esc(t)}</p>`).join("")}</div>
+    <div class="plate">${artImg(PAINT[k][1], "50% 35%")}</div>${folio(2, w, k)}`, `soul-${ART[k]}`, "50% 15%"));
+  // 3 · what the Ferrymen know (the twist, as story), the Key Memory, and how to keep the Book
+  pages.push(page(`<div class="eyebrow">${w.title}</div><h2>${w.ferry}</h2>
+    <p class="ferry">${esc(st.ferry)}</p>
+    <p class="rule"><b>${w.twist}:</b> ${esc(s.twist)}</p>
+    ${KEY[k] ? `<p class="rule"><b>${w.key}:</b> <i>${esc(w.band(KEY[k]))}</i></p>` : ""}
+    <div class="plate">${artImg(PAINT[k][2], "50% 40%")}</div>
+    <h3>${w.keeping}</h3><div class="rules">${bookParas.map(p => `<p>${p}</p>`).join("")}</div>
+    <div class="note"><p style="margin:0">${w.tuck}</p></div>${folio(3, w, k)}`, PAINT[k][0], "50% 50%"));
   w.frames.forEach(([title, frame], r) => {
     const wells = leads(frame).map(([slot, lead]) => `<div class="wl"><div class="lead">${esc(lead)}</div><div class="well">
       <span class="corner" style="left:0;top:0"></span><span class="corner" style="right:0;top:0;transform:rotate(90deg)"></span>

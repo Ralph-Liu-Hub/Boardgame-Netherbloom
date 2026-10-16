@@ -33,7 +33,11 @@ export const icon = (id, col = "currentColor", cls = "ic") => `<svg class="${cls
 // made once into print/out/factory/.art with ImageMagick; without ImageMagick the PNG is used as is.
 // A missing painting returns null, and callers draw a dark wash instead so the build never breaks.
 const CACHE = join(OUT, ".art");
+// Upscaled print copies (art/print/<name>.jpg, 4x Real-ESRGAN) win over the masters where they exist.
+export const PRINT_ART = join(ROOT, "art/print");
 export function art(name) {
+  const up = join(PRINT_ART, `${name}.jpg`);
+  if (existsSync(up)) return "file://" + up;
   const png = join(ART, `${name}.png`);
   if (!existsSync(png)) return null;
   const jpg = join(CACHE, `${name}.jpg`);
@@ -58,10 +62,44 @@ export function ghostArt(name) {
   return "file://" + jpg;
 }
 
+// Where each Soul's head sits in its painting: [top, bottom] as fractions of the image height, crown or hood included.
+// A head is never cropped: wherever a painting is cut down to fit a frame, fitArt() below keeps this band in view.
+export const HEADS = {
+  "child-road": [.12, .25], "child-fields": [.18, .33], "child-lethe": [.15, .28],
+  "garland-brook": [.13, .27], "garland-wade": [.13, .27], "garland-lethe": [.13, .24],
+  "king-field": [.03, .20], "king-barge": [.17, .32], "king-lake": [.13, .30],
+  "bride-wedding": [.05, .17], "bride-stair": [.08, .30], "bride-shore": [.08, .22],
+  "nameless-road": [.13, .28], "nameless-mourners": [.12, .30], "nameless-lethe": [.12, .30],
+  "soul-child": [.10, .42], "soul-garland": [.05, .28], "soul-king": [.04, .34], "soul-bride": [.03, .25], "soul-nameless": [.02, .25],
+};
+
+// Runs in the page before printing. Plates (.plate) never get wider than 3:2, so a portrait painting is not sliced into a strip;
+// then every cropped painting with a known head is shifted so the head and a little headroom stay in the frame. If even that
+// cannot fit, the painting is shown whole (contain) on the frame's dark ground instead of losing the head.
+export const FIT_SCRIPT = `<script>
+window.__fit = () => {
+  for (const p of document.querySelectorAll(".plate")) {
+    const r = p.getBoundingClientRect();
+    if (r.width > r.height * 1.5) { p.style.width = (r.height * 1.5) + "px"; p.style.alignSelf = "center"; }
+  }
+  for (const img of document.querySelectorAll("img[data-head]")) {
+    const [t, b] = img.dataset.head.split(",").map(Number), W = img.clientWidth, H = img.clientHeight, w = img.naturalWidth, h = img.naturalHeight;
+    if (!W || !H || !w || !h) continue;
+    const v = H / (h * Math.max(W / w, H / h));          // visible fraction of the image height under object-fit: cover
+    if (v >= .999) continue;                              // the full height shows; nothing to protect
+    if (v < (b - t) + .06) { img.style.objectFit = "contain"; img.style.background = "#0e0c11"; continue; }
+    let top = Math.max(0, t - .06);                       // a little headroom above the head
+    if (top + v < b + .03) top = b + .03 - v;              // but never lose the chin
+    top = Math.min(top, 1 - v);
+    img.style.objectPosition = img.style.objectPosition.split(" ")[0] + " " + (top / (1 - v) * 100).toFixed(1) + "%";
+  }
+};
+</script>`;
+
 // An <img> that fills its positioned parent, or the dark wash when the painting is missing.
 export const artImg = (name, pos = "50% 50%", cls = "ai") => {
   const src = art(name);
-  return src ? `<img class="${cls}" src="${src}" style="object-position:${pos}" alt="">`
+  return src ? `<img class="${cls}" src="${src}" style="object-position:${pos}"${HEADS[name] ? ` data-head="${HEADS[name]}"` : ""} alt="">`
     : `<div class="${cls}" style="background:radial-gradient(ellipse at 50% 60%, #3a2a30, #0e0c11 70%)"></div>`;
 };
 export const hasArt = name => existsSync(join(ART, `${name}.png`));
@@ -82,7 +120,7 @@ body { --f-display: ${f.display}; --f-serif: ${f.serif}; --f-body: ${f.body}; --
 ${css}
 </style></head><body><div style="display:none">${SYMBOLS}</div>
 ${pages.map(p => `<section class="pg" data-name="${esc(p.name || "")}">${p.html}</section>`).join("\n")}
-</body></html>`;
+${FIT_SCRIPT}</body></html>`;
 }
 
 let browser;
@@ -94,6 +132,15 @@ async function chromium() {
 }
 export async function closeBrowser() { if (browser) await browser.close(); browser = null; }
 
+// Wait for fonts and images, then let the page fit its paintings (heads in frame).
+async function settle(page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+    if (window.__fit) window.__fit();
+  });
+}
+
 // Write the HTML, print it to PDF, and (with png) save every page as its own 300 dpi PNG named after data-name.
 export async function render(file, html, { w, h, png = false } = {}) {
   mkdirSync(dirname(file), { recursive: true });
@@ -101,13 +148,13 @@ export async function render(file, html, { w, h, png = false } = {}) {
   const b = await chromium();
   const page = await b.newPage();
   await page.goto("file://" + file + ".html", { waitUntil: "networkidle" });
-  await page.evaluate(() => document.fonts.ready);
+  await settle(page);
   await page.pdf({ path: file + ".pdf", width: `${w}mm`, height: `${h}mm`, printBackground: true, preferCSSPageSize: true });
   if (png) {
     const scale = DPI / 96;
     const shot = await b.newPage({ deviceScaleFactor: scale, viewport: { width: Math.ceil(w / 25.4 * 96), height: Math.ceil(h / 25.4 * 96) } });
     await shot.goto("file://" + file + ".html", { waitUntil: "networkidle" });
-    await shot.evaluate(() => document.fonts.ready);
+    await settle(shot);
     const dir = file + "_png";
     mkdirSync(dir, { recursive: true });
     const n = await shot.locator("section.pg").count();
