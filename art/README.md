@@ -51,3 +51,7 @@ The card art is print-ready. The box and the river board use the upscaled copies
 The factory build (`print/factory/`) uses these automatically when they exist.
 
 The factory files for every component are built from these masters by `print/factory/` (see its README).
+
+## Web copies
+
+The web game uses WebP copies of these paintings in `web/public/assets/art/`, sized for the screen (about 2.7 MB in all). After changing a master, rebuild them with `python3 web/tools/build_art.py`. Which painting goes where in the game, and the head positions that keep figures uncropped, are in `web/public/assets/art.js`.
