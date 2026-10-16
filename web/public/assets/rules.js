@@ -370,6 +370,7 @@ export function playerAid(cfg) {
       <div><b>Face down</b><span>1 Root only</span></div>
       <div><b>Burn</b><span>effect ×2 + knot + new Echo; forget it + 1</span></div>
       <div><b>Seek</b><span>discard 1, draw 1; no Resonance if it is your Answer</span></div>
+      <div><b>Recall</b><span>your Answer only; 3 Light: a forgotten card of your choice returns to the discard pile</span></div>
       <div><b>Push Through</b><span>Grievances on both banks ahead: they scatter and the soul steps forward; 1 Fracture (+1 per earlier push), forget 1; once a game for each Ferryman</span></div>
     </div>
     <h3>Threads (${cap} knots)</h3>
