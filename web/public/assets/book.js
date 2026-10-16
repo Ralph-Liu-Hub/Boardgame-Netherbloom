@@ -4,6 +4,7 @@ import { SLOTS } from "./cards.js";
 import { keyMemoryFate } from "./engine.js";
 import { mountReplay } from "./replay.js";
 import { mountPuppet } from "./puppet.js";
+import { artImg, soulPortrait, reachPainting } from "./art.js";
 import { storyTheme } from "./audio.js";
 import { zh, setLang, cardName, cardBand, slotLabel, reachName, soulInfo, bookFrames, causeName, pname, lanternName } from "./i18n.js";
 
@@ -52,7 +53,7 @@ function leftPage(i) {
     return `<div class="bk-title">
       <div class="bk-kicker">${L("Here is written", "此處記載")}</div>
       <h1>${L("The Book of<br>Remembrance", "憶念之書")}</h1>
-      <div class="bk-theatre portrait" data-mode="portrait"></div>
+      <div class="bk-plate portrait">${artImg(soulPortrait(S.cfg.soul))}</div>
       <div class="bk-of">${L("of", "屬於")}</div>
       <h2>${esc(soul.name)}</h2>
       <p class="bk-blurb">${esc(soul.blurb)}</p>
@@ -64,7 +65,7 @@ function leftPage(i) {
     return `<div class="bk-chapter">
       <div class="bk-kicker">${L("Epilogue", "尾聲")}</div>
       <h2 class="bk-script">${win ? L("The Far Shore", "彼岸") : L("Into the Mist", "沒入迷霧")}</h2>
-      <div class="bk-theatre" data-mode="epilogue" data-lo="1" data-hi="11"></div>
+      <div class="bk-plate">${artImg(win ? reachPainting(S.cfg.soul, 2) : soulPortrait(S.cfg.soul))}</div>
       <p class="bk-centre">${win ? L("The soul set down its last memory on the bank and walked on into the light.", "亡魂把最後一段記憶放在岸邊，走進了光裡。") : (zh()
         ? { Faded: "遺忘的太多了，已沒有什麼可以渡河。", Shattered: "碎裂了三次，亡魂再也撐不下去了。", Deluge: "黑色的河水上漲，已沒有任何東西能夠阻擋。", Stalled: "河水靜止了，這趟渡河就此被放棄。" }
         : { Faded: "So much was forgotten that nothing was left to cross.", Shattered: "Broken three times, the soul could carry itself no further.", Deluge: "The black river rose, and there was nothing left to hold it back.", Stalled: "The river grew still, and the crossing was abandoned." })[S.cause]}</p>
@@ -76,7 +77,7 @@ function leftPage(i) {
     <div class="bk-kicker">${L(`Chapter ${ROMAN[r]}`, `第${ZHNUM[r]}章`)}</div>
     <h2 class="bk-script">${titles()[r]}</h2>
     <div class="bk-reach">${reachName(r)}</div>
-    <div class="bk-theatre" data-mode="chapter" data-lo="${REACH_SPAN[r][0]}" data-hi="${REACH_SPAN[r][1]}"></div>
+    <div class="bk-plate${here || done ? "" : " unlit"}">${artImg(reachPainting(S.cfg.soul, r))}</div>
     <div class="bk-status">${here ? L("The soul walks here now", "亡魂正走在這裡") : done ? L("The soul has passed this way", "亡魂已走過這裡") : S.result ? L("The soul never came this way", "亡魂從未來到這裡") : L("Not yet reached", "尚未抵達")}</div>
     <ul class="bk-slots">${SLOTS.map(slot => {
       const cid = S.book[r][slot];

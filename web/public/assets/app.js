@@ -3,7 +3,7 @@
 import * as E from "./engine.js";
 import { CARDS, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, LANTERN, STANDARD_LANTERN, lanternIcon, HARSH, STONY, MEMORY, GRAVE, FERTILE } from "./cards.js";
 import * as A from "./audio.js";
-import { soulMiniature } from "./miniature.js";
+import { artSrc, artImg, cardArt, mistArt, mantleArt, soulPortrait, reachPainting, BANK_ART, preloadArt } from "./art.js";
 import * as N from "./net.js";
 import { rulebook, playerAid } from "./rules.js";
 import { openBook, closeBook, refreshBook, resetBookMemory, relangBook } from "./book.js";
@@ -195,13 +195,13 @@ function menu(which = "solo") {
   screen = ["menu", which];
   topbar();
   const soulBtns = Object.keys(SOULS).map(k => [k, soulInfo(k)]).map(([k, v]) =>
-    `<button type="button" class="soulopt ${setup.soul === k ? "on" : ""}" data-soul="${k}"><b>${esc(v.name)}</b>${k === FIRST_SOUL ? `<span class="firsttag" title="${L("Suggested for your first crossing", "建議第一次渡河時選擇")}">${L("Suggested first", "新手推薦")}</span>` : ""}<small>${esc(v.twist)}</small></button>`).join("");
+    `<button type="button" class="soulopt ${setup.soul === k ? "on" : ""}" data-soul="${k}"><span class="soulpic">${artImg(soulPortrait(k))}</span><b>${esc(v.name)}</b>${k === FIRST_SOUL ? `<span class="firsttag" title="${L("Suggested for your first crossing", "建議第一次渡河時選擇")}">${L("Suggested first", "新手推薦")}</span>` : ""}<small>${esc(v.twist)}</small></button>`).join("");
   if (!LANTERN[setup.lantern]) setup.lantern = STANDARD_LANTERN;
   const lan = Object.keys(LANTERN).map(Number).map(l => `<button type="button" data-lantern="${l}" class="${setup.lantern === l ? "on" : ""}">${lanternIcon(l)} ${esc(lanternName(l))}</button>`).join("");
   $("app").innerHTML = `
   <div class="screen">
     <div class="hero">
-      <svg class="lily" aria-hidden="true"><use href="#nb-bloom"/></svg>
+      <div class="heroart" aria-hidden="true">${artImg("cover-f")}</div>
       <div class="eyebrow">${L("Publisher preview", "出版社試玩版")}</div>
       <h1>Netherbloom${zh() ? '<span class="zhtitle">彼岸花渡</span>' : ""}</h1>
       <p>${L("Grow a path of Netherblooms across the river of forgetting, and carry one soul to the Far Shore before it forgets who it was. A silent co-operative game for 1 to 4.",
@@ -294,6 +294,8 @@ function startLocal(m, players) {
 }
 
 function beginGame(s) {
+  preloadArt(["tex-bank", "tex-water", "card-fog", ...BANK_ART, "back-memory", "card-obsession", "card-acceptance", "card-oblivion", "card-mist-1", "card-mist-2", "card-mist-3", "card-harsh",
+    soulPortrait(s.cfg.soul), ...[0, 1, 2].map(r => reachPainting(s.cfg.soul, r)), ...(s.n === 1 ? ["card-ghost"] : [])]);
   S = s;
   screen = ["game"];
   uncovered = -1;
@@ -874,6 +876,17 @@ function riverPath() {
   return d;
 }
 
+// The soul on the river: its painted portrait in a small round cameo, centred on the face.
+// [x, y] of the face and how much of the painting's height the cameo shows, read off each painting.
+const CAMEO = { child: [.40, .25, .30], garland: [.36, .21, .30], king: [.44, .26, .34], bride: [.55, .18, .28], open: [.50, .17, .30] };
+function soulCameo(soul) {
+  const [fx, fy, span] = CAMEO[soul] || CAMEO.open;
+  const hs = 50 / span, ws = hs * 673 / 900;
+  return `<circle r="29" fill="#0e0c11" stroke="#8a6d48" stroke-width="1.5"/>
+    <image href="${artSrc(soulPortrait(soul))}" x="${(-fx * ws).toFixed(1)}" y="${(-fy * hs).toFixed(1)}" width="${ws.toFixed(1)}" height="${hs.toFixed(1)}" clip-path="url(#soulClip)" preserveAspectRatio="none"/>
+    <circle r="25.5" fill="none" stroke="#E6D3A3" stroke-width="1.6" opacity=".85"/><circle r="28.5" fill="none" stroke="#8FD6E1" stroke-width=".8" opacity=".5"/>`;
+}
+
 function drawBoardStatic() {
   const d = riverPath();
   const reachLbl = [[reachName(0), 1, 4], [reachName(1), 5, 8], [reachName(2), 9, 11]].map(([n, a, b], i) =>
@@ -885,11 +898,21 @@ function drawBoardStatic() {
     <radialGradient id="soulGrad"><stop offset="0" stop-color="#EFE7D6" stop-opacity=".55"/><stop offset="1" stop-color="#8FD6E1" stop-opacity="0"/></radialGradient>
     <radialGradient id="shoreGrad"><stop offset="0" stop-color="#E6D3A3" stop-opacity=".7"/><stop offset="1" stop-color="#E6D3A3" stop-opacity="0"/></radialGradient>
     <filter id="soft"><feGaussianBlur stdDeviation="2.5"/></filter>
+    <filter id="bankEdge" x="-5%" y="-30%" width="110%" height="160%"><feGaussianBlur stdDeviation="6"/></filter>
+    <radialGradient id="vigGrad" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".6"/></radialGradient>
+    <linearGradient id="waterEdge" gradientUnits="userSpaceOnUse" x1="0" y1="130" x2="0" y2="270"><stop offset="0" stop-color="#2d5a62" stop-opacity=".45"/><stop offset=".5" stop-color="#16343b" stop-opacity="0"/><stop offset="1" stop-color="#2d5a62" stop-opacity=".45"/></linearGradient>
+    <mask id="riverMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1120" height="400"><path d="${d}" fill="none" stroke="#fff" stroke-width="74" stroke-linecap="round" filter="url(#bankEdge)"/></mask>
+    <clipPath id="soulClip"><circle r="25"/></clipPath>
   </defs>
   <rect width="1120" height="400" fill="#121117"/>
+  <image href="${artSrc("tex-bank")}" x="-20" y="-10" width="1160" height="420" preserveAspectRatio="xMidYMid slice" opacity=".9"/>
+  <rect width="1120" height="400" fill="#0f0d11" opacity=".38"/>
+  <rect width="1120" height="400" fill="url(#vigGrad)"/>
   <circle class="shore" cx="${X(12) + 20}" cy="${Y(12)}" r="120" fill="url(#shoreGrad)"/>
-  <path d="${d}" fill="none" stroke="#08080c" stroke-width="92" stroke-linecap="round"/>
-  <path d="${d}" fill="none" stroke="#0f1219" stroke-width="70" stroke-linecap="round"/>
+  <path d="${d}" fill="none" stroke="#050407" stroke-width="96" stroke-linecap="round" opacity=".75" filter="url(#bankEdge)"/>
+  <g mask="url(#riverMask)"><rect width="1120" height="400" fill="#071319"/>
+    <image href="${artSrc("tex-water")}" x="0" y="80" width="1120" height="240" preserveAspectRatio="xMidYMid slice" opacity=".95"/>
+    <rect width="1120" height="400" fill="url(#waterEdge)"/></g>
   <path class="flow" d="${d}" fill="none" stroke="#8FD6E1" stroke-opacity=".35" stroke-width="1.6" transform="translate(0,-18)"/>
   <path class="flow b" d="${d}" fill="none" stroke="#8FD6E1" stroke-opacity=".25" stroke-width="1.2" transform="translate(0,14)"/>
   <path class="flow" d="${d}" fill="none" stroke="#E6D3A3" stroke-opacity=".15" stroke-width="1" style="animation-duration:7s"/>
@@ -907,7 +930,7 @@ function drawBoardStatic() {
   <g id="dyn"></g>
   <g id="soulG"><g class="bob">
     <circle class="soulglow" r="34" fill="url(#soulGrad)"/>
-    <g id="soulFig" data-soul="${S?.cfg.soul || ""}">${soulMiniature(S?.cfg.soul || "open")}</g>
+    <g id="soulFig" data-soul="${S?.cfg.soul || ""}">${soulCameo(S?.cfg.soul || "open")}</g>
   </g></g>
   <g id="fx"></g>`;
 }
@@ -950,30 +973,29 @@ function drawBoard() {
     const [cx, cy] = slotXY(k);
     const sp = k >> 1;
     const behind = sp < s.soul;
+    // The bank card in its well: the fog side until the bank is revealed, then the painted ground.
+    const base = !s.revealed[k]
+      ? `<g class="fogpuff"><image href="${artSrc("card-fog")}" x="${cx - 27}" y="${cy - 36}" width="54" height="72" preserveAspectRatio="xMidYMid slice"/></g>`
+      : `<g class="${p.revealed[k] ? "" : "revealin"}"><image href="${artSrc(BANK_ART[s.tile[k]])}" x="${cx - 27}" y="${cy - 36}" width="54" height="72" preserveAspectRatio="xMidYMid slice" opacity="${s.tile[k] === FERTILE ? 0.62 : 0.85}"/>
+          <use href="#${{ [STONY]: "nb-stony", [MEMORY]: "nb-memorysite", [GRAVE]: "nb-grave", [FERTILE]: "nb-fertile" }[s.tile[k]]}" x="${cx + 10}" y="${cy + 19}" width="14" height="14" style="color:${{ [STONY]: "#cfc8bd", [MEMORY]: "#E6D3A3", [GRAVE]: "#8FD6E1", [FERTILE]: "#b9ae9c" }[s.tile[k]]}" opacity=".9"/></g>`;
     let inner = "";
     if (s.griev[k]) {
-      inner = `<g class="${p.griev[k] ? "" : "grievin"}"><g class="griev"><use href="#nb-grievance" x="${cx - 21}" y="${cy - 21}" width="42" height="42" style="color:#8FD6E1"/></g></g>`;
+      inner = `<g class="${p.griev[k] ? "" : "grievin"}"><circle cx="${cx}" cy="${cy}" r="22" fill="rgba(5,12,16,.72)" stroke="#8FD6E1" stroke-opacity=".5"/><g class="griev"><use href="#nb-grievance" x="${cx - 21}" y="${cy - 21}" width="42" height="42" style="color:#8FD6E1"/></g></g>`;
     } else if (s.tok[k] === E.BLOOM) {
       const fresh = p.tok[k] !== E.BLOOM;
-      inner = `<g class="${fresh ? "bloomin" : ""}"><circle cx="${cx}" cy="${cy}" r="24" fill="rgba(215,38,61,.12)" stroke="#E6D3A3" stroke-width="1.2"/>
+      inner = `<g class="${fresh ? "bloomin" : ""}"><circle cx="${cx}" cy="${cy}" r="23" fill="rgba(20,6,10,.72)" stroke="#E6D3A3" stroke-width="1.2"/>
         <use href="#nb-bloom" x="${cx - 21}" y="${cy - 21}" width="42" height="42" style="color:#D7263D"/></g>`;
     } else if (s.tok[k] === E.ROOT) {
       const cls = p.tok[k] === E.BLOOM ? "wither" : p.tok[k] === E.NONE ? "pop" : "";
-      inner = `<g class="${cls}"><use href="#nb-root" x="${cx - 19}" y="${cy - 19}" width="38" height="38" style="color:#E6D3A3"/></g>`;
-    } else if (!s.revealed[k]) {
-      inner = `<g class="fogpuff"><use href="#nb-fog" x="${cx - 20}" y="${cy - 20}" width="40" height="40" style="color:#9A948C"/></g>`;
-    } else {
-      const t = s.tile[k];
-      const icon = { [STONY]: ["nb-stony", "#9A948C"], [MEMORY]: ["nb-memorysite", "#E6D3A3"], [GRAVE]: ["nb-grave", "#8FD6E1"], [FERTILE]: ["nb-fertile", "#6d665e"] }[t];
-      inner = `<g class="${p.revealed[k] ? "" : "revealin"}" opacity="${t === FERTILE ? 0.5 : 0.85}"><use href="#${icon[0]}" x="${cx - 14}" y="${cy - 14}" width="28" height="28" style="color:${icon[1]}"/></g>`;
+      inner = `<g class="${cls}"><circle cx="${cx}" cy="${cy}" r="21" fill="rgba(14,12,17,.74)" stroke="#E6D3A3" stroke-opacity=".6"/><use href="#nb-root" x="${cx - 18}" y="${cy - 18}" width="36" height="36" style="color:#E6D3A3"/></g>`;
     }
     const tgt = targets.has(k);
-    h += `<g class="slot${tgt ? " target" : ""}" data-k="${k}" opacity="${behind ? 0.3 : 1}"><title>${esc(slotTitle(k))}</title>
-      <rect class="frame" x="${cx - 27}" y="${cy - 27}" width="54" height="54" rx="8"/>${inner}</g>`;
+    h += `<g class="slot${tgt ? " target" : ""}" data-k="${k}" opacity="${behind ? 0.35 : 1}"><title>${esc(slotTitle(k))}</title>
+      <rect class="frame" x="${cx - 29}" y="${cy - 38}" width="58" height="76" rx="6"/>${base}${inner}<rect class="gilt" x="${cx - 27}" y="${cy - 36}" width="54" height="72" rx="4"/></g>`;
   }
   const sp = Math.min(s.soul, 12);
   const fig = $("soulFig");
-  if (fig && fig.dataset.soul !== s.cfg.soul) { fig.dataset.soul = s.cfg.soul; fig.innerHTML = soulMiniature(s.cfg.soul); }
+  if (fig && fig.dataset.soul !== s.cfg.soul) { fig.dataset.soul = s.cfg.soul; fig.innerHTML = soulCameo(s.cfg.soul); }
   $("soulG").style.transform = `translate(${X(sp)}px, ${Y(sp)}px)`;
   if (s.hold && sp < 12) h += `<g class="holdtok" transform="translate(${X(sp) + 30},${Y(sp) - 34})"><title>${esc(L("Hold Fast: the soul waits this turn without forgetting", "堅守：亡魂本回合停留而不遺忘"))}</title><g class="${p.hold ? "" : "stampin"}">
     <circle r="15" fill="#17161B" stroke="#8FD6E1" stroke-width="1.6"/><use href="#nb-tok-hold" x="-10" y="-10" width="20" height="20" style="color:#8FD6E1"/></g></g>`;
@@ -1189,10 +1211,13 @@ function cardGloss(cid) {
 function cardHTML(cid, opts = {}) {
   const c = CARDS[cid];
   const res = opts.resonant;
-  return `<div class="card t${c.tag} ${opts.playable ? "playable" : ""} ${opts.sel ? "sel" : ""} ${res ? "resonant" : ""} ${opts.dealt ? "dealt" : ""} ${opts.cls || ""}" data-cid="${cid}" ${opts.style ? `style="${opts.style}"` : ""} ${opts.focus ? 'role="button" tabindex="0"' : ""}>
+  const art = cardArt(cid);
+  return `<div class="card t${c.tag}${c.key ? " keymem" : ""} ${opts.playable ? "playable" : ""} ${opts.sel ? "sel" : ""} ${res ? "resonant" : ""} ${opts.dealt ? "dealt" : ""} ${opts.cls || ""}" data-cid="${cid}" ${opts.style ? `style="${opts.style}"` : ""} ${opts.focus ? 'role="button" tabindex="0"' : ""}>
+    <div class="cardbg" aria-hidden="true">${artImg(art)}</div>
     <div class="top">${svgUse(TAG_ICONS[c.tag], TAGCLS[c.tag])}<div><div class="nm">${esc(cardName(cid))}</div><div class="tag">${tagName(c.tag)}${c.key ? ` · <span class="key">${L("Key Memory", "關鍵記憶")}</span>` : ""}</div></div></div>
     <div class="eff">${esc(ops(c.eff))}</div>
     <div class="res"><b>${L("Resonance:", "共鳴：")}</b> ${c.rr ? L("instead, ", "改為") : ""}${esc(ops(c.res))}</div>
+    <div class="artwin" aria-hidden="true">${artImg(art)}${c.key ? svgUse("nb-seal", "seal") : ""}</div>
     ${opts.gloss ? cardGloss(cid) : ""}
     ${c.slot ? `<div class="band">${svgUse(SLOT_ICON[c.slot], "", "color:#E6D3A3")}<span>${esc(cardBand(cid))}</span></div>` : `<div class="band"><span class="muted">${L("An Oblivion card is forgotten after use.", "忘卻牌使用後會被遺忘。")}</span></div>`}
   </div>`;
@@ -1364,9 +1389,9 @@ function boardToken(a, at) {
 }
 
 // ---------------------------------------------------------------- the piles: deck, discard and forgotten
-const miniFace = cid => (cid < 0 ? miniBack() : `<div class="mc t${CARDS[cid].tag}">${svgUse(TAG_ICONS[CARDS[cid].tag], TAGCLS[CARDS[cid].tag])}<span class="mcn">${esc(cardName(cid))}</span><span class="mct">${tagName(CARDS[cid].tag)}</span></div>`);
+const miniFace = cid => (cid < 0 ? miniBack() : `<div class="mc t${CARDS[cid].tag}">${artImg(cardArt(cid), "mcart")}${svgUse(TAG_ICONS[CARDS[cid].tag], TAGCLS[CARDS[cid].tag])}<span class="mcn">${esc(cardName(cid))}</span><span class="mct">${tagName(CARDS[cid].tag)}</span></div>`);
 // The memory card back, the same art as the printed cards.
-const cardBack = () => `<svg class="cb" viewBox="0 0 630 880" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#nb-cardback"/></svg>`;
+const cardBack = () => `<img class="cb" src="${artSrc("back-memory")}" alt="" draggable="false">`;
 const miniBack = () => `<div class="mc back">${cardBack()}</div>`;
 let pilesHeld = {};   // a pile a card is flying towards keeps its old look until the card lands
 function drawPiles() {
@@ -1810,7 +1835,7 @@ function stepEvent(ev) {
       if (!seats.has(ev.p)) A.sfx("card");
       if (ev.res) { A.sfx("resonance"); enqueueFront(() => banner(L("Resonance", "共鳴"), L("The card answers the Echo", "這張牌回應了迴響"), "obl")); }
       return 1100;
-    case "ghost": toast(text, ev.tag); cap(["obs", "acc", "obl"][ev.tag]); A.sfx("card"); return 1300;
+    case "ghost": toast(text, ev.tag); cap(["obs", "acc", "obl"][ev.tag]); A.sfx("card"); return ghostCard(ev.tag, text);
     case "seek": if (!seats.has(ev.p) || mode === "local") toast(text, 1); cap(); A.sfx("card"); return 900;
     case "root": ring(at, "#E6D3A3"); cap(); A.sfx("root"); return 800;
     case "bloom": ring(at, "#D7263D"); cap(); A.sfx("bloom"); return 850;
@@ -1908,7 +1933,7 @@ function stepEvent(ev) {
     case "summon": {
       A.sfx("summon"); cap("good");
       if ($("tray")) motes(centre($("tray")), S.cfg.mantleCost);
-      const mi = mantleInfo(ev.mantle); return banner(text, mi.text, ["obs", "acc", "obl"][mi.tag]);
+      const mi = mantleInfo(ev.mantle); return banner(text, mi.text, ["obs", "acc", "obl"][mi.tag], mantleArt(ev.mantle));
     }
     case "mist": setGuide("mist"); cap("bad"); return mistCard(ev.name) + 300;
     case "backlash": A.sfx("backlash"); shake(); cap("bad"); return banner(L(`Backlash · ${tagName(ev.tag)}`, `反噬 · ${tagName(ev.tag)}`), backlashText(ev.tag), ["obs", "acc", "obl"][ev.tag]);
@@ -1946,7 +1971,7 @@ function mistCard(name) {
   const harsh = HARSH_NAMES.has(name);
   const el = document.createElement("div");
   el.className = `mistcard ${harsh ? "harsh" : ""}`;
-  el.innerHTML = `<div class="k">${harsh ? L("Harsh Mist", "凶霧") : L("The Mist", "迷霧")}</div>${svgUse("nb-fog")}<h3>${esc(mistName(name))}</h3><p>${esc(mistText(name))}</p>`;
+  el.innerHTML = `<div class="k">${harsh ? L("Harsh Mist", "凶霧") : L("The Mist", "迷霧")}</div><div class="mart">${artImg(mistArt(S?.reach ?? 0, harsh))}</div><h3>${esc(mistName(name))}</h3><p>${esc(mistText(name))}</p>`;
   document.body.appendChild(el);
   // Crisp while it is read; it only blurs as it leaves. 2 seconds in all, longer step by step.
   const t = Math.max(1, pace());
@@ -1954,10 +1979,21 @@ function mistCard(name) {
   setTimeout(() => el.remove(), 2000 * t);
   return 2000;
 }
-function banner(title, sub, cls) {
+// The Ghost's card, turned up for a moment in the middle of the table (solo).
+function ghostCard(tag, text) {
   const el = document.createElement("div");
-  el.className = `banner ${cls || ""}`;
-  el.innerHTML = `${esc(title)}${sub ? `<small>${esc(sub)}</small>` : ""}`;
+  el.className = `mistcard ghostcard t${tag}`;
+  el.innerHTML = `<div class="k">${L("The Ghost", "幽靈")}</div><div class="mart">${artImg("card-ghost")}</div><p>${esc(text)}</p>`;
+  document.body.appendChild(el);
+  const t = Math.max(1, pace());
+  setTimeout(() => el.classList.add("out"), 1500 * t - 400);
+  setTimeout(() => el.remove(), 1500 * t);
+  return 1500;
+}
+function banner(title, sub, cls, art) {
+  const el = document.createElement("div");
+  el.className = `banner ${cls || ""}${art ? " withart" : ""}`;
+  el.innerHTML = `${art ? `<span class="bart">${artImg(art)}</span>` : ""}${esc(title)}${sub ? `<small>${esc(sub)}</small>` : ""}`;
   el.style.animationDuration = `${2.4 * Math.max(1, pace())}s`;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2500 * Math.max(1, pace()));
@@ -2026,6 +2062,7 @@ async function showEnd(now = false) {
   const canRestart = mode !== "online" || net?.role === "host";
   const stat = (n, en, zhText) => `<div><b>${n}</b>${L(en, zhText)}</div>`;
   veil(`<div class="dialog wide end">
+    <div class="endpic">${artImg(win ? reachPainting(S.cfg.soul, 2) : soulPortrait(S.cfg.soul))}</div>
     <div class="eyebrow">${esc(soul.name)} · ${L("Lantern", "燈籠")} ${esc(lanternName(S.cfg.lantern))}</div>
     <h2 class="${S.result}">${win ? L("The soul reaches the Far Shore", "亡魂抵達了彼岸") : causeName(S.cause)}</h2>
     <p class="muted">${esc(say(S.log.filter(l => l.kind === "win" || l.kind === "loss").pop()))}</p>
