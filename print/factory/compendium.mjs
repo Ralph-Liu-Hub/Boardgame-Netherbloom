@@ -1,4 +1,5 @@
-// The story cards from the Card Compendium v0.2 and Soul Roster v3 that the web game does not use yet:
+// PARKED: not part of the factory files. The rulebook and the web game have no rules for these yet; build them
+// on their own with parked.mjs. The story cards from the Card Compendium v0.2 and Soul Roster v3:
 // Keepsakes, chapter and ending cards for the four authored Souls, and the Nameless Souls module
 // (the generic Soul pool, Lives, Wounds, Last Wishes with their endings, and the two Wish tiles).
 // The words are in data/compendium.json, parsed from the two design docs in both languages; card effects
@@ -70,7 +71,7 @@ const id2 = n => String(n).padStart(2, "0");
 const genById = Object.fromEntries(COMP.generic.map(g => [g.id, g]));
 const TEMPLATE = Object.fromEntries(CARDS.map(c => [c.id, c]));
 
-export function compendiumDecks(lang, { card, artBox, memoryFace, bankCard }) {
+export function compendiumDecks(lang, { card, artBox, memoryFace, bankCard, T }) {
   const L = W[lang];
   const foot = (a, b) => `<div class="foot"><span>${esc(a)}</span><span>${esc(b)}</span></div>`;
 
@@ -116,7 +117,7 @@ export function compendiumDecks(lang, { card, artBox, memoryFace, bankCard }) {
   const generic = COMP.generic.map(g => {
     const t = TEMPLATE[g.shape];
     const c = { ...t, id: g.id, tag: g.tag, slot: g.slot, band: g.band ? g.band.en : "", key: !!g.key };
-    const Lc = lang === "zh" ? { ...cardsLang(lang), band: () => g.band.zh } : cardsLang(lang);
+    const Lc = lang === "zh" ? { ...T[lang], band: () => g.band.zh } : T[lang];
     return { name: g.id, html: memoryFace(Lc, c, L.nameless, g.life ? `life-${g.life}` : tagArt(g.tag)) };
   });
 
@@ -182,11 +183,6 @@ export function compendiumDecks(lang, { card, artBox, memoryFace, bankCard }) {
     ["cards-wish-tile", tiles, "back-bank-3 (the Sea), back-bank-2 (the Waiting Soul)"],
   ];
 }
-
-// cards.mjs passes its language table in through compendiumDecks' memoryFace; this keeps the import one-way.
-let T_ = null;
-export const setCardLang = t => { T_ = t; };
-const cardsLang = lang => T_[lang];
 
 export function compendiumBacks(lang) {
   const L = W[lang];

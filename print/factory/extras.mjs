@@ -1,3 +1,4 @@
+// PARKED with the story cards (see compendium.mjs); built by parked.mjs, not by build.mjs.
 // The two paper extras from the Soul Roster v3, for keeping a record and never for progress:
 //   book-of-crossings.pdf  one A5 sheet, printed one side and glued at the top into a tear-off pad (50 sheets),
 //                          to copy out a finished story: the soul, its three Book pages, the Keepsakes found and the ending.

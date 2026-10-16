@@ -5,7 +5,6 @@ import {
 } from "../../web/public/assets/cards.js";
 import { ZH_TAGS, ZH_SLOTS, ZH_TILES, ZH_REACHES, ZH_CARD_NAMES, ZH_BANDS, ZH_SOULS, ZH_MIST, ZH_MANTLES, zhOpsText } from "../../web/public/assets/zh.js";
 import { BLEED, C, TAG_COL, TAG_ICON, SLOT_ICON, esc, icon, artImg, doc } from "./lib.mjs";
-import { compendiumDecks, compendiumBacks, COMP_CSS, setCardLang } from "./compendium.mjs";
 
 export const CW = 63 + 2 * BLEED, CH = 88 + 2 * BLEED;
 const NUM = ["I", "II", "III"];
@@ -87,8 +86,6 @@ export const T = {
     backWord: { mist: "迷霧", ghost: "幽靈", soul: "亡魂", mantle: "稱號" },
   },
 };
-
-setCardLang(T);
 
 // ---------------------------------------------------------------- the card template (design system CardFaces)
 const CSS = `
@@ -268,8 +265,9 @@ export function decks(lang) {
     ["cards-mantle", mantleCards(lang), "back-mantle"],
     ["cards-soul", soulCards(lang), "back-soul"],
     ["cards-bank", bankCards(lang), "back-bank-1/2/3 by Reach"],
-    ...compendiumDecks(lang, { card, artBox, memoryFace, bankCard }),
   ];
 }
-export const cardBacks = lang => [...backs(lang), ...compendiumBacks(lang)];
-export const cardDoc = (lang, title, pages) => doc({ lang, title, w: CW, h: CH, css: CSS + COMP_CSS, pages });
+export const cardBacks = backs;
+export const cardDoc = (lang, title, pages) => doc({ lang, title, w: CW, h: CH, css: CSS, pages });
+// The card parts, for the parked story cards (parked.mjs).
+export const parts = { card, artBox, memoryFace, bankCard, CSS };

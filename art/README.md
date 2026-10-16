@@ -24,6 +24,10 @@ Lossless PNG exports of every painting at full resolution, which is the size Can
 | `card-mantle-weaver.png`, `card-mantle-warden.png`, `card-mantle-bringer.png`, `card-mantle-breaker.png` | 1456 × 1092 | 37–40 | The four Mantle cards |
 | `card-bank-fertile.png`, `card-bank-stony.png`, `card-bank-memory.png`, `card-bank-grave.png` | 1088 × 1456 | 41–44 | Bank cards (seen from above) |
 | `card-fog.png` | 1088 × 1456 | 45 | Bank card back, the fog side |
+| `life-widow.png`, `life-physician.png`, `life-apprentice.png`, `life-lantern.png`, `life-soldier.png`, `life-player.png`, `life-merchant.png`, `life-gardener.png` | 1088 × 1456 | 46–53 | Parked: the eight Lives of the Nameless Souls module (Life cards and their Key Memories) |
+| `card-keepsake.png`, `card-wound.png` | 1456 × 1092 | 54–55 | Parked: Keepsake cards; Wound cards |
+| `card-wish.png` | 1456 × 1092 | 56 | Parked: Last Wish and Wish ending cards |
+| `card-bank-sea.png`, `card-bank-waiting.png` | 1088 × 1456 | 57–58 | Parked: the two Wish tiles (seen from above) |
 
 ## Print resolution
 
