@@ -22,9 +22,10 @@ Output goes to `print/out/factory/<en|zh-TW>/`. **Send the factory `MANUAL.pdf`*
 | Bank cards (6 / 8 / 6 for Reaches I / II / III) | 20 | 63 × 88 mm | `cards/cards-bank.pdf`, back `back-bank-1`, `-2`, `-3` by Reach (the fog side) |
 | Card backs | 8 | 63 × 88 mm | `cards/card-backs.pdf` |
 | River board panels (one per Reach, joined edge to edge) | 3 | A3, 420 × 297 mm | `board/river-board.pdf` |
+| Loom of the Fates board: three threads with five 22 mm knot circles each (a thread snaps at 4 knots with 2–3 players, 5 solo or with 4), an Echo ring and its Backlash | 1 | A4 landscape, 297 × 210 mm | `loom/loom-of-the-fates.pdf` (page 2 is the trim line) |
 | Punchboard: 9 large discs (25 mm) and 69 small (18 mm) | 1 sheet | 297 × 210 mm | `tokens/punchboard.pdf`: front, back (mirrored for duplex), die line |
 | Books of Remembrance, one per Soul, 8 pages saddle-stitched: cover, the Soul's tale, what the Ferrymen know and how to keep the Book, three Reach pages, the Far Shore, back | 5 | A4 | `books/book-of-remembrance-<soul>.pdf`; 48 clear self-adhesive photo corners per Book go on the printed corner marks of pages 4–6 |
-| Rulebook, saddle-stitched | 1 | A4 | `rulebook/rulebook.pdf` (padded with Notes pages to a multiple of 4) |
+| Rulebook, saddle-stitched | 1 | A4 | `rulebook/rulebook.pdf`: pages 2–3 are the Setting up spread, the whole table with every component numbered and labelled; padded with Notes pages to a multiple of 4 |
 | Player Aid, two-sided | 4 | A5 | `rulebook/player-aid.pdf` |
 | Box lid wrap (top + four sides, 15 mm turn-ins) | 1 | lid 300 × 300 × 75 mm | `box/box-lid-wrap.pdf`, `box/box-lid-dieline.pdf` |
 | Box base wrap (bottom = the box back) | 1 | base 296 × 296 × 73 mm | `box/box-base-wrap.pdf`, `box/box-base-dieline.pdf` |
