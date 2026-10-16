@@ -876,6 +876,16 @@ function riverPath() {
   return d;
 }
 
+// A revealed bank card's symbol: full size in the middle while the bank is empty, tucked small into the
+// bottom-right corner once a Root, Bloom or Grievance sits on it.
+function tileMark(t, cx, cy, covered) {
+  const icon = { [STONY]: "nb-stony", [MEMORY]: "nb-memorysite", [GRAVE]: "nb-grave", [FERTILE]: "nb-fertile" }[t];
+  const col = { [STONY]: "#cfc8bd", [MEMORY]: "#E6D3A3", [GRAVE]: "#8FD6E1", [FERTILE]: "#b9ae9c" }[t];
+  if (covered) return `<use href="#${icon}" x="${cx + 10}" y="${cy + 19}" width="14" height="14" style="color:${col}" opacity=".9"/>`;
+  return `<circle cx="${cx}" cy="${cy}" r="19" fill="rgba(14,12,17,.62)" stroke="${col}" stroke-opacity=".45"/>
+    <use href="#${icon}" x="${cx - 14}" y="${cy - 14}" width="28" height="28" style="color:${col}"/>`;
+}
+
 // The soul on the river: its painted portrait in a small round cameo, centred on the face.
 // [x, y] of the face and how much of the painting's height the cameo shows, read off each painting.
 const CAMEO = { child: [.40, .25, .30], garland: [.36, .21, .30], king: [.44, .26, .34], bride: [.55, .18, .28], open: [.50, .17, .30] };
@@ -977,7 +987,7 @@ function drawBoard() {
     const base = !s.revealed[k]
       ? `<g class="fogpuff"><image href="${artSrc("card-fog")}" x="${cx - 27}" y="${cy - 36}" width="54" height="72" preserveAspectRatio="xMidYMid slice"/></g>`
       : `<g class="${p.revealed[k] ? "" : "revealin"}"><image href="${artSrc(BANK_ART[s.tile[k]])}" x="${cx - 27}" y="${cy - 36}" width="54" height="72" preserveAspectRatio="xMidYMid slice" opacity="${s.tile[k] === FERTILE ? 0.62 : 0.85}"/>
-          <use href="#${{ [STONY]: "nb-stony", [MEMORY]: "nb-memorysite", [GRAVE]: "nb-grave", [FERTILE]: "nb-fertile" }[s.tile[k]]}" x="${cx + 10}" y="${cy + 19}" width="14" height="14" style="color:${{ [STONY]: "#cfc8bd", [MEMORY]: "#E6D3A3", [GRAVE]: "#8FD6E1", [FERTILE]: "#b9ae9c" }[s.tile[k]]}" opacity=".9"/></g>`;
+          ${tileMark(s.tile[k], cx, cy, !!s.griev[k] || s.tok[k] !== E.NONE)}</g>`;
     let inner = "";
     if (s.griev[k]) {
       inner = `<g class="${p.griev[k] ? "" : "grievin"}"><circle cx="${cx}" cy="${cy}" r="22" fill="rgba(5,12,16,.72)" stroke="#8FD6E1" stroke-opacity=".5"/><g class="griev"><use href="#nb-grievance" x="${cx - 21}" y="${cy - 21}" width="42" height="42" style="color:#8FD6E1"/></g></g>`;
