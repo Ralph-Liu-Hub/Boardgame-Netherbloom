@@ -3,6 +3,7 @@
 import * as E from "./engine.js";
 import { CARDS, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, LANTERN, STANDARD_LANTERN, lanternIcon, HARSH, STONY, MEMORY, GRAVE, FERTILE } from "./cards.js";
 import * as A from "./audio.js";
+import { setupFigure } from "./setupfig.js";
 import { artSrc, artImg, cardArt, mistArt, mantleArt, soulPortrait, reachPainting, BANK_ART, preloadArt } from "./art.js";
 import * as N from "./net.js";
 import { rulebook, playerAid } from "./rules.js";
@@ -1653,6 +1654,7 @@ function openDrawer(tab) {
     const book = rulebook();
     $("dbody").innerHTML = `<nav class="toc">${book.map(r => `<a href="#r-${r.id}">${esc(r.title.replace(/^\d+\. /, ""))}</a>`).join("")}</nav>` +
       book.map(r => `<section class="rsec" id="r-${r.id}" data-keys="${esc(r.keys || "")}"><h3>${r.title}</h3>${r.body}</section>`).join("");
+    $("dbody").querySelectorAll(".setupfig").forEach(f => { f.innerHTML = setupFigure(artSrc, zh()); });
     $("dtoc").innerHTML = book.map(r => `<a href="#r-${r.id}" role="menuitem">${esc(r.title)}</a>`).join("");
     d.querySelectorAll(".toc a, .dtoc a").forEach(a => a.onclick = e => {
       e.preventDefault();

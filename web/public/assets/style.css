@@ -1044,3 +1044,14 @@ img.pa { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: co
 .drawer .dtoc a { padding: 7px 10px; border-radius: 6px; color: var(--paper); text-decoration: none; font-size: .9rem; line-height: 1.3; }
 .drawer .dtoc a:hover, .drawer .dtoc a:focus-visible { background: #2a2630; color: var(--bone); }
 .drawer .body { padding-bottom: 80px; }
+/* The Rulebook's Setup picture: the table seen from above, numbered to match the setup steps */
+.setupfig { margin: 10px 0 12px; perspective: 1500px; }
+.setupfig-in { margin: 0; transform: rotateX(14deg); transform-origin: 50% 100%; filter: drop-shadow(0 18px 24px rgba(0,0,0,.6)); }
+.setupfig .sf-svg { display: block; width: 100%; height: auto; }
+.sf-n circle { fill: #D7263D; stroke: #F2E8D5; stroke-width: 1.5; }
+.sf-n text { fill: #F2E8D5; font-family: var(--mono); font-size: 14px; font-weight: 600; }
+.sf-cap { fill: #c9bfae; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+html:lang(zh-Hant-TW) .sf-cap { font-family: "Noto Serif TC", serif; letter-spacing: .1em; font-size: 12px; }
+.sf-sp { fill: #E6D3A3; font-family: var(--mono); font-size: 11px; opacity: .75; }
+.setuplist li::marker { color: var(--crimson); font-weight: 600; }
+@media (max-width: 640px) { .setupfig { overflow-x: auto; -webkit-overflow-scrolling: touch; } .setupfig-in { min-width: 720px; transform: none; } }
