@@ -8,7 +8,7 @@ PLAYWRIGHT_CORE=/path/to/playwright-core/index.mjs CHROMIUM_PATH=/path/to/chromi
 node print/factory/build.mjs --lang zh --only cards,board     # one language, some components
 ```
 
-Output goes to `print/out/factory/<en|zh-TW>/`. Every PDF page is the finished size plus **3 mm bleed** on each side; keep text 3 mm inside the trim. With `--png`, every page is also saved as its own **300 dpi PNG**, named after the card or piece. Colours are RGB; ask the factory to convert to CMYK with their profile and send a proof.
+Output goes to `print/out/factory/<en|zh-TW>/`. **Send the factory `MANUAL.pdf`** from the top of that folder: the production manual in that edition's language (bill of materials, stock and finish, which back goes with which front, how double-sided sheets turn over, die lines, box assembly, packing order and a pre-print checklist), generated with the files so its counts and names always match. Every PDF page is the finished size plus **3 mm bleed** on each side; keep text 3 mm inside the trim. With `--png`, every page is also saved as its own **300 dpi PNG**, named after the card or piece. Colours are RGB; ask the factory to convert to CMYK with their profile and send a proof.
 
 ## What is in the box
 
@@ -23,7 +23,7 @@ Output goes to `print/out/factory/<en|zh-TW>/`. Every PDF page is the finished s
 | Card backs | 8 | 63 × 88 mm | `cards/card-backs.pdf` |
 | River board panels (one per Reach, joined edge to edge) | 3 | A3, 420 × 297 mm | `board/river-board.pdf` |
 | Punchboard: 9 large discs (25 mm) and 69 small (18 mm) | 1 sheet | 297 × 210 mm | `tokens/punchboard.pdf`: front, back (mirrored for duplex), die line |
-| Books of Remembrance, one per Soul, 8 pages saddle-stitched: cover, the Soul's tale, what the Ferrymen know and how to keep the Book, three Reach pages, the Far Shore, back | 5 | A4 | `books/book-of-remembrance-<soul>.pdf`, last page is the die line for the photo-corner slits on pages 4–6 |
+| Books of Remembrance, one per Soul, 8 pages saddle-stitched: cover, the Soul's tale, what the Ferrymen know and how to keep the Book, three Reach pages, the Far Shore, back | 5 | A4 | `books/book-of-remembrance-<soul>.pdf`; 48 clear self-adhesive photo corners per Book go on the printed corner marks of pages 4–6 |
 | Rulebook, saddle-stitched | 1 | A4 | `rulebook/rulebook.pdf` (padded with Notes pages to a multiple of 4) |
 | Player Aid, two-sided | 4 | A5 | `rulebook/player-aid.pdf` |
 | Box lid wrap (top + four sides, 15 mm turn-ins) | 1 | lid 300 × 300 × 75 mm | `box/box-lid-wrap.pdf`, `box/box-lid-dieline.pdf` |
@@ -36,7 +36,7 @@ Card PDFs have one card per page, fronts only, in deck order; each deck uses the
 
 - **Box size.** 300 × 300 × 75 mm is assumed. If the factory's stock size differs, change `LID`, `BASE` and `TURN` at the top of `box.mjs` and rebuild; the art is laid out from those numbers. They will usually supply their own dieline: place the wrap art on it.
 - **Tokens.** The print-and-play counts are kept, but Root and Bloom are one double-sided disc (a Root blooms and a Bloom withers by flipping it; the river never holds more than 24). Push Through's back is its spent side, and the Soul's back is the Ghost for solo play. Wooden pieces can replace any of the small discs.
-- **Photo corners.** The Book's card wells hold an inscribed card by four die-cut slits per well. A cheaper prototype can skip the die cut and print the corners only; the cards then rest in the wells.
+- **Photo corners.** The Book's card wells hold an inscribed card by four clear self-adhesive photo corners per well, stuck on the printed corner marks. Die-cut slits are not used: in the saddle stitch page 4 is printed on the back of page 3, so slits for its wells would cut through page 3.
 - **Bank cards** replace the print-and-play tiles: they sit in the 66 × 91 mm wells on the river board, fog side up, and are turned over when a Root is placed.
 
 ## Art rules the build enforces
