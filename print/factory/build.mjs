@@ -10,7 +10,7 @@ import { decks, cardBacks, cardDoc, CW, CH } from "./cards.mjs";
 
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 const langs = (arg("--lang", "all") === "all" ? ["en", "zh"] : [arg("--lang")]);
-const only = arg("--only", "cards,board,tokens,box,books,rulebook,manual").split(",");
+const only = arg("--only", "cards,board,tokens,box,books,extras,rulebook,manual").split(",");
 const png = process.argv.includes("--png");
 const dirOf = lang => join(OUT, lang === "zh" ? "zh-TW" : "en");
 
@@ -20,7 +20,7 @@ for (const lang of langs) {
     for (const [file, cards] of decks(lang)) await render(join(dir, "cards", file), cardDoc(lang, file, cards), { w: CW, h: CH, png });
     await render(join(dir, "cards", "card-backs"), cardDoc(lang, "card-backs", cardBacks(lang)), { w: CW, h: CH, png });
   }
-  for (const part of ["board", "tokens", "box", "books", "rulebook"]) {
+  for (const part of ["board", "tokens", "box", "books", "extras", "rulebook"]) {
     if (!only.includes(part)) continue;
     const mod = await import(`./${part}.mjs`).catch(e => (e.code === "ERR_MODULE_NOT_FOUND" ? null : Promise.reject(e)));
     if (mod) await mod.build(lang, join(dir, part), { png });

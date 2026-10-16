@@ -71,6 +71,8 @@ export const HEADS = {
   "bride-wedding": [.05, .17], "bride-stair": [.08, .30], "bride-shore": [.08, .22],
   "nameless-road": [.13, .28], "nameless-mourners": [.12, .30], "nameless-lethe": [.12, .30],
   "soul-child": [.10, .42], "soul-garland": [.05, .28], "soul-king": [.04, .34], "soul-bride": [.03, .25], "soul-nameless": [.02, .25],
+  "life-widow": [.09, .24], "life-physician": [.06, .30], "life-apprentice": [.08, .25], "life-lantern": [.22, .42],
+  "life-soldier": [.12, .32], "life-player": [.11, .28], "life-merchant": [.10, .30], "life-gardener": [.27, .44],
 };
 
 // Runs in the page before printing. Plates (.plate) never get wider than 3:2, so a portrait painting is not sliced into a strip;
