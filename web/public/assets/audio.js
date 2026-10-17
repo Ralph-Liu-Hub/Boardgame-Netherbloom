@@ -1,12 +1,13 @@
 // Original generative soundtrack and sound effects, synthesised live with the Web Audio API.
 // Nothing is sampled or recorded, and every melody is a public-domain lullaby, so there is no copyright to clear.
-// Mood: a river at night, sad but tender, scored like a film: a string section holding slow chords in a hall, a pulse
-// of low strings and horns as the crossing grows dangerous, running water and wind in the reeds, and over it all one
-// old lullaby at a time on a felt piano. Each Soul has the lullaby of the land its story comes from; the game itself
+// Mood: a river at night, sad but tender, scored like a film about a life remembered. Warmth first: a string section
+// holding slow, tender chords in a hall, a solo cello singing the soul's story between the verses, and one old
+// lullaby at a time on a felt piano. Dread only when it is earned: a pulse of low strings, then horns and a deep drum,
+// as the crossing grows dangerous; the cello falls silent as they come in. Running water and wind in the reeds beneath. Each Soul has the lullaby of the land its story comes from; the game itself
 // and the nameless soul have Brahms'. Every melody here is in the public domain, transposed so it sits on the strings.
 
 let ctx = null, master = null, musicBus = null, sfxBus = null, wet = null;
-let amb = null, lull = null;  // the ambient bed and the lullaby, mixed separately so the Book can bring the song forward
+let amb = null, lull = null, voice = null;  // the ambient bed and the lullaby, mixed separately so the Book can bring the song forward
 let musicOn = true, sfxOn = true, started = false, timers = [];
 
 const NOTE = n => 440 * Math.pow(2, (n - 69) / 12);
@@ -61,6 +62,8 @@ function init() {
   amb.connect(musicBus);
   lull = ctx.createGain();
   lull.connect(musicBus);
+  voice = ctx.createGain();
+  voice.connect(musicBus);
   sfxBus = ctx.createGain();
   sfxBus.gain.value = sfxOn ? 0.8 : 0;
   sfxBus.connect(master);
@@ -77,7 +80,9 @@ function init() {
 // progression, and `mood` sets how many layers play.
 const BPM = 60, BEAT = 60 / BPM, BAR = 4 * BEAT, CHORD_BARS = 2;
 // Chords as root + intervals above it (MIDI). D major keys for the lullabies; G minor for the bride's Greek song.
-const MAJ = [0, 7, 12, 16, 19], MIN = [0, 7, 12, 15, 19], SUS = [0, 7, 12, 14, 19];
+// Warm colours: major chords carry an added sixth, minor ones a soft seventh, so even the sad ones sound tender.
+const MAJ = [0, 7, 12, 16, 21], MIN = [0, 7, 10, 15, 19], SUS = [0, 7, 12, 14, 19];
+const MINT = [0, 7, 12, 15, 19];   // a plain minor triad, for the Bride's song, whose raised seventh would rub a soft seventh
 const PROG = {
   major: [
     [[38, MAJ], [33, SUS], [35, MIN], [31, MAJ]],          // Reach I:   D - A - Bm - G       (open, hopeful)
@@ -85,9 +90,9 @@ const PROG = {
     [[35, MIN], [31, MAJ], [28, MIN], [30, MIN]],          // Reach III: Bm - G - Em - F#m    (the long descent)
   ],
   minor: [
-    [[31, MIN], [39, MAJ], [36, MIN], [38, MAJ]],          // Gm - Eb - Cm - D
-    [[31, MIN], [36, MIN], [39, MAJ], [38, SUS]],
-    [[31, MIN], [39, MAJ], [36, MIN], [38, MAJ]],
+    [[31, MINT], [39, MAJ], [36, MINT], [38, MAJ]],        // Gm - Eb - Cm - D
+    [[31, MINT], [36, MINT], [39, MAJ], [38, SUS]],
+    [[31, MINT], [39, MAJ], [36, MINT], [38, MAJ]],
   ],
 };
 let reachNow = 0, tension = 0, mode = "major", scoreTimer = 0, nextChord = 0, chordIx = 0, nextPulse = 0, pulseIx = 0;
@@ -120,9 +125,9 @@ function bowed(freq, t, dur, vol, bright, out) {
 }
 // A chord for the whole section: basses and cellos on root and fifth, violas and violins above, quieter.
 function strings(root, ivs, t, dur) {
-  bowed(NOTE(root), t, dur, 0.034, 520, amb);
-  bowed(NOTE(root + 12), t, dur, 0.028, 900, amb);
-  for (const iv of ivs.slice(1)) bowed(NOTE(root + 12 + iv), t, dur, iv > 12 ? 0.013 : 0.02, iv > 12 ? 2200 : 1400, amb);
+  bowed(NOTE(root), t, dur, 0.032, 600, amb);
+  bowed(NOTE(root + 12), t, dur, 0.028, 1050, amb);
+  for (const iv of ivs.slice(1)) bowed(NOTE(root + 12 + iv), t, dur, iv > 12 ? 0.013 : 0.02, iv > 12 ? 2600 : 1700, amb);
 }
 // Low strings, short and heavy, the pulse under a tense scene.
 function pulseNote(freq, t, vol) {
@@ -167,26 +172,78 @@ function score() {
   if (!ctx) return;
   const ahead = ctx.currentTime + 1.2;
   const prog = PROG[mode][Math.min(2, reachNow)];
+  const dread = reading ? Math.min(tension, 0.15) : tension;   // reading the Book, the story is told without dread
   while (nextChord < ahead) {
     const [root, ivs] = prog[chordIx % prog.length], len = CHORD_BARS * BAR;
     strings(root, ivs, nextChord, len);
+    // the cello sings on every other chord, and falls silent as the danger grows
+    const warmth = 1 - Math.max(0, Math.min(1, (dread - 0.35) / 0.4));
+    if (warmth > 0.05 && (chordIx % 2 === 0 || reading)) {
+      const [nextRoot] = prog[(chordIx + 1) % prog.length];
+      voice.gain.setTargetAtTime(warmth * (reading ? 1.3 : 1), nextChord, 2);
+      celloPhrase(root, ivs, nextRoot, nextChord + 0.4);
+    }
     laid.push([nextChord, root]);
     if (laid.length > 8) laid.shift();
-    if (tension > 0.6) horns(root, nextChord + BEAT, len - BEAT, 0.012 + 0.012 * (tension - 0.6) / 0.4);
-    if (tension > 0.75) { boom(nextChord, 0.22); boom(nextChord + BAR, 0.16); }
+    if (dread > 0.65) horns(root, nextChord + BEAT, len - BEAT, 0.012 + 0.012 * (dread - 0.65) / 0.35);
+    if (dread > 0.8) { boom(nextChord, 0.22); boom(nextChord + BAR, 0.16); }
     nextChord += len;
     chordIx++;
   }
   while (nextPulse < ahead) {
-    if (tension > 0.3) {
+    if (dread > 0.4) {
       const root = [...laid].reverse().find(([at]) => at <= nextPulse + 0.01)?.[1] ?? prog[0][0];
-      const pat = [0, 12, 7, 12], vol = 0.02 + 0.03 * Math.min(1, (tension - 0.3) / 0.5);
+      const pat = [0, 12, 7, 12], vol = 0.02 + 0.03 * Math.min(1, (dread - 0.4) / 0.45);
       pulseNote(NOTE(root + 12 + pat[pulseIx % 4]), nextPulse, pulseIx % 4 === 0 ? vol * 1.3 : vol);
     }
     nextPulse += BEAT / 2;
     pulseIx++;
   }
 }
+
+// A solo cello, the voice that tells the soul's story: one bow drawn across a short phrase, gliding from note to
+// note, swelling into each one with a vibrato that blooms a moment after the note starts.
+function cello(notes, t, vol) {
+  const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), o3 = ctx.createOscillator();
+  o1.type = o2.type = "sawtooth"; o3.type = "triangle";
+  o1.detune.value = -4; o2.detune.value = 4;
+  const body = ctx.createBiquadFilter(), lp = ctx.createBiquadFilter(), g = ctx.createGain();
+  body.type = "peaking"; body.frequency.value = 280; body.Q.value = 1; body.gain.value = 5;
+  lp.type = "lowpass"; lp.frequency.value = 1500; lp.Q.value = 0.6;
+  const vib = ctx.createOscillator(), va = ctx.createGain();
+  vib.frequency.value = 5.2; va.gain.value = 0;
+  vib.connect(va); [o1, o2, o3].forEach(o => va.connect(o.detune));
+  let at = t;
+  g.gain.setValueAtTime(0, t);
+  for (const [n, beats] of notes) {
+    const f = NOTE(n), len = beats * BEAT;
+    [o1, o2, o3].forEach(o => o.frequency.setTargetAtTime(f, at, at === t ? 0.001 : 0.09));
+    g.gain.setTargetAtTime(vol, at, len * 0.18);                     // swell into the note
+    g.gain.setTargetAtTime(vol * 0.55, at + len * 0.6, len * 0.15);  // and ease off before the next
+    va.gain.setValueAtTime(0, at); va.gain.linearRampToValueAtTime(11, at + Math.min(1.2, len * 0.4));
+    at += len;
+  }
+  g.gain.setTargetAtTime(0, at - 0.3, 0.5);
+  [o1, o2, o3].forEach(o => { o.connect(body); o.start(t); o.stop(at + 3); });
+  vib.start(t); vib.stop(at + 3);
+  body.connect(lp).connect(g);
+  const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+  if (pan) { pan.pan.value = -0.15; g.connect(pan).connect(voice); } else g.connect(voice);
+}
+// A phrase for the cello over one chord: up from the chord's third to its fifth and back, or down by step to lead
+// into the next chord. While the piano sings a verse it only holds a long low note beneath it.
+function celloPhrase(root, ivs, nextRoot, t) {
+  const third = root + 24 + (ivs.includes(15) ? 3 : ivs.includes(14) ? 2 : 4), fifth = root + 31;
+  const lead = nextRoot + 24 + 4;   // towards the next chord's third
+  if (verseUntil > t) return cello([[root + 24, 8]], t, 0.022);
+  const shapes = [
+    [[third, 3], [fifth, 3], [third, 2]],
+    [[fifth, 4], [third, 2], [Math.min(lead, fifth), 2]],
+    [[third, 2], [fifth, 2], [fifth + 2, 2], [fifth, 2]],
+  ];
+  cello(shapes[(chordIx + reachNow) % shapes.length], t, 0.034);
+}
+let verseUntil = 0, reading = false;
 
 // reach: 0-2 (the Reach the soul is in); t: 0-1, how close the crossing is to being lost.
 export function mood(reach = 0, t = 0) {
@@ -343,6 +400,7 @@ function playVerse() {
     t += beat;
   }
   const len = t - ctx.currentTime;
+  verseUntil = t;
   const rest = 9 + Math.random() * 8;
   verseTimer = setTimeout(playVerse, (len + rest) * 1000);
   timers.push(verseTimer);
@@ -400,14 +458,15 @@ export function setSfx(on) {
 // ---------------------------------------------------------------- the Souls' themes (played while the Book is open)
 
 // ---------------------------------------------------------------- the Book
-// While the Book is open the strings and the river sink back and the Soul's lullaby comes forward. There is no
-// second melody, so nothing plays against the song.
+// While the Book is open it is a life being read: the dread falls away, the strings and the river sink back, and the
+// Soul's lullaby on the piano and the cello answering it come forward, like two voices telling the story.
 export function storyTheme(soul) {
   if (!ctx) return;
   const now = ctx.currentTime;
   if (soul) lullaby(soul);
-  amb.gain.setTargetAtTime(soul && musicOn ? 0.45 : 1, now, 0.8);
-  lull.gain.setTargetAtTime(soul && musicOn ? 1.25 : 1, now, 0.8);
+  reading = !!soul;
+  amb.gain.setTargetAtTime(soul && musicOn ? 0.5 : 1, now, 0.8);
+  lull.gain.setTargetAtTime(soul && musicOn ? 1.2 : 1, now, 0.8);
 }
 
 
