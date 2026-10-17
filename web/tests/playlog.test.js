@@ -28,4 +28,8 @@ const who = async c => (await me(new Request("https://x.test/api/me", { headers:
 assert.deepEqual(await who(alice), { ok: true, user: "alice", admin: true });   // may host a table without playing
 assert.deepEqual(await who(owner), { ok: true, user: "owner", admin: false });
 assert.equal((await who("nb_session=forged.x")).admin, false);
+process.env.NB_USERS_PLAYTEST = "tester_a:tpw1, tester_b:tpw2";      // an extra list beside NB_USERS
+assert.equal((await login(req({ user: "tester_b", pass: "tpw2" }))).status, 200);
+assert.equal((await login(req({ user: "alice", pass: "pw1" }))).status, 200);     // NB_USERS still works
+assert.equal((await login(req({ user: "tester_a", pass: "tpw2" }))).status, 401);
 console.log("playlog ok");

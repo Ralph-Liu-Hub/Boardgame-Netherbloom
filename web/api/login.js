@@ -1,5 +1,6 @@
 // POST /api/login {user, pass}. Credentials and the signing secret live in Vercel environment variables:
-// NB_USER / NB_PASS for the main account, and optionally NB_USERS ("name:password, name2:password2") for more people.
+// NB_USER / NB_PASS for the main account, and optionally NB_USERS ("name:password, name2:password2") for more people,
+// plus any NB_USERS_<suffix> lists in the same form (e.g. NB_USERS_PLAYTEST).
 import { COOKIE, MAX_AGE, makeToken, safeEqual, accounts } from "./_session.js";
 import { logLogin } from "./_playlog.js";
 
