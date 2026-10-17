@@ -6,6 +6,7 @@ import * as A from "./audio.js";
 import { setupFigure } from "./setupfig.js";
 import { artSrc, artImg, cardArt, mistArt, mantleArt, soulPortrait, reachPainting, BANK_ART, preloadArt } from "./art.js";
 import * as N from "./net.js";
+import { passage, passageLeft } from "./passage.js";
 import { rulebook, playerAid } from "./rules.js";
 import { openBook, closeBook, refreshBook, resetBookMemory, relangBook } from "./book.js";
 import {
@@ -101,8 +102,7 @@ async function boot() {
   onLang(relang);
   $("btn-menu").onclick = () => {
     if (S && !S.result && !confirm(L("Leave this game and return to the menu?", "要離開這場遊戲並回到主選單嗎？"))) return;
-    leaveGame();
-    menu();
+    backToMenu();
   };
   topbar();
   guardBack();
@@ -110,7 +110,20 @@ async function boot() {
   if (!hasChosenLang()) chooseLanguage();
   else if (ownsSave(saved)) resumeGame(saved);
   else menu();
+  let arrived = false;
+  try { arrived = !!sessionStorage.getItem("nb-arrive"); sessionStorage.removeItem("nb-arrive"); } catch { /* storage blocked */ }
+  if (arrived) passage("arrive", undefined, { ...crossing(), title: `Netherbloom${zh() ? "<small>彼岸花渡</small>" : ""}`,
+    sub: L("A silent crossing of the river of forgetting", "無聲渡過遺忘之河") });
+  else document.documentElement.classList.remove("arriving");
 }
+
+// Going down to a table and coming back up are crossings of their own (passage.js).
+function crossing(kind) {
+  return { speed: fxSpeed < 1 ? 0.6 : 1,
+    line: kind === "down" ? L("Down, into the river of forgetting", "沉入遺忘之河") : kind === "up" ? L("The river lets you go, for now", "河水暫且放你離去") : "",
+    sound: kind ? () => A.sfx(kind === "down" ? "descend" : "ascend") : undefined };
+}
+function backToMenu() { passage("up", () => { leaveGame(); menu(); scrollTo(0, 0); }, crossing("up")); }
 
 // The Back button closes what is open (a card, a dialog) and never drops a game by accident:
 // at the table it asks first, the way the Menu button does.
@@ -130,7 +143,7 @@ function askLeave() {
     <p class="muted">${L("A refresh never loses the game; leaving does. Leaving ends this crossing on this device.", "重新整理不會失去遊戲，但離開會。離開後，這台裝置上的這場渡河就結束了。")}</p>
     <div class="row"><button type="button" class="primary" id="stayhere">${L("Stay at the table", "留在牌桌")}</button><button type="button" id="leavenow">${L("Leave the game", "離開遊戲")}</button></div></div>`, "leave");
   $("stayhere").onclick = closeVeil;
-  $("leavenow").onclick = () => { closeVeil(); leaveGame(); menu(); };
+  $("leavenow").onclick = () => { closeVeil(); backToMenu(); };
 }
 
 // The first visit asks for a language; afterwards the top-bar button switches at any time.
@@ -181,6 +194,8 @@ function topbar() {
 
 function leaveGame() {
   endOpening();
+  queue.length = 0;           // effects still waiting to play belong to the table being left
+  view = null;
   A.mood(0, 0);
   if (S && !S.result) { recordChron(); track("beat", { result: "left", detail: endRecord("left") }); }
   clearInterval(beatTimer);
@@ -305,7 +320,12 @@ function startLocal(m, players) {
   beginGame(s, true);
 }
 
+// From the menu or a lobby, the table is reached by going down into the river.
 function beginGame(s, opening = false) {
+  if (screen?.[0] === "menu" || screen?.[0] === "lobby") passage("down", () => setTable(s, opening), crossing("down"));
+  else setTable(s, opening);
+}
+function setTable(s, opening) {
   preloadArt(["tex-bank", "tex-water", "card-fog", ...BANK_ART, "back-memory", "card-obsession", "card-acceptance", "card-oblivion", "card-mist-1", "card-mist-2", "card-mist-3", "card-harsh",
     soulPortrait(s.cfg.soul), ...[0, 1, 2].map(r => reachPainting(s.cfg.soul, r)), ...(s.n === 1 ? ["card-ghost"] : [])]);
   S = s;
@@ -1937,6 +1957,8 @@ function startOpening() {
   skip.textContent = L("Skip setup ›", "略過準備 ›");
   skip.onclick = () => endOpening();
   document.body.appendChild(skip);
+  // Still on the way down: the setup waits until the dark has nearly opened onto the table.
+  if (passageLeft()) { const wait = () => (stage ? passageLeft() * 0.8 / pace() : 0); wait.opening = true; enqueue(wait); }
 
   // 1. The river board
   openStep(() => {
@@ -2489,7 +2511,7 @@ async function showEnd(now = false) {
       <button type="button" id="readbook" class="openbook">${svgUse("nb-seal")}${L("Open the Book", "翻開書本")}</button>
       <button type="button" id="tomenu">${L("Back to the menu", "回到主選單")}</button><button type="button" id="stay">${L("Look at the board", "查看版圖")}</button></div>
   </div>`, "end");
-  $("tomenu").onclick = () => { leaveGame(); menu(); };
+  $("tomenu").onclick = backToMenu;
   $("stay").onclick = closeVeil;
   $("readbook").onclick = () => { closeVeil(); openBook(S, 0); };
   if (canRestart) $("again").onclick = () => {
