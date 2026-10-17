@@ -6,6 +6,7 @@ for (const k of Object.keys(process.env)) if (k.endsWith("READ_WRITE_TOKEN")) de
 const { POST: login } = await import("../api/login.js");
 const { GET: stats } = await import("../api/stats.js");
 const { POST: track } = await import("../api/track.js");
+const { GET: me } = await import("../api/me.js");
 const req = body => new Request("https://x.test/api/login", { method: "POST", body: JSON.stringify(body) });
 const cookieOf = async (u, p) => (await login(req({ user: u, pass: p }))).headers.get("set-cookie").split(";")[0];
 
@@ -23,4 +24,8 @@ assert.equal((await get(alice)).status, 200);
 assert.equal((await get(owner)).status, 403);
 const t = await (await track(new Request("https://x.test/api/track", { method: "POST", body: "{}", headers: { cookie: alice } }))).json();
 assert.equal(t.logging, false);                                     // nothing recorded without a store
+const who = async c => (await me(new Request("https://x.test/api/me", { headers: { cookie: c } }))).json();
+assert.deepEqual(await who(alice), { ok: true, user: "alice", admin: true });   // may host a table without playing
+assert.deepEqual(await who(owner), { ok: true, user: "owner", admin: false });
+assert.equal((await who("nb_session=forged.x")).admin, false);
 console.log("playlog ok");
