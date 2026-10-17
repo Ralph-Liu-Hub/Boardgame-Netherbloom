@@ -1071,3 +1071,7 @@ html:lang(zh-Hant-TW) .sf-cap { font-family: "Noto Serif TC", serif; letter-spac
   background: rgba(14, 12, 17, .88); color: var(--bone); border: 1px solid #8a6d48; font: inherit; cursor: pointer; }
 .skipopen:hover, .skipopen:focus-visible { border-color: var(--bone); }
 @media (prefers-reduced-motion: reduce) { #board.boardin, .dealin, #soulG.soulin { animation: none; } }
+/* The river's numbered ripples */
+.ripples { pointer-events: none; }
+.rpnum { font-family: "IM Fell English", "Noto Serif TC", Georgia, serif; font-size: 16px; fill: #E6D3A3; stroke: #050407; stroke-opacity: .8; stroke-width: 1.2px;
+  stroke-linejoin: round; paint-order: stroke; filter: url(#rpGlow); }

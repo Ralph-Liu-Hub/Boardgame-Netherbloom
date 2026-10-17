@@ -881,6 +881,47 @@ function riverPath() {
   return d;
 }
 
+// The ripples on the water, as on the printed river board: every space is a ring of hand-drawn ripples around a soft
+// halo, its number glowing in the middle, with a small wake trailing back towards the near shore. Drawn from the same
+// seeded strokes as the print (print/factory/board.mjs), scaled from its 74 mm pitch to the board's.
+const RK = 82.5 / 74, RS = 1.5;     // board units per mm; strokes a little heavier on screen
+const rf = x => (+x.toFixed(1)).toString();
+function rrng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const runi = (r, a, b) => a + (b - a) * r();
+function rringPath(cx, cy, rx, ry, r) {
+  const ph1 = runi(r, 0, 6.3), ph2 = runi(r, 0, 6.3), a1 = runi(r, .02, .05), a2 = runi(r, .01, .03), pts = [];
+  for (let i = 0; i < 49; i++) {
+    const t = i / 48 * 2 * Math.PI, k = 1 + a1 * Math.sin(2 * t + ph1) + a2 * Math.sin(5 * t + ph2);
+    pts.push(`${rf(cx + rx * k * Math.cos(t))} ${rf(cy + ry * k * Math.sin(t))}`);
+  }
+  return "M" + pts.join(" L") + " Z";
+}
+function rsketch(d, col, { w = 1, op = .5, seed = 1 } = {}) {
+  const r = rrng(seed * 31 + 7);
+  let o = "";
+  for (let k = 0; k < 2; k++) o += `<path d="${d}" transform="translate(${rf(runi(r, -.8, .8) * RK)} ${rf(runi(r, -.8, .8) * RK)})" fill="none" stroke="${col}" stroke-width="${rf(w * (k ? .6 : 1) * RS)}" opacity="${(op * (k ? .55 : 1)).toFixed(2)}" stroke-linecap="round"/>`;
+  return o;
+}
+function riverRipple(x, y, num, seed) {
+  const r = rrng(seed * 7 + 3), u = v => v * RK;
+  let o = `<ellipse cx="${rf(x)}" cy="${rf(y)}" rx="${rf(u(25))}" ry="${rf(u(18))}" fill="url(#rpHalo)"/>`;
+  for (const side of [-1, 1]) {
+    o += rsketch(`M${rf(x - u(19))} ${rf(y + side * u(9))} C${rf(x - u(26))} ${rf(y + side * u(11))} ${rf(x - u(34))} ${rf(y + side * u(14))} ${rf(x - u(46))} ${rf(y + side * u(16))}`, "#E6D3A3", { w: .3, op: .26, seed: seed + side + 50 });
+    for (let j = 0; j < 3; j++) {
+      const cx = x - u(24 + j * 8), cy = y + side * u(11.5 + j * 1.6);
+      o += `<path d="M${rf(cx - u(2.6))} ${rf(cy - side * u(1.6))} Q${rf(cx)} ${rf(cy + side * u(.6))} ${rf(cx + u(2.6))} ${rf(cy - side * u(1.6))}" fill="none" stroke="#8FD6E1" stroke-width="${rf(.2 * RS * RK)}" opacity="${(.3 - j * .08).toFixed(2)}"/>`;
+    }
+  }
+  for (let k = 0; k < 5; k++) {
+    const rr = u(8.2 + k * 4), op = .58 - k * .1;
+    const dash = [0, 1, 2].map(() => `${(runi(r, 6, 16) * (1 + k * .4) * RK).toFixed(1)} ${(runi(r, .4, 1.4) * (1 + k * 1.1) * RK).toFixed(1)}`).join(" ");
+    const d = rringPath(x - u(k * 1.3), y, rr, rr * .74, r);
+    o += `<path d="${d}" fill="none" stroke="#E6D3A3" stroke-width="${rf((.5 - k * .07) * RS * RK)}" stroke-dasharray="${dash}" stroke-dashoffset="${(runi(r, 0, 20) * RK).toFixed(1)}" opacity="${op.toFixed(2)}" stroke-linecap="round"/>`;
+    if (k < 3) o += `<path d="${d}" transform="translate(.6 .6)" fill="none" stroke="#8FD6E1" stroke-width="${rf(.22 * RS * RK)}" stroke-dasharray="${dash}" opacity="${(op * .4).toFixed(2)}"/>`;
+  }
+  return o + `<text class="rpnum" x="${rf(x)}" y="${rf(y + 5.5)}" text-anchor="middle">${num}</text>`;
+}
+
 // A revealed bank card's symbol: full size in the middle while the bank is empty, tucked small into the
 // bottom-right corner once a Root, Bloom or Grievance sits on it.
 function tileMark(t, cx, cy, covered) {
@@ -906,7 +947,7 @@ function drawBoardStatic() {
   const d = riverPath();
   const reachLbl = [[reachName(0), 1, 4], [reachName(1), 5, 8], [reachName(2), 9, 11]].map(([n, a, b], i) =>
     `<text x="${(X(a) + X(b)) / 2}" y="22" text-anchor="middle">${L(`REACH ${ROMAN[i]} · ${n.toUpperCase()}`, `第${ZHNUM[i]}河段 · ${n}`)}</text>`).join("");
-  const nums = Array.from({ length: 13 }, (_, sp) => `<text x="${X(sp)}" y="392" text-anchor="middle">${sp === 0 ? L("near shore", "此岸") : sp === 12 ? "" : sp}</text>`).join("");
+  const nums = `<text x="${X(0)}" y="392" text-anchor="middle">${L("near shore", "此岸")}</text>`;
   $("board").innerHTML = `
   <defs>
     <radialGradient id="litGrad"><stop offset="0" stop-color="#D7263D" stop-opacity=".55"/><stop offset=".6" stop-color="#D7263D" stop-opacity=".12"/><stop offset="1" stop-color="#D7263D" stop-opacity="0"/></radialGradient>
@@ -918,6 +959,8 @@ function drawBoardStatic() {
     <linearGradient id="waterEdge" gradientUnits="userSpaceOnUse" x1="0" y1="130" x2="0" y2="270"><stop offset="0" stop-color="#2d5a62" stop-opacity=".45"/><stop offset=".5" stop-color="#16343b" stop-opacity="0"/><stop offset="1" stop-color="#2d5a62" stop-opacity=".45"/></linearGradient>
     <mask id="riverMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1120" height="400"><path d="${d}" fill="none" stroke="#fff" stroke-width="74" stroke-linecap="round" filter="url(#bankEdge)"/></mask>
     <clipPath id="soulClip"><circle r="25"/></clipPath>
+    <radialGradient id="rpHalo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#F3E6C0" stop-opacity=".34"/><stop offset=".35" stop-color="#E6D3A3" stop-opacity=".16"/><stop offset=".7" stop-color="#8FD6E1" stop-opacity=".07"/><stop offset="1" stop-color="#8FD6E1" stop-opacity="0"/></radialGradient>
+    <filter id="rpGlow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.8" result="b"/><feFlood flood-color="#F3E6C0" flood-opacity=".55"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
   <rect width="1120" height="400" fill="#121117"/>
   <image href="${artSrc("tex-bank")}" x="-20" y="-10" width="1160" height="420" preserveAspectRatio="xMidYMid slice" opacity=".9"/>
@@ -931,6 +974,7 @@ function drawBoardStatic() {
   <path class="flow" d="${d}" fill="none" stroke="#8FD6E1" stroke-opacity=".35" stroke-width="1.6" transform="translate(0,-18)"/>
   <path class="flow b" d="${d}" fill="none" stroke="#8FD6E1" stroke-opacity=".25" stroke-width="1.2" transform="translate(0,14)"/>
   <path class="flow" d="${d}" fill="none" stroke="#E6D3A3" stroke-opacity=".15" stroke-width="1" style="animation-duration:7s"/>
+  <g class="ripples">${Array.from({ length: 12 }, (_, i) => riverRipple(X(i + 1), Y(i + 1), i + 1, i + 1)).join("")}</g>
   <g stroke="#4A4642" stroke-dasharray="4 6">
     <path d="M${(X(4) + X(5)) / 2} 34 V372"/><path d="M${(X(8) + X(9)) / 2} 34 V372"/>
   </g>
@@ -939,8 +983,8 @@ function drawBoardStatic() {
   <g font-family="IBM Plex Mono, monospace" font-size="10" fill="#9A948C" letter-spacing="1.2" text-anchor="middle" opacity=".8">
     <text x="${X(0)}" y="${Y(0) - 80}">${L("LEFT BANK", "左岸")}</text><text x="${X(0)}" y="${Y(0) + 88}">${L("RIGHT BANK", "右岸")}</text></g>
   <g transform="translate(${X(12)}, ${Y(12)})">
-    <use href="#nb-light" x="-22" y="-26" width="44" height="48" style="color:#E6D3A3"/>
-    <text y="-48" text-anchor="middle" font-family="IM Fell English SC, Noto Serif TC, serif" font-size="16" fill="#E6D3A3">${L("Far Shore", "彼岸")}</text>
+    <use href="#nb-light" x="-14" y="-58" width="28" height="30" style="color:#E6D3A3"/>
+    <text y="-64" text-anchor="middle" font-family="IM Fell English SC, Noto Serif TC, serif" font-size="16" fill="#E6D3A3">${L("Far Shore", "彼岸")}</text>
   </g>
   <g id="dyn"></g>
   <g id="soulG"><g class="bob">
