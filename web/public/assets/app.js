@@ -6,7 +6,7 @@ import * as A from "./audio.js";
 import { setupFigure } from "./setupfig.js";
 import { artSrc, artImg, cardArt, mistArt, mantleArt, soulPortrait, reachPainting, BANK_ART, preloadArt } from "./art.js";
 import * as N from "./net.js";
-import { passage, passageLeft } from "./passage.js";
+import { passage, passageLeft, preloadScenes } from "./passage.js";
 import { rulebook, playerAid } from "./rules.js";
 import { openBook, closeBook, refreshBook, resetBookMemory, relangBook } from "./book.js";
 import {
@@ -77,6 +77,7 @@ async function boot() {
     document.body.prepend(holder.firstElementChild);
   } catch { /* icons missing; the game still runs */ }
   try { const me = await fetch("/api/me", { cache: "no-store" }); if (me.ok) amAdmin = !!(await me.json()).admin; } catch { /* not signed in, or offline */ }
+  preloadScenes();
   const embers = $("embers");
   for (let i = 0; i < 16; i++) {
     const e = document.createElement("i");
