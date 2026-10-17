@@ -51,6 +51,8 @@ let net = null;            // online session
 let guideStep = null;      // set while the end-of-turn animations play, so the guide can follow them
 let screen = null;         // what fills the window, so a language change can redraw it: ["menu", which] | ["lobby", note] | ["game"]
 let stage = null;
+let spy = { on: false, seat: null }; // a watching host: show the players' hands, and whose (null follows the turn)
+let looks = {};               // a watching host: seat -> the card that player is holding up close right now
 let amAdmin = false;         // the signed-in account may see the play log and host a table without playing          // the opening: what is already laid on the table while the setup plays out
 const setup = load("nb-setup", { players: 3, soul: "child", lantern: STANDARD_LANTERN, names: ["", "", "", ""], name: "" });
 if (![2, 3, 4].includes(setup.tableSize)) setup.tableSize = 3;   // online: how many seats the host opens
@@ -325,6 +327,7 @@ function beginGame(s, opening = false) {
   topbar();
   buildTable();
   stage = null;
+  looks = {};
   if (opening && s.turn <= 1 && !s.played && !(s.acts || []).length) startOpening();
   refresh();
   saveGame();
@@ -396,6 +399,12 @@ function hostMessage(connId, msg) {
     if (net.started && S) net.api.send(connId, { t: "state", s: S });
     if (!net.started) lobby();
     else refresh();
+  } else if (msg.t === "look") {
+    // a player holds a card up close (or puts it back): only the watching host shows it
+    const seat = net.players.findIndex(x => x.conn === connId);
+    if (seat < 0) return;
+    looks[seat] = Number.isInteger(msg.cid) ? msg.cid : null;
+    if (watching() && S) drawHand();
   } else if (msg.t === "state" && S && msg.s) {
     const p = net.players.find(x => x.conn === connId);
     const seat = net.players.indexOf(p);
@@ -847,6 +856,7 @@ function buildTable() {
       <button type="button" class="docktoggle" id="docktoggle" aria-expanded="${dockOpen}" aria-controls="hand"></button>
       <div class="prompt" id="prompt"></div>
     </div>
+    <div class="spybar" id="spybar"></div>
     <div class="fanwrap"><div class="dockinfo" id="dockinfo"></div><div class="fan" id="hand"></div></div>
   </section>
   <div class="zoom hidden" id="zoom" role="dialog" aria-modal="true"></div>`;
@@ -1203,7 +1213,8 @@ function drawPrompt() {
   const who = esc(pname(S.names[S.cur]));
   if (!canAct()) {
     const why = mode === "local" ? L(`Waiting for <b>${who}</b> to take the lantern.`, `等待<b>${who}</b>接過燈籠。`)
-      : mode === "online" && mySeat < 0 ? L(`Watching: <b>${who}</b> is playing. Hands stay hidden.`, `旁觀中：<b>${who}</b>正在行動。手牌不會顯示。`)
+      : mode === "online" && mySeat < 0 ? (spy.on ? L(`Watching: <b>${who}</b> is playing. Hands are shown on your screen only.`, `旁觀中：<b>${who}</b>正在行動。手牌只顯示在你的螢幕上。`)
+        : L(`Watching: <b>${who}</b> is playing. Hands are hidden.`, `旁觀中：<b>${who}</b>正在行動。手牌已隱藏。`))
       : L(`<b>${who}</b> is playing. ${mode === "online" ? "Study your hand while you wait." : ""}`, `<b>${who}</b>正在行動。${mode === "online" ? "等待時可以先研究你的手牌。" : ""}`);
     setPrompt(`<span class="msg">${why}</span>`);
     return;
@@ -1243,8 +1254,12 @@ function drawPrompt() {
 function viewSeat() {
   if (mode === "local") return S.n === 1 || uncovered === S.cur ? S.cur : -1;
   if (controls(S.cur)) return S.cur;
+  if (watching() && spy.on) return spySeat();
   return mySeat;
 }
+// The host watching an online table (no seat of its own), and the hand it has chosen to look at.
+const watching = () => mode === "online" && mySeat < 0;
+const spySeat = () => (spy.seat !== null && spy.seat < S.n ? spy.seat : S.cur);
 
 // What each effect means at the table: shown on a card held up close.
 const GLOSS = {
@@ -1311,7 +1326,7 @@ function setDock(open) {
 
 // Whether this screen may see the faces of a player's cards.
 function seesHand(p) {
-  if (mode === "online") return p === mySeat || (mySeat < 0 && controls(p));
+  if (mode === "online") return p === mySeat || (mySeat < 0 && (controls(p) || (spy.on && p === spySeat())));
   if (S.n === 1) return true;
   return uncovered === p;
 }
@@ -1326,6 +1341,7 @@ function fanPose(i, n) {
 function drawHand() {
   const el = $("hand");
   if (!el) return;
+  drawSpybar();
   const seat = viewSeat();
   const tog = $("docktoggle");
   if (S.result) { el.innerHTML = ""; prevHand = []; if (tog) tog.innerHTML = dockLabel(L("Hand", "手牌"), 0); return; }
@@ -1343,7 +1359,7 @@ function drawHand() {
   el.innerHTML = hand.map((cid, i) => cardHTML(cid, {
     playable, focus: true, sel: selected === cid, dealt: !prevHand.includes(cid) && !arriving.has(cid),
     resonant: playable && S.played === 0 && S.echo === CARDS[cid].tag,
-    cls: arriving.has(cid) ? "await" : "", style: fanPose(i, n),
+    cls: `${arriving.has(cid) ? "await" : ""} ${watching() && looks[seat] === cid ? "peeked" : ""}`, style: fanPose(i, n),
   })).join("");
   prevHand = hand.filter(cid => !arriving.has(cid));
   if (tog) tog.innerHTML = dockLabel(seat !== S.cur || S.n > 1 ? L(`${pname(S.names[seat])}'s hand`, `${pname(S.names[seat])}的手牌`) : L("Your hand", "你的手牌"), n);
@@ -1357,6 +1373,28 @@ function drawHand() {
   if (selected !== null && !$("zoom").classList.contains("hidden")) {
     if (hand.includes(selected)) openZoom(selected); else closeZoom();
   }
+}
+// The watching host's controls over the hand panel: show or hide the hands, pick whose hand to look at (or follow the
+// turn), and see which card each player is holding up close. With the hands hidden it only says that someone is reading.
+function drawSpybar() {
+  const el = $("spybar");
+  if (!el) return;
+  if (!watching() || !S || S.result) { el.innerHTML = ""; return; }
+  const cur = spySeat();
+  const seatsBtns = spy.on ? `<button type="button" data-spy="follow" class="${spy.seat === null ? "on" : ""}">${L("Follow the turn", "跟隨回合")}</button>`
+    + S.names.map((n, i) => `<button type="button" data-spy="${i}" class="${spy.seat === i ? "on" : ""}${i === S.cur ? " turn" : ""}">${esc(pname(n))}<small>${S.hands[i].length}</small></button>`).join("") : "";
+  const reading = Object.entries(looks).filter(([p, cid]) => cid !== null && S.hands[+p]?.includes(cid)).map(([p, cid]) =>
+    `<span class="peek">${svgUse("nb-seal")}${spy.on ? L(`${esc(pname(S.names[p]))} is reading <b>${esc(cardName(cid))}</b>`, `${esc(pname(S.names[p]))}正在看<b>${esc(cardName(cid))}</b>`) : L(`${esc(pname(S.names[p]))} is reading a card`, `${esc(pname(S.names[p]))}正在看一張牌`)}</span>`).join("");
+  el.innerHTML = `<button type="button" data-spy="toggle" class="spytoggle ${spy.on ? "on" : ""}" aria-pressed="${spy.on}">${spy.on ? L("Hide hands", "隱藏手牌") : L("Show hands", "顯示手牌")}</button>${seatsBtns}${reading}`;
+  el.dataset.seat = cur;
+  el.querySelectorAll("[data-spy]").forEach(b => b.onclick = () => {
+    const v = b.dataset.spy;
+    if (v === "toggle") spy.on = !spy.on;
+    else spy.seat = v === "follow" ? null : +v;
+    closeZoom();
+    prevHand = S.hands[viewSeat()] || [];     // switching hands is not a deal: no dealing animation
+    drawHand(); drawDockInfo(); drawPrompt();
+  });
 }
 const dockLabel = (who, n) => `<span class="chev">${dockOpen ? "▾" : "▴"}</span><span>${esc(who)}</span><b>${n}</b>`;
 
@@ -1383,7 +1421,7 @@ function openZoom(cid, look = false) {
       <button type="button" class="tokbtn" data-play="down">${tokIcon("down")}<span><b>${L("Face down", "背面打出")}</b><small>${L("1 Root, no knot", "放1個根，不打結")}</small></span></button>
       <button type="button" class="tokbtn" data-play="burn">${tokIcon("burn", tag)}<span><b>${L("Burn", "焚燒")}</b><small>${L("its effect twice, then forget it and 1 more", "效果兩次，再遺忘此牌與另1張")}</small></span></button>
       ${E.canSeek(S) ? `<button type="button" class="tokbtn" data-play="seek">${tokIcon("seek")}<span><b>${L("Seek", "尋覓")}</b><small>${L(`discard this, draw 1${S.played === 0 ? " (the Echo passes)" : ""}`, `棄掉此牌，抽1張${S.played === 0 ? "（放過迴響）" : ""}`)}</small></span></button>` : ""}
-    </div>` : `<p class="muted zwait">${seat === S.cur ? L("You can play it once the table is ready.", "桌面準備好後就能打出。") : L("Not your turn: study it while you wait.", "還沒輪到你：等待時可以先研究。")}</p>`;
+    </div>` : watching() ? `<p class="muted zwait">${L(`${esc(pname(S.names[seat]))}'s card. You are watching.`, `${esc(pname(S.names[seat]))}的牌。你正在旁觀。`)}</p>` : `<p class="muted zwait">${seat === S.cur ? L("You can play it once the table is ready.", "桌面準備好後就能打出。") : L("Not your turn: study it while you wait.", "還沒輪到你：等待時可以先研究。")}</p>`;
   z.innerHTML = `<div class="zoombox">
     ${cardHTML(cid, { cls: "big", resonant: res, gloss: true })}
     <div class="zside">${modes}<button type="button" class="ghost" data-close>${L("Back to the hand", "放回手牌")}</button></div></div>`;
@@ -1391,12 +1429,14 @@ function openZoom(cid, look = false) {
   z.querySelectorAll("[data-play]").forEach(b => b.onclick = () => playSelected(cid, b.dataset.play));
   (z.querySelector("[data-play]") || z.querySelector("[data-close]"))?.focus();
   $("hand")?.querySelectorAll(".card").forEach(c => c.classList.toggle("sel", +c.dataset.cid === cid));
+  if (mode === "online" && net?.role === "guest") net.api?.send({ t: "look", cid });
 }
 function closeZoom() {
   const z = $("zoom");
   if (!z || z.classList.contains("hidden")) return;
   z.classList.add("hidden");
   z.innerHTML = "";
+  if (selected !== null && mode === "online" && net?.role === "guest") net.api?.send({ t: "look", cid: null });
   selected = null;
   $("hand")?.querySelectorAll(".card.sel").forEach(c => c.classList.remove("sel"));
 }
