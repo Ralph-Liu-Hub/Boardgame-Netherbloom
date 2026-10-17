@@ -12,6 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&family=Pinyon+Script&family=Noto+Serif+TC:wght@400;600&family=LXGW+WenKai+TC&display=swap">
 <link rel="stylesheet" href="/assets/style.css">
+<!-- Just signed in: keep the screen dark until the arrival plays (assets/passage.js) -->
+<script>try { if (sessionStorage.getItem("nb-arrive") && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("arriving"); } catch { /* storage blocked */ }</script>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
 </head>
 <body>

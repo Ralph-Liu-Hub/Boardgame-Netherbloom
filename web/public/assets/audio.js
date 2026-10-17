@@ -553,6 +553,10 @@ export function sfx(kind) {
     case "turn": bell(NOTE(81), t, 0.035, sfxBus, 2.5); break;
     case "chime": bell(NOTE(86), t, 0.025, sfxBus, 3); break;
     case "win": [62, 66, 69, 74, 78, 81].forEach((n, i) => bell(NOTE(n), t + i * 0.25, 0.07, sfxBus, 6)); break;
+    // Going down to a table: the air rushes past, a low swell as the surface closes overhead, two deep bells a semitone apart.
+    case "descend": hiss(2400, 0.7, 0.12, 1.6, 120); thump(52, 0.45, 2.6); bell(NOTE(38), t + 0.9, 0.05, sfxBus, 5); bell(NOTE(39), t + 1.05, 0.04, sfxBus, 5); break;
+    // Coming back up: a rising breath, then the pale bells of the world of the living, with a low one left behind.
+    case "ascend": hiss(160, 0.7, 0.1, 1.8, 2600); bell(NOTE(45), t + 0.6, 0.035, sfxBus, 4); bell(NOTE(69), t + 1.1, 0.03, sfxBus, 4); bell(NOTE(76), t + 1.4, 0.025, sfxBus, 4); break;
     case "loss": [62, 61, 58, 57, 50].forEach((n, i) => bell(NOTE(n), t + i * 0.45, 0.07, sfxBus, 6)); thump(45, 0.5, 3); break;
   }
 }
