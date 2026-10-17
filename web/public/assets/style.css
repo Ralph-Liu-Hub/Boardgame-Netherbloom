@@ -1103,14 +1103,8 @@ html.arriving body::after { content: ""; position: fixed; inset: 0; z-index: 300
 .pz-surface::after { content: ""; position: absolute; inset: 0; opacity: .5;
   background: repeating-radial-gradient(ellipse 60% 14% at 50% 50%, transparent 0 18px, rgba(220,240,244,.25) 19px 20px, transparent 21px 38px); }
 .pz-motes i { position: absolute; top: 0; border-radius: 2px; animation-timing-function: linear; animation-iteration-count: infinite; }
-.pz-motes .rush { width: 2px; height: var(--len); background: linear-gradient(to top, transparent, rgba(215,38,61,.85)); animation-name: pz-rush; }
-.pz-motes .rush.cy { background: linear-gradient(to top, transparent, rgba(143,214,225,.7)); }
-.pz-motes .fall { width: 5px; height: 5px; border-radius: 60% 0; background: var(--crimson); box-shadow: 0 0 8px var(--crimson); animation-name: pz-fall; }
-.pz-motes .fall.cy { width: 3px; height: 3px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
 .pz-motes .ember { width: 3px; height: 3px; border-radius: 50%; background: var(--crimson); box-shadow: 0 0 8px var(--crimson); animation-name: pz-ember; }
 .pz-motes .ember.cy { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
-@keyframes pz-rush { from { transform: translate(0, 110vh); } to { transform: translate(var(--dx), -20vh); } }
-@keyframes pz-fall { from { transform: translate(0, -10vh) rotate(0); } to { transform: translate(var(--dx), 110vh) rotate(540deg); } }
 @keyframes pz-ember { 0% { transform: translate(0, 105vh); opacity: 0; } 20% { opacity: .9; } to { transform: translate(var(--dx), 20vh); opacity: 0; } }
 .pz-glow { opacity: 0; }
 .pz-line { display: grid; place-items: center; padding: 16px; text-align: center; opacity: 0;
@@ -1124,44 +1118,15 @@ html:lang(zh-Hant-TW) .pz-line { font-family: "Noto Serif TC", serif; font-style
 @keyframes pz-roll-r { from { transform: translateX(-20vmax); } to { transform: translateX(40vmax); } }
 @keyframes pz-roll-l { from { transform: translateX(20vmax); } to { transform: translateX(-40vmax); } }
 
-/* down: the menu falls away above, the light goes, we pass under the river's surface and sink into the dark;
-   far below a red glow, then the dark opens like an eye onto the table */
-.pz-down .pz-old { animation: pz-sinkpast calc(1.5s * var(--k)) cubic-bezier(.5,0,.8,.4) both; }
-@keyframes pz-sinkpast { to { transform: translateY(-16vh) scale(.9); filter: blur(7px) brightness(.35) saturate(.6); } 99% { opacity: 1; } 100% { opacity: 0; } }
-.pz-down .pz-dark { background: radial-gradient(ellipse 80% 70% at 50% 85%, #2b0910, #0b0a0d 70%);
-  -webkit-mask-image: radial-gradient(circle at 50% 55%, transparent var(--r), #000 calc(var(--r) + 30vmax)); mask-image: radial-gradient(circle at 50% 55%, transparent var(--r), #000 calc(var(--r) + 30vmax));
-  animation: pz-abyss calc(3.4s * var(--k)) linear both; }
-@keyframes pz-abyss { 0% { opacity: 0; --r: -40vmax; } 36% { opacity: 1; --r: -40vmax; } 64% { opacity: 1; --r: -40vmax; } 100% { opacity: 1; --r: 120vmax; } }
-.pz-down .pz-surface { animation: pz-pass-up calc(1.1s * var(--k)) cubic-bezier(.4,0,.6,1) calc(.45s * var(--k)) both; }
-@keyframes pz-pass-up { 0% { top: 100%; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { top: -40%; opacity: 0; } }
-.pz-down .pz-motes { animation: pz-motes-down calc(3.4s * var(--k)) linear both; }
-@keyframes pz-motes-down { 0% { opacity: 0; } 15% { opacity: 1; } 60% { opacity: .9; } 80% { opacity: 0; } 100% { opacity: 0; } }
-.pz-down .pz-glow { background: radial-gradient(ellipse 50% 40% at 50% 100%, rgba(215,38,61,.55), transparent 70%);
-  animation: pz-depth calc(3.4s * var(--k)) ease-in-out both; }
-@keyframes pz-depth { 0%, 30% { opacity: 0; transform: scale(.6); } 62% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.6); } }
-.pz-down .pz-line { animation: pz-words calc(3.4s * var(--k)) ease both; }
-@keyframes pz-words { 0%, 34% { opacity: 0; transform: translateY(12px); letter-spacing: .02em; } 48%, 62% { opacity: 1; transform: none; } 78%, 100% { opacity: 0; transform: translateY(-10px); letter-spacing: .16em; } }
-.pz-down .pz-mist { animation: pz-mistout calc(3.4s * var(--k)) ease both; }
-@keyframes pz-mistout { 0%, 55% { opacity: 0; } 70% { opacity: 1; } 100% { opacity: 0; } }
-
-/* up: the table falls away beneath, embers and petals drift down past us, a pale light grows from above; we break
-   the surface and the mist lifts from the menu, still damp with the river */
-.pz-up .pz-old { animation: pz-fallaway calc(1.5s * var(--k)) cubic-bezier(.5,0,.8,.4) both; }
-@keyframes pz-fallaway { to { transform: translateY(18vh) scale(.92); filter: blur(7px) brightness(.3) saturate(.5); } 99% { opacity: 1; } 100% { opacity: 0; } }
-.pz-up .pz-dark { background: linear-gradient(to bottom, #3a3a42, #1d1c22 45%, #0e0d11);
-  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent); mask-image: linear-gradient(to bottom, #000 70%, transparent);
-  -webkit-mask-size: 100% 140%; mask-size: 100% 140%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-  animation: pz-lift calc(3.2s * var(--k)) linear both; }
-@keyframes pz-lift { 0% { opacity: 0; transform: none; } 40% { opacity: 1; transform: none; } 58% { opacity: 1; transform: none; } 100% { opacity: 1; transform: translateY(-145%); } }
-.pz-up .pz-surface { animation: pz-pass-down calc(1s * var(--k)) cubic-bezier(.4,0,.6,1) calc(.85s * var(--k)) both; }
-@keyframes pz-pass-down { 0% { top: -40%; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
-.pz-up .pz-motes { animation: pz-motes-up calc(3.2s * var(--k)) linear both; }
-@keyframes pz-motes-up { 0% { opacity: 0; } 20% { opacity: 1; } 75% { opacity: .8; } 100% { opacity: 0; } }
-.pz-up .pz-glow { background: radial-gradient(ellipse 70% 50% at 50% -10%, rgba(230,211,163,.5), rgba(143,214,225,.12) 55%, transparent 80%);
-  animation: pz-dawn calc(3.2s * var(--k)) ease-in-out both; }
-@keyframes pz-dawn { 0%, 15% { opacity: 0; } 55% { opacity: 1; } 100% { opacity: 0; transform: translateY(-20vh); } }
-.pz-up .pz-line { color: var(--bone); animation: pz-words calc(3.2s * var(--k)) ease both; }
-.pz-up .pz-mist { animation: pz-mistout calc(3.2s * var(--k)) ease both; }
+/* down and up: everything but the old page and the line is drawn on a canvas (passage.js, rite()) */
+.pz-down .pz-dark, .pz-up .pz-dark, .pz-down .pz-glow, .pz-up .pz-glow, .pz-down .pz-surface, .pz-up .pz-surface,
+.pz-down .pz-mist, .pz-up .pz-mist { display: none; }
+.pz-motes canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.pz-down .pz-old, .pz-up .pz-old { transform-origin: 50% 50%; animation: pz-through calc(1.2s * var(--k)) cubic-bezier(.55,0,.85,.35) both; }
+@keyframes pz-through { 0% { transform: none; } 99% { opacity: 1; } 100% { transform: scale(2.4); filter: blur(10px) brightness(.4); opacity: 0; } }
+/* the words come in the dark, among the falling ash (2.9–3.6 s of 4.3) */
+.pz-down .pz-line, .pz-up .pz-line { align-items: end; padding-bottom: 16vh; color: var(--paper); animation: pz-words calc(4.3s * var(--k)) ease both; }
+@keyframes pz-words { 0%, 64% { opacity: 0; transform: scale(.85); letter-spacing: .02em; } 72%, 82% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: scale(1.3); letter-spacing: .2em; } }
 
 /* arrive: out of the dark a Netherbloom draws itself and lights, the name appears, mist rolls in,
    and the dark opens onto the menu */
@@ -1170,6 +1135,7 @@ html:lang(zh-Hant-TW) .pz-line { font-family: "Noto Serif TC", serif; font-style
   animation: pz-open calc(4.6s * var(--k)) linear both; }
 @keyframes pz-open { 0%, 66% { opacity: 1; --r: -40vmax; } 100% { opacity: 1; --r: 120vmax; } }
 .pz-arrive .pz-motes { animation: pz-motes-up calc(4.6s * var(--k)) linear both; }
+@keyframes pz-motes-up { 0% { opacity: 0; } 20% { opacity: 1; } 75% { opacity: .8; } 100% { opacity: 0; } }
 .pz-arrive .pz-glow { background: radial-gradient(circle at 50% 40%, rgba(215,38,61,.45), transparent 32vmax);
   animation: pz-kindle calc(4.6s * var(--k)) ease-in-out both; }
 @keyframes pz-kindle { 0%, 22% { opacity: 0; transform: scale(.5); } 40% { opacity: 1; transform: scale(1); } 50% { opacity: .75; } 58% { opacity: 1; } 100% { opacity: 0; transform: scale(2.2); } }
@@ -1190,3 +1156,4 @@ html:lang(zh-Hant-TW) .pz-line { font-family: "Noto Serif TC", serif; font-style
 .pz-sub { font-family: var(--serif); font-style: italic; color: var(--mist); animation: pz-name calc(1s * var(--k)) ease-out calc(2s * var(--k)) both; }
 @keyframes pz-name { from { opacity: 0; letter-spacing: .4em; filter: blur(6px); } to { opacity: 1; filter: none; } }
 .pz-arrive .pz-mist { animation: pz-mistout calc(4.6s * var(--k)) ease both; }
+@keyframes pz-mistout { 0%, 55% { opacity: 0; } 70% { opacity: 1; } 100% { opacity: 0; } }
