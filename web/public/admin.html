@@ -113,21 +113,22 @@ else if (!d.logging) {
   <h2 class="sec">Games</h2>
   <p class="note">One row per player's browser. Play time runs from the first move to the last sign of life (sent every five minutes and when the page closes).</p>
   <div class="scrollx"><table class="log"><thead><tr><th>Started</th><th>Account</th><th>Players</th><th>Mode</th><th>Soul</th><th>Lantern</th><th>Turns</th><th>Play time</th><th>Outcome</th><th>Record</th><th>From</th></tr></thead><tbody>
-    ${S.length ? S.sort((a, b) => b.start.localeCompare(a.start)).map(s => `<tr><td>${when(s.start)}</td><td>${esc(s.user)}</td><td class="names">${esc((s.names || []).join(", "))}</td><td>${esc(MODES[s.mode] || s.mode)}${s.table ? " · " + esc(s.table) : ""}</td><td>${esc(SOULS[s.soul] || s.soul)}</td><td>${esc(LANTERNS[s.lantern] || "")}</td><td>${s.turn || "—"}</td><td>${dur(mins(s.start, s.last))}</td><td>${resCell(s)}</td><td>${s.detail ? `<button type="button" class="view" data-sid="${esc(s.sid)}">View</button>` : `<span class="res-open">—</span>`}</td><td>${esc(place(s))} · ${esc(s.device || "")}</td></tr>`).join("") : `<tr><td class="empty" colspan="11">No games yet.</td></tr>`}
+    ${S.length ? S.sort((a, b) => b.start.localeCompare(a.start)).map(s => `<tr><td>${when(s.start)}</td><td>${esc(s.user)}</td><td class="names">${esc((s.names || []).join(", "))}</td><td>${esc(MODES[s.mode] || s.mode)}${s.table ? " · " + esc(s.table) : ""}</td><td>${esc(SOULS[s.soul] || s.soul)}</td><td>${esc(LANTERNS[s.lantern] || "")}</td><td>${s.turn || "—"}</td><td>${dur(mins(s.start, s.last))}</td><td>${resCell(s)}</td><td>${s.detail ? `<button type="button" class="view" data-sid="${esc(s.sid)}">View</button> <button type="button" class="view" data-sid="${esc(s.sid)}" data-chron>Chronicle</button>` : `<span class="res-open">—</span>`}</td><td>${esc(place(s))} · ${esc(s.device || "")}</td></tr>`).join("") : `<tr><td class="empty" colspan="11">No games yet.</td></tr>`}
   </tbody></table></div>
-  <p class="note">View opens the record kept when a game ends or a player leaves it: where it ended and why, the table as it stood, every hand, a line per turn and the whole Chronicle. Games from before this record existed have none.</p>
+  <p class="note">View opens the game's record: where it ended and why, the table as it stood, every hand, a line per turn and the whole Chronicle. Chronicle jumps straight to the game's log. The record is saved at every new round and when the game ends, so a game closed part-way still has one, up to its last round. Games from before this record existed have none.</p>
   <section class="game" id="gamebox" hidden></section>
   <h2 class="sec">Sign-ins</h2>
   <div class="scrollx"><table class="log"><thead><tr><th>When</th><th>Account</th><th>From</th><th>Device</th></tr></thead><tbody>
     ${Lg.length ? Lg.sort((a, b) => b.at.localeCompare(a.at)).map(l => `<tr><td>${when(l.at)}</td><td>${esc(l.user)}</td><td>${esc(place(l))}</td><td>${esc(l.device)}</td></tr>`).join("") : `<tr><td class="empty" colspan="4">No sign-ins yet.</td></tr>`}
   </tbody></table></div>
   <p class="note">The last 400 games and 400 sign-ins. Places come from Vercel's network data (country and city); no IP addresses are stored.</p>`;
-  app.querySelectorAll("button.view").forEach(b => b.onclick = () => openGame(b.dataset.sid));
-  if (location.hash.length > 1) openGame(location.hash.slice(1));
+  app.querySelectorAll("button.view").forEach(b => b.onclick = () => openGame(b.dataset.sid, "chron" in b.dataset));
+  if (location.hash.length > 1) openGame(location.hash.slice(1).replace(/:chronicle$/, ""), location.hash.endsWith(":chronicle"));
 }
 
 // ---------------------------------------------------------------- one game's record
-async function openGame(sid) {
+let shown = null;
+async function openGame(sid, toChron = false) {
   const box = $("#gamebox");
   if (!box) return;
   document.querySelectorAll("tr.picked").forEach(t => t.classList.remove("picked"));
@@ -135,11 +136,14 @@ async function openGame(sid) {
   box.hidden = false;
   box.innerHTML = `<p class="note">Loading the record…</p>`;
   box.scrollIntoView({ behavior: "smooth", block: "start" });
-  history.replaceState(null, "", `#${sid}`);
+  history.replaceState(null, "", `#${sid}${toChron ? ":chronicle" : ""}`);
   const r = await fetch(`/api/stats?sid=${encodeURIComponent(sid)}`, { cache: "no-store" });
   const g = (await r.json().catch(() => ({}))).game;
+  shown = g;
   box.innerHTML = g ? gameHTML(g) : `<p class="note">No record was kept for this game.</p>`;
   box.querySelector("[data-close]")?.addEventListener("click", () => { box.hidden = true; history.replaceState(null, "", location.pathname); });
+  box.querySelector("[data-download]")?.addEventListener("click", () => downloadChron(g));
+  if (g && toChron) box.querySelector("#chronicle")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 const CAUSE = {
   Faded: "Faded: the forgotten pile reached the Lantern's limit",
@@ -153,7 +157,8 @@ const REACHES = ["I · The Asphodel Road", "II · The Fields of Mourning", "III 
 const ic = (id, col) => `<svg class="ic" style="color:${col}"><use href="#${id}"/></svg>`;
 function gameHTML(g) {
   const names = g.names || [];
-  const res = g.result === "win" ? `<b class="win">The soul crossed.</b>` : g.result === "left" ? `<b class="lose">Left before the end.</b>` : `<b class="lose">Lost · ${esc(CAUSE[g.cause] || g.cause)}.</b>`;
+  const res = g.result === "win" ? `<b class="win">The soul crossed.</b>` : g.result === "left" ? `<b class="lose">Left before the end.</b>`
+    : g.result === "playing" ? `<b>Not finished: this is the game as it stood at the start of its last round recorded.</b>` : `<b class="lose">Lost · ${esc(CAUSE[g.cause] || g.cause)}.</b>`;
   const who = names.length > 1 ? ` It was ${esc(names[g.cur] || "")}'s turn.` : "";
   const turns = g.turns || [];
   const stats = g.stats || {};
@@ -180,8 +185,21 @@ function gameHTML(g) {
       ${turns.filter(t => t.t > 0).map(t => `<tr><td>${t.t}</td><td>${esc(names[t.p] || "")}</td><td>${Math.min(t.soul, 12)}</td><td>${t.f}</td><td>${t.fr}</td><td>${t.li}</td><td>${t.bw}</td><td>${(t.k || []).join(" / ")}</td></tr>`).join("") || `<tr><td class="empty" colspan="8">No turns recorded.</td></tr>`}
     </tbody></table></div>
     <p class="note">Each line shows the table as it stood at the end of that round's turn.</p>
-    <h2 class="sec">Chronicle</h2>
+    <div class="log-head" id="chronicle" style="scroll-margin-top:12px"><h2 class="sec">Chronicle</h2><button type="button" data-download class="ghost">Download as text</button></div>
     <div class="chron">${chronHTML(g.lines || [])}</div>`;
+}
+// The Chronicle as a plain text file, to keep or share after a playtest.
+function downloadChron(g) {
+  const head = [`Netherbloom · ${(g.names || []).join(", ")} · ${new Date(g.at).toLocaleString()}`,
+    `${g.result === "win" ? "Crossed" : g.result === "left" ? "Left before the end" : g.result === "playing" ? "Not finished" : `Lost: ${CAUSE[g.cause] || g.cause}`} · round ${g.turn} · soul on space ${Math.min(g.soul, 12)}`];
+  let turn = -1;
+  const body = [];
+  for (const [t, , msg] of g.lines || []) { if (t !== turn) { turn = t; body.push("", t ? `— Round ${t} —` : "— Setup —"); } body.push(msg); }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([[...head, ...body].join("\n")], { type: "text/plain" }));
+  a.download = `netherbloom-chronicle-${String(g.at).slice(0, 16).replace(/[:T]/g, "-")}.txt`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 function chronHTML(lines) {
   let out = "", turn = -1;

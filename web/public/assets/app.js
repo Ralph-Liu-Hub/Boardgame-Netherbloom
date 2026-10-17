@@ -181,7 +181,7 @@ function topbar() {
 
 function leaveGame() {
   endOpening();
-  if (S && !S.result) track("beat", { result: "left", detail: endRecord() });
+  if (S && !S.result) { recordChron(); track("beat", { result: "left", detail: endRecord("left") }); }
   clearInterval(beatTimer);
   dropSave();
   clearTimeout(net?.retry);
@@ -598,6 +598,7 @@ function trackEnd() {
   if (!S || !S.result || trackedEnd === S.gid) return;
   trackedEnd = S.gid;
   clearInterval(beatTimer);
+  recordChron();
   track("end", { result: S.result, cause: S.cause || "", detail: endRecord() });
 }
 
@@ -611,15 +612,19 @@ function recordChron() {
   for (const l of S.log) if (l.id > chron.seen) { chron.lines.push([l.turn, l.kind, l.msg]); chron.seen = l.id; }
   if (chron.lines.length > 400) chron.lines.splice(0, chron.lines.length - 400);
   const now = { t: S.turn, p: S.cur, soul: S.soul, f: S.forgotten.length, fr: S.fract, li: S.light, bw: S.bw, k: [...S.karma] };
-  if (chron.turns.at(-1)?.t === S.turn) chron.turns[chron.turns.length - 1] = now; else chron.turns.push(now);
+  if (chron.turns.at(-1)?.t === S.turn) chron.turns[chron.turns.length - 1] = now;
+  else {
+    chron.turns.push(now);
+    // a new round: keep the record so far, so the Chronicle can be read back even if the game is never finished
+    if (S.turn > 1 && !S.result) track("beat", { detail: endRecord("playing") });
+  }
 }
-function endRecord() {
-  recordChron();
+function endRecord(state) {
   const TOK = { [E.ROOT]: "root", [E.BLOOM]: "bloom" };
   const TILE = { [STONY]: "stony", [MEMORY]: "memory", [GRAVE]: "grave", [FERTILE]: "fertile" };
   const cn = cid => CARDS[cid]?.name || String(cid);
   return {
-    turn: S.turn, reach: S.reach, soul: S.soul, result: S.result || "left", cause: S.cause || "", names: S.names, cur: S.cur,
+    turn: S.turn, reach: S.reach, soul: S.soul, result: S.result || state || "left", cause: S.cause || "", names: S.names, cur: S.cur,
     slots: Array.from({ length: E.NSLOT }, (_, k) => ({ t: TILE[S.tile[k]], r: !!S.revealed[k], tok: TOK[S.tok[k]] || "", g: !!S.griev[k] })),
     flooded: S.flooded.map(Boolean), fract: S.fract, light: S.light, bw: S.bw, bwSupply: S.cfg.bwSupply, karma: S.karma, cap: S.cfg.karmaCap, echo: S.echo,
     forgotten: S.forgotten.map(cn), limit: S.cfg.forgottenLimit, ash: S.cfg.ashAt, adrift: S.cfg.adriftAt,
