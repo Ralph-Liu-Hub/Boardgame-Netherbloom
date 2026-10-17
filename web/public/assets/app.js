@@ -170,6 +170,8 @@ function topbar() {
   $("btn-rules").textContent = L("Rulebook", "規則書");
   $("btn-menu").textContent = L("Menu", "主選單");
   $("btn-out").textContent = L("Sign out", "登出");
+  const dash = $("btn-dash");
+  if (dash) { dash.classList.toggle("hidden", !amAdmin); dash.querySelector("button").textContent = L("Dashboard", "管理面板"); }
   $("btn-menu").classList.toggle("hidden", !S && !net);
   $("aid-tab").classList.toggle("hidden", !S);
   $("modelabel").textContent = mode ? (zh()
@@ -179,7 +181,7 @@ function topbar() {
 
 function leaveGame() {
   endOpening();
-  if (S && !S.result) track("beat", { result: "left" });
+  if (S && !S.result) track("beat", { result: "left", detail: endRecord() });
   clearInterval(beatTimer);
   dropSave();
   clearTimeout(net?.retry);
@@ -583,7 +585,7 @@ function track(ev, extra = {}) {
   });
   try {
     if (ev === "beat" && document.visibilityState === "hidden" && navigator.sendBeacon) navigator.sendBeacon("/api/track", body);
-    else fetch("/api/track", { method: "POST", body, keepalive: true, headers: { "Content-Type": "application/json" } }).catch(() => {});
+    else fetch("/api/track", { method: "POST", body, keepalive: body.length < 60000, headers: { "Content-Type": "application/json" } }).catch(() => {});
   } catch { /* the log never stops play */ }
 }
 function trackGame(starting) {
@@ -596,7 +598,36 @@ function trackEnd() {
   if (!S || !S.result || trackedEnd === S.gid) return;
   trackedEnd = S.gid;
   clearInterval(beatTimer);
-  track("end", { result: S.result, cause: S.cause || "" });
+  track("end", { result: S.result, cause: S.cause || "", detail: endRecord() });
+}
+
+// The record of a game for the play log (the admin's Dashboard): the whole Chronicle, a line per turn of how the table
+// stood when it ended, and the table itself at the end (the river, the Loom, the Soul board, the Book and every hand).
+// The engine keeps only the last 80 Chronicle lines, so the browser gathers them as they come.
+let chron = { gid: null, seen: 0, lines: [], turns: [] };
+function recordChron() {
+  if (!S) return;
+  if (chron.gid !== S.gid) chron = { gid: S.gid, seen: 0, lines: [], turns: [] };
+  for (const l of S.log) if (l.id > chron.seen) { chron.lines.push([l.turn, l.kind, l.msg]); chron.seen = l.id; }
+  if (chron.lines.length > 400) chron.lines.splice(0, chron.lines.length - 400);
+  const now = { t: S.turn, p: S.cur, soul: S.soul, f: S.forgotten.length, fr: S.fract, li: S.light, bw: S.bw, k: [...S.karma] };
+  if (chron.turns.at(-1)?.t === S.turn) chron.turns[chron.turns.length - 1] = now; else chron.turns.push(now);
+}
+function endRecord() {
+  recordChron();
+  const TOK = { [E.ROOT]: "root", [E.BLOOM]: "bloom" };
+  const TILE = { [STONY]: "stony", [MEMORY]: "memory", [GRAVE]: "grave", [FERTILE]: "fertile" };
+  const cn = cid => CARDS[cid]?.name || String(cid);
+  return {
+    turn: S.turn, reach: S.reach, soul: S.soul, result: S.result || "left", cause: S.cause || "", names: S.names, cur: S.cur,
+    slots: Array.from({ length: E.NSLOT }, (_, k) => ({ t: TILE[S.tile[k]], r: !!S.revealed[k], tok: TOK[S.tok[k]] || "", g: !!S.griev[k] })),
+    flooded: S.flooded.map(Boolean), fract: S.fract, light: S.light, bw: S.bw, bwSupply: S.cfg.bwSupply, karma: S.karma, cap: S.cfg.karmaCap, echo: S.echo,
+    forgotten: S.forgotten.map(cn), limit: S.cfg.forgottenLimit, ash: S.cfg.ashAt, adrift: S.cfg.adriftAt,
+    book: S.book.map(pg => Object.fromEntries(Object.entries(pg).map(([slot, cid]) => [slot, CARDS[cid]?.band || cn(cid)]))), blessed: S.blessed,
+    mantles: Object.fromEntries(Object.entries(S.mantles).map(([m, p]) => [m, p >= 0 ? S.names[p] : p === -2 ? "laid down" : ""])),
+    hands: S.hands.map(h => h.map(cn)), deck: S.deck.length, discard: S.discard.length, stats: S.stats, lastMist: S.lastMist || "",
+    lines: chron.lines, turns: chron.turns, trail: (S.trail || []).slice(-300),
+  };
 }
 addEventListener("pagehide", () => { if (S && !S.result) track("beat"); });
 
@@ -613,7 +644,7 @@ function saveGame() {
   } : null;
   if (!S && !online) return;
   const tab = N.clientId();
-  try { localStorage.setItem(SAVE + tab, JSON.stringify({ v: 1, at: Date.now(), tab, mode, s: S, seats: [...seats], mySeat, online })); } catch { /* storage full or blocked */ }
+  try { localStorage.setItem(SAVE + tab, JSON.stringify({ v: 1, at: Date.now(), tab, mode, s: S, seats: [...seats], mySeat, online, chron })); } catch { /* storage full or blocked */ }
 }
 function dropSave(d) { try { localStorage.removeItem(SAVE + (d?.tab || N.clientId())); } catch { /* storage blocked */ } }
 // This tab's own saved game if it has one, otherwise the most recent game saved in this browser.
@@ -645,6 +676,7 @@ function saveSummary(d) {
 // Bring a saved game back exactly where it was.
 function resumeGame(d) {
   N.setClientId(d.tab);
+  if (d.chron?.gid === d.s?.gid) chron = d.chron;
   mode = d.mode;
   mySeat = d.mySeat ?? 0;
   if (d.mode !== "online") {
@@ -2042,6 +2074,7 @@ function endOpening(skip = true) {
 // ---------------------------------------------------------------- refresh everything
 function refresh() {
   if (!S || !$("board")) return;
+  recordChron();
   A.lullaby(S.cfg.soul);
   if (!$("dyn")) drawBoardStatic();
   animateEvents();
