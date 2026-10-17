@@ -50,6 +50,7 @@ let passOpen = false, endShown = false;
 let net = null;            // online session
 let guideStep = null;      // set while the end-of-turn animations play, so the guide can follow them
 let screen = null;         // what fills the window, so a language change can redraw it: ["menu", which] | ["lobby", note] | ["game"]
+let stage = null;          // the opening: what is already laid on the table while the setup plays out
 const setup = load("nb-setup", { players: 3, soul: "child", lantern: STANDARD_LANTERN, names: ["", "", "", ""], name: "" });
 if (![2, 3, 4].includes(setup.tableSize)) setup.tableSize = 3;   // online: how many seats the host opens
 // Saved before the four named Lanterns: Lanterns 1–5 become Gentle, Gentle, Standard, Hard, Heroic.
@@ -173,6 +174,7 @@ function topbar() {
 }
 
 function leaveGame() {
+  endOpening();
   if (S && !S.result) track("beat", { result: "left" });
   clearInterval(beatTimer);
   dropSave();
@@ -291,10 +293,10 @@ function startLocal(m, players) {
   s.gid = Math.random().toString(36).slice(2, 10);
   seats = new Set(Array.from({ length: players }, (_, i) => i));
   mySeat = 0;
-  beginGame(s);
+  beginGame(s, true);
 }
 
-function beginGame(s) {
+function beginGame(s, opening = false) {
   preloadArt(["tex-bank", "tex-water", "card-fog", ...BANK_ART, "back-memory", "card-obsession", "card-acceptance", "card-oblivion", "card-mist-1", "card-mist-2", "card-mist-3", "card-harsh",
     soulPortrait(s.cfg.soul), ...[0, 1, 2].map(r => reachPainting(s.cfg.soul, r)), ...(s.n === 1 ? ["card-ghost"] : [])]);
   S = s;
@@ -318,6 +320,8 @@ function beginGame(s) {
   closeBook();
   topbar();
   buildTable();
+  stage = null;
+  if (opening && s.turn <= 1 && !s.played && !(s.acts || []).length) startOpening();
   refresh();
   saveGame();
   trackGame(S.turn <= 1 && !S.played);
@@ -461,7 +465,7 @@ function guestMessage(msg) {
     net.started = msg.started;
     if (!S) lobby(); else refresh();
   } else if (msg.t === "state" && msg.s) {
-    if (!S || msg.s.gid !== S.gid) { beginGame(msg.s); return; }
+    if (!S || msg.s.gid !== S.gid) { beginGame(msg.s, true); return; }
     if (msg.s.ver > S.ver) { S = msg.s; onRemoteState(); }
   }
 }
@@ -523,7 +527,7 @@ function startOnline() {
   seats = new Set([0, ...net.players.map((p, i) => (p.online ? -1 : i)).filter(i => i > 0)]);
   sendLobby();
   net.api.broadcast({ t: "state", s });
-  beginGame(s);
+  beginGame(s, true);
 }
 
 function onRemoteState() {
@@ -877,6 +881,47 @@ function riverPath() {
   return d;
 }
 
+// The ripples on the water, as on the printed river board: every space is a ring of hand-drawn ripples around a soft
+// halo, its number glowing in the middle, with a small wake trailing back towards the near shore. Drawn from the same
+// seeded strokes as the print (print/factory/board.mjs), scaled from its 74 mm pitch to the board's.
+const RK = 82.5 / 74, RS = 1.5;     // board units per mm; strokes a little heavier on screen
+const rf = x => (+x.toFixed(1)).toString();
+function rrng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const runi = (r, a, b) => a + (b - a) * r();
+function rringPath(cx, cy, rx, ry, r) {
+  const ph1 = runi(r, 0, 6.3), ph2 = runi(r, 0, 6.3), a1 = runi(r, .02, .05), a2 = runi(r, .01, .03), pts = [];
+  for (let i = 0; i < 49; i++) {
+    const t = i / 48 * 2 * Math.PI, k = 1 + a1 * Math.sin(2 * t + ph1) + a2 * Math.sin(5 * t + ph2);
+    pts.push(`${rf(cx + rx * k * Math.cos(t))} ${rf(cy + ry * k * Math.sin(t))}`);
+  }
+  return "M" + pts.join(" L") + " Z";
+}
+function rsketch(d, col, { w = 1, op = .5, seed = 1 } = {}) {
+  const r = rrng(seed * 31 + 7);
+  let o = "";
+  for (let k = 0; k < 2; k++) o += `<path d="${d}" transform="translate(${rf(runi(r, -.8, .8) * RK)} ${rf(runi(r, -.8, .8) * RK)})" fill="none" stroke="${col}" stroke-width="${rf(w * (k ? .6 : 1) * RS)}" opacity="${(op * (k ? .55 : 1)).toFixed(2)}" stroke-linecap="round"/>`;
+  return o;
+}
+function riverRipple(x, y, num, seed) {
+  const r = rrng(seed * 7 + 3), u = v => v * RK;
+  let o = `<ellipse cx="${rf(x)}" cy="${rf(y)}" rx="${rf(u(25))}" ry="${rf(u(18))}" fill="url(#rpHalo)"/>`;
+  for (const side of [-1, 1]) {
+    o += rsketch(`M${rf(x - u(19))} ${rf(y + side * u(9))} C${rf(x - u(26))} ${rf(y + side * u(11))} ${rf(x - u(34))} ${rf(y + side * u(14))} ${rf(x - u(46))} ${rf(y + side * u(16))}`, "#E6D3A3", { w: .3, op: .26, seed: seed + side + 50 });
+    for (let j = 0; j < 3; j++) {
+      const cx = x - u(24 + j * 8), cy = y + side * u(11.5 + j * 1.6);
+      o += `<path d="M${rf(cx - u(2.6))} ${rf(cy - side * u(1.6))} Q${rf(cx)} ${rf(cy + side * u(.6))} ${rf(cx + u(2.6))} ${rf(cy - side * u(1.6))}" fill="none" stroke="#8FD6E1" stroke-width="${rf(.2 * RS * RK)}" opacity="${(.3 - j * .08).toFixed(2)}"/>`;
+    }
+  }
+  for (let k = 0; k < 5; k++) {
+    const rr = u(8.2 + k * 4), op = .58 - k * .1;
+    const dash = [0, 1, 2].map(() => `${(runi(r, 6, 16) * (1 + k * .4) * RK).toFixed(1)} ${(runi(r, .4, 1.4) * (1 + k * 1.1) * RK).toFixed(1)}`).join(" ");
+    const d = rringPath(x - u(k * 1.3), y, rr, rr * .74, r);
+    o += `<path d="${d}" fill="none" stroke="#E6D3A3" stroke-width="${rf((.5 - k * .07) * RS * RK)}" stroke-dasharray="${dash}" stroke-dashoffset="${(runi(r, 0, 20) * RK).toFixed(1)}" opacity="${op.toFixed(2)}" stroke-linecap="round"/>`;
+    if (k < 3) o += `<path d="${d}" transform="translate(.6 .6)" fill="none" stroke="#8FD6E1" stroke-width="${rf(.22 * RS * RK)}" stroke-dasharray="${dash}" opacity="${(op * .4).toFixed(2)}"/>`;
+  }
+  return o + `<text class="rpnum" x="${rf(x)}" y="${rf(y + 5.5)}" text-anchor="middle">${num}</text>`;
+}
+
 // A revealed bank card's symbol: full size in the middle while the bank is empty, tucked small into the
 // bottom-right corner once a Root, Bloom or Grievance sits on it.
 function tileMark(t, cx, cy, covered) {
@@ -902,7 +947,7 @@ function drawBoardStatic() {
   const d = riverPath();
   const reachLbl = [[reachName(0), 1, 4], [reachName(1), 5, 8], [reachName(2), 9, 11]].map(([n, a, b], i) =>
     `<text x="${(X(a) + X(b)) / 2}" y="22" text-anchor="middle">${L(`REACH ${ROMAN[i]} · ${n.toUpperCase()}`, `第${ZHNUM[i]}河段 · ${n}`)}</text>`).join("");
-  const nums = Array.from({ length: 13 }, (_, sp) => `<text x="${X(sp)}" y="392" text-anchor="middle">${sp === 0 ? L("near shore", "此岸") : sp === 12 ? "" : sp}</text>`).join("");
+  const nums = `<text x="${X(0)}" y="392" text-anchor="middle">${L("near shore", "此岸")}</text>`;
   $("board").innerHTML = `
   <defs>
     <radialGradient id="litGrad"><stop offset="0" stop-color="#D7263D" stop-opacity=".55"/><stop offset=".6" stop-color="#D7263D" stop-opacity=".12"/><stop offset="1" stop-color="#D7263D" stop-opacity="0"/></radialGradient>
@@ -914,6 +959,8 @@ function drawBoardStatic() {
     <linearGradient id="waterEdge" gradientUnits="userSpaceOnUse" x1="0" y1="130" x2="0" y2="270"><stop offset="0" stop-color="#2d5a62" stop-opacity=".45"/><stop offset=".5" stop-color="#16343b" stop-opacity="0"/><stop offset="1" stop-color="#2d5a62" stop-opacity=".45"/></linearGradient>
     <mask id="riverMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1120" height="400"><path d="${d}" fill="none" stroke="#fff" stroke-width="74" stroke-linecap="round" filter="url(#bankEdge)"/></mask>
     <clipPath id="soulClip"><circle r="25"/></clipPath>
+    <radialGradient id="rpHalo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#F3E6C0" stop-opacity=".34"/><stop offset=".35" stop-color="#E6D3A3" stop-opacity=".16"/><stop offset=".7" stop-color="#8FD6E1" stop-opacity=".07"/><stop offset="1" stop-color="#8FD6E1" stop-opacity="0"/></radialGradient>
+    <filter id="rpGlow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.8" result="b"/><feFlood flood-color="#F3E6C0" flood-opacity=".55"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
   <rect width="1120" height="400" fill="#121117"/>
   <image href="${artSrc("tex-bank")}" x="-20" y="-10" width="1160" height="420" preserveAspectRatio="xMidYMid slice" opacity=".9"/>
@@ -927,6 +974,7 @@ function drawBoardStatic() {
   <path class="flow" d="${d}" fill="none" stroke="#8FD6E1" stroke-opacity=".35" stroke-width="1.6" transform="translate(0,-18)"/>
   <path class="flow b" d="${d}" fill="none" stroke="#8FD6E1" stroke-opacity=".25" stroke-width="1.2" transform="translate(0,14)"/>
   <path class="flow" d="${d}" fill="none" stroke="#E6D3A3" stroke-opacity=".15" stroke-width="1" style="animation-duration:7s"/>
+  <g class="ripples">${Array.from({ length: 12 }, (_, i) => riverRipple(X(i + 1), Y(i + 1), i + 1, i + 1)).join("")}</g>
   <g stroke="#4A4642" stroke-dasharray="4 6">
     <path d="M${(X(4) + X(5)) / 2} 34 V372"/><path d="M${(X(8) + X(9)) / 2} 34 V372"/>
   </g>
@@ -935,8 +983,8 @@ function drawBoardStatic() {
   <g font-family="IBM Plex Mono, monospace" font-size="10" fill="#9A948C" letter-spacing="1.2" text-anchor="middle" opacity=".8">
     <text x="${X(0)}" y="${Y(0) - 80}">${L("LEFT BANK", "左岸")}</text><text x="${X(0)}" y="${Y(0) + 88}">${L("RIGHT BANK", "右岸")}</text></g>
   <g transform="translate(${X(12)}, ${Y(12)})">
-    <use href="#nb-light" x="-22" y="-26" width="44" height="48" style="color:#E6D3A3"/>
-    <text y="-48" text-anchor="middle" font-family="IM Fell English SC, Noto Serif TC, serif" font-size="16" fill="#E6D3A3">${L("Far Shore", "彼岸")}</text>
+    <use href="#nb-light" x="-14" y="-58" width="28" height="30" style="color:#E6D3A3"/>
+    <text y="-64" text-anchor="middle" font-family="IM Fell English SC, Noto Serif TC, serif" font-size="16" fill="#E6D3A3">${L("Far Shore", "彼岸")}</text>
   </g>
   <g id="dyn"></g>
   <g id="soulG"><g class="bob">
@@ -969,7 +1017,7 @@ function drawBoard() {
   const targets = pending && canAct() && pending.targets ? new Set(pending.targets) : new Set();
   let h = "";
   for (let sp = 1; sp < 12; sp++) {
-    if (E.lit(s, sp) && sp >= s.soul) h += `<ellipse class="bloomglow" cx="${X(sp)}" cy="${Y(sp)}" rx="44" ry="30" fill="url(#litGrad)"/>`;
+    if (E.lit(s, sp) && sp >= s.soul && !(stage && !stage.blooms)) h += `<ellipse class="bloomglow" cx="${X(sp)}" cy="${Y(sp)}" rx="44" ry="30" fill="url(#litGrad)"/>`;
   }
   for (let sp = 1; sp < 12; sp++) {
     if (!s.flooded[sp]) continue;
@@ -985,15 +1033,17 @@ function drawBoard() {
     const sp = k >> 1;
     const behind = sp < s.soul;
     // The bank card in its well: the fog side until the bank is revealed, then the painted ground.
-    const base = !s.revealed[k]
-      ? `<g class="fogpuff"><image href="${artSrc("card-fog")}" x="${cx - 27}" y="${cy - 36}" width="54" height="72" preserveAspectRatio="xMidYMid slice"/></g>`
+    const dealt = !stage || stage.banks.has(k) || (k < 4 && stage.blooms);
+    const base = !dealt ? ""
+      : !s.revealed[k]
+      ? `<g class="fogpuff${stage?.fresh.has(k) ? " dealin" : ""}"><image href="${artSrc("card-fog")}" x="${cx - 27}" y="${cy - 36}" width="54" height="72" preserveAspectRatio="xMidYMid slice"/></g>`
       : `<g class="${p.revealed[k] ? "" : "revealin"}"><image href="${artSrc(BANK_ART[s.tile[k]])}" x="${cx - 27}" y="${cy - 36}" width="54" height="72" preserveAspectRatio="xMidYMid slice" opacity="${s.tile[k] === FERTILE ? 0.62 : 0.85}"/>
           ${tileMark(s.tile[k], cx, cy, !!s.griev[k] || s.tok[k] !== E.NONE)}</g>`;
     let inner = "";
     if (s.griev[k]) {
       inner = `<g class="${p.griev[k] ? "" : "grievin"}"><circle cx="${cx}" cy="${cy}" r="22" fill="rgba(5,12,16,.72)" stroke="#8FD6E1" stroke-opacity=".5"/><g class="griev"><use href="#nb-grievance" x="${cx - 21}" y="${cy - 21}" width="42" height="42" style="color:#8FD6E1"/></g></g>`;
-    } else if (s.tok[k] === E.BLOOM) {
-      const fresh = p.tok[k] !== E.BLOOM;
+    } else if (s.tok[k] === E.BLOOM && !(stage && !stage.blooms)) {
+      const fresh = stage ? stage.fresh.has(k) : p.tok[k] !== E.BLOOM;
       inner = `<g class="${fresh ? "bloomin" : ""}"><circle cx="${cx}" cy="${cy}" r="23" fill="rgba(20,6,10,.72)" stroke="#E6D3A3" stroke-width="1.2"/>
         <use href="#nb-bloom" x="${cx - 21}" y="${cy - 21}" width="42" height="42" style="color:#D7263D"/></g>`;
     } else if (s.tok[k] === E.ROOT) {
@@ -1008,6 +1058,7 @@ function drawBoard() {
   const fig = $("soulFig");
   if (fig && fig.dataset.soul !== s.cfg.soul) { fig.dataset.soul = s.cfg.soul; fig.innerHTML = soulCameo(s.cfg.soul); }
   $("soulG").style.transform = `translate(${X(sp)}px, ${Y(sp)}px)`;
+  $("soulG").style.opacity = stage && !stage.soul ? "0" : "";
   if (s.hold && sp < 12) h += `<g class="holdtok" transform="translate(${X(sp) + 30},${Y(sp) - 34})"><title>${esc(L("Hold Fast: the soul waits this turn without forgetting", "堅守：亡魂本回合停留而不遺忘"))}</title><g class="${p.hold ? "" : "stampin"}">
     <circle r="15" fill="#17161B" stroke="#8FD6E1" stroke-width="1.6"/><use href="#nb-tok-hold" x="-10" y="-10" width="20" height="20" style="color:#8FD6E1"/></g></g>`;
   if (s.resign && sp < 12) h += `<g class="holdtok" transform="translate(${X(sp) - 30},${Y(sp) - 34})"><title>${esc(L("Resignation: at the next Soul Step the soul sits down and Lingers", "認命：下一次亡魂步驟時，亡魂坐下並徘徊"))}</title><g class="${p.resign ? "" : "stampin"}">
@@ -1061,7 +1112,7 @@ function drawSoulboard() {
     <div class="lbl wide">${L(`Forgotten ${f} of ${c.forgottenLimit}`, `遺忘 ${f}／${c.forgottenLimit}`)} <span class="muted" style="text-transform:none;letter-spacing:0">· ${L("Ash", "灰燼")} ${c.ashAt}${c.adriftAt < 99 ? ` · ${L("Adrift", "漂離")} ${c.adriftAt}` : ""}</span></div>
     <div class="track wide" id="sb-track" style="grid-template-columns:repeat(${c.forgottenLimit},minmax(0,1fr))">${cells}</div>
     <div><div class="lbl">${L("Fractures", "裂痕")}</div><div class="icons" id="sb-fract">${fr}</div></div>
-    <div><div class="lbl">${L("Light", "光")}</div><div class="icons" id="sb-light">${svgUse("nb-light", "", "color:#E6D3A3")}<span style="font-family:var(--display);font-size:1.25rem;color:var(--bone)">${S.light}</span></div></div>
+    <div><div class="lbl">${L("Light", "光")}</div><div class="icons" id="sb-light">${svgUse("nb-light", "", "color:#E6D3A3")}<span style="font-family:var(--display);font-size:1.25rem;color:var(--bone)">${stage && !stage.light ? 0 : S.light}</span></div></div>
     <div class="wide"><div class="lbl">${L("Black Water supply", "黑水供應")}</div><div class="icons" id="sb-bw">${bw}</div></div>
     <div class="wide"><div class="lbl">${L(`Mantles · cost ${c.mantleCost} Light`, `稱號 · 花費${c.mantleCost}點光`)}</div><div class="mantles" id="sb-mantles">${mantles}</div></div>
   </div>`;
@@ -1263,14 +1314,15 @@ function drawHand() {
   const seat = viewSeat();
   const tog = $("docktoggle");
   if (S.result) { el.innerHTML = ""; prevHand = []; if (tog) tog.innerHTML = dockLabel(L("Hand", "手牌"), 0); return; }
+  const hands = stage ? S.hands.map((h, i) => h.slice(0, stage.dealt[i])) : S.hands;
   if (seat < 0) {
-    const n = S.hands[S.cur].length;
+    const n = hands[S.cur].length;
     el.innerHTML = Array.from({ length: n }, (_, i) => `<div class="card back" style="${fanPose(i, n)}">${cardBack()}</div>`).join("");
     if (tog) tog.innerHTML = dockLabel(L(`${pname(S.names[S.cur])}'s hand · hidden`, `${pname(S.names[S.cur])}的手牌 · 蓋著`), n);
     prevHand = [];
     return;
   }
-  const hand = S.hands[seat];
+  const hand = hands[seat];
   const playable = seat === S.cur && canPlayCards();
   const n = hand.length;
   el.innerHTML = hand.map((cid, i) => cardHTML(cid, {
@@ -1411,7 +1463,7 @@ function drawPiles() {
   const s = vs();
   const now = s.pile || { deck: S.deck.length, disc: S.discard.length, top: S.discard.at(-1) ?? -1, ft: S.forgotten.at(-1) ?? -1 };
   const f = s.forgotten.length;
-  const pv = { ...now, f, ...pilesHeld };
+  const pv = { ...now, f, ...pilesHeld, ...(stage ? { deck: stage.deck } : {}) };
   const stack = n => `--layers:${Math.min(6, Math.ceil(n / 4))}`;
   el.innerHTML = `
     <div class="pile deck" id="pile-deck" title="${L("The deck, face down", "牌庫（背面朝上）")}">
@@ -1704,6 +1756,232 @@ function searchRules(q) {
   body.querySelector(".toc")?.classList.toggle("hidden", terms.length > 0);
   $("dcount").textContent = terms.length ? (shown ? L(`${hits} match${hits === 1 ? "" : "es"} · ${plural(shown, "section")}`, `${hits}處符合 · ${shown}個章節`) : L("No matches", "沒有符合的結果")) : "";
   if (first) first.scrollIntoView({ block: "center" });
+}
+
+// ---------------------------------------------------------------- the opening: the table is set up before the eyes
+// A new crossing opens with the Setup steps of the Rulebook carried out on screen, in the same order and with the same
+// numbers: the bank cards are shuffled and dealt into the wells, the decks are shuffled and laid down, and the hands
+// are dealt. It plays on the effects queue, so nothing can be played until it ends; Skip sets the table at once.
+const SETUP_SPACES = [[2, 4], [5, 8], [9, 11]];
+function boardPt(x, y) {
+  const svg = $("board"), m = svg?.getScreenCTM();
+  if (!m) return boardPoint();
+  const pt = svg.createSVGPoint();
+  pt.x = x; pt.y = y;
+  const q = pt.matrixTransform(m);
+  return [q.x, q.y];
+}
+// On a narrow screen the river scrolls sideways: bring the part being set up into view.
+function followBoard(x) {
+  const sc = document.querySelector(".boardscroll");
+  if (!sc || sc.scrollWidth <= sc.clientWidth + 2) return;
+  sc.scrollLeft = x <= 0 ? 0 : x * boardScale() - sc.clientWidth / 2;
+}
+const boardScale = () => $("board")?.getScreenCTM()?.a || 1;
+// A painted card travelling across the table (a bank card to its well, a Mist card to its Reach).
+function artFly(src, from, to, { ms = 460, delay = 0, w = 54, h = 72, onland } = {}) {
+  ms *= fxSpeed; delay *= fxSpeed;
+  setTimeout(() => {
+    if (!stage) return;
+    const el = document.createElement("div");
+    el.className = "artfly";
+    el.style.cssText = `left:${from[0]}px;top:${from[1]}px;width:${w}px;height:${h}px`;
+    el.innerHTML = `<img src="${artSrc(src)}" alt="" draggable="false">`;
+    document.body.appendChild(el);
+    const dx = to[0] - from[0], dy = to[1] - from[1], lift = Math.min(60, Math.hypot(dx, dy) * 0.15);
+    el.animate([
+      { transform: "translate(-50%,-50%) scale(1)" },
+      { transform: `translate(calc(-50% + ${dx * 0.5}px), calc(-50% + ${dy * 0.5 - lift}px)) scale(1.1) rotate(${dx < 0 ? -5 : 5}deg)`, offset: 0.5 },
+      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1)` },
+    ], { duration: ms, easing: "cubic-bezier(.35,.1,.25,1)", fill: "both" }).onfinish = () => { el.remove(); if (stage) onland?.(); };
+  }, delay);
+  return delay + ms;
+}
+// A small deck riffle-shuffled in place: two cuts, interleaved twice, then it waits to be dealt from and fades.
+function shuffleAt(at, src, { n = 7, w = 54, h = 72, stay = 0 } = {}) {
+  const ms = 1300 * fxSpeed, life = ms + stay * fxSpeed;
+  const el = document.createElement("div");
+  el.className = "shuf";
+  el.style.cssText = `left:${at[0]}px;top:${at[1]}px`;
+  el.innerHTML = Array.from({ length: n }, () => `<img src="${artSrc(src)}" alt="" draggable="false" style="width:${w}px;height:${h}px;margin:${-h / 2}px 0 0 ${-w / 2}px">`).join("");
+  document.body.appendChild(el);
+  [...el.children].forEach((c, i) => {
+    const side = i % 2 ? 1 : -1, y0 = -i * 0.9, y1 = -(n - 1 - i) * 0.9;
+    c.animate([
+      { transform: `translate(0, ${y0}px)` },
+      { transform: `translate(${side * w * 0.7}px, ${y0 + 4}px) rotate(${side * 9}deg)`, offset: 0.22 },
+      { transform: `translate(0, ${y1}px)`, offset: 0.45 },
+      { transform: `translate(${-side * w * 0.6}px, ${y1 + 4}px) rotate(${-side * 8}deg)`, offset: 0.68 },
+      { transform: `translate(0, ${y0}px)`, offset: 0.9 },
+      { transform: `translate(0, ${y0}px)` },
+    ], { duration: ms, easing: "ease-in-out", fill: "both" });
+  });
+  el.animate([{ opacity: 0, transform: "scale(.85)" }, { opacity: 1, transform: "scale(1)", offset: 0.08 }, { opacity: 1, offset: 0.92 }, { opacity: 0 }],
+    { duration: life, fill: "both" }).onfinish = () => el.remove();
+  A.sfx("card");
+  return 1300;
+}
+// One step of the opening, carried out only while the opening still runs (Skip or leaving the table ends it).
+function openStep(fn) {
+  const f = () => (stage && $("board") ? fn() : 0);
+  f.opening = true;
+  enqueue(f);
+}
+function setupCap(n, en, zhText) {
+  caption(L(`Setup ${n} · ${en}`, `準備 ${n} · ${zhText}`));
+}
+function startOpening() {
+  const cfg = S.cfg, players = S.n;
+  const handSize = S.hands[0].length;
+  const total = S.deck.length + S.hands.reduce((a, h) => a + h.length, 0);
+  stage = { banks: new Set(), fresh: new Set(), blooms: false, soul: false, light: false, deck: 0, dealt: S.hands.map(() => 0) };
+  window.scrollTo(0, 0);
+  drawBoard(); drawLoom(); drawSoulboard(); drawPiles(); drawTray(); drawBook(); drawLog(); drawHand();
+  const skip = document.createElement("button");
+  skip.type = "button";
+  skip.id = "skipopen";
+  skip.className = "skipopen";
+  skip.textContent = L("Skip setup ›", "略過準備 ›");
+  skip.onclick = () => endOpening();
+  document.body.appendChild(skip);
+
+  // 1. The river board
+  openStep(() => {
+    const b = $("board");
+    b.style.animationDuration = `${1.3 * fxSpeed}s`;
+    b.classList.add("boardin");
+    setupCap(1, "The river board: three panels, Reach I to Reach III.", "河流圖板：三塊圖板，第一到第三河段。");
+    return 1500;
+  });
+  // 2. Bank cards: each Reach's cards shuffled on their own, then dealt fog side up, space by space, left bank then right
+  SETUP_SPACES.forEach(([a, b], r) => openStep(() => {
+    followBoard((X(a) + X(b)) / 2);
+    const mid = boardPt((X(a) + X(b)) / 2, Y((a + b) / 2));
+    const sc = boardScale(), w = 54 * sc, h = 72 * sc;
+    const n = (b - a + 1) * 2;
+    setupCap(2, `Bank cards for Reach ${ROMAN[r]}: ${n} shuffled, dealt fog side up into spaces ${a}–${b}.`,
+      `第${ZHNUM[r]}河段的河岸牌：${n}張洗勻，霧面朝上放進第${a}–${b}格。`);
+    const shuf = shuffleAt(mid, "card-fog", { n: Math.min(n, 8), w, h, stay: n * 170 + 300 });
+    let i = 0;
+    for (let sp = a; sp <= b; sp++) for (const k of [sp * 2, sp * 2 + 1]) {
+      artFly("card-fog", mid, boardPt(...slotXY(k)), { delay: shuf + i++ * 170, w, h, onland: () => {
+        stage.banks.add(k); stage.fresh.add(k); drawBoard(); stage.fresh.delete(k);
+        A.sfx("card");
+      } });
+    }
+    return shuf + n * 170 + 500;
+  }));
+  // 3. The first Blooms and the soul
+  openStep(() => {
+    followBoard(0);
+    stage.blooms = true; stage.fresh.add(2); stage.fresh.add(3);
+    drawBoard(); stage.fresh.delete(2); stage.fresh.delete(3);
+    A.sfx("bloom");
+    setupCap(3, "Space 1 has no bank cards: a Bloom on both banks, so the first step is always Lit.", "第1格沒有河岸牌：兩岸各放1朵花，讓第一步永遠是照亮的。");
+    return 1500;
+  });
+  openStep(() => {
+    stage.soul = true;
+    drawBoard();
+    const g = $("soulG");
+    g.classList.remove("soulin"); void g.getBoundingClientRect(); g.classList.add("soulin");
+    ring([X(0), Y(0)], "#EFE7D6");
+    A.sfx("move");
+    setupCap(3, "The soul waits on the near shore (space 0).", "亡魂在此岸（第0格）等待。");
+    return 1400;
+  });
+  // 4. The Soul and the Lantern
+  openStep(() => {
+    const soul = soulInfo(cfg.soul);
+    banner(soul?.name || "", L(`Lantern: ${lanternName(cfg.lantern)}`, `燈籠：${lanternName(cfg.lantern)}`), "", soulPortrait(cfg.soul));
+    shine($("soulboard")?.closest(".panel"), 1800);
+    stage.light = true;
+    drawSoulboard();
+    if (S.light) shine($("sb-light"), 1600);
+    setupCap(4, S.light ? `The Soul card and the Lantern. The Child starts with ${S.light} Light.` : "The Soul card and the Lantern. The soul starts with no Light.",
+      S.light ? `亡魂牌與燈籠。孩子起始擁有${S.light}點光。` : "亡魂牌與燈籠。亡魂起始沒有光。");
+    return 2100;
+  });
+  // 5. The Memory deck
+  openStep(() => {
+    const at = pilePoint("deck");
+    setupCap(5, `The Memory deck: ${total} cards shuffled and laid face down. The discard and forgotten piles start empty.`,
+      `記憶牌庫：${total}張洗勻，背面朝上放好。棄牌堆與遺忘堆一開始是空的。`);
+    const ms = shuffleAt(at, "back-memory", { w: 46, h: 64 });
+    setTimeout(() => { if (!stage) return; stage.deck = total; drawPiles(); shine($("pile-deck"), 1000); }, ms * fxSpeed);
+    return ms + 700;
+  });
+  // 6. The Mist decks, one beside each Reach
+  openStep(() => {
+    const sc = boardScale();
+    let ms = 0;
+    SETUP_SPACES.forEach(([a, b], r) => { ms = shuffleAt(boardPt((X(a) + X(b)) / 2, Y((a + b) / 2)), "back-mist", { n: 6, w: 44 * sc, h: 62 * sc, stay: 500 }); });
+    const n = S.mist.map(d => d.length);
+    setupCap(6, `The Mist decks: one for each Reach (${n.join(", ")} cards), shuffled and laid beside it.`, `迷霧牌庫：每個河段一副（${n.join("、")}張），洗勻後放在河段旁。`);
+    return ms + 900;
+  });
+  // 7–10. The Loom, the Mantles, the Book, the supply
+  openStep(() => {
+    shine($("loom")?.closest(".panel"), 1600);
+    setupCap(7, `The Loom of the Fates: three threads, ${cfg.karmaCap} knots each. No Echo yet.`, `命運織機：三條絲線，每條${cfg.karmaCap}個結。還沒有迴響。`);
+    return 1500;
+  });
+  openStep(() => {
+    shine($("sb-mantles"), 1600);
+    setupCap(8, "The four Mantles, face up where everyone can reach them.", "四張稱號牌正面朝上，放在每個人都拿得到的地方。");
+    return 1400;
+  });
+  openStep(() => {
+    shine($("book")?.closest(".panel"), 1600);
+    setupCap(9, "The Book of Remembrance, open at Chapter I.", "憶念之書翻開到第一章。");
+    return 1400;
+  });
+  openStep(() => {
+    shine($("sb-bw"), 1600);
+    shine($("tokstrip"), 1600);
+    setupCap(10, `The supply, with ${cfg.bwSupply} Black Water for this Lantern.`, `供應區，此燈籠的黑水共${cfg.bwSupply}個。`);
+    return 1500;
+  });
+  // 11. The Ferrymen: the hands dealt one card at a time around the table, then the Oar to the first player
+  openStep(() => {
+    setupCap(11, players > 1 ? `The Ferrymen: ${handSize} cards each, dealt around the table. The first player takes the Oar.` : `The Ferryman: a hand of ${handSize} cards.`,
+      players > 1 ? `擺渡人：每人${handSize}張，輪流發牌。起始玩家拿起船槳。` : `擺渡人：${handSize}張手牌。`);
+    let i = 0;
+    for (let c = 0; c < handSize; c++) for (let p = 0; p < players; p++) {
+      const t = 140 + i++ * 260;
+      setTimeout(() => {
+        if (!stage) return;
+        stage.deck--; drawPiles();
+        fly(pilePoint("deck"), handPoint(), { up0: false, up1: false, ms: 520, onland: () => { if (!stage) return; stage.dealt[p]++; drawHand(); } });
+      }, t * fxSpeed);
+    }
+    return 140 + i * 260 + 700;
+  });
+  openStep(() => {
+    shine($("tokstrip"), 1400);
+    shine($("tray")?.querySelector(".oar"), 1400);
+    setupCap(11, players > 1 ? "A Push Through token for each Ferryman, face up." : "Your Push Through token, face up.", players > 1 ? "每位擺渡人一個破浪標記，正面朝上。" : "你的破浪標記，正面朝上。");
+    return 1300;
+  });
+  openStep(() => {
+    endOpening(false);
+    return callout(L("The silence begins", "靜默開始"), L("Then the first turn.", "接著是第一個回合。"));
+  });
+}
+// The table as it really is: the opening's steps still waiting are dropped (Skip), or it simply ends.
+function endOpening(skip = true) {
+  if (!stage) return;
+  stage = null;
+  $("skipopen")?.remove();
+  $("board")?.classList.remove("boardin");
+  $("soulG")?.classList.remove("soulin");
+  if (skip) {
+    for (let i = queue.length - 1; i >= 0; i--) if (queue[i].opening) queue.splice(i, 1);
+    document.querySelectorAll(".artfly, .shuf, .flight, .banner, .callout").forEach(e => e.remove());
+    $("boardcap")?.classList.remove("on");
+  }
+  if (!$("board")) return;
+  drawBoard(); drawSoulboard(); drawPiles(); drawHand();
 }
 
 // ---------------------------------------------------------------- refresh everything
@@ -2118,7 +2396,7 @@ async function showEnd(now = false) {
       s.gid = Math.random().toString(36).slice(2, 10);
       seats = new Set([0, ...net.players.map((p, i) => (p.online ? -1 : i)).filter(i => i > 0)]);
       net.api.broadcast({ t: "state", s });
-      beginGame(s);
+      beginGame(s, true);
     } else startLocal(mode, S.n);
   };
 }

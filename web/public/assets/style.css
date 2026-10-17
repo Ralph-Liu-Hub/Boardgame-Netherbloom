@@ -1055,3 +1055,23 @@ html:lang(zh-Hant-TW) .sf-cap { font-family: "Noto Serif TC", serif; letter-spac
 .sf-sp { fill: #E6D3A3; font-family: var(--mono); font-size: 11px; opacity: .75; }
 .setuplist li::marker { color: var(--crimson); font-weight: 600; }
 @media (max-width: 640px) { .setupfig { overflow-x: auto; -webkit-overflow-scrolling: touch; } .setupfig-in { min-width: 720px; transform: none; } }
+
+/* The opening: the Setup steps carried out on the table */
+#board.boardin { animation: boardin 1.3s ease-out both; }
+@keyframes boardin { from { clip-path: inset(0 100% 0 0); filter: brightness(.4); } to { clip-path: inset(0 0 0 0); filter: none; } }
+.dealin { animation: dealin .45s ease-out both; transform-box: fill-box; transform-origin: center; }
+@keyframes dealin { from { opacity: .3; transform: scale(1.12); filter: brightness(1.8); } }
+#soulG.soulin { animation: soulin 1.1s ease-out both; }
+@keyframes soulin { from { opacity: 0; filter: brightness(3) blur(4px); } }
+.artfly { position: fixed; z-index: 62; pointer-events: none; }
+.artfly img, .shuf img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 1px solid #8a6d48; box-shadow: 0 6px 16px rgba(0, 0, 0, .55); }
+.shuf { position: fixed; z-index: 61; width: 0; height: 0; pointer-events: none; }
+.shuf img { position: absolute; left: 0; top: 0; }
+.skipopen { position: fixed; right: 16px; bottom: calc(var(--dockh, 0px) + 14px); z-index: 70; padding: 8px 14px; border-radius: 999px;
+  background: rgba(14, 12, 17, .88); color: var(--bone); border: 1px solid #8a6d48; font: inherit; cursor: pointer; }
+.skipopen:hover, .skipopen:focus-visible { border-color: var(--bone); }
+@media (prefers-reduced-motion: reduce) { #board.boardin, .dealin, #soulG.soulin { animation: none; } }
+/* The river's numbered ripples */
+.ripples { pointer-events: none; }
+.rpnum { font-family: "IM Fell English", "Noto Serif TC", Georgia, serif; font-size: 16px; fill: #E6D3A3; stroke: #050407; stroke-opacity: .8; stroke-width: 1.2px;
+  stroke-linejoin: round; paint-order: stroke; filter: url(#rpGlow); }
