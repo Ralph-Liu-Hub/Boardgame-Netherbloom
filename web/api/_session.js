@@ -50,10 +50,13 @@ export async function sessionUser(secret, token) {
 }
 
 // Accounts: NB_USER / NB_PASS, plus any in NB_USERS written "name:password, name2:password2".
+// More lists can sit beside it as NB_USERS_<anything> (NB_USERS_PLAYTEST, ...), so a group of testers can be added
+// or removed as one variable without touching the others (sensitive variables cannot be read back to edit).
 export function accounts(env) {
   const list = [];
   if (env.NB_USER && env.NB_PASS) list.push([env.NB_USER, env.NB_PASS]);
-  for (const pair of String(env.NB_USERS || "").split(",")) {
+  const lists = Object.keys(env).filter(k => /^NB_USERS(_[A-Za-z0-9_]+)?$/.test(k)).sort();
+  for (const key of lists) for (const pair of String(env[key] || "").split(",")) {
     const i = pair.indexOf(":");
     if (i > 0) list.push([pair.slice(0, i).trim(), pair.slice(i + 1).trim()]);
   }
