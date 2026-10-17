@@ -1,16 +1,16 @@
 // Original generative soundtrack and sound effects, synthesised live with the Web Audio API.
-// Nothing is sampled or recorded, and every melody is a public-domain lullaby, so there is no copyright to clear.
-// Mood: a tranquil river at night, sad but tender. A low drone and running water, wind in the reeds, and
-// over them one old lullaby at a time, played softly on a felt piano. Each Soul has the lullaby of the land
-// its story comes from; the game itself and the nameless soul have Brahms'. Every melody here is in the
-// public domain, transposed to D so it sits on the drone. Between verses there is silence, and now and then a slow swell.
+// Nothing is sampled or recorded and every melody is original, so there is no copyright to clear.
+// Mood: a horror film about a life remembered. Beneath, the underworld: a low string drone rubbing against the note a
+// semitone above it, high string clusters that creep upward and cut off, trembling strings, a pulse, brass and a deep
+// drum as the crossing grows dangerous, the river and the wind. Above it, the soul's own theme, written for its story
+// and played on the instrument of that story: a music box for the child, a wordless voice for the girl in the brook,
+// a horn for the fallen king, a violin for the bride who almost reached the light, a bare piano for the nameless soul.
 
 let ctx = null, master = null, musicBus = null, sfxBus = null, wet = null;
-let amb = null, lull = null;  // the ambient bed and the lullaby, mixed separately so the Book can bring the song forward
+let amb = null, lull = null;  // the underworld bed and the soul's theme, mixed apart so the Book can bring the theme forward
 let musicOn = true, sfxOn = true, started = false, timers = [];
 
 const NOTE = n => 440 * Math.pow(2, (n - 69) / 12);
-const SWELLS = [[57, 58], [62, 63], [50, 51], [69, 70]];
 
 function prefs() {
   try {
@@ -50,7 +50,7 @@ function init() {
   const comp = ctx.createDynamicsCompressor();
   master.connect(comp).connect(ctx.destination);
   const verb = ctx.createConvolver();
-  verb.buffer = impulse(5, 2.6);
+  verb.buffer = impulse(6, 3);
   wet = ctx.createGain();
   wet.gain.value = 0.55;
   wet.connect(verb).connect(master);
@@ -68,31 +68,160 @@ function init() {
   sfxBus.connect(wet);
 }
 
-// ---------------------------------------------------------------- music layers
-function drone() {
-  const out = ctx.createGain();
-  out.gain.setValueAtTime(0, ctx.currentTime);
-  out.gain.linearRampToValueAtTime(0.07, ctx.currentTime + 8);
-  const lp = ctx.createBiquadFilter();
-  lp.type = "lowpass";
-  lp.frequency.value = 320;
-  lp.Q.value = 4;
-  const lfo = ctx.createOscillator(), lfoAmt = ctx.createGain();
-  lfo.frequency.value = 0.045;
-  lfoAmt.gain.value = 160;
-  lfo.connect(lfoAmt).connect(lp.frequency);
-  lfo.start();
-  [[38, 0], [38, 7], [45, -5], [50, 3]].forEach(([n, cents], i) => {
+// ---------------------------------------------------------------- the underworld beneath
+// Everything is built around the soul's key. The drone sits two octaves below it in Reaches I and II; in Reach III it
+// sinks a semitone below, so the soul's own theme sounds wrong over it, as if the river were pulling it out of tune.
+const BEAT = 1, BED = 12;   // a new drone every 12 s
+const SOUL_KEY = { child: 57, garland: 50, king: 48, bride: 52, open: 50 };   // A, D, C, E, D
+let soulNow = "open", reachNow = 0, tension = 0, reading = false;
+let scoreTimer = 0, nextBed = 0, nextPulse = 0, pulseIx = 0, nextSwell = 0;
+const tonic = () => SOUL_KEY[soulNow] ?? 50;
+const droneRoot = () => tonic() - 24 - (reachNow >= 2 ? 1 : 0);
+const dreadNow = () => (reading ? Math.min(tension, 0.15) : tension);   // reading the Book, the story is told without dread
+
+// One section of strings on one note: a handful of bowed voices a few cents apart, so it breathes like players.
+function bowed(freq, t, dur, vol, bright, out = amb) {
+  const g = ctx.createGain(), lp = ctx.createBiquadFilter(), hp = ctx.createBiquadFilter();
+  lp.type = "lowpass"; lp.Q.value = 0.5; lp.frequency.value = bright;
+  hp.type = "highpass"; hp.frequency.value = 40;
+  const att = Math.min(3.2, dur * 0.4), rel = 3.5;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol, t + att);
+  g.gain.setValueAtTime(vol, t + dur);
+  g.gain.linearRampToValueAtTime(0, t + dur + rel);
+  const vib = ctx.createOscillator(), va = ctx.createGain();
+  vib.frequency.value = 4.4 + Math.random() * 0.8; va.gain.value = freq > 200 ? 6 : 2;
+  vib.connect(va);
+  for (const det of [-11, -6, -2, 3, 7, 12]) {
     const o = ctx.createOscillator();
-    o.type = i < 2 ? "sawtooth" : "triangle";
-    o.frequency.value = NOTE(n);
-    o.detune.value = cents;
-    const g = ctx.createGain();
-    g.gain.value = i < 2 ? 0.35 : 0.5;
-    o.connect(g).connect(lp);
-    o.start();
-  });
-  lp.connect(out).connect(amb);
+    o.type = "sawtooth"; o.frequency.value = freq; o.detune.value = det + (Math.random() * 4 - 2);
+    va.connect(o.detune);
+    o.connect(lp);
+    o.start(t); o.stop(t + dur + rel + 0.1);
+  }
+  vib.start(t); vib.stop(t + dur + rel + 0.1);
+  const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+  lp.connect(hp).connect(g);
+  if (pan) { pan.pan.value = Math.random() * 0.8 - 0.4; g.connect(pan).connect(out); } else g.connect(out);
+}
+// The drone: basses on the root and its fifth, and above them a quiet voice a minor ninth up, beating against them.
+// Reach II and III add the tritone; the rub grows louder with dread.
+function drone(t, dread) {
+  const r = droneRoot();
+  bowed(NOTE(r), t, BED, 0.032, 380);
+  bowed(NOTE(r + 7), t, BED, 0.015, 520);
+  bowed(NOTE(r + 13), t, BED, 0.008 + 0.014 * dread, 760);
+  if (reachNow >= 1) bowed(NOTE(r + 18), t, BED, 0.006 + 0.01 * dread, 900);
+}
+// The horror swell: high strings on a cluster of neighbouring notes, creeping upward together as they grow, then cut off.
+function clusterSwell(t, dread) {
+  const base = tonic() + 12, dur = 6 + Math.random() * 4, rise = 80 + 220 * Math.random(), peak = 0.006 + 0.006 * dread;
+  for (const iv of [0, 1, 2, 3, 5, 6]) {
+    const g = ctx.createGain(), lp = ctx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = 3200;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(peak, t + dur);
+    g.gain.linearRampToValueAtTime(0, t + dur + 0.12);
+    for (const det of [-9, 9]) {
+      const o = ctx.createOscillator();
+      o.type = "sawtooth"; o.frequency.value = NOTE(base + iv);
+      o.detune.setValueAtTime(det, t); o.detune.linearRampToValueAtTime(det + rise, t + dur);
+      o.connect(lp); o.start(t); o.stop(t + dur + 0.2);
+    }
+    const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+    if (pan) { pan.pan.value = (iv / 3 - 1) * 0.7; lp.connect(g).connect(pan).connect(amb); } else lp.connect(g).connect(amb);
+  }
+}
+// Trembling strings: a small cluster bowed in fast tremolo, for when things are going wrong.
+function tremolo(t, dur, vol) {
+  const g = ctx.createGain(), lp = ctx.createBiquadFilter(), depth = ctx.createGain();
+  const trem = ctx.createOscillator(), tg = ctx.createGain();
+  lp.type = "lowpass"; lp.frequency.value = 2400;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + dur * 0.5); g.gain.linearRampToValueAtTime(0, t + dur);
+  depth.gain.value = 0.5; trem.frequency.value = 11; tg.gain.value = 0.5;
+  trem.connect(tg).connect(depth.gain);
+  for (const iv of [0, 1, 6]) for (const det of [-6, 6]) {
+    const o = ctx.createOscillator(); o.type = "sawtooth"; o.frequency.value = NOTE(tonic() + iv); o.detune.value = det;
+    o.connect(lp); o.start(t); o.stop(t + dur + 0.1);
+  }
+  trem.start(t); trem.stop(t + dur + 0.1);
+  lp.connect(depth).connect(g).connect(amb);
+}
+// Low strings, short and heavy, the pulse under a tense scene.
+function pulseNote(freq, t, vol) {
+  const g = ctx.createGain(), lp = ctx.createBiquadFilter();
+  lp.type = "lowpass"; lp.Q.value = 0.7;
+  lp.frequency.setValueAtTime(1500, t); lp.frequency.exponentialRampToValueAtTime(240, t + 0.32);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+  for (const det of [-7, 0, 7]) {
+    const o = ctx.createOscillator(); o.type = "sawtooth"; o.frequency.value = freq; o.detune.value = det;
+    o.connect(lp); o.start(t); o.stop(t + 0.45);
+  }
+  lp.connect(g).connect(amb);
+}
+// Low brass: a slow blare on the root and the tritone that opens up as it grows, then falls away.
+function horns(root, t, dur, vol) {
+  for (const n of [root, root + 6, root + 12]) {
+    const g = ctx.createGain(), lp = ctx.createBiquadFilter();
+    lp.type = "lowpass"; lp.Q.value = 1.2;
+    lp.frequency.setValueAtTime(200, t); lp.frequency.linearRampToValueAtTime(1300, t + dur * 0.6); lp.frequency.linearRampToValueAtTime(240, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + dur * 0.6); g.gain.linearRampToValueAtTime(0, t + dur + 0.5);
+    for (const [type, det] of [["sawtooth", -5], ["sawtooth", 5], ["square", 0]]) {
+      const o = ctx.createOscillator(); o.type = type; o.frequency.value = NOTE(n); o.detune.value = det;
+      o.connect(lp); o.start(t); o.stop(t + dur + 0.6);
+    }
+    lp.connect(g).connect(amb);
+  }
+}
+// A deep drum, felt more than heard; at the worst, a rush of breath is drawn in before it lands.
+function boom(t, vol, rush = false, out = amb) {
+  if (rush) {
+    const n = ctx.createBufferSource(), ng = ctx.createGain(), bp = ctx.createBiquadFilter();
+    n.buffer = noiseBuffer(2.2, false); bp.type = "bandpass"; bp.Q.value = 0.8;
+    bp.frequency.setValueAtTime(300, t - 2); bp.frequency.exponentialRampToValueAtTime(2600, t);
+    ng.gain.setValueAtTime(0.0001, t - 2); ng.gain.exponentialRampToValueAtTime(vol * 0.35, t - 0.02); ng.gain.linearRampToValueAtTime(0, t);
+    n.connect(bp).connect(ng).connect(out); n.start(t - 2); n.stop(t + 0.1);
+  }
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = "sine"; o.frequency.setValueAtTime(78, t); o.frequency.exponentialRampToValueAtTime(32, t + 1.2);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
+  o.connect(g).connect(out); o.start(t); o.stop(t + 1.9);
+  const n = ctx.createBufferSource(), ng = ctx.createGain(), lp = ctx.createBiquadFilter();
+  n.buffer = noiseBuffer(0.4, true); lp.type = "lowpass"; lp.frequency.value = 180;
+  ng.gain.setValueAtTime(vol * 0.8, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+  n.connect(lp).connect(ng).connect(out); n.start(t);
+}
+// Looks ahead and lays down what is due. Called a few times a second; Web Audio keeps the timing exact.
+function score() {
+  if (!ctx) return;
+  const ahead = ctx.currentTime + 2.2, dread = dreadNow();
+  // the soul's theme steps back as the dread takes over, and forward while the Book is open
+  lull.gain.setTargetAtTime(reading ? 1.2 : 1 - 0.55 * Math.max(0, (dread - 0.55) / 0.45), ctx.currentTime, 1.5);
+  while (nextBed < ahead) {
+    drone(nextBed, dread);
+    if (dread > 0.5) tremolo(nextBed + 2, BED - 2, 0.004 + 0.008 * (dread - 0.5) / 0.5);
+    if (dread > 0.65) horns(droneRoot() + 12, nextBed + 3, BED - 4, 0.01 + 0.014 * (dread - 0.65) / 0.35);
+    if (dread > 0.8) { boom(nextBed + 2.2, 0.24, true); boom(nextBed + 8.2, 0.16); }
+    nextBed += BED;
+  }
+  while (nextSwell < ahead) {
+    if (!reading && Math.random() < 0.4 + 0.5 * dread) clusterSwell(nextSwell, dread);
+    nextSwell += (20 + Math.random() * 14) * (1 - 0.5 * dread);
+  }
+  while (nextPulse < ahead) {
+    if (dread > 0.4) {
+      const pat = [0, 12, 1, 12], vol = 0.02 + 0.03 * Math.min(1, (dread - 0.4) / 0.45);
+      pulseNote(NOTE(droneRoot() + 12 + pat[pulseIx % 4]), nextPulse, pulseIx % 4 === 0 ? vol * 1.3 : vol);
+    }
+    nextPulse += BEAT / 2;
+    pulseIx++;
+  }
+}
+
+// reach: 0-2 (the Reach the soul is in); t: 0-1, how close the crossing is to being lost.
+export function mood(reach = 0, t = 0) {
+  reachNow = Math.max(0, Math.min(2, reach | 0));
+  tension = Math.max(0, Math.min(1, t));
 }
 
 function river() {
@@ -104,10 +233,10 @@ function river() {
   bp.frequency.value = 420;
   bp.Q.value = 0.7;
   const g = ctx.createGain();
-  g.gain.value = 0.085;
+  g.gain.value = 0.03;
   const lfo = ctx.createOscillator(), amt = ctx.createGain();
   lfo.frequency.value = 0.11;
-  amt.gain.value = 0.04;
+  amt.gain.value = 0.014;
   lfo.connect(amt).connect(g.gain);
   lfo.start();
   src.connect(bp).connect(g).connect(amb);
@@ -132,32 +261,6 @@ function bell(freq, when, vol = 0.08, bus = amb, length = 5) {
   if (pan) { pan.pan.value = Math.random() * 1.2 - 0.6; g.connect(pan).connect(bus); } else g.connect(bus);
 }
 
-
-function swell() {
-  const [a, b] = SWELLS[Math.floor(Math.random() * SWELLS.length)];
-  const t = ctx.currentTime + 0.1, dur = 9;
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(0.035, t + 4.5);
-  g.gain.linearRampToValueAtTime(0, t + dur);
-  const lp = ctx.createBiquadFilter();
-  lp.type = "lowpass";
-  lp.frequency.setValueAtTime(400, t);
-  lp.frequency.linearRampToValueAtTime(1400, t + 4.5);
-  lp.frequency.linearRampToValueAtTime(300, t + dur);
-  for (const n of [a, b]) {
-    for (const det of [-8, 8]) {
-      const o = ctx.createOscillator();
-      o.type = "sawtooth";
-      o.frequency.value = NOTE(n);
-      o.detune.value = det;
-      o.connect(lp);
-      o.start(t);
-      o.stop(t + dur + 0.2);
-    }
-  }
-  lp.connect(g).connect(amb);
-}
 
 function whisper() {
   // a breath of filtered noise sweeping past, like wind through reeds
@@ -204,85 +307,146 @@ function piano(freq, when, vol = 0.05, len = 3.2, pan = 0.2, out = amb) {
   if (p) { p.pan.value = pan; lp.connect(g).connect(p).connect(out); } else lp.connect(g).connect(out);
 }
 
-// A warm pad, like strings or a hummed choir far off: soft detuned tones that swell into each chord
 
-// ---------------------------------------------------------------- the lullabies
-// Written as "note/beats" with a quarter note as one beat, "r" for a rest and "|" between bars, in the key of
-// the source; `shift` moves each one to D. All five are traditional or long out of copyright.
-const LULLABIES = {
-  // Brahms, "Wiegenlied", Op. 49 No. 4 (1868): the game's own song, and the nameless soul's.
-  open: { title: "Brahms' Lullaby", bpm: 72, shift: -3, tune: `
-    A4/.5 A4/.5 | C5/1.5 A4/.5 A4/1 | C5/2 A4/.5 C5/.5 | F5/1 E5/1.5 D5/.5 | D5/1 C5/1 G4/.5 A4/.5 |
-    Bb4/1 G4/1 G4/.5 A4/.5 | Bb4/2 G4/.5 Bb4/.5 | E5/.5 D5/.5 C5/1 E5/1 | F5/2 F4/.5 F4/.5 |
-    F5/2 D5/.5 Bb4/.5 | C5/2 A4/.5 F4/.5 | Bb4/1 C5/1 D5/1 | C5/2 F4/.5 F4/.5 |
-    F5/2 D5/.5 Bb4/.5 | C5/2 A4/.5 F4/.5 | Bb4/1 A4/1 G4/1 | F4/3` },
-  // "Schlaf, Kindlein, schlaf" (melody printed 1781, after a folk tune): the cradle song of the north, for the
-  // child in the snow. Notation from the Essen folksong collection (Böhme).
-  child: { title: "Schlaf, Kindlein, schlaf", bpm: 63, shift: -3, tune: `
-    A4/1 G4/.5 G4/.5 | F4/1 r/.5 F4/.25 A4/.25 | C5/.5 C5/.5 Bb4/.5 Bb4/.5 | A4/1 r/.5 A4/.5 |
-    Bb4/.5 Bb4/.5 G4/.5 G4/.5 | C5/.5 C5/.5 A4/.5 A4/.5 | Bb4/.5 Bb4/.5 G4/.5 G4/.5 | C5/.5 C5/.5 A4/1 |
-    Bb4/1 G4/.5 G4/.5 | F4/2` },
-  // "Can Ye Sew Cushions", a Scottish mother's lullaby (Aird's Selection, c. 1782), for the girl who sang to
-  // the willow. Slow strain, as Aird prints it.
-  garland: { title: "Can Ye Sew Cushions", bpm: 58, shift: -5, tune: `
-    G4/.5 | G4/.75 B4/.25 G5/.75 E5/.25 D5/.5 B4/1 r/.25 G4/.25 | G4/.75 B4/.25 G5/.75 E5/.25 D5/1.5 E5/.5 |
-    D5/.75 B4/.25 B4/.75 A4/.25 G4/.75 G4/.25 G4/.75 A4/.25 | B4/.75 A4/.25 A4/.75 G4/.25 G4/1.5 G4/.5 |
-    G4/.75 B4/.25 G5/.75 E5/.25 D5/.5 B4/1 r/.25 G4/.25 | G4/.75 B4/.25 G5/.75 E5/.25 D5/1.5 E5/.5 |
-    D5/.75 B4/.25 B4/.75 A4/.25 G4/.25 G4/.75 G4/.75 A4/.25 | B4/.75 A4/.25 A4/.75 G4/.25 G4/2` },
-  // "Ar Hyd y Nos" (All Through the Night), Welsh, first printed 1784: the land the old king's legend came from.
-  king: { title: "All Through the Night", bpm: 66, shift: -5, tune: `
-    G4/1.5 F#4/.5 E4/1 G4/1 | A4/1.5 G4/.5 F#4/1 D4/1 | E4/1.5 F#4/.5 G4/1 E4/1 | D4/2 r/2 |
-    G4/1.5 F#4/.5 E4/1 G4/1 | A4/1.5 G4/.5 F#4/1 D4/1 | E4/1.5 F#4/.5 G4/1 E4/1 | D4/2 r/2 |
-    D5/1.5 C5/.5 B4/1 D5/1 | C5/1.5 B4/.5 A4/1 C5/1 | B4/1.5 A4/.5 G4/1 B4/1 | A4/1.5 G4/.5 F#4/1 D4/1 |
-    G4/1.5 F#4/.5 E4/1 G4/1 | A4/1.5 G4/.5 F#4/1 D4/1 | E4/1.5 F#4/.5 G4/1 E4/1 | D4/3` },
-  // "The Death-Bride", a Greek folk ballad in 7/8 (Essen collection), sung slowly as a lullaby for the bride
-  // death kept. Its raised and lowered steps are the old Greek colour.
-  bride: { title: "The Death-Bride", bpm: 60, shift: -5, repeat: 2, tune: `
-    C5/.5 | C5/2 G4/1 F4/.5 | G4/1 Ab4/.5 B4/1 Ab4/1 | G4/2.5 r/1 |
-    G4/1 Ab4/.5 Ab4/.5 F4/1.5 | G4/1 Ab4/.5 B4/.5 Ab4/.5 F4/1 | G4/2.5 r/1 |
-    G4/1 Ab4/.5 Ab4/.5 F4/1.5 | G4/1 Ab4/.5 B4/.5 Ab4/.5 F4/1 | G4/3` },
+// ---------------------------------------------------------------- the souls' themes
+// Original melodies, one for each soul, on the instrument of its story. Written as "note/beats" ("r" for a rest,
+// "|" between bars). A rest splits a theme into phrases; each phrase is played in one breath or one bow.
+const THEMES = {
+  // The match girl: a music box, a little out of tune, its phrases reaching up and then going out like a flame.
+  child: { inst: "musicbox", bpm: 66, tune: `
+    E5/1 A5/1 B5/.5 C6/1.5 | B5/.5 A5/.5 G#5/1 E5/2 | r/2 |
+    F5/1 E5/.5 D5/.5 C5/1 B4/1 | A4/3 r/1 |
+    E5/.5 A5/.5 C6/.5 E6/1.5 D6/.5 C6/.5 | B5/2 G#5/1 r/1 | A5/4` },
+  // The girl in the brook: a wordless voice, drifting in the old Dorian mode, sinking lower as she goes under.
+  garland: { inst: "voice", bpm: 60, tune: `
+    A4/1 D5/1 E5/1 | F5/2 E5/1 | D5/1 C5/1 A4/1 | B4/3 | r/1 |
+    A4/1 D5/1 E5/1 | F5/1 G5/1 A5/1 | G5/1.5 F5/.5 E5/1 | D5/3 | r/1 |
+    C5/1 D5/1 F5/1 | E5/2 D5/1 | C5/1 A4/1 G4/1 | A4/2 | r/1 |
+    F4/1 E4/1 D4/1 | D4/3` },
+  // The fallen king: a lone horn, slow and noble, every phrase falling, with a far-off war drum.
+  king: { inst: "horn", bpm: 52, drum: true, tune: `
+    C4/2 G4/2 | Ab4/1.5 G4/.5 F4/2 | Eb4/1 F4/1 G4/2 | C4/4 | r/2 |
+    Eb4/2 Bb4/2 | C5/1.5 Bb4/.5 Ab4/2 | G4/1 F4/1 Eb4/1 D4/1 | C4/4` },
+  // The bride: a solo violin climbing step by step towards the light, one step short, and turning back.
+  bride: { inst: "violin", bpm: 58, tune: `
+    E4/1 F4/1 G#4/1 A4/1 | B4/1 C5/1 D5/1 E5/1 | F5/3 E5/1 | r/1 |
+    F5/1 E5/1 D5/1 C5/1 | B4/1 A4/1 G#4/1 F4/1 | E4/4 | r/2 |
+    E4/.5 G#4/.5 B4/1 E5/1.5 F5/.5 | E5/4` },
+  // The nameless soul: no song yet, only a bare piano finding a few notes in the dark.
+  open: { inst: "piano", bpm: 50, tune: `
+    D4/2 Eb4/2 | r/2 A3/3 | r/3 |
+    D5/1.5 C#5/.5 G#4/3 | r/3 |
+    F4/1 E4/1 A3/4` },
 };
 const STEP = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
-function parseTune(text, shift) {
+function parseTune(text) {
   return text.trim().split(/[\s|]+/).filter(Boolean).map(tok => {
     const [n, b] = tok.split("/");
     if (n === "r") return [0, +b];
     const m = n.match(/^([A-G])(#|b)?(\d)$/);
-    return [12 * (+m[3] + 1) + STEP[m[1]] + (m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0) + shift, +b];
+    return [12 * (+m[3] + 1) + STEP[m[1]] + (m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0), +b];
   });
 }
-export const lullabyTitle = soul => (LULLABIES[soul] || LULLABIES.open).title;
+// A music box tine: a bright pluck that rings and fades, each one a few cents out of tune.
+function tine(freq, t, vol, out) {
+  const g = ctx.createGain(), det = Math.random() * 24 - 12;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.6);
+  for (const [r, a] of [[1, 1], [2.01, 0.28], [4.98, 0.12], [8.1, 0.05]]) {
+    const o = ctx.createOscillator(), og = ctx.createGain();
+    o.type = "sine"; o.frequency.value = freq * r; o.detune.value = det; og.gain.value = a;
+    o.connect(og).connect(g); o.start(t); o.stop(t + 2.7);
+  }
+  g.connect(out);
+}
+// A held, singing line in one breath or one bow: the voice, the violin and the horn. Notes glide into each other,
+// each one swells, and the vibrato blooms a moment after the note begins.
+const VOICES = {
+  voice:  { osc: [["sawtooth", -5], ["sawtooth", 5]], formants: [[800, 7, 1], [1150, 9, 0.6], [2900, 10, 0.25]], vib: [5.4, 16], vol: 0.05, breath: 0.012, pan: 0.1 },
+  violin: { osc: [["sawtooth", -4], ["sawtooth", 4], ["sawtooth", 0]], lowpass: 4200, body: [2600, 4], vib: [6, 18], vol: 0.03, pan: 0.2 },
+  horn:   { osc: [["sawtooth", -4], ["sawtooth", 4], ["square", 0]], lowpass: 900, body: [400, 4], vib: [4.6, 7], vol: 0.045, pan: -0.15 },
+};
+function sing(inst, notes, t, beat, out) {
+  const v = VOICES[inst];
+  const g = ctx.createGain(), mix = ctx.createGain();
+  const vib = ctx.createOscillator(), va = ctx.createGain();
+  vib.frequency.value = v.vib[0]; va.gain.value = 0; vib.connect(va);
+  const oscs = v.osc.map(([type, det]) => { const o = ctx.createOscillator(); o.type = type; o.detune.value = det; va.connect(o.detune); o.connect(mix); return o; });
+  let shaped;
+  if (v.formants) {
+    shaped = ctx.createGain();
+    for (const [f, q, a] of v.formants) {
+      const bp = ctx.createBiquadFilter(), ag = ctx.createGain();
+      bp.type = "bandpass"; bp.frequency.value = f; bp.Q.value = q; ag.gain.value = a * 4;
+      mix.connect(bp).connect(ag).connect(shaped);
+    }
+  } else {
+    const lp = ctx.createBiquadFilter(), body = ctx.createBiquadFilter();
+    lp.type = "lowpass"; lp.frequency.value = v.lowpass; lp.Q.value = 0.6;
+    body.type = "peaking"; body.frequency.value = v.body[0]; body.Q.value = 1; body.gain.value = v.body[1];
+    mix.connect(body).connect(lp); shaped = lp;
+  }
+  let at = t;
+  g.gain.setValueAtTime(0, t);
+  for (const [n, beats] of notes) {
+    const len = beats * beat;
+    oscs.forEach(o => o.frequency.setTargetAtTime(NOTE(n), at, at === t ? 0.001 : 0.07));
+    g.gain.setTargetAtTime(v.vol, at, Math.min(0.35, len * 0.2));
+    g.gain.setTargetAtTime(v.vol * 0.6, at + len * 0.65, len * 0.15);
+    va.gain.setValueAtTime(0, at); va.gain.linearRampToValueAtTime(v.vib[1], at + Math.min(0.9, len * 0.45));
+    at += len;
+  }
+  g.gain.setTargetAtTime(0, at - 0.25, 0.35);
+  oscs.forEach(o => { o.start(t); o.stop(at + 2); });
+  vib.start(t); vib.stop(at + 2);
+  if (v.breath) {
+    const n = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), ng = ctx.createGain();
+    n.buffer = noiseBuffer(at - t + 1, false); bp.type = "bandpass"; bp.frequency.value = 1800; bp.Q.value = 1.2; ng.gain.value = v.breath / v.vol;
+    n.connect(bp).connect(ng).connect(g); n.start(t); n.stop(at + 1);
+  }
+  shaped.connect(g);
+  const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+  if (pan) { pan.pan.value = v.pan; g.connect(pan).connect(out); } else g.connect(out);
+}
 
-let lullSoul = "open", verse = null, verseTimer = 0;
-
-// One verse of the current Soul's lullaby, then a silence (with, now and then, the low swell) before the next.
+let verse = null, verseTimer = 0;
+// The soul's theme once through, then a silence before it returns (a shorter one while the Book is open).
 function playVerse() {
   if (!ctx) return;
-  const lb = LULLABIES[lullSoul] || LULLABIES.open, beat = 60 / lb.bpm;
-  const notes = parseTune(lb.tune, lb.shift);
+  const th = THEMES[soulNow] || THEMES.open, beat = 60 / th.bpm;
   verse = ctx.createGain();
   verse.connect(lull);
-  let t = ctx.currentTime + 0.3;
-  for (let rep = 0; rep < (lb.repeat || 1); rep++) {
-    for (const [n, b] of notes) {
-      if (n) piano(NOTE(n), t, 0.055, Math.max(1.8, b * beat * 2.2), 0.12, verse);
-      t += b * beat;
-    }
-    t += beat;
+  let t = ctx.currentTime + 0.3, start = t, phrase = [];
+  const flush = () => {
+    if (!phrase.length) return;
+    if (th.inst === "musicbox" || th.inst === "piano") {
+      let at = start;
+      for (const [n, b] of phrase) {
+        if (th.inst === "musicbox") tine(NOTE(n), at, 0.05, verse);
+        else piano(NOTE(n), at, 0.06, Math.max(2.5, b * beat * 2.5), 0.1, verse);
+        at += b * beat;
+      }
+    } else sing(th.inst, phrase, start, beat, verse);
+    phrase = [];
+  };
+  for (const [n, b] of parseTune(th.tune)) {
+    if (!n) { flush(); t += b * beat; continue; }
+    if (!phrase.length) start = t;
+    phrase.push([n, b]);
+    t += b * beat;
   }
+  flush();
+  if (th.drum) { boom(ctx.currentTime + 0.3, 0.07, false, verse); boom(t - 4 * beat, 0.06, false, verse); }   // the king's far-off war drum
   const len = t - ctx.currentTime;
-  const rest = 9 + Math.random() * 8;
-  if (Math.random() < 0.45) timers.push(setTimeout(swell, (len + 2) * 1000));
-  verseTimer = setTimeout(playVerse, (len + rest) * 1000);
+  verseTimer = setTimeout(playVerse, (len + (reading ? 5 : 14 + Math.random() * 8)) * 1000);
   timers.push(verseTimer);
 }
 
-// soul: the Soul whose lullaby should play (null or "open" for the game's own). The verse playing now fades
-// out and the new lullaby begins a moment later.
+// soul: whose theme should play (null or "open" for the nameless soul). The theme playing now fades out, the
+// underworld moves to the new soul's key, and the new theme begins a moment later.
 export function lullaby(soul) {
-  const want = soul && LULLABIES[soul] ? soul : "open";
-  if (want === lullSoul) return;
-  lullSoul = want;
+  const want = soul && THEMES[soul] ? soul : "open";
+  if (want === soulNow) return;
+  soulNow = want;
   if (!ctx || !started) return;
   clearTimeout(verseTimer);
   if (verse) {
@@ -295,14 +459,16 @@ export function lullaby(soul) {
   timers.push(verseTimer);
 }
 
-
 export function start() {
   init();
   if (ctx.state === "suspended") ctx.resume();
   if (started) return;
   started = true;
-  drone();
   river();
+  nextBed = nextPulse = ctx.currentTime + 0.5;
+  nextSwell = ctx.currentTime + 14;
+  scoreTimer = setInterval(score, 250);
+  score();
   verseTimer = setTimeout(playVerse, 4000);
   timers.push(verseTimer);
   timers.push(setTimeout(whisper, 26000));
@@ -326,14 +492,14 @@ export function setSfx(on) {
 // ---------------------------------------------------------------- the Souls' themes (played while the Book is open)
 
 // ---------------------------------------------------------------- the Book
-// While the Book is open the river and drone sink back and the Soul's lullaby comes forward. There is no
-// second melody, so nothing plays against the song.
+// While the Book is open it is a life being read: the dread falls away, the underworld sinks back, and the soul's own
+// theme comes forward and returns sooner.
 export function storyTheme(soul) {
   if (!ctx) return;
   const now = ctx.currentTime;
   if (soul) lullaby(soul);
-  amb.gain.setTargetAtTime(soul && musicOn ? 0.45 : 1, now, 0.8);
-  lull.gain.setTargetAtTime(soul && musicOn ? 1.25 : 1, now, 0.8);
+  reading = !!soul;
+  amb.gain.setTargetAtTime(soul && musicOn ? 0.5 : 1, now, 0.8);
 }
 
 

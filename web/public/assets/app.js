@@ -181,6 +181,7 @@ function topbar() {
 
 function leaveGame() {
   endOpening();
+  A.mood(0, 0);
   if (S && !S.result) { recordChron(); track("beat", { result: "left", detail: endRecord("left") }); }
   clearInterval(beatTimer);
   dropSave();
@@ -2081,6 +2082,7 @@ function refresh() {
   if (!S || !$("board")) return;
   recordChron();
   A.lullaby(S.cfg.soul);
+  A.mood(S.reach, tensionNow());
   if (!$("dyn")) drawBoardStatic();
   animateEvents();
   if (!playingBack()) arriving.clear();
@@ -2099,6 +2101,14 @@ function refresh() {
   drawLog();
   refreshBook(S);
   prev = finalPrev();
+}
+
+// How close the crossing is to being lost, 0 to 1, for the music: the nearest of the ways to lose it
+// (forgotten cards, Fractures, the Black Water supply) or a thread of the Loom about to Backlash.
+function tensionNow() {
+  if (!S || S.result) return 0;
+  const c = S.cfg;
+  return Math.max(S.forgotten.length / c.forgottenLimit, S.fract / c.fractureLimit, 1 - S.bw / c.bwSupply, 0.85 * Math.max(...S.karma) / c.karmaCap);
 }
 
 // ---------------------------------------------------------------- event animations and sound
