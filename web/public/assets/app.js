@@ -50,7 +50,8 @@ let passOpen = false, endShown = false;
 let net = null;            // online session
 let guideStep = null;      // set while the end-of-turn animations play, so the guide can follow them
 let screen = null;         // what fills the window, so a language change can redraw it: ["menu", which] | ["lobby", note] | ["game"]
-let stage = null;          // the opening: what is already laid on the table while the setup plays out
+let stage = null;
+let amAdmin = false;         // the signed-in account may see the play log and host a table without playing          // the opening: what is already laid on the table while the setup plays out
 const setup = load("nb-setup", { players: 3, soul: "child", lantern: STANDARD_LANTERN, names: ["", "", "", ""], name: "" });
 if (![2, 3, 4].includes(setup.tableSize)) setup.tableSize = 3;   // online: how many seats the host opens
 // Saved before the four named Lanterns: Lanterns 1–5 become Gentle, Gentle, Standard, Hard, Heroic.
@@ -72,6 +73,7 @@ async function boot() {
     holder.innerHTML = await r.text();
     document.body.prepend(holder.firstElementChild);
   } catch { /* icons missing; the game still runs */ }
+  try { const me = await fetch("/api/me", { cache: "no-store" }); if (me.ok) amAdmin = !!(await me.json()).admin; } catch { /* not signed in, or offline */ }
   const embers = $("embers");
   for (let i = 0; i < 16; i++) {
     const e = document.createElement("i");
@@ -268,11 +270,13 @@ function menu(which = "solo") {
         <label class="field"><span>${L("Your name", "你的名字")}</span><input id="nmo" maxlength="18" value="${esc(setup.name)}" placeholder="${L("Your name", "你的名字")}"></label>
         <label class="field"><span>${L("Table code (to join)", "桌號（加入時填寫）")}</span><input id="code" maxlength="5" placeholder="${L("e.g. K7QXM", "例如 K7QXM")}" style="text-transform:uppercase;letter-spacing:.2em"></label>
       </div>
+      ${amAdmin ? `<label class="check"><input type="checkbox" id="watchhost" ${setup.watchHost ? "checked" : ""}> ${L("Host without playing: watch the whole table, no hands shown (admin)", "主持但不參與：旁觀整張牌桌，不顯示任何手牌（管理員）")}</label>` : ""}
       <div class="row"><button type="button" class="primary" id="hostbtn">${L("Host a new table", "開新桌")}</button><button type="button" id="joinbtn">${L("Join a table", "加入牌桌")}</button><span class="muted" id="neterr"></span></div>
       <p class="muted" style="margin:0;font-size:.88rem">${L("Players connect browser to browser. Everyone signs in with the publisher account, then the host shares the five-letter code.", "玩家之間以瀏覽器直接連線。所有人都用出版社帳號登入，再由主持人分享5個字母的桌號。")}</p>`;
     const nm = () => { setup.name = $("nmo").value.trim() || "Player"; store("nb-setup", setup); return setup.name; };
     mp.querySelectorAll("[data-size]").forEach(b => b.onclick = () => { setup.name = $("nmo").value.trim(); setup.tableSize = +b.dataset.size; store("nb-setup", setup); menu("online"); });
-    $("hostbtn").onclick = () => hostTable(nm());
+    if ($("watchhost")) $("watchhost").onchange = e => { setup.watchHost = e.target.checked; store("nb-setup", setup); };
+    $("hostbtn").onclick = () => hostTable(nm(), null, 0, amAdmin && !!setup.watchHost);
     $("joinbtn").onclick = () => {
       const code = $("code").value.trim().toUpperCase();
       if (code.length !== 5) { $("neterr").textContent = L("Enter the five-letter code.", "請輸入5個字母的桌號。"); return; }
@@ -330,15 +334,18 @@ function beginGame(s, opening = false) {
 
 // ---------------------------------------------------------------- online
 // restore: a saved table to open again under the same code (after a refresh or a closed tab).
-function hostTable(name, restore = null, tries = 0) {
+// watch: the host keeps the table without taking a seat (an admin overseeing a playtest). It sees the whole table but no hand,
+// and only plays a seat while that player is disconnected, so the game can go on.
+function hostTable(name, restore = null, tries = 0, watch = false) {
   const code = restore?.code || N.newCode();
   mode = "online";
   if (!net || net.code !== code) {
-    net = { role: "host", code, started: !!restore?.started, capacity: restore?.capacity || setup.tableSize,
-      players: restore?.players ? restore.players.map((p, i) => ({ ...p, conn: null, online: i === 0 })) : [{ name, cid: N.clientId(), conn: null, online: true }] };
-    mySeat = 0;
+    watch = restore ? !!restore.watch : watch;
+    net = { role: "host", code, watch, hostName: name, started: !!restore?.started, capacity: restore?.capacity || setup.tableSize,
+      players: restore?.players ? restore.players.map((p, i) => ({ ...p, conn: null, online: i === 0 && !watch })) : watch ? [] : [{ name, cid: N.clientId(), conn: null, online: true }] };
+    mySeat = watch ? -1 : 0;
     // players who have not reconnected yet are played by the host, as when anyone drops out mid-game
-    seats = new Set([0, ...(restore?.started ? net.players.map((_, i) => i).filter(i => i > 0) : [])]);
+    seats = restore?.started ? hostSeats() : new Set(watch ? [] : [0]);
     if (restore?.s) beginGame(restore.s);
     else lobby(L("Opening the table…", "正在開桌…"));
   }
@@ -352,7 +359,7 @@ function hostTable(name, restore = null, tries = 0) {
       // after a refresh the old table can take a few seconds to be released: try the same code again
       if (e?.type === "unavailable-id" && restore && tries < 20) {
         net.api.close();
-        net.retry = setTimeout(() => { if (net && !net.closed) hostTable(name, restore, tries + 1); }, 2500);
+        net.retry = setTimeout(() => { if (net && !net.closed) hostTable(name, restore, tries + 1, watch); }, 2500);
         return;
       }
       const text = netError(e);
@@ -364,7 +371,7 @@ function hostTable(name, restore = null, tries = 0) {
       if (!p) return;
       p.online = false;
       p.conn = null;
-      if (net.started) { seats.add(net.players.indexOf(p)); toast(L(`${p.name} lost connection. You will play their turns until they return.`, `${p.name}斷線了。在對方回來之前，由你代為進行其回合。`)); }
+      if (net.started) { seats.add(net.players.indexOf(p)); toast(L(`${p.name} lost connection. You will play their turns until they return${net.watch ? " (you will see their hand while you do)" : ""}.`, `${p.name}斷線了。在對方回來之前，由你代為進行其回合${net.watch ? "（代打時你會看到其手牌）" : ""}。`)); }
       else net.players.splice(net.players.indexOf(p), 1);
       sendLobby();
       saveGame();
@@ -400,9 +407,12 @@ function hostMessage(connId, msg) {
   }
 }
 
+// The seats the host's browser plays: its own (unless it only watches) and any player who is not connected.
+const hostSeats = () => new Set(net.players.map((p, i) => (i === 0 && !net.watch) || !p.online ? i : -1).filter(i => i >= 0));
+
 function sendLobby() {
   if (net?.role !== "host") return;
-  net.api.broadcast({ t: "lobby", players: net.players.map(p => ({ name: p.name, online: p.online })), capacity: net.capacity, soul: setup.soul, lantern: setup.lantern, started: net.started });
+  net.api.broadcast({ t: "lobby", watched: !!net.watch, hostName: net.watch ? net.hostName : undefined, players: net.players.map(p => ({ name: p.name, online: p.online })), capacity: net.capacity, soul: setup.soul, lantern: setup.lantern, started: net.started });
 }
 
 // restore: a saved seat at a table (after a refresh), or a reconnection after the link dropped.
@@ -463,6 +473,8 @@ function guestMessage(msg) {
     net.soul = msg.soul;
     net.lantern = msg.lantern;
     net.started = msg.started;
+    net.watched = !!msg.watched;
+    net.hostName = msg.hostName;
     if (!S) lobby(); else refresh();
   } else if (msg.t === "state" && msg.s) {
     if (!S || msg.s.gid !== S.gid) { beginGame(msg.s, true); return; }
@@ -488,7 +500,9 @@ function lobby(note = "") {
   topbar();
   const host = net.role === "host";
   const soul = host ? setup.soul : net.soul, lan = host ? setup.lantern : net.lantern;
-  const list = (net.players || []).map((p, i) => `<div><span class="dot ${p.online ? "" : "off"}"></span>${esc(p.name)}${i === 0 ? ` <span class="muted">${L("(host)", "（主持人）")}</span>` : ""}${host || i !== mySeat ? "" : ` <span class="muted">${L("(you)", "（你）")}</span>`}</div>`).join("");
+  const watching = host ? net.watch : net.watched;
+  const list = (watching ? `<div class="muted"><span class="dot"></span>${esc(host ? net.hostName : net.hostName || L("The host", "主持人"))} ${L("(host, watching: not playing)", "（主持人，旁觀：不參與遊戲）")}</div>` : "")
+    + (net.players || []).map((p, i) => `<div><span class="dot ${p.online ? "" : "off"}"></span>${esc(p.name)}${i === 0 && !watching ? ` <span class="muted">${L("(host)", "（主持人）")}</span>` : ""}${host || i !== mySeat ? "" : ` <span class="muted">${L("(you)", "（你）")}</span>`}</div>`).join("");
   $("app").innerHTML = `
   <div class="screen">
     <section class="panel" style="justify-items:center;text-align:center">
@@ -524,7 +538,7 @@ function startOnline() {
   const names = net.players.map(p => p.name);
   const s = E.newGame(E.makeConfig({ players: names.length, soul: setup.soul, lantern: setup.lantern }), undefined, names);
   s.gid = Math.random().toString(36).slice(2, 10);
-  seats = new Set([0, ...net.players.map((p, i) => (p.online ? -1 : i)).filter(i => i > 0)]);
+  seats = hostSeats();
   sendLobby();
   net.api.broadcast({ t: "state", s });
   beginGame(s, true);
@@ -585,7 +599,7 @@ const SAVE_HOURS = 48;
 function saveGame() {
   if (!mode || (S && S.result)) { dropSave(); return; }
   const online = mode === "online" && net ? {
-    role: net.role, code: net.code, capacity: net.capacity, started: net.started, cid: N.clientId(), name: setup.name,
+    role: net.role, code: net.code, capacity: net.capacity, started: net.started, cid: N.clientId(), name: setup.name, watch: !!net.watch,
     players: net.role === "host" ? net.players.map(p => ({ name: p.name, cid: p.cid })) : undefined,
   } : null;
   if (!S && !online) return;
@@ -623,7 +637,7 @@ function saveSummary(d) {
 function resumeGame(d) {
   N.setClientId(d.tab);
   mode = d.mode;
-  mySeat = d.mySeat || 0;
+  mySeat = d.mySeat ?? 0;
   if (d.mode !== "online") {
     seats = new Set(d.seats);
     beginGame(d.s);
@@ -633,7 +647,7 @@ function resumeGame(d) {
   const o = d.online;
   if (o.role === "host") {
     // The host opens the same table again; every other player shows as away until their browser reconnects.
-    hostTable(o.name || setup.name || "Player", { code: o.code, capacity: o.capacity, players: o.players, started: o.started, s: d.s });
+    hostTable(o.name || setup.name || "Player", { code: o.code, capacity: o.capacity, players: o.players, started: o.started, s: d.s, watch: o.watch });
   } else {
     joinTable(o.code, o.name || setup.name || "Player", { s: d.s, seat: mySeat, rejoin: true });
   }
@@ -1174,7 +1188,7 @@ function drawStatus() {
     <span>${L(`Turn <b>${S.turn}</b>`, `第<b>${S.turn}</b>回合`)}</span>
     <span>${L(`Reach <b>${ROMAN[S.reach]}</b>`, `第<b>${ZHNUM[S.reach]}</b>河段`)} · ${reachName(S.reach)}</span>
     <span>${L("Soul at", "亡魂位置")} <b>${Math.min(S.soul, 12)}</b> / 12</span>
-    ${mode === "online" ? `<span class="net"><span class="dot"></span>${esc(net?.code || "")} · ${L("you are", "你是")} ${esc(pname(S.names[mySeat]))}</span>` : ""}`;
+    ${mode === "online" ? `<span class="net"><span class="dot"></span>${esc(net?.code || "")} · ${mySeat < 0 ? L("watching", "旁觀中") : `${L("you are", "你是")} ${esc(pname(S.names[mySeat]))}`}</span>` : ""}`;
 }
 
 // ---------------------------------------------------------------- prompt and hand
@@ -1189,6 +1203,7 @@ function drawPrompt() {
   const who = esc(pname(S.names[S.cur]));
   if (!canAct()) {
     const why = mode === "local" ? L(`Waiting for <b>${who}</b> to take the lantern.`, `等待<b>${who}</b>接過燈籠。`)
+      : mode === "online" && mySeat < 0 ? L(`Watching: <b>${who}</b> is playing. Hands stay hidden.`, `旁觀中：<b>${who}</b>正在行動。手牌不會顯示。`)
       : L(`<b>${who}</b> is playing. ${mode === "online" ? "Study your hand while you wait." : ""}`, `<b>${who}</b>正在行動。${mode === "online" ? "等待時可以先研究你的手牌。" : ""}`);
     setPrompt(`<span class="msg">${why}</span>`);
     return;
@@ -1296,8 +1311,8 @@ function setDock(open) {
 
 // Whether this screen may see the faces of a player's cards.
 function seesHand(p) {
+  if (mode === "online") return p === mySeat || (mySeat < 0 && controls(p));
   if (S.n === 1) return true;
-  if (mode === "online") return p === mySeat;
   return uncovered === p;
 }
 
@@ -2394,7 +2409,7 @@ async function showEnd(now = false) {
       const names = S.names;
       const s = E.newGame(E.makeConfig({ players: S.n, soul: S.cfg.soul, lantern: S.cfg.lantern }), undefined, names);
       s.gid = Math.random().toString(36).slice(2, 10);
-      seats = new Set([0, ...net.players.map((p, i) => (p.online ? -1 : i)).filter(i => i > 0)]);
+      seats = hostSeats();
       net.api.broadcast({ t: "state", s });
       beginGame(s, true);
     } else startLocal(mode, S.n);

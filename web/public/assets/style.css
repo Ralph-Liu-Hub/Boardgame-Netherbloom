@@ -1075,3 +1075,5 @@ html:lang(zh-Hant-TW) .sf-cap { font-family: "Noto Serif TC", serif; letter-spac
 .ripples { pointer-events: none; }
 .rpnum { font-family: "IM Fell English", "Noto Serif TC", Georgia, serif; font-size: 16px; fill: #E6D3A3; stroke: #050407; stroke-opacity: .8; stroke-width: 1.2px;
   stroke-linejoin: round; paint-order: stroke; filter: url(#rpGlow); }
+.check { display: flex; gap: 8px; align-items: flex-start; font-size: .92rem; color: var(--paper); cursor: pointer; }
+.check input { margin-top: 3px; accent-color: var(--crimson); }
