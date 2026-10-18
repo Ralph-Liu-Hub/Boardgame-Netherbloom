@@ -1,7 +1,7 @@
 // Netherbloom web table: menus, the board, the hand, animations and the three ways to play
 // (solo against the Ghost, everyone at one screen, or online with each player on their own device).
 import * as E from "./engine.js";
-import { CARDS, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, LANTERN, STANDARD_LANTERN, lanternIcon, HARSH, STONY, MEMORY, GRAVE, FERTILE } from "./cards.js";
+import { CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, LANTERN, STANDARD_LANTERN, lanternIcon, HARSH, MIST, MIST_EXTRA, GHOST, TILES, STONY, MEMORY, GRAVE, FERTILE } from "./cards.js";
 import * as A from "./audio.js";
 import { setupFigure } from "./setupfig.js";
 import { artSrc, artImg, cardArt, mistArt, mantleArt, soulPortrait, reachPainting, BANK_ART, preloadArt } from "./art.js";
@@ -98,6 +98,7 @@ async function boot() {
   $("btn-sfx").onclick = () => { A.setSfx(!A.isSfxOn()); topbar(); };
   buildDrawer();
   $("btn-rules").onclick = () => openDrawer("rules");
+  $("btn-cards").onclick = () => openDrawer("cards");
   $("btn-aid").onclick = () => openDrawer("aid");
   $("btn-lang").onclick = () => setLang(zh() ? "en" : "zh");
   onLang(relang);
@@ -182,6 +183,7 @@ function topbar() {
   $("btn-lang").title = L("Switch to Traditional Chinese", "切換為英文");
   $("btn-aid").textContent = L("Player Aid", "玩家輔助卡");
   $("btn-rules").textContent = L("Rulebook", "規則書");
+  $("btn-cards").textContent = L("Cards", "卡牌");
   $("btn-menu").textContent = L("Menu", "主選單");
   $("btn-out").textContent = L("Sign out", "登出");
   const dash = $("btn-dash");
@@ -768,6 +770,7 @@ const chooser = {
   rootTarget: (s, stony, targets, i, n) => ask({ type: "root", targets, i, n, stony }),
   bloomTarget: (s, targets, i, n) => ask({ type: "bloom", targets, i, n }),
   wantInscribe: (s, cid) => ask({ type: "inscribe", cid }),
+  vigilOrder: (s, top) => ask({ type: "vigil", top: top.map(m => m[0]) }),
 };
 function ask(p) {
   return new Promise(resolve => {
@@ -859,6 +862,32 @@ function recallDialog() {
     E.recall(S, +b.dataset.rc);
     await afterAction();
   });
+}
+
+// Vigil: the top Mist cards of this Reach, face up in the order they would come. The player moves them into any order
+// and puts them back on top; the order is kept on the pending question, so the dialog can be reopened.
+function vigilDialog() {
+  if (pending?.type !== "vigil") return;
+  const order = pending.order ||= pending.top.map((_, i) => i), n = order.length;
+  const when = [L("Next", "下一張"), L("Then", "接著"), L("After that", "再之後")];
+  const cards = order.map((j, pos) => {
+    const name = pending.top[j], harsh = HARSH_NAMES.has(name);
+    return `<div class="vigilopt${harsh ? " harsh" : ""}"><span class="k">${when[pos]}${harsh ? ` · ${L("Harsh", "凶霧")}` : ""}</span>
+      <span class="mart">${artImg(mistArt(S.reach, harsh))}</span><b>${esc(mistName(name))}</b><small>${esc(mistText(name))}</small>
+      <span class="vmove"><button type="button" data-vm="${pos}" data-d="-1" ${pos === 0 ? "disabled" : ""} aria-label="${L("Earlier", "提前")}">◀ ${L("Earlier", "提前")}</button>
+      <button type="button" data-vm="${pos}" data-d="1" ${pos === n - 1 ? "disabled" : ""} aria-label="${L("Later", "延後")}">${L("Later", "延後")} ▶</button></span></div>`;
+  }).join("");
+  veil(`<div class="dialog wide"><h2>${L("Vigil", "守夜")}</h2>
+    <p>${L(`The top ${plural(n, "Mist card")} of this Reach, in the order they will come. Move them into any order you like, then put them back on top of the deck.`,
+      `本河段迷霧牌庫頂的${n}張牌，依照即將出現的順序排列。把它們排成你想要的任意順序，再放回牌庫頂。`)}</p>
+    <div class="vigilgrid">${cards}</div>
+    <div class="row"><button type="button" class="primary" id="vigildone">${L("Put them back in this order", "依此順序放回牌庫頂")}</button></div></div>`, "vigil");
+  document.querySelectorAll("[data-vm]").forEach(b => b.onclick = () => {
+    const i = +b.dataset.vm, k = i + +b.dataset.d;
+    [order[i], order[k]] = [order[k], order[i]];
+    vigilDialog();
+  });
+  $("vigildone").onclick = () => { closeVeil(); A.sfx("card"); answer([...order]); };
 }
 
 function summonDialog() {
@@ -1292,6 +1321,12 @@ function drawPrompt() {
       $("yes").onclick = () => { A.sfx("inscribe"); answer(true); };
       $("no").onclick = () => answer(false);
       return;
+    } else if (pending.type === "vigil") {
+      setPrompt(`<span class="msg">${L("<b>Vigil</b>: put the coming Mist cards back in any order.", "<b>守夜</b>：把即將到來的迷霧牌以任意順序放回。")}</span>
+        <button type="button" class="primary" id="vigilopen">${L("Read the Mist", "查看迷霧")}</button>`, true);
+      $("vigilopen").onclick = vigilDialog;
+      if (!$("veil")) vigilDialog();
+      return;
     }
     $("skip").onclick = () => answer(null);
     return;
@@ -1333,7 +1368,7 @@ const GLOSS = {
   release: ["<b>Release</b>: untie knots on the Loom's fullest thread, further from a Backlash.", "<b>解結</b>：解開命運織機上最滿那條絲線的結，遠離反噬。"],
   unmake: ["<b>Unmake</b>: the fullest thread is emptied at once, with no Backlash.", "<b>消解</b>：最滿的絲線立即清空，不會反噬。"],
   guide: ["<b>Guide</b>: the soul steps forward now, but only if the next space is Lit.", "<b>引導</b>：若下一格被照亮，亡魂立刻前進一格。"],
-  vigil: ["<b>Vigil</b>: look at the top 3 cards of this Reach's Mist deck and put the worst of them at the bottom of the three.", "<b>守夜</b>：查看本河段迷霧牌堆頂的3張，把最糟的一張放在這三張的最下面。"],
+  vigil: ["<b>Vigil</b>: look at the top 3 cards of this Reach's Mist deck and put them back on top in any order you choose.", "<b>守夜</b>：查看本河段迷霧牌庫頂的3張牌，再依你選擇的任意順序放回牌庫頂。"],
   banish: ["<b>Banish</b>: remove the Grievance that threatens the soul most.", "<b>驅散</b>：移除對亡魂威脅最大的怨念。"],
   drain: ["<b>Drain</b>: remove the Black Water nearest the soul and return it to the supply.", "<b>排水</b>：移除離亡魂最近的黑水，放回供應區。"],
   banish_or_drain: ["<b>Banish or Drain</b>: clear whichever is more urgent, a Grievance or Black Water.", "<b>驅散或排水</b>：清除較緊迫的一個，怨念或黑水。"],
@@ -1737,6 +1772,7 @@ function guideHint() {
   if (pending?.type === "root") return L(`Click a <b>glowing bank</b> on the river to place Root ${pending.i} of ${pending.n}.`, `點擊河上<b>發光的河岸</b>，放置第${pending.i}個根（共${pending.n}個）。`);
   if (pending?.type === "bloom") return L("Click one of your <b>Roots</b> to open it into a Bloom.", "點擊一個<b>根</b>，讓它綻放成花。");
   if (pending?.type === "bringer") return L("Click a <b>Root</b> to bloom it for free, or skip.", "點擊一個<b>根</b>免費使其綻放，或選擇跳過。");
+  if (pending?.type === "vigil") return L("Read the coming Mist cards and put them back on top in <b>any order</b>.", "查看即將到來的迷霧牌，再以<b>任意順序</b>放回牌庫頂。");
   if (pending?.type === "inscribe") return L("Write this memory into the <b>Book</b>, or keep the card in the deck.", "將這段記憶寫進<b>憶念之書</b>，或把這張牌留在牌庫中。");
   const echo = S.echo >= 0 && S.played === 0 ? L(` A <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b> card will Resonate.`, `<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>牌會產生共鳴。`) : "";
   const wounds = E.pushCost(S);
@@ -1764,7 +1800,7 @@ function buildDrawer() {
   const d = document.createElement("aside");
   d.className = "drawer";
   d.id = "drawer";
-  d.innerHTML = `<header><div class="tabs"><button type="button" data-tab="aid"></button><button type="button" data-tab="rules"></button></div>
+  d.innerHTML = `<header><div class="tabs"><button type="button" data-tab="aid"></button><button type="button" data-tab="rules"></button><button type="button" data-tab="cards"></button></div>
       <button type="button" id="drawer-x"></button></header>
     <div class="search" id="dsearch"><input type="search" id="dq"><span class="count" id="dcount"></span></div>
     <div class="body" id="dbody"></div>
@@ -1793,12 +1829,12 @@ function buildDrawer() {
 // The drawer's own labels, and its contents when it is open.
 function rebuildDrawer() {
   const d = $("drawer");
-  d.setAttribute("aria-label", L("Player Aid and Rulebook", "玩家輔助卡與規則書"));
+  d.setAttribute("aria-label", L("Player Aid, Rulebook and Cards", "玩家輔助卡、規則書與卡牌"));
   d.querySelector('[data-tab="aid"]').textContent = L("Player Aid", "玩家輔助卡");
   d.querySelector('[data-tab="rules"]').textContent = L("Rulebook", "規則書");
+  d.querySelector('[data-tab="cards"]').textContent = L("Cards", "卡牌");
   $("drawer-x").textContent = L("Close", "關閉");
-  $("dq").placeholder = L("Search the rules… e.g. Backlash, Stony, Linger", "搜尋規則…例如：反噬、石地、徘徊");
-  $("dq").setAttribute("aria-label", L("Search the rules", "搜尋規則"));
+  searchLabels();
   $("aid-tab").textContent = L("Player Aid · Rules", "輔助卡 · 規則");
   $("dtocbtn").textContent = L("☰ Contents", "☰ 目錄");
   $("dtop").textContent = L("↑ Top", "↑ 回到頂端");
@@ -1806,18 +1842,29 @@ function rebuildDrawer() {
   if (d.classList.contains("open")) openDrawer(drawerTab);
 }
 
+// The search box's prompt: the rules, or the cards.
+function searchLabels() {
+  const cards = drawerTab === "cards";
+  $("dq").placeholder = cards ? L("Search the cards… e.g. Bloom, Grievance, Light", "搜尋卡牌…例如：綻放、怨念、光") : L("Search the rules… e.g. Backlash, Stony, Linger", "搜尋規則…例如：反噬、石地、徘徊");
+  $("dq").setAttribute("aria-label", cards ? L("Search the cards", "搜尋卡牌") : L("Search the rules", "搜尋規則"));
+}
+
 function openDrawer(tab) {
+  const was = drawerTab;
   drawerTab = tab;
   const d = $("drawer");
   d.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("on", b.dataset.tab === tab));
-  $("dsearch").classList.toggle("hidden", tab !== "rules");
-  $("dnav").classList.toggle("hidden", tab !== "rules");
+  $("dsearch").classList.toggle("hidden", tab === "aid");
+  $("dnav").classList.toggle("hidden", tab === "aid");
   $("dtoc").classList.add("hidden");
   $("dtop").classList.add("hidden");
-  d.classList.toggle("wide", tab === "rules");
+  d.classList.toggle("wide", tab !== "aid");
+  d.classList.toggle("cardview", tab === "cards");
+  if (was !== tab) $("dq").value = "";
+  searchLabels();
   if (tab === "aid") $("dbody").innerHTML = playerAid(S?.cfg).replace(/<\/section>\s*$/, `${tokenLegend()}</section>`);
   else {
-    const book = rulebook();
+    const book = tab === "cards" ? cardsBook() : rulebook();
     $("dbody").innerHTML = `<nav class="toc">${book.map(r => `<a href="#r-${r.id}">${esc(r.title.replace(/^\d+\. /, ""))}</a>`).join("")}</nav>` +
       book.map(r => `<section class="rsec" id="r-${r.id}" data-keys="${esc(r.keys || "")}"><h3>${r.title}</h3>${r.body}</section>`).join("");
     $("dbody").querySelectorAll(".setupfig").forEach(f => { f.innerHTML = setupFigure(artSrc, zh()); });
@@ -1833,7 +1880,7 @@ function openDrawer(tab) {
   }
   d.classList.add("open");
   $("aid-tab").classList.add("hidden");
-  if (tab === "rules" && !d.dataset.wasOpen) setTimeout(() => $("dq").focus(), 300);
+  if (tab !== "aid" && !d.dataset.wasOpen) setTimeout(() => $("dq").focus(), 300);
   d.dataset.wasOpen = "1";
 }
 
@@ -1868,8 +1915,79 @@ function searchRules(q) {
     first = first || sec.querySelector("mark");
   });
   body.querySelector(".toc")?.classList.toggle("hidden", terms.length > 0);
-  $("dcount").textContent = terms.length ? (shown ? L(`${hits} match${hits === 1 ? "" : "es"} · ${plural(shown, "section")}`, `${hits}處符合 · ${shown}個章節`) : L("No matches", "沒有符合的結果")) : "";
+  // in the Cards view, each card is shown or hidden on its own; a section shows while any of its cards match
+  let cardsShown = 0;
+  body.querySelectorAll(".gitem").forEach(it => {
+    const show = !terms.length || terms.every(t => (it.textContent + " " + (it.dataset.keys || "")).toLowerCase().includes(t));
+    it.classList.toggle("hide", !show);
+    if (show) cardsShown += 1;
+  });
+  body.querySelectorAll(".rsec").forEach(sec => { if (sec.querySelector(".gitem") && !sec.querySelector(".gitem:not(.hide)")) sec.classList.add("hide"); });
+  if (drawerTab === "cards") shown = cardsShown;
+  $("dcount").textContent = terms.length ? (shown ? (drawerTab === "cards" ? L(plural(shown, "card"), `${shown}張牌`) : L(`${hits} match${hits === 1 ? "" : "es"} · ${plural(shown, "section")}`, `${hits}處符合 · ${shown}個章節`)) : L("No matches", "沒有符合的結果")) : "";
   if (first) first.scrollIntoView({ block: "center" });
+}
+
+// ---------------------------------------------------------------- the Cards view: every card in the game, by kind
+// Built from cards.js like the Rulebook's tables, so it always shows the cards the engine plays. Copies that read the
+// same are shown once, with how many there are.
+const lazy = html => html.replace(/<img /g, '<img loading="lazy" ');
+const gitem = (html, n = 1, keys = "") => `<div class="gitem" data-keys="${esc(keys)}">${lazy(html)}${n > 1 ? `<span class="gcount">×${n}</span>` : ""}</div>`;
+const gcard = ({ cls = "", art, kicker, name, text, sub = "" }) =>
+  `<div class="gcard ${cls}"><div class="k">${kicker}</div><div class="mart">${artImg(art)}</div><b>${name}</b><p>${text}</p>${sub ? `<small>${sub}</small>` : ""}</div>`;
+function memoryGrid(ids) {
+  const seen = new Map();
+  for (const cid of ids) {
+    const c = CARDS[cid], k = `${c.name}|${JSON.stringify([c.eff, c.res])}|${c.band}|${c.key}`;
+    if (seen.has(k)) seen.get(k).n += 1; else seen.set(k, { cid, n: 1 });
+  }
+  return `<div class="ggrid">${[...seen.values()].map(({ cid, n }) => gitem(cardHTML(cid, { cls: "big" }), n,
+    `${CARDS[cid].name} ${["Obsession", "Acceptance", "Oblivion"][CARDS[cid].tag]}${CARDS[cid].key ? " Key Memory" : ""}`)).join("")}</div>`;
+}
+const intro = (en, zhText) => `<p class="gintro">${L(en, zhText)}</p>`;
+function cardsBook() {
+  const out = [];
+  const threads = [["obs", "the knots of what the soul cannot let go", "靈魂放不下的執著之結"], ["acc", "the warmth the soul makes peace with", "靈魂與之和解的溫暖"], ["obl", "what the soul gives to the river; used once, then forgotten", "靈魂交給河水的東西；使用一次後便被遺忘"]];
+  threads.forEach(([id, en, zhText], t) => out.push({ id: `core-${id}`, title: L(`Core deck · ${tagName(t)}`, `基本牌庫 · ${tagName(t)}`),
+    body: intro(`Memory cards of the ${tagName(t)} thread: ${en}.`, `${tagName(t)}絲線的記憶牌：${zhText}。`) + memoryGrid(CORE_IDS.filter(cid => CARDS[cid].tag === t)) }));
+  out.push({ id: "echo", title: L(`Echo deck · ${soulInfo("open").name}`, `迴響牌庫 · ${soulInfo("open").name}`),
+    body: intro("Shuffled into the core deck when you guide the nameless soul of the Open Crossing.", "引導無名渡河的亡魂時，洗入基本牌庫。") + memoryGrid(ECHO_IDS) });
+  for (const soul of Object.keys(SOUL_PACKS)) out.push({ id: `pack-${soul}`, title: L(`Soul cards · ${soulInfo(soul).name}`, `亡魂牌 · ${soulInfo(soul).name}`),
+    body: intro(`Shuffled into the core deck when you guide ${soulInfo(soul).name}. Its Key Memory may be inscribed even without Resonating.`, `引導${soulInfo(soul).name}時，洗入基本牌庫。關鍵記憶即使沒有共鳴也可以銘刻。`) + memoryGrid(SOUL_PACKS[soul]) });
+  out.push({ id: "mantles", title: L("Mantles", "稱號"),
+    body: intro("Summon one by discarding a card of its thread and spending 3 Light (2 with the King on the Barge).", "棄掉一張同絲線的牌並花費3點光（渡船上的國王為2點光）即可召喚。") +
+      `<div class="ggrid">${Object.keys(MANTLES).map(m => {
+        const info = mantleInfo(m);
+        return gitem(gcard({ cls: `mantle t${info.tag}`, art: mantleArt(m), kicker: L(`Mantle · ${tagName(info.tag)}`, `稱號 · ${tagName(info.tag)}`), name: esc(info.name), text: esc(info.text) }), 1, `${MANTLES[m].name} Mantle`);
+      }).join("")}</div>` });
+  MIST.forEach((deck, r) => {
+    const count = new Map();
+    for (const [name] of [...deck, ...MIST_EXTRA]) count.set(name, (count.get(name) || 0) + 1);
+    out.push({ id: `mist-${r + 1}`, title: L(`Mist · Reach ${ROMAN[r]}`, `迷霧 · 第${ZHNUM[r]}河段`),
+      body: intro(`${reachName(r)}: one is turned at the end of every turn while the soul is in this Reach.`, `${reachName(r)}：亡魂在本河段時，每回合結束翻開一張。`) +
+        `<div class="ggrid">${[...count].map(([name, n]) => gitem(gcard({ cls: "mist", art: mistArt(r, false), kicker: L(`The Mist · Reach ${ROMAN[r]}`, `迷霧 · 第${ZHNUM[r]}河段`), name: esc(mistName(name)), text: esc(mistText(name)) }), n, `${name} Mist`)).join("")}</div>` });
+  });
+  const harshPer = Object.entries(LANTERN).map(([l, v]) => `${lanternName(l)} ${v[2]}`).join(" · ");
+  out.push({ id: "harsh", title: L("Harsh Mist", "凶霧"),
+    body: intro(`Shuffled into each Reach's Mist deck, as many as the Lantern says (${harshPer}). The Child of the Last Flame faces none.`, `依燈籠的設定洗入每個河段的迷霧牌庫（${harshPer}）。最後火光的孩子不會遇到凶霧。`) +
+      `<div class="ggrid">${HARSH.map(([name]) => gitem(gcard({ cls: "mist harsh", art: mistArt(0, true), kicker: L("Harsh Mist", "凶霧"), name: esc(mistName(name)), text: esc(mistText(name)) }), 1, `${name} Harsh Mist`)).join("")}</div>` });
+  const ghostWhat = { root_far: ["Roots on the furthest open bank", "在最遠的空河岸扎根"], root_near: ["Roots on the nearest open bank", "在最近的空河岸扎根"], bloom_near: ["Blooms the nearest Root", "使最近的根綻放"],
+    bloom_far: ["Blooms the furthest Root", "使最遠的根綻放"], banish_forget: ["Banishes the nearest Grievance, or drains Black Water", "驅散最近的怨念，或排乾黑水"], none: ["Does nothing", "不採取行動"] };
+  const ghosts = new Map();
+  for (const [t, a] of GHOST) { const k = `${t}|${a}`; ghosts.set(k, (ghosts.get(k) || 0) + 1); }
+  out.push({ id: "ghost", title: L("Ghost cards", "幽靈牌"),
+    body: intro("Solo only. After each of your turns the Ghost plays one, then ties a knot on its thread and moves the Echo there.", "僅限單人。你的每個回合之後，幽靈打出一張，在該絲線上打一個結，並把迴響移到那裡。") +
+      `<div class="ggrid">${[...ghosts].map(([k, n]) => { const [t, a] = k.split("|"); return gitem(gcard({ cls: `ghost t${t}`, art: "card-ghost", kicker: L(`The Ghost · ${tagName(+t)}`, `幽靈 · ${tagName(+t)}`), name: esc(tagName(+t)), text: L(...ghostWhat[a]) }), n, "Ghost"); }).join("")}</div>` });
+  const bankText = [["The Root takes.", "根順利生長。"], ["An ordinary Root will not take, and the Root is lost. Stubborn Roots and the Root-Weaver can grow here.", "一般的根無法生長，該根就此失去。頑根與織根者則能在此生長。"],
+    ["The Root takes and you find a keepsake. In the Open Crossing it also gives +2 Light.", "根順利生長，並且你們找到一件信物。在無名渡河中，它還會給予+2點光。"], ["No Root grows, and a Grievance rises on that bank.", "根無法生長，且該河岸會升起一個怨念。"]];
+  out.push({ id: "banks", title: L("Bank tiles", "河岸板塊"),
+    body: intro("Laid face down under the fog on the banks of each Reach, and turned up when a Root is placed there.", "面朝下鋪在各河段的霧下，放置根時翻開。") +
+      `<div class="ggrid">${[FERTILE, STONY, MEMORY, GRAVE].map(t => gitem(gcard({ cls: "bank", art: BANK_ART[t], kicker: L("Bank tile", "河岸板塊"), name: esc(tileName(t)), text: L(...bankText[t]),
+        sub: TILES.map(([, tiles], r) => L(`Reach ${ROMAN[r]} ×${tiles.filter(x => x === t).length}`, `第${ZHNUM[r]}河段 ×${tiles.filter(x => x === t).length}`)).join(" · ") }), 1, "bank tile")).join("")}</div>` });
+  out.push({ id: "souls", title: L("Souls", "亡魂"),
+    body: intro("Choose one soul to guide across the river. Each brings its own cards and twist.", "選擇一個亡魂引導渡河。每個亡魂都有自己的牌與特殊規則。") +
+      `<div class="ggrid">${Object.keys(SOULS).map(k => { const info = soulInfo(k); return gitem(gcard({ cls: "soulcard", art: soulPortrait(k), kicker: L("Soul", "亡魂"), name: esc(info.name), text: `<i>${esc(info.blurb)}</i>`, sub: esc(info.twist) }), 1, `${SOULS[k].name} soul`); }).join("")}</div>` });
+  return out;
 }
 
 // ---------------------------------------------------------------- the opening: the table is set up before the eyes

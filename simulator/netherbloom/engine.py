@@ -442,8 +442,8 @@ class State:
                 self.move_soul(1)
         elif kind == "vigil":
             d = self.mist[self.reach]
-            top = d[-3:]
-            top.sort(key=lambda m: -mist_severity(m))  # worst first, so it is drawn last
+            top = d[-3:]  # the player puts them back in any order; the bot puts the mildest first
+            top.sort(key=lambda m: -mist_severity(m))  # worst first in the list, so it is drawn last
             d[-3:] = top
         elif kind == "banish_or_drain":
             g, w = self.urgent_grievance(), self.urgent_water()

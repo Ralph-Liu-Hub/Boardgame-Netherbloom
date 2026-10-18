@@ -111,7 +111,7 @@ export function zhOpText(op) {
     case "mend": return `修補${op[1]}道裂痕`;
     case "release": return `在最滿的絲線上解開${op[1]}個結`;
     case "guide": return "若下一格已被照亮，亡魂立即前進一格";
-    case "vigil": return "查看迷霧牌庫頂的3張牌，將其中最糟的一張排在這3張的最後";
+    case "vigil": return "查看迷霧牌庫頂的3張牌，再以任意順序放回牌庫頂";
     case "banish_or_drain": return "驅散最近的怨念，或排乾最近的黑水";
     case "banish": return "驅散最近的怨念";
     case "drain": return "排乾最近的黑水";
