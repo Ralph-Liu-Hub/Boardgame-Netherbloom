@@ -1,6 +1,7 @@
 // Rules engine for Netherbloom. A port of simulator/netherbloom/engine.py with the tuned defaults.
 // The state is plain JSON (including the RNG), so it can be copied, saved and sent to other players.
-// Player choices go through an async chooser: { rootTarget(s, stonyOk, targets), bloomTarget(s, targets), wantInscribe(s, cid) }.
+// Player choices go through an async chooser: { rootTarget(s, stonyOk, targets), bloomTarget(s, targets), wantInscribe(s, cid),
+// vigilLast(s, top) }.
 
 import {
   CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, TILES, LANTERN, STANDARD_LANTERN, MIST_EXTRA, GHOST, MANTLES,
@@ -379,10 +380,16 @@ async function doOp(s, op, ch) {
       moveSoul(s, 1);
     } else note(s, "info", "The way ahead is dark. The soul cannot be guided.", { m: ["noGuide"] });
   } else if (kind === "vigil") {
-    const d = s.mist[s.reach];
-    const top = d.slice(-3).sort((a, b) => mistSeverity(b) - mistSeverity(a));
-    d.splice(d.length - top.length, top.length, ...top);
-    note(s, "info", `Vigil: the coming Mist is read. Next: ${d.length ? d[d.length - 1][0] : "—"}.`, { m: ["vigil", d.length ? d[d.length - 1][0] : ""] });
+    // the player reads the top 3 Mist cards (in the order they would come) and puts the one they choose last of the
+    // three; the other two keep their order
+    const d = s.mist[s.reach], top = d.slice(-3).reverse();
+    if (top.length) {
+      let i = await ch.vigilLast(s, top);
+      if (!(i >= 0 && i < top.length)) i = top.reduce((w, m, j) => (mistSeverity(m) > mistSeverity(top[w]) ? j : w), 0);
+      const [m] = d.splice(d.length - 1 - i, 1);
+      d.splice(d.length - (top.length - 1), 0, m);
+      note(s, "info", `Vigil: the coming Mist is read, and ${m[0]} is put last.`, { m: ["vigil", m[0]] });
+    }
   } else if (kind === "banish_or_drain") {
     const g = urgentGrievance(s), w = urgentWater(s);
     if (g !== null && (w === null || grievUrgency(s, g) >= waterUrgency(s, w))) banish(s, g);

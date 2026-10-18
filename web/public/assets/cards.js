@@ -207,7 +207,7 @@ export function opText(op) {
     case "mend": return `Mend ${plural(op[1], "Fracture")}`;
     case "release": return `Untie ${plural(op[1], "knot")} on the fullest thread`;
     case "guide": return "The soul steps forward now, if the next space is Lit";
-    case "vigil": return "Read the top 3 Mist cards and put the worst of them last";
+    case "vigil": return "Read the top 3 Mist cards and put 1 of your choice last";
     case "banish_or_drain": return "Banish the nearest Grievance or drain the nearest Black Water";
     case "banish": return "Banish the nearest Grievance";
     case "drain": return "Drain the nearest Black Water";

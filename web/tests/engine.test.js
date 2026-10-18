@@ -1,6 +1,6 @@
 // Plays many games with a simple greedy chooser to check the engine never crashes and games end.
 import assert from "node:assert/strict";
-import { makeConfig, newGame, beginTurn, playCard, endTurn, GameOver, copy, lit, NONE, ROOT, canSummon, summon, bringerPending, bringerBloom, bloomTargets, canSeek, seek, canPush, pushCost, pushAction, hasPushed, canRecall, recall, heldMantle } from "../public/assets/engine.js";
+import { makeConfig, newGame, beginTurn, playCard, endTurn, GameOver, copy, lit, NONE, ROOT, canSummon, summon, bringerPending, bringerBloom, bloomTargets, canSeek, seek, canPush, pushCost, pushAction, hasPushed, canRecall, recall, heldMantle, mistSeverity } from "../public/assets/engine.js";
 import { CARDS, MANTLES, MIST, HARSH, SOULS } from "../public/assets/cards.js";
 import { setLang, say, cardName, cardBand, mistName, mistText, soulInfo, mantleInfo } from "../public/assets/i18n.js";
 
@@ -28,6 +28,7 @@ const greedy = {
     return best;
   },
   async wantInscribe() { return true; },
+  async vigilLast(s, top) { return top.reduce((w, m, j) => (mistSeverity(m) > mistSeverity(top[w]) ? j : w), 0); },
 };
 
 async function play(players, soul, lantern, seed) {

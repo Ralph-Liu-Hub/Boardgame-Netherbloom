@@ -442,9 +442,10 @@ class State:
                 self.move_soul(1)
         elif kind == "vigil":
             d = self.mist[self.reach]
-            top = d[-3:]
-            top.sort(key=lambda m: -mist_severity(m))  # worst first, so it is drawn last
-            d[-3:] = top
+            if d:  # the player puts one of the top 3 last of them; the bot picks the worst
+                n = min(3, len(d))
+                worst = max(range(len(d) - n, len(d)), key=lambda i: mist_severity(d[i]))
+                d.insert(len(d) - (n - 1), d.pop(worst))
         elif kind == "banish_or_drain":
             g, w = self.urgent_grievance(), self.urgent_water()
             if g is not None and (w is None or self.griev_urgency(g) >= self.water_urgency(w)):
