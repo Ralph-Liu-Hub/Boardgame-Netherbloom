@@ -28,6 +28,11 @@ Lossless PNG exports of every painting at full resolution, which is the size Can
 | `card-keepsake.png`, `card-wound.png` | 1456 × 1092 | 54–55 | Parked: Keepsake cards; Wound cards |
 | `card-wish.png` | 1456 × 1092 | 56 | Parked: Last Wish and Wish ending cards |
 | `card-bank-sea.png`, `card-bank-waiting.png` | 1088 × 1456 | 57–58 | Parked: the two Wish tiles (seen from above) |
+| `scene-ferry-full.png` | 1680 × 944 | design "Netherbloom Art", p. 2 | The ferry seen from inside the boat, the ferryman at the bow (source of the next two) |
+| `scene-river.png` | 1680 × 944 | p. 6 | The same river with the boat painted out: the moving background of the menu → table crossing |
+| `scene-boat.png` | 1680 × 944 | p. 4 | The ferryman and the boat cut out (transparent): the foreground of that crossing |
+| `scene-bearer-sheet.png` | 1776 × 896 | p. 3 | The lantern-bearer turnaround: back, turning, profile, three-quarter, facing (source of the next) |
+| `scene-bearer.png` | 1715 × 797 | p. 5 | The five poses cut out (transparent) on one strip, the fourth mirrored so the lantern stays in the same hand: the table → menu crossing |
 
 ## Print resolution
 
