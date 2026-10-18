@@ -1,7 +1,7 @@
 // Rules engine for Netherbloom. A port of simulator/netherbloom/engine.py with the tuned defaults.
 // The state is plain JSON (including the RNG), so it can be copied, saved and sent to other players.
 // Player choices go through an async chooser: { rootTarget(s, stonyOk, targets), bloomTarget(s, targets), wantInscribe(s, cid),
-// vigilLast(s, top) }.
+// vigilOrder(s, top) }.
 
 import {
   CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, TILES, LANTERN, STANDARD_LANTERN, MIST_EXTRA, GHOST, MANTLES,
@@ -380,15 +380,16 @@ async function doOp(s, op, ch) {
       moveSoul(s, 1);
     } else note(s, "info", "The way ahead is dark. The soul cannot be guided.", { m: ["noGuide"] });
   } else if (kind === "vigil") {
-    // the player reads the top 3 Mist cards (in the order they would come) and puts the one they choose last of the
-    // three; the other two keep their order
+    // the player reads the top 3 Mist cards (in the order they would come) and puts them back on top in any order:
+    // the chooser returns the new order as indices into top, the first to come first
     const d = s.mist[s.reach], top = d.slice(-3).reverse();
     if (top.length) {
-      let i = await ch.vigilLast(s, top);
-      if (!(i >= 0 && i < top.length)) i = top.reduce((w, m, j) => (mistSeverity(m) > mistSeverity(top[w]) ? j : w), 0);
-      const [m] = d.splice(d.length - 1 - i, 1);
-      d.splice(d.length - (top.length - 1), 0, m);
-      note(s, "info", `Vigil: the coming Mist is read, and ${m[0]} is put last.`, { m: ["vigil", m[0]] });
+      let order = await ch.vigilOrder(s, top);
+      const ok = Array.isArray(order) && order.length === top.length && [...order].sort().every((v, j) => v === j);
+      if (!ok) order = top.map((_, j) => j).sort((a, b) => mistSeverity(top[a]) - mistSeverity(top[b]));   // mildest first
+      d.splice(d.length - top.length, top.length, ...order.map(j => top[j]).reverse());
+      const next = top[order[0]][0];
+      note(s, "info", `Vigil: the coming Mist is read and put back in order. Next: ${next}.`, { m: ["vigil", next] });
     }
   } else if (kind === "banish_or_drain") {
     const g = urgentGrievance(s), w = urgentWater(s);

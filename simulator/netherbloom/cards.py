@@ -8,7 +8,7 @@ Effects are lists of ops. Each op is a tuple whose first item names it:
     ("mend", n)             remove n Fractures
     ("release", n)          remove n knots from one thread
     ("guide",)              the soul moves 1 now if the next space is Lit and not Flooded
-    ("vigil",)              look at the top 3 Mist cards, put 1 of them last
+    ("vigil",)              look at the top 3 Mist cards, put them back in any order
     ("banish_or_drain",)    remove 1 Grievance or 1 Black Water
     ("banish", n) ("drain", n)
     ("light", n)            add n Light

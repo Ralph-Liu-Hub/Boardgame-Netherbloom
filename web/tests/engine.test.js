@@ -28,7 +28,7 @@ const greedy = {
     return best;
   },
   async wantInscribe() { return true; },
-  async vigilLast(s, top) { return top.reduce((w, m, j) => (mistSeverity(m) > mistSeverity(top[w]) ? j : w), 0); },
+  async vigilOrder(s, top) { return top.map((_, j) => j).sort((a, b) => mistSeverity(top[a]) - mistSeverity(top[b])); },
 };
 
 async function play(players, soul, lantern, seed) {

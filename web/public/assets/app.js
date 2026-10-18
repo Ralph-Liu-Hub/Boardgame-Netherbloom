@@ -770,7 +770,7 @@ const chooser = {
   rootTarget: (s, stony, targets, i, n) => ask({ type: "root", targets, i, n, stony }),
   bloomTarget: (s, targets, i, n) => ask({ type: "bloom", targets, i, n }),
   wantInscribe: (s, cid) => ask({ type: "inscribe", cid }),
-  vigilLast: (s, top) => ask({ type: "vigil", top: top.map(m => m[0]) }),
+  vigilOrder: (s, top) => ask({ type: "vigil", top: top.map(m => m[0]) }),
 };
 function ask(p) {
   return new Promise(resolve => {
@@ -864,21 +864,30 @@ function recallDialog() {
   });
 }
 
-// Vigil: the top Mist cards of this Reach, face up in the order they would come; the one chosen goes last of them.
+// Vigil: the top Mist cards of this Reach, face up in the order they would come. The player moves them into any order
+// and puts them back on top; the order is kept on the pending question, so the dialog can be reopened.
 function vigilDialog() {
   if (pending?.type !== "vigil") return;
+  const order = pending.order ||= pending.top.map((_, i) => i), n = order.length;
   const when = [L("Next", "下一張"), L("Then", "接著"), L("After that", "再之後")];
-  const cards = pending.top.map((name, i) => {
-    const harsh = HARSH_NAMES.has(name);
-    return `<button type="button" class="vigilopt${harsh ? " harsh" : ""}" data-vi="${i}"><span class="k">${when[i]}${harsh ? ` · ${L("Harsh", "凶霧")}` : ""}</span>
+  const cards = order.map((j, pos) => {
+    const name = pending.top[j], harsh = HARSH_NAMES.has(name);
+    return `<div class="vigilopt${harsh ? " harsh" : ""}"><span class="k">${when[pos]}${harsh ? ` · ${L("Harsh", "凶霧")}` : ""}</span>
       <span class="mart">${artImg(mistArt(S.reach, harsh))}</span><b>${esc(mistName(name))}</b><small>${esc(mistText(name))}</small>
-      <span class="go">${L("Put this last", "把這張排到最後")}</span></button>`;
+      <span class="vmove"><button type="button" data-vm="${pos}" data-d="-1" ${pos === 0 ? "disabled" : ""} aria-label="${L("Earlier", "提前")}">◀ ${L("Earlier", "提前")}</button>
+      <button type="button" data-vm="${pos}" data-d="1" ${pos === n - 1 ? "disabled" : ""} aria-label="${L("Later", "延後")}">${L("Later", "延後")} ▶</button></span></div>`;
   }).join("");
   veil(`<div class="dialog wide"><h2>${L("Vigil", "守夜")}</h2>
-    <p>${L(`The top ${plural(pending.top.length, "Mist card")} of this Reach, in the order they will come. Choose one to put <b>last</b>; the others come first, in the same order.`,
-      `本河段迷霧牌庫頂的${pending.top.length}張牌，依照即將出現的順序排列。選擇一張排到<b>最後</b>，其餘的依原順序先出現。`)}</p>
-    <div class="vigilgrid">${cards}</div></div>`, "vigil");
-  document.querySelectorAll("[data-vi]").forEach(b => b.onclick = () => { closeVeil(); A.sfx("card"); answer(+b.dataset.vi); });
+    <p>${L(`The top ${plural(n, "Mist card")} of this Reach, in the order they will come. Move them into any order you like, then put them back on top of the deck.`,
+      `本河段迷霧牌庫頂的${n}張牌，依照即將出現的順序排列。把它們排成你想要的任意順序，再放回牌庫頂。`)}</p>
+    <div class="vigilgrid">${cards}</div>
+    <div class="row"><button type="button" class="primary" id="vigildone">${L("Put them back in this order", "依此順序放回牌庫頂")}</button></div></div>`, "vigil");
+  document.querySelectorAll("[data-vm]").forEach(b => b.onclick = () => {
+    const i = +b.dataset.vm, k = i + +b.dataset.d;
+    [order[i], order[k]] = [order[k], order[i]];
+    vigilDialog();
+  });
+  $("vigildone").onclick = () => { closeVeil(); A.sfx("card"); answer([...order]); };
 }
 
 function summonDialog() {
@@ -1313,7 +1322,7 @@ function drawPrompt() {
       $("no").onclick = () => answer(false);
       return;
     } else if (pending.type === "vigil") {
-      setPrompt(`<span class="msg">${L("<b>Vigil</b>: choose which of the coming Mist cards comes last.", "<b>守夜</b>：選擇即將到來的迷霧牌中哪一張排到最後。")}</span>
+      setPrompt(`<span class="msg">${L("<b>Vigil</b>: put the coming Mist cards back in any order.", "<b>守夜</b>：把即將到來的迷霧牌以任意順序放回。")}</span>
         <button type="button" class="primary" id="vigilopen">${L("Read the Mist", "查看迷霧")}</button>`, true);
       $("vigilopen").onclick = vigilDialog;
       if (!$("veil")) vigilDialog();
@@ -1359,7 +1368,7 @@ const GLOSS = {
   release: ["<b>Release</b>: untie knots on the Loom's fullest thread, further from a Backlash.", "<b>解結</b>：解開命運織機上最滿那條絲線的結，遠離反噬。"],
   unmake: ["<b>Unmake</b>: the fullest thread is emptied at once, with no Backlash.", "<b>消解</b>：最滿的絲線立即清空，不會反噬。"],
   guide: ["<b>Guide</b>: the soul steps forward now, but only if the next space is Lit.", "<b>引導</b>：若下一格被照亮，亡魂立刻前進一格。"],
-  vigil: ["<b>Vigil</b>: look at the top 3 cards of this Reach's Mist deck and put the one you choose last of the three. The other 2 come first, in the same order.", "<b>守夜</b>：查看本河段迷霧牌堆頂的3張，選擇其中1張排在這三張的最後，其餘2張依原順序先出現。"],
+  vigil: ["<b>Vigil</b>: look at the top 3 cards of this Reach's Mist deck and put them back on top in any order you choose.", "<b>守夜</b>：查看本河段迷霧牌庫頂的3張牌，再依你選擇的任意順序放回牌庫頂。"],
   banish: ["<b>Banish</b>: remove the Grievance that threatens the soul most.", "<b>驅散</b>：移除對亡魂威脅最大的怨念。"],
   drain: ["<b>Drain</b>: remove the Black Water nearest the soul and return it to the supply.", "<b>排水</b>：移除離亡魂最近的黑水，放回供應區。"],
   banish_or_drain: ["<b>Banish or Drain</b>: clear whichever is more urgent, a Grievance or Black Water.", "<b>驅散或排水</b>：清除較緊迫的一個，怨念或黑水。"],
@@ -1763,7 +1772,7 @@ function guideHint() {
   if (pending?.type === "root") return L(`Click a <b>glowing bank</b> on the river to place Root ${pending.i} of ${pending.n}.`, `點擊河上<b>發光的河岸</b>，放置第${pending.i}個根（共${pending.n}個）。`);
   if (pending?.type === "bloom") return L("Click one of your <b>Roots</b> to open it into a Bloom.", "點擊一個<b>根</b>，讓它綻放成花。");
   if (pending?.type === "bringer") return L("Click a <b>Root</b> to bloom it for free, or skip.", "點擊一個<b>根</b>免費使其綻放，或選擇跳過。");
-  if (pending?.type === "vigil") return L("Read the coming Mist cards and choose one to put <b>last</b>.", "查看即將到來的迷霧牌，選擇一張排到<b>最後</b>。");
+  if (pending?.type === "vigil") return L("Read the coming Mist cards and put them back on top in <b>any order</b>.", "查看即將到來的迷霧牌，再以<b>任意順序</b>放回牌庫頂。");
   if (pending?.type === "inscribe") return L("Write this memory into the <b>Book</b>, or keep the card in the deck.", "將這段記憶寫進<b>憶念之書</b>，或把這張牌留在牌庫中。");
   const echo = S.echo >= 0 && S.played === 0 ? L(` A <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b> card will Resonate.`, `<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>牌會產生共鳴。`) : "";
   const wounds = E.pushCost(S);
