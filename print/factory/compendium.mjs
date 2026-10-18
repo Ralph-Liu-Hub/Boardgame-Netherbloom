@@ -42,29 +42,29 @@ export const W = {
 };
 
 export const COMP_CSS = `
-.card.story .frame { border-color: #b08a4e; }
-.card.story .art { flex: 1.25; }
+.nbcard.story .frame { border-color: #b08a4e; }
+.nbcard.story .art { flex: 1.25; }
 .quote { background: ${C.bone}; color: ${C.ink}; border-radius: 1.2mm; padding: 2mm 2.4mm; font-family: var(--f-hand); font-style: italic; font-size: 8.6pt; line-height: 1.3; text-align: center; }
 [lang="zh-Hant-TW"] .quote { font-style: normal; font-size: 8.4pt; line-height: 1.5; }
 .etitle { font-family: var(--f-display); font-size: 12pt; color: ${C.bone}; text-align: center; line-height: 1.1; }
 .etext { font-family: var(--f-hand); font-style: italic; font-size: 7.6pt; line-height: 1.32; color: #e3d8c3; text-align: center; }
 [lang="zh-Hant-TW"] .etext { font-style: normal; font-size: 7.4pt; line-height: 1.5; }
-.card.hidden .frame { border-color: ${C.crimson}; }
+.nbcard.hidden .frame { border-color: ${C.crimson}; }
 .when { font-size: 6.4pt; line-height: 1.35; color: ${C.mist}; border-top: .2mm dashed rgba(154,148,140,.5); padding-top: 1mm; }
 .when b { color: ${C.bone}; font-weight: 500; }
 .keep { text-align: center; font-family: var(--f-serif); font-size: 11pt; line-height: 1.2; color: ${C.paper}; padding: 0 1mm; }
 .uses { font-size: 6.6pt; line-height: 1.4; color: ${C.paper}; }
 .uses b { font-weight: 500; }
-.card.wound .frame { border-color: #8a2e3a; }
-.card.wish .frame { border-color: #4f7d86; }
+.nbcard.wound .frame { border-color: #8a2e3a; }
+.nbcard.wish .frame { border-color: #4f7d86; }
 /* labelled backs */
-.back .lart { position: absolute; inset: 0; opacity: .38; }
-.back .lart img { width: 100%; height: 100%; object-fit: cover; }
-.back .lframe { position: absolute; inset: 5mm; border: .35mm solid ${C.gilt}; border-radius: 2.6mm; }
-.back .lframe::after { content: ""; position: absolute; inset: .8mm; border: .15mm solid rgba(138,109,72,.55); border-radius: 2mm; }
-.back .lab2 { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; }
-.back .lab2 .ic { width: 14mm; height: 14mm; display: block; margin: 0 auto 2mm; filter: drop-shadow(0 0 2mm #000); }
-.back .lab2 b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 17pt; letter-spacing: .12em; color: ${C.bone}; text-shadow: 0 0 3mm #000; }
+.nbback .lart { position: absolute; inset: 0; opacity: .38; }
+.nbback .lart img { width: 100%; height: 100%; object-fit: cover; }
+.nbback .lframe { position: absolute; inset: 5mm; border: .35mm solid ${C.gilt}; border-radius: 2.6mm; }
+.nbback .lframe::after { content: ""; position: absolute; inset: .8mm; border: .15mm solid rgba(138,109,72,.55); border-radius: 2mm; }
+.nbback .lab2 { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; }
+.nbback .lab2 .ic { width: 14mm; height: 14mm; display: block; margin: 0 auto 2mm; filter: drop-shadow(0 0 2mm #000); }
+.nbback .lab2 b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 17pt; letter-spacing: .12em; color: ${C.bone}; text-shadow: 0 0 3mm #000; }
 `;
 
 const id2 = n => String(n).padStart(2, "0");
@@ -186,7 +186,7 @@ export function compendiumDecks(lang, { card, artBox, memoryFace, bankCard, T })
 
 export function compendiumBacks(lang) {
   const L = W[lang];
-  const lab = (name, art, ic, col, word) => ({ name: `back-${name}`, html: `<div class="back"><div class="lart">${artImg(art)}</div><div class="lframe"></div>
+  const lab = (name, art, ic, col, word) => ({ name: `back-${name}`, html: `<div class="nbback"><div class="lart">${artImg(art)}</div><div class="lframe"></div>
     <div class="lab2">${icon(ic, col)}<b>${esc(word)}</b></div></div>` });
   return [
     lab("keepsake", "card-keepsake", "nb-memorysite", C.bone, L.back.keepsake),

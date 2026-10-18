@@ -1,23 +1,40 @@
 // Netherbloom web table: menus, the board, the hand, animations and the three ways to play
 // (solo against the Ghost, everyone at one screen, or online with each player on their own device).
 import * as E from "./engine.js";
-import { CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, LANTERN, STANDARD_LANTERN, lanternIcon, HARSH, MIST, MIST_EXTRA, GHOST, TILES, STONY, MEMORY, GRAVE, FERTILE } from "./cards.js";
+import { CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, LANTERN, STANDARD_LANTERN, lanternIcon, HARSH, MIST, GHOST, TILES, STONY, MEMORY, GRAVE, FERTILE } from "./cards.js";
 import * as A from "./audio.js";
 import { setupFigure } from "./setupfig.js";
-import { artSrc, artImg, cardArt, mistArt, mantleArt, soulPortrait, reachPainting, BANK_ART, preloadArt } from "./art.js";
+import { artSrc, artImg, mantleArt, soulPortrait, reachPainting, BANK_ART, preloadArt } from "./art.js";
 import * as N from "./net.js";
 import { passage, passageLeft, preloadScenes } from "./passage.js";
 import { rulebook, playerAid } from "./rules.js";
+import { T as CARD_WORDS, cardKit, webCardCSS, mistDeck, mistId, harshId, ghostId } from "./cardface.js";
 import { openBook, closeBook, refreshBook, resetBookMemory, relangBook } from "./book.js";
 import {
   LANGS, lang, zh, setLang, onLang, hasChosenLang, say, backlashText, causeName, cardName, cardBand, tagName, slotLabel, tileName,
-  reachName, soulInfo, mantleInfo, mistName, mistText, bookFrames, ops, pname, lanternName,
+  reachName, soulInfo, mantleInfo, bookFrames, ops, pname, lanternName,
 } from "./i18n.js";
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const svgUse = (id, cls = "", style = "") => `<svg class="${cls}" style="${style}" aria-hidden="true"><use href="#${id}"/></svg>`;
 const TAGCLS = ["c-obs", "c-acc", "c-obl"];
+// Every card on screen is the printed card: the design system's template (cardface.js), drawn at whatever width its box has.
+const kit = cardKit((name, pos) => artImg(name, "pa", pos));
+const CW = () => CARD_WORDS[zh() ? "zh" : "en"];
+const face = html => `<div class="nbface">${html}</div>`;
+const memoryFace = cid => face(kit.memoryCard(CW(), cid));
+// A Mist card by its name and effects (as the engine reports it), with the ID it is printed with.
+function mistFace(name, ops, reach = 0) {
+  const h = HARSH.findIndex(m => m[0] === name);
+  if (h >= 0) return face(kit.mistFace(CW(), HARSH[h], harshId(h), reach, true));
+  const deck = mistDeck(reach), key = m => JSON.stringify(m);
+  let at = ops ? deck.findIndex(m => key(m) === key([name, ops])) : -1;
+  if (at < 0) at = deck.findIndex(m => m[0] === name);
+  return face(kit.mistFace(CW(), at >= 0 ? deck[at] : [name, ops || []], at >= 0 ? mistId(reach, at) : "", reach, false));
+}
+const ghostFace = (t, a) => face(kit.ghostFace(CW(), t, a, ghostId(Math.max(0, GHOST.findIndex(g => g[0] === t && g[1] === a)))));
+if (!document.getElementById("nbcards")) document.head.insertAdjacentHTML("beforeend", `<style id="nbcards">${webCardCSS()}</style>`);
 const TAGCOL = ["#D7263D", "#E6D3A3", "#8FD6E1"];
 const SLOT_ICON = { Place: "nb-slot-place", Person: "nb-slot-person", Deed: "nb-slot-deed", Feeling: "nb-slot-feeling" };
 const HARSH_NAMES = new Set(HARSH.map(h => h[0]));
@@ -770,7 +787,7 @@ const chooser = {
   rootTarget: (s, stony, targets, i, n) => ask({ type: "root", targets, i, n, stony }),
   bloomTarget: (s, targets, i, n) => ask({ type: "bloom", targets, i, n }),
   wantInscribe: (s, cid) => ask({ type: "inscribe", cid }),
-  vigilOrder: (s, top) => ask({ type: "vigil", top: top.map(m => m[0]) }),
+  vigilOrder: (s, top) => ask({ type: "vigil", top: top.map(m => m[0]), ops: top.map(m => m[1]) }),
 };
 function ask(p) {
   return new Promise(resolve => {
@@ -873,7 +890,7 @@ function vigilDialog() {
   const cards = order.map((j, pos) => {
     const name = pending.top[j], harsh = HARSH_NAMES.has(name);
     return `<div class="vigilopt${harsh ? " harsh" : ""}"><span class="k">${when[pos]}${harsh ? ` · ${L("Harsh", "凶霧")}` : ""}</span>
-      <span class="mart">${artImg(mistArt(S.reach, harsh))}</span><b>${esc(mistName(name))}</b><small>${esc(mistText(name))}</small>
+      ${mistFace(name, pending.ops?.[j], S.reach)}
       <span class="vmove"><button type="button" data-vm="${pos}" data-d="-1" ${pos === 0 ? "disabled" : ""} aria-label="${L("Earlier", "提前")}">◀ ${L("Earlier", "提前")}</button>
       <button type="button" data-vm="${pos}" data-d="1" ${pos === n - 1 ? "disabled" : ""} aria-label="${L("Later", "延後")}">${L("Later", "延後")} ▶</button></span></div>`;
   }).join("");
@@ -882,6 +899,7 @@ function vigilDialog() {
       `本河段迷霧牌庫頂的${n}張牌，依照即將出現的順序排列。把它們排成你想要的任意順序，再放回牌庫頂。`)}</p>
     <div class="vigilgrid">${cards}</div>
     <div class="row"><button type="button" class="primary" id="vigildone">${L("Put them back in this order", "依此順序放回牌庫頂")}</button></div></div>`, "vigil");
+  document.querySelectorAll(".vigilopt .nbface").forEach(f => f.onclick = () => peekCard(f.outerHTML));
   document.querySelectorAll("[data-vm]").forEach(b => b.onclick = () => {
     const i = +b.dataset.vm, k = i + +b.dataset.d;
     [order[i], order[k]] = [order[k], order[i]];
@@ -1396,17 +1414,8 @@ function cardGloss(cid) {
 
 function cardHTML(cid, opts = {}) {
   const c = CARDS[cid];
-  const res = opts.resonant;
-  const art = cardArt(cid);
-  return `<div class="card t${c.tag}${c.key ? " keymem" : ""} ${opts.playable ? "playable" : ""} ${opts.sel ? "sel" : ""} ${res ? "resonant" : ""} ${opts.dealt ? "dealt" : ""} ${opts.cls || ""}" data-cid="${cid}" ${opts.style ? `style="${opts.style}"` : ""} ${opts.focus ? 'role="button" tabindex="0"' : ""}>
-    <div class="cardbg" aria-hidden="true">${artImg(art)}</div>
-    <div class="top">${svgUse(TAG_ICONS[c.tag], TAGCLS[c.tag])}<div><div class="nm">${esc(cardName(cid))}</div><div class="tag">${tagName(c.tag)}${c.key ? ` · <span class="key">${L("Key Memory", "關鍵記憶")}</span>` : ""}</div></div></div>
-    <div class="eff">${esc(ops(c.eff))}</div>
-    <div class="res"><b>${L("Resonance:", "共鳴：")}</b> ${c.rr ? L("instead, ", "改為") : ""}${esc(ops(c.res))}</div>
-    <div class="artwin" aria-hidden="true">${artImg(art)}${c.key ? svgUse("nb-seal", "seal") : ""}</div>
-    ${opts.gloss ? cardGloss(cid) : ""}
-    ${c.slot ? `<div class="band">${svgUse(SLOT_ICON[c.slot], "", "color:#E6D3A3")}<span>${esc(cardBand(cid))}</span></div>` : `<div class="band"><span class="muted">${L("An Oblivion card is forgotten after use.", "忘卻牌使用後會被遺忘。")}</span></div>`}
-  </div>`;
+  return `<div class="card face t${c.tag}${c.key ? " keymem" : ""} ${opts.playable ? "playable" : ""} ${opts.sel ? "sel" : ""} ${opts.resonant ? "resonant" : ""} ${opts.dealt ? "dealt" : ""} ${opts.cls || ""}" data-cid="${cid}" ${opts.style ? `style="${opts.style}"` : ""} ${opts.focus ? 'role="button" tabindex="0"' : ""} aria-label="${esc(cardName(cid))}">
+    ${memoryFace(cid)}</div>`;
 }
 
 // ---------------------------------------------------------------- the hand: a fan of cards in a panel along the foot of the window
@@ -1499,8 +1508,8 @@ function openZoom(cid, look = false) {
   if (!z || !S) return;
   const seat = viewSeat();
   if (look) {
-    z.innerHTML = `<div class="zoombox">${cardHTML(cid, { cls: "big", gloss: true })}
-      <div class="zside"><p class="muted zwait">${L("A forgotten memory. Spend Light as your Answer to Recall it.", "一段被遺忘的記憶。以回應花費光可以喚回它。")}</p><button type="button" class="ghost" data-close>${L("Close", "關閉")}</button></div></div>`;
+    z.innerHTML = `<div class="zoombox">${cardHTML(cid, { cls: "big" })}
+      <div class="zside">${cardGloss(cid)}<p class="muted zwait">${L("A forgotten memory. Spend Light as your Answer to Recall it.", "一段被遺忘的記憶。以回應花費光可以喚回它。")}</p><button type="button" class="ghost" data-close>${L("Close", "關閉")}</button></div></div>`;
     z.classList.remove("hidden");
     z.querySelector("[data-close]")?.focus();
     return;
@@ -1517,8 +1526,8 @@ function openZoom(cid, look = false) {
       ${E.canSeek(S) ? `<button type="button" class="tokbtn" data-play="seek">${tokIcon("seek")}<span><b>${L("Seek", "尋覓")}</b><small>${L(`discard this, draw 1${S.played === 0 ? " (the Echo passes)" : ""}`, `棄掉此牌，抽1張${S.played === 0 ? "（放過迴響）" : ""}`)}</small></span></button>` : ""}
     </div>` : watching() ? `<p class="muted zwait">${L(`${esc(pname(S.names[seat]))}'s card. You are watching.`, `${esc(pname(S.names[seat]))}的牌。你正在旁觀。`)}</p>` : `<p class="muted zwait">${seat === S.cur ? L("You can play it once the table is ready.", "桌面準備好後就能打出。") : L("Not your turn: study it while you wait.", "還沒輪到你：等待時可以先研究。")}</p>`;
   z.innerHTML = `<div class="zoombox">
-    ${cardHTML(cid, { cls: "big", resonant: res, gloss: true })}
-    <div class="zside">${modes}<button type="button" class="ghost" data-close>${L("Back to the hand", "放回手牌")}</button></div></div>`;
+    ${cardHTML(cid, { cls: "big", resonant: res })}
+    <div class="zside">${cardGloss(cid)}${modes}<button type="button" class="ghost" data-close>${L("Back to the hand", "放回手牌")}</button></div></div>`;
   z.classList.remove("hidden");
   z.querySelectorAll("[data-play]").forEach(b => b.onclick = () => playSelected(cid, b.dataset.play));
   (z.querySelector("[data-play]") || z.querySelector("[data-close]"))?.focus();
@@ -1601,7 +1610,7 @@ function boardToken(a, at) {
 }
 
 // ---------------------------------------------------------------- the piles: deck, discard and forgotten
-const miniFace = cid => (cid < 0 ? miniBack() : `<div class="mc t${CARDS[cid].tag}">${artImg(cardArt(cid), "mcart")}${svgUse(TAG_ICONS[CARDS[cid].tag], TAGCLS[CARDS[cid].tag])}<span class="mcn">${esc(cardName(cid))}</span><span class="mct">${tagName(CARDS[cid].tag)}</span></div>`);
+const miniFace = cid => (cid < 0 ? miniBack() : `<div class="mc face t${CARDS[cid].tag}">${memoryFace(cid)}</div>`);
 // The memory card back, the same art as the printed cards.
 const cardBack = () => `<img class="cb" src="${artSrc("back-memory")}" alt="" draggable="false">`;
 const miniBack = () => `<div class="mc back">${cardBack()}</div>`;
@@ -1864,9 +1873,14 @@ function openDrawer(tab) {
   searchLabels();
   if (tab === "aid") $("dbody").innerHTML = playerAid(S?.cfg).replace(/<\/section>\s*$/, `${tokenLegend()}</section>`);
   else {
-    const book = tab === "cards" ? cardsBook() : rulebook();
-    $("dbody").innerHTML = `<nav class="toc">${book.map(r => `<a href="#r-${r.id}">${esc(r.title.replace(/^\d+\. /, ""))}</a>`).join("")}</nav>` +
-      book.map(r => `<section class="rsec" id="r-${r.id}" data-keys="${esc(r.keys || "")}"><h3>${r.title}</h3>${r.body}</section>`).join("");
+    const cards = tab === "cards", book = cards ? cardsBook() : rulebook();
+    $("dbody").innerHTML = (cards ? cardChips() : `<nav class="toc">${book.map(r => `<a href="#r-${r.id}">${esc(r.title.replace(/^\d+\. /, ""))}</a>`).join("")}</nav>`) +
+      book.map(r => `<section class="rsec" id="r-${r.id}" data-keys="${esc(r.keys || "")}"${r.group ? ` data-group="${r.group}"` : ""}><h3>${r.title}</h3>${r.body}</section>`).join("");
+    if (cards) {
+      showCardGroup(cardGroup);
+      $("dbody").querySelectorAll(".gchips button").forEach(b => b.onclick = () => { showCardGroup(b.dataset.group); $("dbody").scrollTo({ top: 0 }); });
+      $("dbody").querySelectorAll(".gitem").forEach(b => b.onclick = () => peekCard(b.querySelector(".nbface").outerHTML.replace(/ loading="lazy"/g, "")));
+    }
     $("dbody").querySelectorAll(".setupfig").forEach(f => { f.innerHTML = setupFigure(artSrc, zh()); });
     $("dtoc").innerHTML = book.map(r => `<a href="#r-${r.id}" role="menuitem">${esc(r.title)}</a>`).join("");
     d.querySelectorAll(".toc a, .dtoc a").forEach(a => a.onclick = e => {
@@ -1874,6 +1888,7 @@ function openDrawer(tab) {
       $("dtoc").classList.add("hidden"); $("dtocbtn").setAttribute("aria-expanded", "false");
       const sec = document.getElementById(a.getAttribute("href").slice(1));
       if (sec?.classList.contains("hide")) { $("dq").value = ""; searchRules(""); }
+      if (sec?.classList.contains("off")) showCardGroup(sec.dataset.group);
       sec?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
     searchRules($("dq").value);
@@ -1915,6 +1930,7 @@ function searchRules(q) {
     first = first || sec.querySelector("mark");
   });
   body.querySelector(".toc")?.classList.toggle("hidden", terms.length > 0);
+  body.classList.toggle("searching", terms.length > 0);   // a search in the Cards view looks through every group
   // in the Cards view, each card is shown or hidden on its own; a section shows while any of its cards match
   let cardsShown = 0;
   body.querySelectorAll(".gitem").forEach(it => {
@@ -1929,65 +1945,81 @@ function searchRules(q) {
 }
 
 // ---------------------------------------------------------------- the Cards view: every card in the game, by kind
-// Built from cards.js like the Rulebook's tables, so it always shows the cards the engine plays. Copies that read the
-// same are shown once, with how many there are.
+// Every card as printed (cardface.js), built from cards.js like the Rulebook's tables, so it always shows the cards the
+// engine plays. Copies that read the same are shown once, with how many there are. The cards come in four groups, one
+// shown at a time (a search looks through all of them); any card opens full size to be read.
+const CARD_GROUPS = [["memory", "Memory cards", "記憶牌"], ["souls", "Souls", "亡魂"], ["mist", "Mist & Ghost", "迷霧與幽靈"], ["table", "Mantles, banks & backs", "稱號、河岸與牌背"]];
+let cardGroup = "memory";
 const lazy = html => html.replace(/<img /g, '<img loading="lazy" ');
-const gitem = (html, n = 1, keys = "") => `<div class="gitem" data-keys="${esc(keys)}">${lazy(html)}${n > 1 ? `<span class="gcount">×${n}</span>` : ""}</div>`;
-const gcard = ({ cls = "", art, kicker, name, text, sub = "" }) =>
-  `<div class="gcard ${cls}"><div class="k">${kicker}</div><div class="mart">${artImg(art)}</div><b>${name}</b><p>${text}</p>${sub ? `<small>${sub}</small>` : ""}</div>`;
-function memoryGrid(ids) {
+const gitem = (html, n = 1, keys = "") => `<button type="button" class="gitem" data-keys="${esc(keys)}" title="${esc(L("Show it full size", "放大查看"))}">${lazy(face(html))}${n > 1 ? `<span class="gcount">×${n}</span>` : ""}</button>`;
+const ggrid = items => `<div class="ggrid">${items.join("")}</div>`;
+// Copies that are the same card (the same words) are counted, not repeated.
+function counted(list, key) {
   const seen = new Map();
-  for (const cid of ids) {
-    const c = CARDS[cid], k = `${c.name}|${JSON.stringify([c.eff, c.res])}|${c.band}|${c.key}`;
-    if (seen.has(k)) seen.get(k).n += 1; else seen.set(k, { cid, n: 1 });
-  }
-  return `<div class="ggrid">${[...seen.values()].map(({ cid, n }) => gitem(cardHTML(cid, { cls: "big" }), n,
-    `${CARDS[cid].name} ${["Obsession", "Acceptance", "Oblivion"][CARDS[cid].tag]}${CARDS[cid].key ? " Key Memory" : ""}`)).join("")}</div>`;
+  for (const x of list) { const k = key(x); if (seen.has(k)) seen.get(k).n += 1; else seen.set(k, { x, n: 1 }); }
+  return [...seen.values()];
+}
+function memoryGrid(ids) {
+  return ggrid(counted(ids, cid => { const c = CARDS[cid]; return `${c.name}|${JSON.stringify([c.eff, c.res])}|${c.band}|${c.key}`; })
+    .map(({ x: cid, n }) => gitem(kit.memoryCard(CW(), cid), n, `${CARDS[cid].name} ${["Obsession", "Acceptance", "Oblivion"][CARDS[cid].tag]}${CARDS[cid].key ? " Key Memory" : ""}`)));
 }
 const intro = (en, zhText) => `<p class="gintro">${L(en, zhText)}</p>`;
 function cardsBook() {
-  const out = [];
+  const out = [], W = CW();
+  const sec = (group, id, title, body) => out.push({ group, id, title, body });
   const threads = [["obs", "the knots of what the soul cannot let go", "靈魂放不下的執著之結"], ["acc", "the warmth the soul makes peace with", "靈魂與之和解的溫暖"], ["obl", "what the soul gives to the river; used once, then forgotten", "靈魂交給河水的東西；使用一次後便被遺忘"]];
-  threads.forEach(([id, en, zhText], t) => out.push({ id: `core-${id}`, title: L(`Core deck · ${tagName(t)}`, `基本牌庫 · ${tagName(t)}`),
-    body: intro(`Memory cards of the ${tagName(t)} thread: ${en}.`, `${tagName(t)}絲線的記憶牌：${zhText}。`) + memoryGrid(CORE_IDS.filter(cid => CARDS[cid].tag === t)) }));
-  out.push({ id: "echo", title: L(`Echo deck · ${soulInfo("open").name}`, `迴響牌庫 · ${soulInfo("open").name}`),
-    body: intro("Shuffled into the core deck when you guide the nameless soul of the Open Crossing.", "引導無名渡河的亡魂時，洗入基本牌庫。") + memoryGrid(ECHO_IDS) });
-  for (const soul of Object.keys(SOUL_PACKS)) out.push({ id: `pack-${soul}`, title: L(`Soul cards · ${soulInfo(soul).name}`, `亡魂牌 · ${soulInfo(soul).name}`),
-    body: intro(`Shuffled into the core deck when you guide ${soulInfo(soul).name}. Its Key Memory may be inscribed even without Resonating.`, `引導${soulInfo(soul).name}時，洗入基本牌庫。關鍵記憶即使沒有共鳴也可以銘刻。`) + memoryGrid(SOUL_PACKS[soul]) });
-  out.push({ id: "mantles", title: L("Mantles", "稱號"),
-    body: intro("Summon one by discarding a card of its thread and spending 3 Light (2 with the King on the Barge).", "棄掉一張同絲線的牌並花費3點光（渡船上的國王為2點光）即可召喚。") +
-      `<div class="ggrid">${Object.keys(MANTLES).map(m => {
-        const info = mantleInfo(m);
-        return gitem(gcard({ cls: `mantle t${info.tag}`, art: mantleArt(m), kicker: L(`Mantle · ${tagName(info.tag)}`, `稱號 · ${tagName(info.tag)}`), name: esc(info.name), text: esc(info.text) }), 1, `${MANTLES[m].name} Mantle`);
-      }).join("")}</div>` });
-  MIST.forEach((deck, r) => {
-    const count = new Map();
-    for (const [name] of [...deck, ...MIST_EXTRA]) count.set(name, (count.get(name) || 0) + 1);
-    out.push({ id: `mist-${r + 1}`, title: L(`Mist · Reach ${ROMAN[r]}`, `迷霧 · 第${ZHNUM[r]}河段`),
-      body: intro(`${reachName(r)}: one is turned at the end of every turn while the soul is in this Reach.`, `${reachName(r)}：亡魂在本河段時，每回合結束翻開一張。`) +
-        `<div class="ggrid">${[...count].map(([name, n]) => gitem(gcard({ cls: "mist", art: mistArt(r, false), kicker: L(`The Mist · Reach ${ROMAN[r]}`, `迷霧 · 第${ZHNUM[r]}河段`), name: esc(mistName(name)), text: esc(mistText(name)) }), n, `${name} Mist`)).join("")}</div>` });
-  });
+  threads.forEach(([id, en, zhText], t) => sec("memory", `core-${id}`, L(`Core deck · ${tagName(t)}`, `基本牌庫 · ${tagName(t)}`),
+    intro(`Memory cards of the ${tagName(t)} thread: ${en}.`, `${tagName(t)}絲線的記憶牌：${zhText}。`) + memoryGrid(CORE_IDS.filter(cid => CARDS[cid].tag === t))));
+  sec("memory", "echo", L(`Echo deck · ${soulInfo("open").name}`, `迴響牌庫 · ${soulInfo("open").name}`),
+    intro("Shuffled into the core deck when you guide the nameless soul of the Open Crossing.", "引導無名渡河的亡魂時，洗入基本牌庫。") + memoryGrid(ECHO_IDS));
+  sec("souls", "souls", L("The Souls", "亡魂"),
+    intro("Choose one soul to guide across the river. Each brings its own cards and twist.", "選擇一個亡魂引導渡河。每個亡魂都有自己的牌與特殊規則。") +
+      ggrid(Object.keys(SOULS).map(k => gitem(kit.soulFace(W, k), 1, `${SOULS[k].name} soul`))));
+  for (const soul of Object.keys(SOUL_PACKS)) sec("souls", `pack-${soul}`, L(`Soul cards · ${soulInfo(soul).name}`, `亡魂牌 · ${soulInfo(soul).name}`),
+    intro(`Shuffled into the core deck when you guide ${soulInfo(soul).name}. Its Key Memory may be inscribed even without Resonating.`, `引導${soulInfo(soul).name}時，洗入基本牌庫。關鍵記憶即使沒有共鳴也可以銘刻。`) + memoryGrid(SOUL_PACKS[soul]));
+  MIST.forEach((_, r) => sec("mist", `mist-${r + 1}`, L(`Mist · Reach ${ROMAN[r]}`, `迷霧 · 第${ZHNUM[r]}河段`),
+    intro(`${reachName(r)}: one is turned at the end of every turn while the soul is in this Reach.`, `${reachName(r)}：亡魂在本河段時，每回合結束翻開一張。`) +
+      ggrid(counted(mistDeck(r).map((m, i) => [m, i]), ([m]) => JSON.stringify(m)).map(({ x: [m, i], n }) => gitem(kit.mistFace(W, m, mistId(r, i), r, false), n, `${m[0]} Mist`)))));
   const harshPer = Object.entries(LANTERN).map(([l, v]) => `${lanternName(l)} ${v[2]}`).join(" · ");
-  out.push({ id: "harsh", title: L("Harsh Mist", "凶霧"),
-    body: intro(`Shuffled into each Reach's Mist deck, as many as the Lantern says (${harshPer}). The Child of the Last Flame faces none.`, `依燈籠的設定洗入每個河段的迷霧牌庫（${harshPer}）。最後火光的孩子不會遇到凶霧。`) +
-      `<div class="ggrid">${HARSH.map(([name]) => gitem(gcard({ cls: "mist harsh", art: mistArt(0, true), kicker: L("Harsh Mist", "凶霧"), name: esc(mistName(name)), text: esc(mistText(name)) }), 1, `${name} Harsh Mist`)).join("")}</div>` });
-  const ghostWhat = { root_far: ["Roots on the furthest open bank", "在最遠的空河岸扎根"], root_near: ["Roots on the nearest open bank", "在最近的空河岸扎根"], bloom_near: ["Blooms the nearest Root", "使最近的根綻放"],
-    bloom_far: ["Blooms the furthest Root", "使最遠的根綻放"], banish_forget: ["Banishes the nearest Grievance, or drains Black Water", "驅散最近的怨念，或排乾黑水"], none: ["Does nothing", "不採取行動"] };
-  const ghosts = new Map();
-  for (const [t, a] of GHOST) { const k = `${t}|${a}`; ghosts.set(k, (ghosts.get(k) || 0) + 1); }
-  out.push({ id: "ghost", title: L("Ghost cards", "幽靈牌"),
-    body: intro("Solo only. After each of your turns the Ghost plays one, then ties a knot on its thread and moves the Echo there.", "僅限單人。你的每個回合之後，幽靈打出一張，在該絲線上打一個結，並把迴響移到那裡。") +
-      `<div class="ggrid">${[...ghosts].map(([k, n]) => { const [t, a] = k.split("|"); return gitem(gcard({ cls: `ghost t${t}`, art: "card-ghost", kicker: L(`The Ghost · ${tagName(+t)}`, `幽靈 · ${tagName(+t)}`), name: esc(tagName(+t)), text: L(...ghostWhat[a]) }), n, "Ghost"); }).join("")}</div>` });
-  const bankText = [["The Root takes.", "根順利生長。"], ["An ordinary Root will not take, and the Root is lost. Stubborn Roots and the Root-Weaver can grow here.", "一般的根無法生長，該根就此失去。頑根與織根者則能在此生長。"],
-    ["The Root takes and you find a keepsake. In the Open Crossing it also gives +2 Light.", "根順利生長，並且你們找到一件信物。在無名渡河中，它還會給予+2點光。"], ["No Root grows, and a Grievance rises on that bank.", "根無法生長，且該河岸會升起一個怨念。"]];
-  out.push({ id: "banks", title: L("Bank tiles", "河岸板塊"),
-    body: intro("Laid face down under the fog on the banks of each Reach, and turned up when a Root is placed there.", "面朝下鋪在各河段的霧下，放置根時翻開。") +
-      `<div class="ggrid">${[FERTILE, STONY, MEMORY, GRAVE].map(t => gitem(gcard({ cls: "bank", art: BANK_ART[t], kicker: L("Bank tile", "河岸板塊"), name: esc(tileName(t)), text: L(...bankText[t]),
-        sub: TILES.map(([, tiles], r) => L(`Reach ${ROMAN[r]} ×${tiles.filter(x => x === t).length}`, `第${ZHNUM[r]}河段 ×${tiles.filter(x => x === t).length}`)).join(" · ") }), 1, "bank tile")).join("")}</div>` });
-  out.push({ id: "souls", title: L("Souls", "亡魂"),
-    body: intro("Choose one soul to guide across the river. Each brings its own cards and twist.", "選擇一個亡魂引導渡河。每個亡魂都有自己的牌與特殊規則。") +
-      `<div class="ggrid">${Object.keys(SOULS).map(k => { const info = soulInfo(k); return gitem(gcard({ cls: "soulcard", art: soulPortrait(k), kicker: L("Soul", "亡魂"), name: esc(info.name), text: `<i>${esc(info.blurb)}</i>`, sub: esc(info.twist) }), 1, `${SOULS[k].name} soul`); }).join("")}</div>` });
+  sec("mist", "harsh", L("Harsh Mist", "凶霧"),
+    intro(`Shuffled into each Reach's Mist deck, as many as the Lantern says (${harshPer}). The Child of the Last Flame faces none.`, `依燈籠的設定洗入每個河段的迷霧牌庫（${harshPer}）。最後火光的孩子不會遇到凶霧。`) +
+      ggrid(HARSH.map((m, i) => gitem(kit.mistFace(W, m, harshId(i), 0, true), 1, `${m[0]} Harsh Mist`))));
+  sec("mist", "ghost", L("Ghost cards", "幽靈牌"),
+    intro("Solo only. After each of your turns the Ghost plays one, then ties a knot on its thread and moves the Echo there.", "僅限單人。你的每個回合之後，幽靈打出一張，在該絲線上打一個結，並把迴響移到那裡。") +
+      ggrid(counted(GHOST.map((g, i) => [g, i]), ([g]) => g.join("|")).map(({ x: [[t, a], i], n }) => gitem(kit.ghostFace(W, t, a, ghostId(i)), n, "Ghost"))));
+  sec("table", "mantles", L("Mantles", "稱號"),
+    intro("Summon one by discarding a card of its thread and spending 3 Light (2 with the King on the Barge).", "棄掉一張同絲線的牌並花費3點光（渡船上的國王為2點光）即可召喚。") +
+      ggrid(Object.keys(MANTLES).map(m => gitem(kit.mantleFace(W, m), 1, `${MANTLES[m].name} Mantle`))));
+  sec("table", "banks", L("Bank cards", "河岸牌"),
+    intro("Laid fog side up in the wells on the banks of each Reach, and turned over when a Root is placed there.", "霧面朝上放進各河段河岸的牌槽，放置根時翻開。") +
+      ggrid(TILES.flatMap(([, tiles], r) => [FERTILE, STONY, MEMORY, GRAVE].filter(t => tiles.includes(t))
+        .map(t => gitem(kit.bankFace(W, t, r), tiles.filter(x => x === t).length, "bank tile")))));
+  sec("table", "backs", L("Card backs", "牌背"),
+    intro("One back per deck. The bank cards' backs are the fog, one for each Reach.", "每副牌一種牌背。河岸牌的背面是霧，每個河段一種。") +
+      ggrid([["back-memory", "Memory", "記憶牌"], ["back-mist", "Mist", "迷霧牌"], ["back-ghost", "Ghost", "幽靈牌"], ["back-soul", "Soul and Mantle", "亡魂與稱號"]]
+        .map(([file, en, zhText]) => gitem(kit.paintedBack(file), 1, `${en} ${zhText} back`)).concat([0, 1, 2].map(r => gitem(kit.fogBack(W, r), 1, "fog bank back")))));
   return out;
+}
+// The groups as chips above the cards, and which sections the current group shows.
+const cardChips = () => `<nav class="gchips" aria-label="${esc(L("Kinds of card", "卡牌種類"))}">${CARD_GROUPS.map(([g, en, zhText]) =>
+  `<button type="button" data-group="${g}" class="${g === cardGroup ? "on" : ""}">${L(en, zhText)}</button>`).join("")}</nav>`;
+function showCardGroup(g) {
+  cardGroup = g;
+  const body = $("dbody");
+  body.querySelectorAll(".gchips button").forEach(b => b.classList.toggle("on", b.dataset.group === g));
+  body.querySelectorAll(".rsec[data-group]").forEach(sec => sec.classList.toggle("off", sec.dataset.group !== g));
+}
+// A card from the Cards view, full size over the drawer: click anywhere or press Escape to put it back.
+function peekCard(html) {
+  document.querySelector(".cardpeek")?.remove();
+  const el = document.createElement("div");
+  el.className = "cardpeek";
+  el.innerHTML = `<div class="peekcard">${html}</div><span class="peekhint">${L("Click anywhere to close", "點擊任意處關閉")}</span>`;
+  const close = () => { el.remove(); document.removeEventListener("keydown", esc_, true); };
+  const esc_ = e => { if (e.key === "Escape") { e.stopPropagation(); close(); } };
+  el.onclick = close;
+  document.addEventListener("keydown", esc_, true);
+  document.body.appendChild(el);
 }
 
 // ---------------------------------------------------------------- the opening: the table is set up before the eyes
@@ -2387,7 +2419,7 @@ function stepEvent(ev) {
       if (!seats.has(ev.p)) A.sfx("card");
       if (ev.res) { A.sfx("resonance"); enqueueFront(() => banner(L("Resonance", "共鳴"), L("The card answers the Echo", "這張牌回應了迴響"), "obl")); }
       return 1100;
-    case "ghost": toast(text, ev.tag); cap(["obs", "acc", "obl"][ev.tag]); A.sfx("card"); return ghostCard(ev.tag, text);
+    case "ghost": toast(text, ev.tag); cap(["obs", "acc", "obl"][ev.tag]); A.sfx("card"); return ghostCard(ev.tag, ev.m?.[2]);
     case "seek": if (!seats.has(ev.p) || mode === "local") toast(text, 1); cap(); A.sfx("card"); return 900;
     case "root": ring(at, "#E6D3A3"); cap(); A.sfx("root"); return 800;
     case "bloom": ring(at, "#D7263D"); cap(); A.sfx("bloom"); return 850;
@@ -2487,7 +2519,7 @@ function stepEvent(ev) {
       if ($("tray")) motes(centre($("tray")), S.cfg.mantleCost);
       const mi = mantleInfo(ev.mantle); return banner(text, mi.text, ["obs", "acc", "obl"][mi.tag], mantleArt(ev.mantle));
     }
-    case "mist": setGuide("mist"); cap("bad"); return mistCard(ev.name) + 300;
+    case "mist": setGuide("mist"); cap("bad"); return mistCard(ev.name, ev.ops) + 300;
     case "backlash": A.sfx("backlash"); shake(); cap("bad"); return banner(L(`Backlash · ${tagName(ev.tag)}`, `反噬 · ${tagName(ev.tag)}`), backlashText(ev.tag), ["obs", "acc", "obl"][ev.tag]);
     case "reach": A.sfx("summon"); cap("good"); return banner(L(`Reach ${ROMAN[ev.reach]}`, `第${ZHNUM[ev.reach]}河段`), reachName(ev.reach), "good");
     case "win": A.sfx("win"); cap("good"); return 900;
@@ -2518,12 +2550,11 @@ function caption(text, cls = "") {
   capTimer = setTimeout(() => el.classList.remove("on"), 3200 * Math.max(1, pace()));
 }
 
-function mistCard(name) {
+function mistCard(name, ops) {
   A.sfx("mist");
-  const harsh = HARSH_NAMES.has(name);
   const el = document.createElement("div");
-  el.className = `mistcard ${harsh ? "harsh" : ""}`;
-  el.innerHTML = `<div class="k">${harsh ? L("Harsh Mist", "凶霧") : L("The Mist", "迷霧")}</div><div class="mart">${artImg(mistArt(S?.reach ?? 0, harsh))}</div><h3>${esc(mistName(name))}</h3><p>${esc(mistText(name))}</p>`;
+  el.className = "mistcard face";
+  el.innerHTML = mistFace(name, ops, S?.reach ?? 0);
   document.body.appendChild(el);
   // Crisp while it is read; it only blurs as it leaves. 2 seconds in all, longer step by step.
   const t = Math.max(1, pace());
@@ -2532,10 +2563,10 @@ function mistCard(name) {
   return 2000;
 }
 // The Ghost's card, turned up for a moment in the middle of the table (solo).
-function ghostCard(tag, text) {
+function ghostCard(tag, act) {
   const el = document.createElement("div");
-  el.className = `mistcard ghostcard t${tag}`;
-  el.innerHTML = `<div class="k">${L("The Ghost", "幽靈")}</div><div class="mart">${artImg("card-ghost")}</div><p>${esc(text)}</p>`;
+  el.className = "mistcard face";
+  el.innerHTML = ghostFace(tag, act || "none");
   document.body.appendChild(el);
   const t = Math.max(1, pace());
   setTimeout(() => el.classList.add("out"), 1500 * t - 400);
