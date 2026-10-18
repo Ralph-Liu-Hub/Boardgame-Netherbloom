@@ -6,7 +6,7 @@
 //   bearer  (a table back to the menu): a hooded figure stands in the mist with his back to you, a lantern in his
 //           hand. He turns round to face you, and the lantern's light grows until it fills the screen.
 
-export const FERRY_END = 6.4, BEARER_END = 6.2;
+export const FERRY_END = 6.4, BEARER_END = 6.8;
 const ART = n => `/assets/art/${n}.webp`;
 const imgs = {};
 function img(name) {
@@ -15,7 +15,7 @@ function img(name) {
 }
 const ready = im => im.complete && im.naturalWidth > 0;
 // Loaded at start, so a crossing never waits for its paintings.
-export function preloadScenes() { ["scene-river", "scene-boat", "scene-pole", "scene-bearer"].forEach(img); }
+export function preloadScenes() { ["scene-river", "scene-boat", "scene-pole", "scene-bearer", "scene-bearer-body", "scene-bearer-lantern", "scene-bearer-sleeve"].forEach(img); }
 
 // The ferry painting (1680 × 944): the vanishing point where the Far Shore's light is, the boat's lantern, and the
 // water's edges (the banks are everything else below the treeline).
@@ -29,6 +29,10 @@ const HAND = [781, 268], POLE_DIR = [0.161, 0.987], POLE_LEN = 700, POLE_W = 14,
 // poses, with five frames morphed between each pair), and where the lantern is in each painted pose.
 const TURN = { fw: 440, fh: 600, cols: 5, n: 25, per: 6 };
 const TURN_LANTERN = [[367, 441], [340, 445], [276, 483], [267, 473], [315, 511]];
+// Facing you, he lifts the lantern: the last frame taken apart into his body (the hand and lantern painted out), the
+// hand and lantern (93 × 261, cut from the frame at 277, 332; his grip at 45, 13 in it, the flame at 38, 179), and a
+// strip of his sleeve (50 × 180) stretched from the shoulder to the rising hand.
+const LIFT = { at: [277, 332], grip: [45, 13], flame: [38, 179], shoulder: [312, 172], up: [296, 168], scale: 1.3 };
 
 const clamp01 = x => Math.max(0, Math.min(1, x));
 const lerp = (a, b, x) => a + (b - a) * clamp01(x);
@@ -236,27 +240,52 @@ export function bearer(host, speed) {
   const c = canvasFor(host);
   if (!c) return;
   const { g, W, H } = c, m = Math.min(W, H);
-  const sheet = img("scene-bearer");
+  const sheet = img("scene-bearer"), body = img("scene-bearer-body"), lamp = img("scene-bearer-lantern"), sleeve = img("scene-bearer-sleeve");
   // close on him: from the hood down past the lantern, filling the height of the screen
   // (on a tall screen he may overflow the sides a little, and stands in the middle of the height)
   const k = Math.min(H * 1.02 / TURN.fh, W * (W < H ? 1.3 : 0.95) / TURN.fw), fw = TURN.fw * k, fh = TURN.fh * k;
   const x0 = (W - fw) / 2, y0 = Math.max(H * 0.01, (H - fh) * 0.42);
+  const P = ([x, y]) => [x0 + x * k, y0 + y * k];
   const frameAt = i => [(i % TURN.cols) * TURN.fw, Math.floor(i / TURN.cols) * TURN.fh];
   run(c, speed, BEARER_END, t => {
     g.globalCompositeOperation = "source-over";
-    const clear = 1 - ease((t - 5.4) / 0.8);
+    const clear = 1 - ease((t - 6.0) / 0.8);
     g.clearRect(0, 0, W, H);
     g.fillStyle = rgba(INK, clear); g.fillRect(0, 0, W, H);
-    if (!ready(sheet)) return;
+    if (![sheet, body, lamp, sleeve].every(ready)) return;
     const come = ease((t - 0.3) / 1.5);
-    // his turn: from his back to you round to facing you, slow to start and slow to finish, frame melting into frame
-    const turn = ease((t - 1.6) / 2.6) * (TURN.n - 1), i0 = Math.min(TURN.n - 2, Math.floor(turn)), f = turn - i0;
+    const turn = ease((t - 1.6) / 2.6) * (TURN.n - 1);
+    const lift = ease((t - 4.3) / 1.0);                       // once he faces you, he lifts the lantern toward you
+    let lx, ly;
     g.globalAlpha = clear;
-    for (const [i, a] of [[i0, come * (1 - f)], [i0 + 1, come * f]]) {
-      if (a <= 0.002) continue;
-      const [sx, sy] = frameAt(i);
-      g.globalAlpha = a * clear;
-      g.drawImage(sheet, sx, sy, TURN.fw, TURN.fh, x0, y0, fw, fh);
+    if (t < 4.25) {
+      // his turn: from his back to you round to facing you, slow to start and slow to finish, frame melting into frame
+      const i0 = Math.min(TURN.n - 2, Math.floor(turn)), f = turn - i0;
+      for (const [i, a] of [[i0, come * (1 - f)], [i0 + 1, come * f]]) {
+        if (a <= 0.002) continue;
+        const [sx, sy] = frameAt(i);
+        g.globalAlpha = a * clear;
+        g.drawImage(sheet, sx, sy, TURN.fw, TURN.fh, x0, y0, fw, fh);
+      }
+      const p = turn / TURN.per, j = Math.min(3, Math.floor(p)), q = p - j;
+      [lx, ly] = P([lerp(TURN_LANTERN[j][0], TURN_LANTERN[j + 1][0], q), lerp(TURN_LANTERN[j][1], TURN_LANTERN[j + 1][1], q)]);
+    } else {
+      // the lift: the body stays, the arm rises from the shoulder and the lantern comes up and toward you
+      g.drawImage(body, x0, y0, fw, fh);
+      const rest = [LIFT.at[0] + LIFT.grip[0], LIFT.at[1] + LIFT.grip[1]];
+      const grip = P([lerp(rest[0], LIFT.up[0], lift), lerp(rest[1], LIFT.up[1], lift) - Math.sin(lift * Math.PI) * 18]);
+      const sc = lerp(1, LIFT.scale, lift) * k, sh = P(LIFT.shoulder);
+      if (lift > 0) {
+        const dx = grip[0] - sh[0], dy = grip[1] - sh[1], len = Math.hypot(dx, dy) + 14 * k;
+        g.save();
+        g.translate(sh[0], sh[1]); g.rotate(Math.atan2(dy, dx) - Math.PI / 2);
+        g.globalAlpha = clear * Math.min(1, lift * 3);
+        g.drawImage(sleeve, -25 * k * (1 + 0.3 * lift), -6 * k, 50 * k * (1 + 0.3 * lift), len);
+        g.restore();
+        g.globalAlpha = clear;
+      }
+      g.drawImage(lamp, grip[0] - LIFT.grip[0] * sc, grip[1] - LIFT.grip[1] * sc, 93 * sc, 261 * sc);
+      [lx, ly] = [grip[0] + (LIFT.flame[0] - LIFT.grip[0]) * sc, grip[1] + (LIFT.flame[1] - LIFT.grip[1]) * sc];
     }
     g.globalAlpha = clear;
     // below the lantern he goes into the dark
@@ -264,15 +293,13 @@ export function bearer(host, speed) {
     fade.addColorStop(0, rgba(INK, 0)); fade.addColorStop(1, rgba(INK, 1));
     g.fillStyle = fade; g.fillRect(0, y0 + fh * 0.72, W, H - (y0 + fh * 0.72));
     mist(g, W, H, H * 0.92, H * 0.07, 0.12 * come, t, 0.015, 0.2);
-    // the lantern goes with his hand as he turns; then he lifts its light to you, brighter and brighter
-    const p = turn / TURN.per, j = Math.min(3, Math.floor(p)), q = p - j;
-    const lx = x0 + lerp(TURN_LANTERN[j][0], TURN_LANTERN[j + 1][0], q) * k, ly = y0 + lerp(TURN_LANTERN[j][1], TURN_LANTERN[j + 1][1], q) * k;
+    // the lantern's light, held up to you, brighter and brighter until it fills the screen
     const fl = 0.88 + 0.12 * Math.sin(t * 11) * Math.sin(t * 4.7);
-    glow(g, lx, ly, m * 0.14, [255, 226, 170], 0.45 * come * fl);
-    const bright = clamp01((t - 4.2) / 1.3) ** 1.7;
+    glow(g, lx, ly, m * (0.14 + 0.08 * lift), [255, 226, 170], (0.45 + 0.3 * lift) * come * fl);
+    const bright = clamp01((t - 4.8) / 1.3) ** 1.7;
     if (bright > 0) {
       glow(g, lx, ly, m * (0.12 + 1.7 * bright), [255, 244, 214], Math.min(1, 0.5 + 0.5 * bright));
-      const wash = clamp01((t - 5.0) / 0.6) ** 1.4;
+      const wash = clamp01((t - 5.6) / 0.6) ** 1.4;
       if (wash > 0) { g.fillStyle = rgba(BONE, 0.94 * wash); g.fillRect(0, 0, W, H); }
     }
     g.globalAlpha = 1;
