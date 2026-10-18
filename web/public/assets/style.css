@@ -1125,12 +1125,12 @@ html:lang(zh-Hant-TW) .pz-line { font-family: "Noto Serif TC", serif; font-style
 .pz-down .pz-old, .pz-up .pz-old { transform-origin: 50% 50%; animation: pz-through calc(.8s * var(--k)) cubic-bezier(.55,0,.85,.35) both; }
 @keyframes pz-through { 0% { transform: none; } 99% { opacity: 1; } 100% { transform: scale(1.08); filter: blur(4px) brightness(.3); opacity: 0; } }
 /* the words: going down, in the dark after the banks have burnt (5.1–6.0 s of 6.4); coming up, beneath the hooded
-   figure as he turns (1.9–3.3 s of 5.4) */
+   figure as he turns (2.0–3.6 s of 6.2) */
 .pz-down .pz-line, .pz-up .pz-line { align-items: end; padding-bottom: 12vh; color: var(--paper); }
 .pz-down .pz-line { animation: pz-words-down calc(6.4s * var(--k)) ease both; }
-.pz-up .pz-line { animation: pz-words-up calc(5.4s * var(--k)) ease both; text-shadow: 0 0 4px #0b0a0d, 0 0 14px #0b0a0d, 0 0 30px rgba(11,10,13,.9); }
+.pz-up .pz-line { animation: pz-words-up calc(6.2s * var(--k)) ease both; text-shadow: 0 0 4px #0b0a0d, 0 0 14px #0b0a0d, 0 0 30px rgba(11,10,13,.9); }
 @keyframes pz-words-down { 0%, 79% { opacity: 0; transform: translateY(8px); } 84%, 92% { opacity: 1; transform: none; } 98%, 100% { opacity: 0; letter-spacing: .16em; } }
-@keyframes pz-words-up { 0%, 34% { opacity: 0; transform: translateY(8px); } 40%, 58% { opacity: 1; transform: none; } 66%, 100% { opacity: 0; letter-spacing: .16em; } }
+@keyframes pz-words-up { 0%, 32% { opacity: 0; transform: translateY(8px); } 38%, 56% { opacity: 1; transform: none; } 64%, 100% { opacity: 0; letter-spacing: .16em; } }
 
 /* arrive: out of the dark a Netherbloom draws itself and lights, the name appears, mist rolls in,
    and the dark opens onto the menu */

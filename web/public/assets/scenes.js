@@ -6,7 +6,7 @@
 //   bearer  (a table back to the menu): a hooded figure stands in the mist with his back to you, a lantern in his
 //           hand. He turns round to face you, and the lantern's light grows until it fills the screen.
 
-export const FERRY_END = 6.4, BEARER_END = 5.4;
+export const FERRY_END = 6.4, BEARER_END = 6.2;
 const ART = n => `/assets/art/${n}.webp`;
 const imgs = {};
 function img(name) {
@@ -15,20 +15,20 @@ function img(name) {
 }
 const ready = im => im.complete && im.naturalWidth > 0;
 // Loaded at start, so a crossing never waits for its paintings.
-export function preloadScenes() { ["scene-river", "scene-boat", "scene-bearer"].forEach(img); }
+export function preloadScenes() { ["scene-river", "scene-boat", "scene-pole", "scene-bearer"].forEach(img); }
 
 // The ferry painting (1680 × 944): the vanishing point where the Far Shore's light is, the boat's lantern, and the
 // water's edges (the banks are everything else below the treeline).
 const VP = [0.602, 0.321], BOAT_LANTERN = [0.548, 0.742], HORIZON = 0.345;
 // The river, as a polygon in the painting's fractions: from the far end at the light, widening toward us.
 const RIVER = [[0.48, 0.345], [0.66, 0.345], [0.72, 0.39], [0.8, 0.47], [0.86, 0.6], [0.92, 0.72], [1.0, 0.8], [1.0, 1.0], [0.07, 1.0], [0.08, 0.6], [0.1, 0.53], [0.2, 0.45], [0.35, 0.385]];
-// The five poses of the lantern-bearer on their strip (x, width, centre of mass, lantern), all 785 px tall.
-const POSES = [
-  { sx: 6, sw: 369, cx: 187.7, lx: 330, ly: 417 }, { sx: 387, sw: 333, cx: 165.7, lx: 292, ly: 424 },
-  { sx: 732, sw: 272, cx: 153.7, lx: 229, ly: 461 }, { sx: 1016, sw: 323, cx: 138.7, lx: 158, ly: 452 },
-  { sx: 1351, sw: 358, cx: 179, lx: 275, ly: 488 },
-];
-const POSE_H = 785, POSE_PAD = 6;
+// The ferryman's pole, drawn apart so he can work it: where his hand holds it (painting pixels), the way it runs down
+// into the water, and the straightened strip of its wood (14 × 700).
+const HAND = [781, 268], POLE_DIR = [0.161, 0.987], POLE_LEN = 700, POLE_W = 14, GUNWALE = 0.66;
+// The lantern-bearer's turn: 25 frames on a 5 × 5 sheet, each 440 × 600 and lined up on the hood (the five painted
+// poses, with five frames morphed between each pair), and where the lantern is in each painted pose.
+const TURN = { fw: 440, fh: 600, cols: 5, n: 25, per: 6 };
+const TURN_LANTERN = [[367, 441], [340, 445], [276, 483], [267, 473], [315, 511]];
 
 const clamp01 = x => Math.max(0, Math.min(1, x));
 const lerp = (a, b, x) => a + (b - a) * clamp01(x);
@@ -106,7 +106,7 @@ export function ferry(host, speed) {
   const c = canvasFor(host);
   if (!c) return;
   const { g, W, H, dpr } = c;
-  const river = img("scene-river"), boat = img("scene-boat");
+  const river = img("scene-river"), boat = img("scene-boat"), pole = img("scene-pole");
   let R = null;                         // where the painting sits: covering the screen, the ferryman and the light kept in view
   const place = () => {
     const iw = river.naturalWidth, ih = river.naturalHeight, k = Math.max(W / iw, H / ih), dw = iw * k, dh = ih * k;
@@ -138,7 +138,7 @@ export function ferry(host, speed) {
   run(c, speed, FERRY_END, (t, dt) => {
     g.globalCompositeOperation = "source-over";
     g.fillStyle = rgba(INK, 1); g.fillRect(0, 0, W, H);
-    if (!R) { if (ready(river) && ready(boat)) place(); else return; }
+    if (!R) { if (ready(river) && ready(boat) && ready(pole)) place(); else return; }
     const come = ease((t - 0.15) / 1.3);
     const [vx, vy] = at(...VP);
     // the river and its banks, sliding toward you as the boat goes forward (a slow push from the vanishing point)
@@ -186,14 +186,29 @@ export function ferry(host, speed) {
     // the boat, with you in it: it comes up into view, then rocks; the ferryman's cloak stirs in the wind off the water
     const rise = (1 - ease((t - 0.1) / 1.4)) * H * 0.08;
     const bob = Math.sin(t * 1.7) * H * 0.006, roll = Math.sin(t * 1.15) * 0.007;
+    // his stroke, every 2.4 s: he drives the pole down and back through his hand, leaning into it, then lifts it and
+    // swings it forward again (the boat surges a little on each push)
+    const cyc = ((t - 0.4) / 2.4 % 1 + 1) % 1, drive = cyc < 0.62 ? ease(cyc / 0.62) : 1 - ease((cyc - 0.62) / 0.38);
+    const k = R.dw / R.iw, cut = R.dy + GUNWALE * R.dh;
+    const lean = 0.035 * drive;                                // the body leans toward the pole as he pushes
     g.save();
-    g.translate(W / 2, H + rise + bob); g.rotate(roll); g.translate(-W / 2, -H);
-    const cut = R.dy + 0.66 * R.dh, band = 4 * dpr;           // above the gunwale, the cloak and the ferryman, in rows
+    g.translate(W / 2, H + rise + bob - drive * H * 0.004); g.rotate(roll); g.translate(-W / 2, -H);
+    // the pole, behind his hand and the boat: it slides down through his grip and its foot swings back toward you
+    const hand = [R.dx + HAND[0] * k + lean * (cut - (R.dy + HAND[1] * k)), R.dy + HAND[1] * k];
+    const tilt = -0.13 * drive + 0.03, dir = [POLE_DIR[0] * Math.cos(tilt) - POLE_DIR[1] * Math.sin(tilt), POLE_DIR[0] * Math.sin(tilt) + POLE_DIR[1] * Math.cos(tilt)];
+    const above = (150 - 85 * drive) * k;                       // how much of the pole is above his hand
+    g.save();
+    g.translate(hand[0] - dir[0] * above, hand[1] - dir[1] * above); g.rotate(Math.atan2(dir[1], dir[0]) - Math.PI / 2);
+    g.globalAlpha = come;
+    g.drawImage(pole, -POLE_W * k / 2, 0, POLE_W * k, POLE_LEN * k);
+    g.globalAlpha = 1;
+    g.restore();
+    const band = 4 * dpr;                                       // above the gunwale, the cloak and the ferryman, in rows
     for (let y = Math.max(0, R.dy); y < cut; y += band) {
       const v = (y - R.dy) / R.dh, sway = Math.sin(t * 2.1 + v * 14) * dpr * 3 * clamp01((v - 0.08) / 0.5);
-      g.drawImage(boat, 0, v * R.ih, R.iw, band / R.dh * R.ih + 1, R.dx + sway, y, R.dw, band + 1);
+      g.drawImage(boat, 0, v * R.ih, R.iw, band / R.dh * R.ih + 1, R.dx + sway + lean * (cut - y), y, R.dw, band + 1);
     }
-    g.drawImage(boat, 0, 0.66 * R.ih, R.iw, 0.34 * R.ih, R.dx, cut, R.dw, 0.34 * R.dh);
+    g.drawImage(boat, 0, GUNWALE * R.ih, R.iw, (1 - GUNWALE) * R.ih, R.dx, cut, R.dw, (1 - GUNWALE) * R.dh);
     const [lx, ly] = at(...BOAT_LANTERN);
     glow(g, lx, ly, Math.min(W, H) * 0.09, GOLD, 0.35 * come * (0.85 + 0.15 * Math.sin(t * 11) * Math.sin(t * 5.3)));
     g.restore();
@@ -222,45 +237,42 @@ export function bearer(host, speed) {
   if (!c) return;
   const { g, W, H } = c, m = Math.min(W, H);
   const sheet = img("scene-bearer");
-  const fh = Math.min(H * 0.74, W * 1.35), k = fh / POSE_H, footY = H * 0.88, cx = W / 2;
-  // pose i drawn with its centre of mass on the middle of the screen and its feet on the ground
-  const where = i => { const p = POSES[i]; return { x: cx - p.cx * k, y: footY - fh, lx: cx + (p.lx - p.cx) * k, ly: footY - fh + p.ly * k }; };
+  // close on him: from the hood down past the lantern, filling the height of the screen
+  // (on a tall screen he may overflow the sides a little, and stands in the middle of the height)
+  const k = Math.min(H * 1.02 / TURN.fh, W * (W < H ? 1.3 : 0.95) / TURN.fw), fw = TURN.fw * k, fh = TURN.fh * k;
+  const x0 = (W - fw) / 2, y0 = Math.max(H * 0.01, (H - fh) * 0.42);
+  const frameAt = i => [(i % TURN.cols) * TURN.fw, Math.floor(i / TURN.cols) * TURN.fh];
   run(c, speed, BEARER_END, t => {
     g.globalCompositeOperation = "source-over";
-    const clear = 1 - ease((t - 4.6) / 0.8);
+    const clear = 1 - ease((t - 5.4) / 0.8);
     g.clearRect(0, 0, W, H);
     g.fillStyle = rgba(INK, clear); g.fillRect(0, 0, W, H);
     if (!ready(sheet)) return;
+    const come = ease((t - 0.3) / 1.5);
+    // his turn: from his back to you round to facing you, slow to start and slow to finish, frame melting into frame
+    const turn = ease((t - 1.6) / 2.6) * (TURN.n - 1), i0 = Math.min(TURN.n - 2, Math.floor(turn)), f = turn - i0;
     g.globalAlpha = clear;
-    const come = ease((t - 0.3) / 1.4);
-    // the ground he stands on, faintly, and mist about his feet
-    g.save();
-    g.translate(cx, footY); g.scale(1, 0.12);
-    const gr = g.createRadialGradient(0, 0, 0, 0, 0, W * 0.45);
-    gr.addColorStop(0, rgba([40, 36, 40], come)); gr.addColorStop(1, rgba([40, 36, 40], 0));
-    g.fillStyle = gr; g.fillRect(-W * 0.5, -W * 0.5, W, W);
-    g.restore();
-    // his turn: from his back to you, round through the profile to facing you, each pose dissolving into the next
-    const turn = clamp01((t - 1.7) / 1.5) * (POSES.length - 1), i0 = Math.floor(Math.min(turn, POSES.length - 1.001)), f = ease(turn - i0);
-    const draw = (i, a) => {
-      if (a <= 0) return;
-      const p = POSES[i], w = where(i);
+    for (const [i, a] of [[i0, come * (1 - f)], [i0 + 1, come * f]]) {
+      if (a <= 0.002) continue;
+      const [sx, sy] = frameAt(i);
       g.globalAlpha = a * clear;
-      g.drawImage(sheet, p.sx, POSE_PAD, p.sw, POSE_H, w.x, w.y, p.sw * k, fh);
-    };
-    draw(i0, come * (1 - f));
-    draw(Math.min(POSES.length - 1, i0 + 1), come * f);
+      g.drawImage(sheet, sx, sy, TURN.fw, TURN.fh, x0, y0, fw, fh);
+    }
     g.globalAlpha = clear;
-    mist(g, W, H, footY, H * 0.06, 0.14 * come, t, 0.015, 0.2);
-    // the lantern burns as he turns, then he raises its light to you, brighter and brighter until it fills the screen
-    const a = where(i0), b = where(Math.min(POSES.length - 1, i0 + 1));
-    const lx = lerp(a.lx, b.lx, f), ly = lerp(a.ly, b.ly, f);
+    // below the lantern he goes into the dark
+    const fade = g.createLinearGradient(0, y0 + fh * 0.72, 0, y0 + fh);
+    fade.addColorStop(0, rgba(INK, 0)); fade.addColorStop(1, rgba(INK, 1));
+    g.fillStyle = fade; g.fillRect(0, y0 + fh * 0.72, W, H - (y0 + fh * 0.72));
+    mist(g, W, H, H * 0.92, H * 0.07, 0.12 * come, t, 0.015, 0.2);
+    // the lantern goes with his hand as he turns; then he lifts its light to you, brighter and brighter
+    const p = turn / TURN.per, j = Math.min(3, Math.floor(p)), q = p - j;
+    const lx = x0 + lerp(TURN_LANTERN[j][0], TURN_LANTERN[j + 1][0], q) * k, ly = y0 + lerp(TURN_LANTERN[j][1], TURN_LANTERN[j + 1][1], q) * k;
     const fl = 0.88 + 0.12 * Math.sin(t * 11) * Math.sin(t * 4.7);
-    glow(g, lx, ly, m * 0.11, [255, 226, 170], 0.45 * come * fl);
-    const bright = clamp01((t - 3.2) / 1.3) ** 1.7;
+    glow(g, lx, ly, m * 0.14, [255, 226, 170], 0.45 * come * fl);
+    const bright = clamp01((t - 4.2) / 1.3) ** 1.7;
     if (bright > 0) {
-      glow(g, lx, ly, m * (0.1 + 1.7 * bright), [255, 244, 214], Math.min(1, 0.5 + 0.5 * bright));
-      const wash = clamp01((t - 4.0) / 0.6) ** 1.4;
+      glow(g, lx, ly, m * (0.12 + 1.7 * bright), [255, 244, 214], Math.min(1, 0.5 + 0.5 * bright));
+      const wash = clamp01((t - 5.0) / 0.6) ** 1.4;
       if (wash > 0) { g.fillStyle = rgba(BONE, 0.94 * wash); g.fillRect(0, 0, W, H); }
     }
     g.globalAlpha = 1;
