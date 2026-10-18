@@ -1171,3 +1171,7 @@ html:lang(zh-Hant-TW) .pz-line { font-family: "Noto Serif TC", serif; font-style
 @media (max-width: 560px) { .drawer.cardview .ggrid { grid-template-columns: 1fr 1fr; gap: 16px 12px; } }
 .vigilopt .nbface { cursor: zoom-in; }
 .cardpeek { z-index: 90; }
+/* Rulebook pictures (rulefigs.js) on the dark drawer */
+.rfig .nbface { cursor: zoom-in; }
+.rfig-in figcaption, .rf-panel > span { color: var(--mist); }
+.rf-panel > b { color: var(--bone); }

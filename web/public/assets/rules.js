@@ -54,6 +54,8 @@ function ghostTable() {
 }
 
 // A short in-world line that opens a rules section.
+// A picture for the section, drawn by rulefigs.js where the Rulebook is shown.
+const fig = id => `<div class="rfig" data-fig="${id}"></div>`;
 const lore = text => `<p class="lore">${text}</p>`;
 // One row of "The world on your table": icon, piece, what it is in the story, what it does in play.
 const piece = (icon, color, name, story, play) =>
@@ -173,7 +175,8 @@ export const RULEBOOK = [
     <p>A space is <b>Lit</b> when at least one of its banks holds a Bloom. The soul only steps onto a Lit space.</p>
     <p><b>Placing a Root.</b> A Root goes on an empty bank at or ahead of the soul that <b>touches the network</b>:</p>
     <ul><li>it is on the soul's own space or the next one, or</li><li>the opposite bank of the same space holds a token, or</li><li>the same bank of the space before or after holds a token.</li></ul>
-    <p><b>Blooming</b> turns one of your Roots, at or ahead of the soul, into a Bloom.</p>` },
+    <p><b>Blooming</b> turns one of your Roots, at or ahead of the soul, into a Bloom.</p>
+    ${fig("network")}` },
 
   { id: "fog", title: "9. Fog and tiles", keys: "fertile stony memory site grave reveal keepsake", body: `
     ${lore("Under the fog lie soft earth, hard stone, half-remembered places and old graves.")}
@@ -184,7 +187,8 @@ export const RULEBOOK = [
       <li>${ico("nb-memorysite", "#E6D3A3")} <b>Memory Site</b>: the Root takes and you find a keepsake. In the Open Crossing it also gives +2 Light.</li>
       <li>${ico("nb-grave", "#8FD6E1")} <b>Grave</b>: no Root grows, and a Grievance rises on that bank.</li>
     </ul>
-    <p>Reach I has 3 Fertile, 1 Stony and 2 Memory Site tiles. Reach II has 3 Fertile, 2 Stony, 2 Memory Site and 1 Grave. Reach III has 2 Fertile, 1 Stony, 2 Memory Site and 1 Grave. The Mist can roll fog back over empty revealed ground.</p>` },
+    <p>Reach I has 3 Fertile, 1 Stony and 2 Memory Site tiles. Reach II has 3 Fertile, 2 Stony, 2 Memory Site and 1 Grave. Reach III has 2 Fertile, 1 Stony, 2 Memory Site and 1 Grave. The Mist can roll fog back over empty revealed ground.</p>
+    ${fig("tiles")}` },
 
   { id: "turn", title: "10. Your turn", keys: "turn order sequence summon play draw", body: `
     ${lore("You plant, the soul walks, the river answers.")}
@@ -241,14 +245,16 @@ export const RULEBOOK = [
     <p><b>Seek</b> (once per turn): discard a card from your hand and draw one. Nothing is played, no knot is tied and the Echo does not change. Only your <b>Answer</b> can Resonate, so if you Seek as your Answer you let the Echo pass this turn; Seek as your Steer and your first card has already had its chance. Seek when your hand holds nothing the river needs.</p>
     <p><b>Recall</b> (your Answer only): spend <b>3 Light</b> and choose any one card from the forgotten pile; it is remembered and goes to the discard pile, so it can come back into the deck. Nothing is played, no knot is tied and the Echo does not change. Recall takes your Answer, so the Echo passes this turn. A forgotten Key Memory can be brought back this way.</p>
     <p><b>Push Through</b> (each Ferryman only <b>once per game</b>, and only when Grievances hold both banks of the space ahead of the soul): drive the soul through them now, at a price, and turn your Push Through token face down. It uses no card; see section 15. Like a Seek, a Push Through taken as your Answer lets the Echo pass.</p>
-    <p>The <b>discard pile</b> is face down. Every card goes onto it face down, even one played face up, and nobody looks through it. The <b>forgotten pile</b> is face up, so anyone may check what the river has taken.</p>` },
+    <p>The <b>discard pile</b> is face down. Every card goes onto it face down, even one played face up, and nobody looks through it. The <b>forgotten pile</b> is face up, so anyone may check what the river has taken.</p>
+    ${fig("card")}` },
 
   { id: "echo", title: "13. The Echo and Resonance", keys: "echo resonance resonate thread silent signal", body: `
     ${lore("When two silent Ferrymen pull the same thread, the Loom sings.")}
     <p>${ico("nb-echo", "#8FD6E1")} The <b>Echo</b> is the thread of the last card played face up or Burned, by anyone. It is how silent players talk.</p>
     <p>If the <b>first</b> card you play on your turn is on the Echo's thread, it <b>Resonates</b>. Do its Resonance effect as well; some Oblivion cards do their Resonance <i>instead</i>. A Resonating card that carries a memory may be <b>inscribed</b> in the Book of Remembrance.</p>
     <p>Only your Answer (your first action) can Resonate. If your Answer is a Seek, a Recall or a Push Through, the Echo passes unanswered this turn.</p>
-    <p>Leaving an Echo the next player can safely follow is the heart of the game.</p>` },
+    <p>Leaving an Echo the next player can safely follow is the heart of the game.</p>
+    ${fig("echo")}` },
 
   { id: "loom", title: "14. The Loom of the Fates and Backlash", keys: "loom knot thread backlash grasping resignation tide karma", body: `
     ${lore("Pull one thread too hard and the Fates pull back.")}
@@ -259,7 +265,8 @@ export const RULEBOOK = [
       <li><b>Acceptance, Resignation</b>: the soul gives up for a moment. Put the Resignation token beside it: at the next Soul Step it sits down and Lingers, forgetting a card, and the token is removed.</li>
       <li><b>Oblivion, the Tide Rises</b>: too much has been let go, and Black Water floods the space ahead.</li>
     </ul>
-    <p>The Loom clears whenever the soul enters a new Reach.</p>` },
+    <p>The Loom clears whenever the soul enters a new Reach.</p>
+    ${fig("loom")}` },
 
   { id: "soulstep", title: "15. The Soul Step", keys: "move linger light as ash adrift forget hold", body: `
     ${lore("The soul walks only toward light. In the dark, it waits, and waiting, it forgets.")}
@@ -268,13 +275,15 @@ export const RULEBOOK = [
     <p><b>Through the shades.</b> If Grievances hold <b>both</b> banks of the next space, the way is shut and the soul will Linger. On your turn you may spend an action to <b>Push Through</b> (each Ferryman only once per game, and only if that space is not flooded): both Grievances scatter, the soul steps onto the space at once, and it pays dearly, taking <b>1 Fracture</b> and forgetting the top card of the deck. Each push already made this game (count the face-down Push Through tokens) costs <b>one more Fracture</b>: the second push costs 2, the third 3, which shatters the soul. The Soul Step still follows as usual. Push once; after that, clear the way with your cards.</p>
     <p><b>Light as Ash.</b> Once 6 cards are forgotten, the soul glides one extra space whenever it can. It has less to carry.</p>
     <p><b>Adrift.</b> Once 9 cards are forgotten, each time the soul moves it moves one more space. If that space is dark it drifts in anyway and suffers a Fracture (the Spirit Warden can hold it back). It has almost nothing left to hold it in place.</p>
-    <p>If a Grievance sits beside the soul after the step, it feeds: <b>1 Fracture</b>.</p>` },
+    <p>If a Grievance sits beside the soul after the step, it feeds: <b>1 Fracture</b>.</p>
+    ${fig("soulstep")}` },
 
   { id: "threats", title: "16. Black Water, Grievances and Fractures", keys: "black water flood drink deluge grievance feed fracture shield trapped", body: `
     ${lore("The river rises, old resentments crawl out of the graves, and the soul begins to crack.")}
     <p>${ico("nb-blackwater", "#9A948C")} <b>Black Water</b> floods a whole space. The soul cannot step onto it, and Blooms on it wither to Roots. When both banks of a flooded space hold a Root or Bloom at the end of a turn, the roots <b>drink the flood</b> and it drains. Drained water leaves the game, so the supply only shrinks. If water must rise and the supply is empty: <b>Deluge</b>.</p>
     <p>${ico("nb-grievance", "#8FD6E1")} A <b>Grievance</b> takes a bank and blocks it. One beside the soul feeds on it each Soul Step. A Grievance with a Bloom on the same bank both before and after it is <b>trapped in light</b> and dissolves at the end of the turn. If Grievances hold both banks of the space ahead, the soul cannot pass, unless a player spends an action to Push Through them (section 15).</p>
-    <p>${ico("nb-fracture", "#D7263D")} <b>Fractures</b> come from feeding Grievances, pushing through the shades, Adrift, and the Dark Wind. At 3 the soul is <b>Shattered</b>. <i>Hold the Line</i> raises a Shield that stops the next Fracture: put the Shield token in front of you until it is used or your next turn ends.</p>` },
+    <p>${ico("nb-fracture", "#D7263D")} <b>Fractures</b> come from feeding Grievances, pushing through the shades, Adrift, and the Dark Wind. At 3 the soul is <b>Shattered</b>. <i>Hold the Line</i> raises a Shield that stops the next Fracture: put the Shield token in front of you until it is used or your next turn ends.</p>
+    ${fig("threats")}` },
 
   { id: "mantles", title: "17. Mantles and Light", keys: "mantle summon light weaver warden bringer breaker recall resummon lay down solo", body: `
     ${lore("The light of passed flowers can be spent to take up an old role of the river, or to call back what the river took.")}
@@ -286,14 +295,16 @@ export const RULEBOOK = [
     <p><b>When Light is gathered.</b> Light is taken only when the soul <b>steps off</b> a space: 1 Light for each Bloom on that space, once. The space is then cleared, so a Bloom gives its Light a single time; flowers still ahead of the soul give nothing until the soul walks past them. Light is <b>not</b> collected at the end of a round. Once taken, Light stays in your shared pool from turn to turn until you spend it (a Mantle or a Recall) or the Dark Wind blows 2 of it out. The Open Crossing also gains 2 Light from each Memory Site revealed, and the Child of the Last Flame starts with 3.</p>
     <p><b>Solo: trading Mantles.</b> In solo play you may summon a new Mantle even while you hold one. The Mantle you held is <b>laid down for good</b>: turn its card face down, and no one can summon it again. Each Mantle can be summoned only once, and you may summon at most <b>3</b> times in a game, so one Mantle always stays out of reach. On each turn you choose how to spend your Light: a new Mantle, a Recall, or saving it.</p>
     <ul>${Object.values(MANTLES).map(m => `<li>${ico(TAG_ICONS[m.tag], TAGCOL[m.tag])}<b>${esc(m.name)}</b>: ${esc(m.text)}</li>`).join("")}</ul>
-    <p>The Spirit Warden acts on other players' turns too, so turn its card sideways when it is used and straighten it at the start of its holder's turn.</p>` },
+    <p>The Spirit Warden acts on other players' turns too, so turn its card sideways when it is used and straighten it at the start of its holder's turn.</p>
+    ${fig("mantles")}` },
 
   { id: "book", title: "18. The Book of Remembrance", keys: "inscribe page chapter blessing key memory keepsake slot place person deed feeling", body: `
     ${lore("The old grave-texts told the dead: do not drink from Lethe; find the spring of Memory. This Book is that spring.")}
     <p>The Book has one page per Reach. Each page has four slots, <b>Place</b>, <b>Person</b>, <b>Deed</b> and <b>Feeling</b>, which fill a sentence about the soul's life.</p>
     <p>You may <b>inscribe</b> a card when it Resonates, if its memory's slot is still empty on the current page. A <b>Key Memory</b> card may be inscribed whenever it is played face up. An inscribed card leaves the deck for good: you trade a useful card for a memory the soul will keep.</p>
     <p><b>Chapter Blessing.</b> When a page holds 3 memories (2 for the Garland Girl), the river grants the first of these that applies: mend a Fracture, drain Black Water, or return a forgotten card.</p>
-    <p>At the end, the Book is read aloud. Slots never filled read "…but this, the river has taken".</p>` },
+    <p>At the end, the Book is read aloud. Slots never filled read "…but this, the river has taken".</p>
+    ${fig("book")}` },
 
   { id: "souls", title: "19. The Souls", keys: "child king garland bride open crossing twist first game new players suggested story", body: `
     ${lore("Four souls the old ferryman would not carry, and one with no name at all.")}
@@ -312,11 +323,13 @@ export const RULEBOOK = [
     <p><b>Twist:</b> ${esc(SOULS.bride.twist)} Turn her Soul card sideways once she has been pulled back. <b>Key Memory:</b> <i>${esc(CARDS.find(c => c.id === "B04").band)}</i>.</p>
     <h4>${esc(SOULS.open.name)}</h4>
     <p>A nameless soul. You do not learn its story; you write it. ${esc(SOULS.open.twist)} There is no Key Memory, so the Book is all the soul will have.</p>
-    <p class="rsuggest">${ico("nb-light", "#E6D3A3")}<b>Your first crossing:</b> we suggest <b>${esc(SOULS[FIRST_SOUL].name)}</b> at the Gentle Lantern. Its twists let a new table learn the river, the Loom and the Book before meeting the other Souls.</p>` },
+    <p class="rsuggest">${ico("nb-light", "#E6D3A3")}<b>Your first crossing:</b> we suggest <b>${esc(SOULS[FIRST_SOUL].name)}</b> at the Gentle Lantern. Its twists let a new table learn the river, the Loom and the Book before meeting the other Souls.</p>
+    ${fig("souls")}` },
 
   { id: "mist", title: "20. The Mist", keys: "mist harsh card deck rising water withering cold wind fog returns severed", body: `
     ${lore("The underworld is not empty. After every turn, it moves.")}
-    <p>At the end of every turn the top card of the current Reach's Mist deck is turned. Each deck also holds 2 extra cards (Rising Water and Grievance Drawn Near) and, at every Lantern except Gentle, some <b>harsh</b> cards.</p>${mistTable()}` },
+    <p>At the end of every turn the top card of the current Reach's Mist deck is turned. Each deck also holds 2 extra cards (Rising Water and Grievance Drawn Near) and, at every Lantern except Gentle, some <b>harsh</b> cards.</p>${mistTable()}
+    ${fig("mist")}` },
 
   { id: "lantern", title: "21. Lantern levels", keys: "difficulty lantern level gentle standard hard heroic", body: `
     ${lore("The darker the night, the less a lantern shows.")}
@@ -325,7 +338,8 @@ export const RULEBOOK = [
   { id: "solo", title: "22. Solo play and the Ghost", keys: "solo ghost automaton", body: `
     ${lore("Even a lone Ferryman is never quite alone on the river.")}
     <p>In solo play you hold 4 cards, each Loom thread holds 5 knots, and after each of your turns the <b>Ghost</b> plays the top card of its own deck. The Ghost ties a knot and sets the Echo, so plan around it.</p>
-    <p>With no one to share the Mantles, you may <b>trade your Mantle</b> for a new one (section 17): the old one is laid down for good, and you have 3 summons in all. You may also spend Light on a <b>Recall</b>, like any Ferryman.</p>${ghostTable()}` },
+    <p>With no one to share the Mantles, you may <b>trade your Mantle</b> for a new one (section 17): the old one is laid down for good, and you have 3 summons in all. You may also spend Light on a <b>Recall</b>, like any Ferryman.</p>${ghostTable()}
+    ${fig("solo")}` },
 
   { id: "end", title: "23. Winning and losing", keys: "win lose faded shattered deluge end", body: `
     <p><b>Win</b>: the soul reaches the Far Shore.</p>

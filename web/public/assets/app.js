@@ -9,6 +9,7 @@ import * as N from "./net.js";
 import { passage, passageLeft, preloadScenes } from "./passage.js";
 import { rulebook, playerAid } from "./rules.js";
 import { T as CARD_WORDS, cardKit, webCardCSS, mistDeck, mistId, harshId, ghostId } from "./cardface.js";
+import { fillFigures, RULEFIG_CSS } from "./rulefigs.js";
 import { openBook, closeBook, refreshBook, resetBookMemory, relangBook } from "./book.js";
 import {
   LANGS, lang, zh, setLang, onLang, hasChosenLang, say, backlashText, causeName, cardName, cardBand, tagName, slotLabel, tileName,
@@ -34,7 +35,7 @@ function mistFace(name, ops, reach = 0) {
   return face(kit.mistFace(CW(), at >= 0 ? deck[at] : [name, ops || []], at >= 0 ? mistId(reach, at) : "", reach, false));
 }
 const ghostFace = (t, a) => face(kit.ghostFace(CW(), t, a, ghostId(Math.max(0, GHOST.findIndex(g => g[0] === t && g[1] === a)))));
-if (!document.getElementById("nbcards")) document.head.insertAdjacentHTML("beforeend", `<style id="nbcards">${webCardCSS()}</style>`);
+if (!document.getElementById("nbcards")) document.head.insertAdjacentHTML("beforeend", `<style id="nbcards">${webCardCSS()}${RULEFIG_CSS}</style>`);
 const TAGCOL = ["#D7263D", "#E6D3A3", "#8FD6E1"];
 const SLOT_ICON = { Place: "nb-slot-place", Person: "nb-slot-person", Deed: "nb-slot-deed", Feeling: "nb-slot-feeling" };
 const HARSH_NAMES = new Set(HARSH.map(h => h[0]));
@@ -1875,7 +1876,9 @@ function openDrawer(tab) {
   else {
     const cards = tab === "cards", book = cards ? cardsBook() : rulebook();
     $("dbody").innerHTML = (cards ? cardChips() : `<nav class="toc">${book.map(r => `<a href="#r-${r.id}">${esc(r.title.replace(/^\d+\. /, ""))}</a>`).join("")}</nav>`) +
-      book.map(r => `<section class="rsec" id="r-${r.id}" data-keys="${esc(r.keys || "")}"${r.group ? ` data-group="${r.group}"` : ""}><h3>${r.title}</h3>${r.body}</section>`).join("");
+      fillFigures(book.map(r => `<section class="rsec" id="r-${r.id}" data-keys="${esc(r.keys || "")}"${r.group ? ` data-group="${r.group}"` : ""}><h3>${r.title}</h3>${r.body}</section>`).join(""),
+        zh() ? "zh" : "en", { artImg: (name, pos) => lazy(artImg(name, "pa", pos)) });
+    $("dbody").querySelectorAll(".rfig .nbface").forEach(f => f.onclick = () => peekCard(f.outerHTML.replace(/ loading="lazy"/g, "")));
     if (cards) {
       showCardGroup(cardGroup);
       $("dbody").querySelectorAll(".gchips button").forEach(b => b.onclick = () => { showCardGroup(b.dataset.group); $("dbody").scrollTo({ top: 0 }); });
