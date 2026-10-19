@@ -4,6 +4,8 @@ import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { BLEED, C, FONTS, FACE, SYMBOLS, artImg, render } from "./lib.mjs";
 import { setupSpread, SPREAD_CSS } from "./setup.mjs";
+import { fillFigures, RULEFIG_CSS } from "../../web/public/assets/rulefigs.js";
+import { webCardCSS } from "../../web/public/assets/cardface.js";
 import { RULEBOOK, playerAid } from "../../web/public/assets/rules.js";
 import { RULEBOOK_ZH, playerAidZh } from "../../web/public/assets/rules_zh.js";
 
@@ -56,6 +58,11 @@ const flowDoc = (lang, title, css, body) => `<!doctype html><html lang="${lang =
 // Recolour the web game's light-on-dark icon colours for paper.
 const forPaper = html => html.replace(/#E6D3A3/gi, "#8a6a3e").replace(/#8FD6E1/gi, "#2f7f8e").replace(/#9A948C/gi, "#6b655d").replace(/#EFE7D6/gi, "#5c4a3a").replace(/var\(--cyan\)/g, "#2f7f8e");
 
+// The pictures keep their dark plates on paper; a figure is not split across pages.
+const FIG_PRINT = `.rfig { break-inside: avoid; margin: 3mm 0 4mm; } .rfig-in figcaption, .rf-panel > span { color: #5c4a3a; font-size: 8.6pt; }
+.nbface img.ai { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.rf-card .nbface { box-shadow: none; } .rf-cards { gap: 2.5mm; } .rf-panels { gap: 3mm; }`;
+
 const pageCount = file => (readFileSync(file).toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
 
 export async function build(lang, dir, { png }) {
@@ -65,12 +72,12 @@ export async function build(lang, dir, { png }) {
   const sections = w.book.map(s => `<h2>${s.title}</h2>${s.body}`).join("\n").replace(/<div class="setupfig"[^>]*><\/div>/, "")
     .replace(w.setupRef[0], w.setupRef[1]);
   const aid = `<h2 style="break-before:page">${w.aidTitle}</h2>${w.aid(null)}`;
-  const css = CSS(lang, PW, PH, M) + SPREAD_CSS(lang);
+  const css = CSS(lang, PW, PH, M) + SPREAD_CSS(lang) + webCardCSS() + RULEFIG_CSS + FIG_PRINT;
   const file = join(dir, "rulebook");
   let notes = 0;
   for (let pass = 0; pass < 2; pass++) {
     const pad = Array.from({ length: notes }, () => `<div class="notes"><h2>${w.notes}</h2></div>`).join("");
-    await render(file, flowDoc(lang, w.title, css, cover + setupSpread(lang) + forPaper(sections + aid) + pad), { w: PW, h: PH, png });
+    await render(file, flowDoc(lang, w.title, css, cover + setupSpread(lang) + fillFigures(forPaper(sections + aid), lang, { artImg }) + pad), { w: PW, h: PH, png });
     const n = pageCount(file + ".pdf");
     notes += (4 - (n % 4)) % 4;
     if (n % 4 === 0) { console.log(`  rulebook: ${n} pages`); break; }

@@ -751,7 +751,7 @@ function mistStep(s) {
   if (!d.length) d.push(...shuffle(s, MIST[s.reach].map(m => m)));
   const [name, ops] = d.pop();
   s.lastMist = name;
-  note(s, "mist", name, { name, m: ["mist", name] });
+  note(s, "mist", name, { name, ops, m: ["mist", name] });
   const S = s.soul;
   for (const op of ops) {
     const k = op[0];

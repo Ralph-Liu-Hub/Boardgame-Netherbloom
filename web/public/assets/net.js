@@ -34,15 +34,32 @@ async function peerOpts() {
 export const hasRelay = () => !!iceCache?.relay;
 
 // ---------------------------------------------------------------- host
+// The table is only findable while this page holds its line to the matchmaking server. A phone that switches
+// to another app (to send the code, say) can lose that line, so the host keeps trying to get it back, and tries
+// again at once when the page is shown or the network returns. handlers.away() reports the table unfindable;
+// handlers.open() fires again when it is back.
 export function host(code, handlers) {
-  let peer = null, closed = false;
+  let peer = null, closed = false, timer = 0;
   const conns = new Map();   // peer connection id -> conn
+  const kick = () => {
+    clearTimeout(timer);
+    if (closed || !peer || peer.destroyed || !peer.disconnected) return;
+    try { peer.reconnect(); } catch { /* closed */ }
+  };
+  const onShow = () => { if (document.visibilityState === "visible") kick(); };
+  document.addEventListener("visibilitychange", onShow);
+  window.addEventListener("online", kick);
   peerOpts().then(opts => {
     if (closed) return;
     peer = new window.Peer(PREFIX + code, opts);
     peer.on("open", () => handlers.open?.());
     peer.on("error", e => handlers.error?.(e));
-    peer.on("disconnected", () => { try { peer.reconnect(); } catch { /* closed */ } });
+    peer.on("disconnected", () => {
+      if (closed) return;
+      handlers.away?.();
+      clearTimeout(timer);
+      timer = setTimeout(kick, 2000);
+    });
     peer.on("connection", conn => {
       conn.on("open", () => conns.set(conn.connectionId, conn));
       conn.on("data", msg => handlers.message?.(conn.connectionId, msg));
@@ -56,7 +73,13 @@ export function host(code, handlers) {
   return {
     send(id, msg) { const c = conns.get(id); if (c && c.open) c.send(msg); },
     broadcast(msg, except) { for (const [id, c] of conns) if (id !== except && c.open) c.send(msg); },
-    close() { closed = true; peer?.destroy(); },
+    close() {
+      closed = true;
+      clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onShow);
+      window.removeEventListener("online", kick);
+      peer?.destroy();
+    },
   };
 }
 

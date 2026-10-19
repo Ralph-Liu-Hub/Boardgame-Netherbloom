@@ -13,22 +13,11 @@ export const SYMBOLS = readFileSync(join(ROOT, "web/public/assets/symbols.svg"),
 export const BLEED = 3, SAFE = 3;
 export const DPI = 300;
 
-export const C = { ink: "#0e0c11", ink2: "#17141b", ash: "#2a2530", bone: "#E6D3A3", paper: "#F2E8D5", mist: "#9A948C",
-  crimson: "#D7263D", cyan: "#8FD6E1", gilt: "#8a6d48", water: "#0b1418" };
-export const TAG_COL = [C.crimson, C.bone, C.cyan];
-export const TAG_ICON = ["nb-obsession", "nb-acceptance", "nb-oblivion"];
-export const SLOT_ICON = { Place: "nb-slot-place", Person: "nb-slot-person", Deed: "nb-slot-deed", Feeling: "nb-slot-feeling" };
+// Colours, thread icons and the per-language font stacks are the card template's (web/public/assets/cardface.js).
+import { C, TAG_COL, TAG_ICON, SLOT_ICON, FACE, esc, icon } from "../../web/public/assets/cardface.js";
+export { C, TAG_COL, TAG_ICON, SLOT_ICON, FACE, esc, icon };
 
 export const FONTS = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+TC:wght@400;600;700&family=LXGW+WenKai+TC&display=block">`;
-// Per-language font stacks: English uses the design system's faces; Chinese sets everything in Noto Serif TC, the Book in WenKai.
-export const FACE = {
-  en: { display: `"IM Fell English SC", Georgia, serif`, serif: `"IM Fell English", Georgia, serif`, body: `"Alegreya Sans", sans-serif`, hand: `"IM Fell English", Georgia, serif`, mono: `"IBM Plex Mono", monospace` },
-  zh: { display: `"Noto Serif TC", serif`, serif: `"Noto Serif TC", serif`, body: `"Noto Serif TC", serif`, hand: `"LXGW WenKai TC", "Noto Serif TC", serif`, mono: `"IBM Plex Mono", "Noto Serif TC", monospace` },
-};
-
-export const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-export const icon = (id, col = "currentColor", cls = "ic") => `<svg class="${cls}" style="color:${col}" aria-hidden="true"><use href="#${id}"/></svg>`;
-
 // Art lives in art/masters as lossless PNG. The PDFs embed a quality-92 JPEG copy (same pixels, a tenth of the size),
 // made once into print/out/factory/.art with ImageMagick; without ImageMagick the PNG is used as is.
 // A missing painting returns null, and callers draw a dark wash instead so the build never breaks.

@@ -211,30 +211,15 @@ input, select { font: inherit; color: var(--paper); background: var(--ink); bord
 .prompt .msg { margin-right: auto; font-size: 1rem; }
 .prompt .msg b { color: var(--bone); font-weight: 500; }
 .hand { display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch; min-height: 60px; }
-.card { position: relative; width: 200px; min-height: 250px; border-radius: 10px; padding: 12px 12px 10px; display: flex; flex-direction: column; gap: 6px;
-  background: linear-gradient(180deg, #26222a, #1b191f); border: 1.5px solid var(--ash); text-align: left; color: var(--paper);
-  transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s, border-color .25s; }
-.card.t0 { border-color: rgba(215,38,61,.7); } .card.t1 { border-color: rgba(230,211,163,.7); } .card.t2 { border-color: rgba(143,214,225,.7); }
+.card { position: relative; display: block; width: 200px; border-radius: 4.76% / 3.41%; text-align: left; color: var(--paper);
+  transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s; }
+.card > .nbface { width: 100%; }
 .card.playable:hover, .card.sel { transform: translateY(-8px); box-shadow: 0 16px 40px rgba(0,0,0,.55); }
 .card.sel { box-shadow: 0 0 0 2px var(--bone), 0 16px 40px rgba(0,0,0,.55); }
 .card.resonant::after { content: "Resonates"; position: absolute; top: -9px; right: 10px; font-family: var(--mono); font-size: .62rem; letter-spacing: .1em;
   text-transform: uppercase; background: var(--cyan); color: var(--ink); padding: 1px 7px; border-radius: 9px; animation: glow 2s infinite; }
-.card .top { display: flex; gap: 8px; align-items: center; }
-.card .top svg { width: 26px; height: 26px; flex: none; }
-.card .nm { font-family: var(--display); font-size: 1.12rem; line-height: 1.1; }
-.card .tag { font-family: var(--mono); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mist); }
-.card .eff { font-size: .88rem; }
-.card .res { font-size: .82rem; color: var(--cyan); }
-.card .band { margin-top: auto; font-family: var(--serif); font-style: italic; font-size: .86rem; color: var(--bone); border-top: 1px solid var(--ash); padding-top: 6px; display: flex; gap: 6px; }
-.card .band svg { width: 16px; height: 16px; flex: none; margin-top: 2px; }
-.card .key { color: var(--crimson); font-family: var(--mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; }
-.card .modes { display: grid; grid-template-columns: 1fr; gap: 5px; margin-top: 6px; }
-.card .modes button { font-size: .82rem; padding: 5px 8px; text-align: left; }
 .card.dealt { animation: deal .7s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes deal { from { opacity: 0; transform: translateY(40px) rotate(6deg); } }
-.card.back { background: repeating-linear-gradient(45deg, #1d1a21 0 8px, #221e26 8px 16px); display: grid; place-items: center; min-height: 120px; width: 90px; }
-.card.back svg { width: 40px; height: 40px; color: var(--crimson); opacity: .6; }
-@media (max-width: 560px) { .card { width: calc(50% - 6px); min-height: 220px; } }
 
 /* log, book */
 .log { display: grid; gap: 4px; max-height: 330px; overflow-y: auto; font-size: .86rem; padding-right: 4px; }
@@ -324,10 +309,7 @@ input, select { font: inherit; color: var(--paper); background: var(--ink); bord
 /* hand: cards share the row instead of leaving a gap */
 .hand { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 10px; min-height: 0; }
 .hand > .muted { grid-column: 1 / -1; }
-.card { width: auto; min-height: 196px; padding: 10px 11px 9px; gap: 5px; }
-.card .eff { font-size: .85rem; } .card .res { font-size: .79rem; } .card .band { font-size: .82rem; }
-.card.back { width: auto; min-height: 150px; }
-@media (max-width: 560px) { .hand { grid-template-columns: 1fr 1fr; } .card { width: auto; } }
+@media (max-width: 560px) { .hand { grid-template-columns: 1fr 1fr; } }
 .hand:empty { display: none; }
 
 /* soul board: two columns of facts instead of one long list */
@@ -650,9 +632,8 @@ html:lang(zh-Hant-TW) {
 html:lang(zh-Hant-TW) * { font-style: normal !important; }
 html:lang(zh-Hant-TW) .bk-title h2, html:lang(zh-Hant-TW) .bk-script { font-family: "LXGW WenKai TC", "Noto Serif TC", serif; letter-spacing: .08em; }
 html:lang(zh-Hant-TW) .bk-title h1 { letter-spacing: .2em; }
-html:lang(zh-Hant-TW) .bk-page, html:lang(zh-Hant-TW) .bk-face, html:lang(zh-Hant-TW) .page, html:lang(zh-Hant-TW) .card .band { font-family: "LXGW WenKai TC", "Noto Serif TC", serif; }
+html:lang(zh-Hant-TW) .bk-page, html:lang(zh-Hant-TW) .bk-face, html:lang(zh-Hant-TW) .page { font-family: "LXGW WenKai TC", "Noto Serif TC", serif; }
 html:lang(zh-Hant-TW) .bk-dropcap::first-letter { font-family: "LXGW WenKai TC", "Noto Serif TC", serif; }
-html:lang(zh-Hant-TW) .card .nm { font-weight: 600; }
 html:lang(zh-Hant-TW) .card.resonant::after { content: "共鳴"; }
 html:lang(zh-Hant-TW) .drawer .body { line-height: 1.75; }
 
@@ -737,12 +718,9 @@ html:lang(zh-Hant-TW) .drawer .body { line-height: 1.75; }
 .fanwrap { overflow: hidden; max-height: 0; transition: max-height .35s cubic-bezier(.3,.7,.2,1); }
 .dock.open .fanwrap { max-height: 222px; }
 .fan { display: flex; justify-content: center; align-items: flex-start; height: 222px; padding: 22px 20px 0; }
-.fan .card { flex: none; width: 158px; height: 214px; min-height: 0; margin: 0 -18px; overflow: hidden; cursor: pointer;
+.fan .card { flex: none; width: 158px; margin: 0 -18px; overflow: hidden; cursor: pointer;
   transform-origin: 50% 220%; transform: translateY(var(--y)) rotate(var(--r)); z-index: var(--z);
   transition: transform .25s cubic-bezier(.3,.7,.2,1), box-shadow .25s; box-shadow: 0 10px 26px rgba(0,0,0,.55); }
-.fan .card::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 46px; background: linear-gradient(transparent, #1a181e); pointer-events: none; z-index: 1; }
-.fan .card .eff { font-size: .78rem; } .fan .card .res { font-size: .74rem; } .fan .card .band { font-size: .76rem; }
-.fan .card .nm { font-size: 1rem; }
 .fan .card:hover, .fan .card:focus-visible { transform: translateY(-22px) rotate(0) scale(1.06); z-index: 20; box-shadow: 0 22px 44px rgba(0,0,0,.7); }
 .fan .card.sel { transform: translateY(-26px) rotate(0) scale(1.06); z-index: 21; }
 .fan .card.playable { box-shadow: 0 0 0 1px rgba(230,211,163,.55), 0 10px 26px rgba(0,0,0,.55); }
@@ -751,13 +729,11 @@ html:lang(zh-Hant-TW) .drawer .body { line-height: 1.75; }
 .fan .card.dealt { animation: fanin .45s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes fanin { from { opacity: 0; transform: translateY(40px) rotate(var(--r)) scale(.9); } }
 .fan .card.back { width: 120px; height: 168px; margin: 0 -8px; cursor: default; }
-.fan .card.back::before { display: none; }
 @media (max-width: 640px) {
   .dock.open .fanwrap { max-height: 210px; }
   .fan { height: 200px; padding-top: 20px; }
   .fan { padding-left: 34px; padding-right: 34px; }
-  .fan .card { width: 116px; height: 172px; margin: 0 -22px; padding: 8px; }
-  .fan .card .eff, .fan .card .res { font-size: .68rem; } .fan .card .nm { font-size: .86rem; } .fan .card .band { display: none; }
+  .fan .card { width: 116px; margin: 0 -22px; }
   .dockbar { flex-wrap: wrap; padding: 6px 10px; } .dockbar .prompt { flex-basis: 100%; }
 }
 
@@ -766,10 +742,8 @@ html:lang(zh-Hant-TW) .drawer .body { line-height: 1.75; }
 @keyframes zoomveil { from { opacity: 0; } }
 .zoom.hidden { display: none; }
 .zoombox { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; justify-content: center; max-height: calc(100vh - 32px); overflow: auto; }
-.card.big { width: min(340px, 86vw); min-height: 470px; padding: 20px 20px 16px; gap: 12px; animation: zoomin .3s cubic-bezier(.2,.8,.2,1) both;
+.card.big { width: min(380px, 88vw, calc((100vh - 64px) * 63 / 88)); animation: zoomin .3s cubic-bezier(.2,.8,.2,1) both;
   box-shadow: 0 30px 80px rgba(0,0,0,.8); cursor: default; }
-.card.big .top svg { width: 40px; height: 40px; } .card.big .nm { font-size: 1.6rem; } .card.big .tag { font-size: .72rem; }
-.card.big .eff { font-size: 1.08rem; line-height: 1.45; } .card.big .res { font-size: 1rem; line-height: 1.4; } .card.big .band { font-size: 1.02rem; }
 @keyframes zoomin { from { opacity: 0; transform: translateY(60px) scale(.6); } }
 .zside { display: grid; gap: 8px; width: min(300px, 86vw); }
 .zmodes { display: grid; gap: 8px; }
@@ -839,12 +813,11 @@ html:lang(zh-Hant-TW) .drawer .body { line-height: 1.75; }
 .holdtok { pointer-events: auto; }
 @media (max-width: 640px) { .tabletop { flex-direction: column; } .piles { justify-content: space-between; } .pile { min-width: 0; flex: 1; padding: 6px; } .tray { justify-content: center; } }
 @media (prefers-reduced-motion: reduce) { .stampin, .fan .card.dealt, .card.big { animation-duration: .01s; } }
-.card.big .gloss { list-style: none; margin: 2px 0 0; padding: 10px 0 0; display: grid; gap: 7px; border-top: 1px dashed var(--ash); font-size: .84rem; line-height: 1.4; color: var(--mist); }
-.card.big .gloss b { color: var(--paper); font-weight: 500; }
-.card.big .gloss li { padding-left: 12px; position: relative; }
-.card.big .gloss li::before { content: ""; position: absolute; left: 0; top: .55em; width: 5px; height: 5px; border-radius: 50%; background: var(--ash); }
+.zside .gloss { list-style: none; margin: 2px 0 0; padding: 10px 0 0; display: grid; gap: 7px; border-top: 1px dashed var(--ash); font-size: .84rem; line-height: 1.4; color: var(--mist); }
+.zside .gloss b { color: var(--paper); font-weight: 500; }
+.zside .gloss li { padding-left: 12px; position: relative; }
+.zside .gloss li::before { content: ""; position: absolute; left: 0; top: .55em; width: 5px; height: 5px; border-radius: 50%; background: var(--ash); }
 .zmodes .tokbtn.primary small { color: #4a3d2c; }
-.card.big { width: min(380px, 88vw); min-height: 0; }
 .tokenlegend span { display: inline-flex; align-items: center; gap: 6px; }
 .tokenlegend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .tokenlegend .tokico { width: 22px; height: 22px; } .tokenlegend .tokico svg { width: 14px; height: 14px; margin: 0; vertical-align: 0; }
@@ -991,26 +964,11 @@ img.pa { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: co
 #soulFig image { pointer-events: none; }
 /* Memory cards: the painting washes the face in the hand and gets its own window up close */
 .card { overflow: hidden; isolation: isolate; }
-.card > .cardbg { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.card > .cardbg img { opacity: .85; filter: saturate(.9); object-position: 50% 30%; }
-.card > .cardbg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23,21,27,.45) 0%, rgba(23,21,27,.7) 26%, rgba(23,21,27,.82) 55%, rgba(23,21,27,.45) 100%); }
-.card .artwin { display: none; position: relative; flex: none; height: 150px; border-radius: 6px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(138,109,72,.7); }
-.card .artwin::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 1px rgba(138,109,72,.7), inset 0 0 24px rgba(0,0,0,.65); border-radius: 6px; }
-.card .artwin .seal { position: absolute; right: 6px; bottom: 6px; width: 28px; height: 28px; color: var(--crimson); filter: drop-shadow(0 0 4px #000); z-index: 1; }
-.card.big .artwin { display: block; }
-.card.big > .cardbg { display: none; }
-.card.keymem { box-shadow: 0 0 0 1px rgba(215,38,61,.35); }
 .card.back > img.cb, .mc.back > img.cb { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit; }
 .mc { position: relative; overflow: hidden; isolation: isolate; }
 .mc > img.mcart { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: .75; }
 .mc:not(.back)::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(20,18,24,.2), rgba(20,18,24,.85) 70%); }
 /* Mist and Ghost cards turned up mid-table */
-.mistcard .mart { position: relative; width: 100%; aspect-ratio: 4 / 3; border-radius: 6px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(79,125,134,.8); }
-.mistcard.harsh .mart { box-shadow: inset 0 0 0 1px rgba(138,46,58,.9); }
-.mistcard .mart::after { content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 22px rgba(0,0,0,.6); }
-.mistcard { width: 260px; margin-left: -130px; background: radial-gradient(circle at 50% 20%, #24202a, #121015 75%); border-color: #4f7d86; }
-.mistcard.ghostcard { border-style: dashed; border-color: var(--cyan); }
-.mistcard.ghostcard p { font-style: normal; font-family: var(--body); color: var(--paper); font-size: .92rem; }
 /* a Mantle summoned */
 .banner.withart .bart { display: block; position: relative; width: 220px; height: 150px; margin: 0 auto 10px; border-radius: 8px; overflow: hidden; border: 1px solid #8a6d48; box-shadow: 0 16px 40px rgba(0,0,0,.7); }
 /* the end of a crossing */
@@ -1018,7 +976,6 @@ img.pa { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: co
 .end .endpic::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 50%, rgba(23,22,27,.9)); }
 @media (max-width: 640px) {
   .soulopt .soulpic { height: 110px; }
-  .card.big .artwin { height: 120px; }
   .heroart { width: min(220px, 60vw); }
 }
 /* The Book's plates: the Soul's own paintings, one per Reach, tipped in like a storybook plate */
@@ -1163,41 +1120,69 @@ html:lang(zh-Hant-TW) .pz-line { font-family: "Noto Serif TC", serif; font-style
 @keyframes pz-mistout { 0%, 55% { opacity: 0; } 70% { opacity: 1; } 100% { opacity: 0; } }
 
 /* ---------------------------------------------------------------- the Cards view: every card in the game, by kind */
-.drawer.cardview { width: min(1000px, 100vw); }
-.gintro { color: var(--mist); font-size: .88rem; margin: 2px 0 8px; }
-.ggrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 6px 0 10px; }
-.gitem { position: relative; display: flex; }
 .gitem.hide { display: none; }
-.gitem > .card { width: 100%; }
-.gitem .card:hover { transform: none; }
 .gcount { position: absolute; top: -8px; right: -6px; z-index: 2; font-family: var(--mono); font-size: .72rem; padding: 2px 7px; border-radius: 10px;
   background: var(--bone); color: var(--ink); box-shadow: 0 2px 6px rgba(0,0,0,.5); }
-.gcard { width: 100%; display: flex; flex-direction: column; gap: 6px; padding: 10px 11px; border-radius: 10px; border: 1.5px solid var(--ash);
-  background: linear-gradient(180deg, #26222a, #1b191f); }
-.gcard .k { font-family: var(--mono); font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--mist); }
-.gcard .mart { position: relative; height: 120px; border-radius: 6px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(138,109,72,.7); }
-.gcard .mart img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.gcard > b { font-family: var(--display); font-weight: 400; font-size: 1.1rem; color: var(--paper); line-height: 1.15; }
-.gcard p { margin: 0; font-size: .86rem; line-height: 1.4; }
-.gcard small { margin-top: auto; padding-top: 6px; border-top: 1px solid var(--ash); font-size: .78rem; color: var(--bone); }
-.gcard.mist p, .gcard.soulcard p { font-family: var(--serif); font-style: italic; color: var(--bone); }
-.gcard.harsh { border-color: var(--crimson); }
-.gcard.t0 { border-color: rgba(215,38,61,.7); } .gcard.t1 { border-color: rgba(230,211,163,.7); } .gcard.t2 { border-color: rgba(143,214,225,.7); }
-@media (max-width: 560px) { .ggrid { grid-template-columns: 1fr 1fr; gap: 10px; } .gcard .mart { height: 90px; } .gitem .card.big .artwin { height: 90px; } }
+
 
 /* Vigil: the coming Mist cards, one to be discarded */
-.vigilgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 10px; }
+.vigilgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 220px)); justify-content: center; gap: 14px; margin-top: 10px; }
 .vigilopt { display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 10px; border-radius: 10px; border: 1px solid var(--ash); background: linear-gradient(180deg, #26222a, #1b191f); }
 .vigilopt .k { font-family: var(--mono); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--mist); }
-.vigilopt .mart { position: relative; height: 110px; border-radius: 6px; overflow: hidden; }
-.vigilopt .mart img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.vigilopt b { font-family: var(--display); font-weight: 400; font-size: 1.15rem; color: var(--paper); }
-.vigilopt small { font-family: var(--serif); font-style: italic; color: var(--bone); font-size: .88rem; }
 .vigilopt.harsh { border-color: var(--crimson); }
-@media (max-width: 560px) { .vigilgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; } .vigilopt { padding: 6px; gap: 4px; }
-  .vigilopt .mart { height: 64px; } .vigilopt b { font-size: .92rem; } .vigilopt small { font-size: .74rem; } .vigilopt .k { font-size: .54rem; letter-spacing: .06em; } }
+@media (max-width: 560px) { .vigilgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; } .vigilopt { padding: 6px; gap: 4px; } .vigilopt .k { font-size: .54rem; letter-spacing: .06em; } }
 .vigilopt .vmove { margin-top: auto; display: flex; gap: 6px; }
 .vigilopt .vmove button { flex: 1; font-size: .78rem; padding: 4px 6px; }
 .vigilopt .vmove button[disabled] { opacity: .35; cursor: default; }
 #veil[data-kind="vigil"] .row { margin-top: 12px; justify-content: flex-end; }
 @media (max-width: 560px) { .vigilopt .vmove { flex-direction: column; gap: 4px; } .vigilopt .vmove button { font-size: .7rem; padding: 3px 4px; } }
+
+/* ---------------------------------------------------------------- cards as printed: every face is drawn by cardface.js */
+.card.face { box-shadow: 0 6px 18px rgba(0,0,0,.45); }
+.mc.face { padding: 0; border: 0; background: none; display: block; height: auto; }
+.mc.face::after { display: none; }
+.mc.face > .nbface { width: 100%; }
+.pilelist .mc.face { width: 124px; }
+.mistcard.face { width: 280px; min-height: 0; margin: -196px 0 0 -140px; padding: 0; border: 0; background: none; display: block; border-radius: 4.76% / 3.41%; }
+.vigilopt .nbface { width: 100%; }
+
+
+/* The Cards view: one group of cards at a time, roomy, each card opening full size */
+.drawer.cardview { width: min(1080px, 100vw); }
+.gchips { position: sticky; top: 0; z-index: 3; display: flex; flex-wrap: wrap; gap: 6px; margin: 0 -16px; padding: 10px 16px; background: #24212a; border-bottom: 1px solid var(--ash); }
+.gchips button { border-radius: 16px; padding: 5px 14px; font-size: .86rem; color: var(--mist); background: transparent; }
+.gchips button.on { color: var(--ink); background: var(--bone); border-color: var(--bone); }
+.searching .gchips button.on { color: var(--mist); background: transparent; border-color: var(--ash); }
+.drawer.cardview .rsec.off { display: none; }
+.drawer.cardview .searching .rsec.off:not(.hide) { display: block; }
+.drawer.cardview .rsec { border-top: 0; margin-top: 26px; padding-top: 0; }
+.drawer.cardview .rsec h3 { font-size: 1.3rem; display: flex; align-items: baseline; gap: 10px; padding-bottom: 6px; border-bottom: 1px solid #3a363f; }
+.drawer.cardview .ggrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(214px, 1fr)); gap: 26px 22px; margin: 14px 0 6px; }
+.gintro { color: var(--mist); font-size: .9rem; margin: 8px 0 0; max-width: 70ch; }
+.gitem { position: relative; display: block; width: 100%; padding: 0; border: 0; background: none; border-radius: 4.76% / 3.41%; cursor: zoom-in;
+  box-shadow: 0 8px 22px rgba(0,0,0,.5); transition: transform .2s, box-shadow .2s; }
+.gitem:hover:not([disabled]), .gitem:focus-visible { transform: translateY(-4px); box-shadow: 0 0 0 1px var(--bone), 0 16px 34px rgba(0,0,0,.6); background: none; }
+.gitem > .nbface { width: 100%; }
+.gcount { top: 8px; right: 8px; }
+.cardpeek { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; gap: 10px; align-content: center; padding: 16px;
+  background: rgba(10,9,13,.82); backdrop-filter: blur(3px); cursor: zoom-out; animation: zoomveil .2s ease-out both; }
+.peekcard { width: min(440px, 92vw, calc((100vh - 70px) * 63 / 88)); animation: zoomin .25s cubic-bezier(.2,.8,.2,1) both; box-shadow: 0 30px 80px rgba(0,0,0,.8); border-radius: 4.76% / 3.41%; }
+.peekhint { font-family: var(--mono); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--mist); }
+@media (max-width: 560px) { .drawer.cardview .ggrid { grid-template-columns: 1fr 1fr; gap: 16px 12px; } }
+.vigilopt .nbface { cursor: zoom-in; }
+.cardpeek { z-index: 90; }
+/* Rulebook pictures (rulefigs.js) on the dark drawer */
+.rfig .nbface { cursor: zoom-in; }
+.rfig-in figcaption, .rf-panel > span { color: var(--mist); }
+.rf-panel > b { color: var(--bone); }
+
+/* Online menu: hosting and joining side by side, so a joining player only sees the code */
+.netpick { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.netcard { border: 1px solid var(--ash); border-radius: 8px; padding: 14px; display: grid; gap: 10px; align-content: start; background: rgba(14,12,17,.35); }
+.netcard h3 { margin: 0; }
+.netcard > p { margin: 0; font-size: .9rem; }
+.netcard .row { margin-top: 2px; }
+.code.dim { opacity: .45; }
+.tablestate { margin: 0; display: flex; gap: 8px; align-items: center; justify-content: center; color: var(--mist); }
+.tablestate.open { color: var(--bone); }
+.tablestate.away { color: var(--crimson); }
