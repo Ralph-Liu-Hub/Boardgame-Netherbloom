@@ -324,7 +324,7 @@ function menu(which = "solo") {
         </section>
       </div>
       <span class="muted" id="neterr"></span>
-      <p class="muted" style="margin:0;font-size:.88rem">${L("Players connect browser to browser. Everyone signs in with the publisher account, then the host shares the five-letter code.", "玩家之間以瀏覽器直接連線。所有人都用出版社帳號登入，再由主持人分享5個字母的桌號。")}</p>`;
+      <p class="muted" style="margin:0;font-size:.88rem">${L("Players connect browser to browser. The host shares the five-letter code.", "玩家之間以瀏覽器直接連線。由主持人分享5個字母的桌號。")}</p>`;
     // one name, typed in whichever panel: the two boxes stay the same
     const nm = id => { setup.name = $(id).value.trim() || "Player"; store("nb-setup", setup); return setup.name; };
     mp.querySelectorAll(".nmo").forEach(el => el.oninput = () => mp.querySelectorAll(".nmo").forEach(o => { if (o !== el) o.value = el.value; }));
