@@ -19,23 +19,25 @@ const PAINT = { open: ["nameless-road", "nameless-mourners", "nameless-lethe"], 
   garland: ["garland-brook", "garland-wade", "garland-lethe"], king: ["king-field", "king-barge", "king-lake"], bride: ["bride-wedding", "bride-stair", "bride-shore"] };
 const KEY = { child: "L04", garland: "G-04", king: "K04", bride: "B04" };
 
-const strip = h => h.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
 const section = (book, id) => book.find(s => s.id === id).body;
-// The tale is the first paragraph after each Soul's heading in the rulebook's Souls section, in the order above.
-const tales = book => [...section(book, "souls").matchAll(/<h4>[^<]*<\/h4>\s*<p>([\s\S]*?)<\/p>/g)].map(m => strip(m[1]));
-const paras = (book, id) => [...section(book, id).matchAll(/<(p|li)>([\s\S]*?)<\/\1>/g)].map(m => m[2]);
-const loreOf = (book, id) => strip((section(book, id).match(/<p class="lore">([\s\S]*?)<\/p>/) || [, ""])[1]);
+// The rulebook's Book section: how to keep the Book comes before its "ending" heading, the ending after it.
+const paras = html => [...html.replace(/<svg[^>]*>.*?<\/svg>/gs, "").matchAll(/<(p|li)>([\s\S]*?)<\/\1>/g)].map(m => m[2]);
+const bookPart = (book, part) => section(book, "book").split("<h4>")[part];
 
 const W = {
   en: { book: RULEBOOK, title: "Book of Remembrance", soul: k => SOULS[k], frames: BOOK_FRAMES, slot: s => s, reach: r => `Reach ${["I", "II", "III"][r]} · ${REACH_NAMES[r]}`,
     keeping: "Keeping the Book", tuck: "Tuck an inscribed card into the well for its slot: slide its four corners into the photo corners. Slide it out again to reuse the card next game.",
     taken: "…but this, the river has taken", blessing: "Chapter Blessing", keepsakes: "Keepsakes", tale: "The soul of this Book", ferry: "What the Ferrymen know", twist: "Twist", key: "Key Memory",
-    far: "The Far Shore", sign: ["Ferrymen", "Lantern", "Date"], read: "Read the Book aloud, page by page.", band: id => CARDS.find(c => c.id === id).band,
+    far: "The Far Shore",
+    bookLore: "The old grave-texts told the dead: do not drink from Lethe; find the spring of Memory. This Book is that spring.",
+    endLore: "At the Far Shore the Keeper lifts the veil and offers the cup. What the soul remembers decides how it drinks.", sign: ["Ferrymen", "Lantern", "Date"], read: "Read the Book aloud, page by page.", band: id => CARDS.find(c => c.id === id).band,
     outcomes: ["Inscribed in the Book", "Forgotten", "Never written"] },
   zh: { book: RULEBOOK_ZH, title: "憶念之書", soul: k => ZH_SOULS[k], frames: ZH_BOOK_FRAMES, slot: s => ZH_SLOTS[s], reach: r => `第${["一", "二", "三"][r]}河段 · ${ZH_REACHES[r]}`,
     keeping: "保管這本書", tuck: "將銘刻的牌插入其欄位的牌槽：把四個角塞進相角裡。下一局要再用這張牌時，將它滑出即可。",
     taken: "……但這一段，已被河水帶走", blessing: "章節祝福", keepsakes: "信物", tale: "本書的亡魂", ferry: "擺渡人所知道的", twist: "特色規則", key: "關鍵記憶",
-    far: "彼岸", sign: ["擺渡人", "燈籠", "日期"], read: "逐頁朗讀憶念之書。", band: id => ZH_BANDS[id] || CARDS.find(c => c.id === id).band,
+    far: "彼岸",
+    bookLore: "古老的墓文告誡亡者：莫飲忘川之水，當尋記憶之泉。這本書，就是那道泉水。",
+    endLore: "在彼岸，守岸人掀起面紗，遞上那一杯。亡魂記得什麼，決定了它如何飲下。", sign: ["擺渡人", "燈籠", "日期"], read: "逐頁朗讀憶念之書。", band: id => ZH_BANDS[id] || CARDS.find(c => c.id === id).band,
     outcomes: ["已銘刻於書中", "已遺忘", "未曾說出"] },
 };
 
@@ -102,11 +104,11 @@ function leads(frame) {
 }
 
 function soulBook(lang, k) {
-  const w = W[lang], s = w.soul(k), st = STORIES[k][lang], bookParas = paras(w.book, "book");
+  const w = W[lang], s = w.soul(k), st = STORIES[k][lang], bookParas = paras(bookPart(w.book, 0));
   const pages = [];
   pages.push(page(`<div class="eyebrow">Netherbloom${lang === "zh" ? " · 《彼岸花渡》" : ""}</div><h1>${w.title}</h1>
     <div class="cameo">${artImg(`soul-${ART[k]}`, "50% 10%")}</div><div class="name">${esc(s.name)}</div>
-    <p class="lore" style="margin-top:auto">${esc(loreOf(w.book, "book"))}</p>`, PAINT[k][2]));
+    <p class="lore" style="margin-top:auto">${esc(w.bookLore)}</p>`, PAINT[k][2]));
   // 2 · the Soul's tale, told in full
   pages.push(page(`<div class="eyebrow">${w.tale}</div><h2>${esc(s.name)}</h2><p class="lore epi">${esc(st.epigraph)}</p>
     <div class="tale">${st.tale.map((t, i) => `<p${i ? "" : ' class="drop"'}>${esc(t)}</p>`).join("")}</div>
@@ -127,8 +129,8 @@ function soulBook(lang, k) {
     pages.push(page(`<div class="eyebrow">${w.reach(r)}</div><h2>${esc(title)}</h2><div class="wells">${wells}</div>
       <div class="foot" style="margin-top:6mm"><span><span class="box"></span>${w.blessing}</span><span>${w.keepsakes} <span class="box"></span><span class="box"></span><span class="box"></span></span><span>${4 + r}</span></div>`, PAINT[k][r]));
   });
-  const end = paras(w.book, "endings");
-  pages.push(page(`<div class="eyebrow">${w.far}</div><h2>${w.far}</h2><p class="lore">${esc(loreOf(w.book, "endings"))}</p>
+  const end = paras(bookPart(w.book, 1));
+  pages.push(page(`<div class="eyebrow">${w.far}</div><h2>${w.far}</h2><p class="lore">${esc(w.endLore)}</p>
     ${KEY[k] ? `<div class="note">${end.slice(1, 4).map((p, i) => `<p style="margin:1.5mm 0"><span class="box"></span>${p}</p>`).join("")}</div>` : ""}
     <p style="margin-top:6mm">${end[end.length - 1]}</p>
     <div class="sign">${w.sign.map(t => `<span>${t}</span>`).join("")}</div>${folio(7, w, k)}`, PAINT[k][2], "50% 60%"));

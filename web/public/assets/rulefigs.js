@@ -65,7 +65,7 @@ const FIGS = {
       "亡魂在第1格，那裡的花照亮了這一格。發光的河岸是新的根唯一能放的地方：第2格與第3格下方的河岸隔水對著一個根，第4格上方的河岸沿著同一側接在第3格的根之後。打叉的河岸什麼都沒有碰到，根無法生長在那裡。")),
 
   tiles: (t, L, kit) => figure(cardRow([0, 1, 2, 3].map(k => [kit.bankFace(L, k, 0), ""]).concat([[kit.fogBack(L, 0), t("The fog side", "霧面")]]), "five"),
-    t("The four kinds of bank card, and the fog side they are dealt with. A Root placed on fog turns the card over.", "四種河岸牌，以及發牌時朝上的霧面。在霧上放置根時，翻開這張牌。")),
+    t("The four kinds of bank card, and the fog side they are placed with. When a Root is placed on a fog card, flip the card face up.", "四種河岸牌，以及擺放時朝上的霧面。在霧面的河岸牌上放置根時，把這張牌翻到正面。")),
 
   card: (t, L, kit) => {
     const cid = CARDS.findIndex(c => c.id === "C14"), n = (k, top, left) => `<span class="rf-num" style="top:${top}%;left:${left}%">${k}</span>`;
@@ -73,7 +73,7 @@ const FIGS = {
       ["絲線（圖示）、牌名與編號", "正面打出時的效果", "共鳴：與迴響相符時額外執行的效果", "插畫", "它承載的記憶，以及它填入憶念之書的哪一格（地點、人物、事蹟或感受）"]);
     return figure(`<div class="rf-anat"><div class="rf-card big"><div class="nbface">${kit.memoryCard(L, cid)}</div>${n(1, 6, -9)}${n(2, 13.5, -9)}${n(3, 20, -9)}${n(4, 48, -9)}${n(5, 82, -9)}</div>
       <ol class="rf-legend">${parts.map(p => `<li>${p}</li>`).join("")}</ol></div>`,
-      t("A Memory card. Oblivion cards carry no memory: they are forgotten once used.", "一張記憶牌。忘卻牌沒有記憶：使用後即被遺忘。"));
+      t("A Memory card. Oblivion cards have no Book slot: after use they go on the forgotten pile.", "一張記憶牌。忘卻牌沒有憶念之書的欄位：使用後放入遺忘堆。"));
   },
 
   echo: (t, L, kit) => {
@@ -88,9 +88,9 @@ const FIGS = {
   },
 
   loom: t => {
-    const rows = [["nb-obsession", K.crimson, t("Obsession", "執念"), 2, t("Backlash: a Grievance beside the soul", "反噬：亡魂身旁出現怨念")],
-      ["nb-acceptance", K.bone, t("Acceptance", "釋懷"), 4, t("Full: Resignation, the soul will Linger", "打滿：認命，亡魂將徘徊")],
-      ["nb-oblivion", K.cyan, t("Oblivion", "忘卻"), 1, t("Backlash: Black Water floods ahead", "反噬：黑水淹沒前方")]];
+    const rows = [["nb-obsession", K.crimson, t("Obsession", "執念"), 2, t("Full: Grasping, a Grievance on the soul's space", "打滿：攫取，在亡魂所在格放置怨念")],
+      ["nb-acceptance", K.bone, t("Acceptance", "釋懷"), 4, t("Full: Resignation, the soul does not move next Soul Step", "打滿：認命，下一次亡魂步驟不移動")],
+      ["nb-oblivion", K.cyan, t("Oblivion", "忘卻"), 1, t("Full: the Tide Rises, Black Water on the next space", "打滿：漲潮，在下一格放置黑水")]];
     const svg = `<svg class="rf-svg" viewBox="0 0 620 190" role="img"><rect width="620" height="190" rx="10" fill="${K.plate}"/>
       ${rows.map(([id, col, name, n, back], r) => { const y = 38 + r * 56;
         return `${use(id, 28, y, 26, col)}${label(50, y + 5, name, { col, size: 14, anchor: "start" })}<line x1="150" y1="${y}" x2="370" y2="${y}" stroke="${col}" stroke-opacity=".45" stroke-width="2"/>
@@ -103,18 +103,18 @@ const FIGS = {
 
   soulstep: t => figure(panels([
     [t("The next space is Lit", "下一格已被照亮"), river({ from: 1, to: 4, soul: 2, tok: { "2L": "bloom", "3L": "bloom", "3R": "root" }, fog: ["4L", "4R"], lit: [2, 3], arrow: [2, 3], notes: [[2, "L", t("+1 Light", "+1點光"), K.bone]], w: 70 }),
-      t("The soul steps on. It takes 1 Light for each Bloom on the space it leaves, which is then cleared.", "亡魂前進。它離開的那一格上每有1朵花，便獲得1點光，之後那一格被清空。")],
-    [t("The next space is dark", "下一格一片黑暗"), river({ from: 1, to: 4, soul: 2, tok: { "2L": "root", "3L": "root" }, fog: ["3R", "4L", "4R"], w: 70 }),
-      t("The soul Lingers. On a dark space it forgets the top card of the deck; on a Lit one it only waits.", "亡魂徘徊。在黑暗的格子上，它遺忘牌庫頂的1張牌；在被照亮的格子上，它只是等待。")],
+      t("The soul moves. Gain 1 Light for each Bloom on the space it moved off, then clear that space.", "亡魂移動。它離開的那一格上每有1朵花，獲得1點光，然後清空那一格。")],
+    [t("The next space is not Lit", "下一格未照亮"), river({ from: 1, to: 4, soul: 2, tok: { "2L": "root", "3L": "root" }, fog: ["3R", "4L", "4R"], w: 70 }),
+      t("The soul Lingers (stays put). If its own space is not Lit, forget the top card of the deck; if it is Lit, nothing else happens.", "亡魂徘徊（留在原格）。若它所在格未照亮，遺忘牌庫頂的1張牌；若已照亮，不發生其他事。")],
   ]), ""),
 
   threats: t => figure(panels([
-    [t("Trapped in the light", "受困於光中"), river({ from: 2, to: 5, soul: 2, tok: { "3L": "bloom", "5L": "bloom", "2L": "bloom" }, griev: ["4L"], fog: ["3R", "4R", "5R"], lit: [2, 3, 5], w: 66 }),
-      t("A Grievance with Blooms on the same bank before and after it dissolves at the end of the turn.", "怨念所在河岸的同一側，前後兩格都有花：它在回合結束時消散。")],
-    [t("Roots drink the flood", "根吸乾洪水"), river({ from: 2, to: 5, soul: 2, tok: { "2L": "bloom", "4L": "root", "4R": "root" }, flood: [4], fog: ["3L", "3R", "5L", "5R"], w: 66 }),
-      t("A flooded space with a Root or Bloom on both banks: the Black Water is drained at the end of the turn.", "被淹沒的格子兩岸都有根或花：黑水在回合結束時被排乾。")],
-    [t("The way is blocked", "道路被封住"), river({ from: 2, to: 5, soul: 2, tok: { "2L": "bloom" }, griev: ["3L", "3R"], fog: ["4L", "4R", "5L", "5R"], w: 66 }),
-      t("Grievances on both banks ahead: the soul Lingers, unless a player spends an action to Push Through.", "前方兩岸都是怨念：亡魂徘徊，除非有玩家花1個行動奮力駛過。")],
+    [t("Removing a Grievance", "移除怨念"), river({ from: 2, to: 5, soul: 2, tok: { "3L": "bloom", "5L": "bloom", "2L": "bloom" }, griev: ["4L"], fog: ["3R", "4R", "5R"], lit: [2, 3, 5], w: 66 }),
+      t("A Bloom on the same bank directly before and after a Grievance: in Cleanup, return the Grievance to the supply.", "怨念同一側河岸的正前一格與正後一格都有花：整理時把該怨念放回供應區。")],
+    [t("Removing Black Water", "移除黑水"), river({ from: 2, to: 5, soul: 2, tok: { "2L": "bloom", "4L": "root", "4R": "root" }, flood: [4], fog: ["3L", "3R", "5L", "5R"], w: 66 }),
+      t("Black Water on a space with a Root or Bloom on both banks: in Cleanup, remove the Black Water from the game.", "有黑水的格子兩岸都有根或花：整理時把該黑水移出遊戲。")],
+    [t("Grievances on both banks", "兩岸都有怨念"), river({ from: 2, to: 5, soul: 2, tok: { "2L": "bloom" }, griev: ["3L", "3R"], fog: ["4L", "4R", "5L", "5R"], w: 66 }),
+      t("Grievances on both banks of the next space: the soul cannot move there unless a player uses an action to Push Through.", "下一格兩岸都有怨念：除非有玩家花1個行動奮力駛過，否則亡魂無法移動到該格。")],
   ]), ""),
 
   book: (t, L) => {
