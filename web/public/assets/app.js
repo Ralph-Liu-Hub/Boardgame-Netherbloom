@@ -306,13 +306,23 @@ function menu(which = "solo") {
   } else {
     const sizes = [2, 3, 4].map(n => `<button type="button" data-size="${n}" class="${setup.tableSize === n ? "on" : ""}">${L(`${n} players`, `${n}人`)}</button>`).join("");
     mp.innerHTML = `<h2>${L("Online", "線上模式")}</h2>
-      <div class="field"><span>${L("Players at a new table", "新開牌桌的人數")}</span><div class="lanterns">${sizes}</div></div>
-      <div class="form">
-        <label class="field"><span>${L("Your name", "你的名字")}</span><input id="nmo" maxlength="18" value="${esc(setup.name)}" placeholder="${L("Your name", "你的名字")}"></label>
-        <label class="field"><span>${L("Table code (to join)", "桌號（加入時填寫）")}</span><input id="code" maxlength="5" placeholder="${L("e.g. K7QXM", "例如 K7QXM")}" style="text-transform:uppercase;letter-spacing:.2em"></label>
+      <div class="form"><label class="field"><span>${L("Your name", "你的名字")}</span><input id="nmo" maxlength="18" value="${esc(setup.name)}" placeholder="${L("Your name", "你的名字")}"></label></div>
+      <div class="netpick">
+        <section class="netcard">
+          <h3>${L("Host a new table", "開新桌")}</h3>
+          <p class="muted">${L("You open the table, choose how many players will sit at it, and share its code.", "由你開桌、決定這桌的人數，再把桌號分享給其他玩家。")}</p>
+          <div class="field"><span>${L("Players at this table", "這桌的人數")}</span><div class="lanterns">${sizes}</div></div>
+          ${amAdmin ? `<label class="check"><input type="checkbox" id="watchhost" ${setup.watchHost ? "checked" : ""}> ${L("Host without playing: watch the whole table, no hands shown (admin)", "主持但不參與：旁觀整張牌桌，不顯示任何手牌（管理員）")}</label>` : ""}
+          <div class="row"><button type="button" class="primary" id="hostbtn">${L("Host a new table", "開新桌")}</button></div>
+        </section>
+        <section class="netcard">
+          <h3>${L("Join a table", "加入牌桌")}</h3>
+          <p class="muted">${L("All you need is the five-letter code from your host. The host has already chosen the number of players.", "只需要主持人給你的5個字母桌號。人數已由主持人決定。")}</p>
+          <label class="field"><span>${L("Table code", "桌號")}</span><input id="code" maxlength="5" autocomplete="off" autocapitalize="characters" placeholder="${L("e.g. K7QXM", "例如 K7QXM")}" style="text-transform:uppercase;letter-spacing:.2em"></label>
+          <div class="row"><button type="button" class="primary" id="joinbtn">${L("Join a table", "加入牌桌")}</button></div>
+        </section>
       </div>
-      ${amAdmin ? `<label class="check"><input type="checkbox" id="watchhost" ${setup.watchHost ? "checked" : ""}> ${L("Host without playing: watch the whole table, no hands shown (admin)", "主持但不參與：旁觀整張牌桌，不顯示任何手牌（管理員）")}</label>` : ""}
-      <div class="row"><button type="button" class="primary" id="hostbtn">${L("Host a new table", "開新桌")}</button><button type="button" id="joinbtn">${L("Join a table", "加入牌桌")}</button><span class="muted" id="neterr"></span></div>
+      <span class="muted" id="neterr"></span>
       <p class="muted" style="margin:0;font-size:.88rem">${L("Players connect browser to browser. Everyone signs in with the publisher account, then the host shares the five-letter code.", "玩家之間以瀏覽器直接連線。所有人都用出版社帳號登入，再由主持人分享5個字母的桌號。")}</p>`;
     const nm = () => { setup.name = $("nmo").value.trim() || "Player"; store("nb-setup", setup); return setup.name; };
     mp.querySelectorAll("[data-size]").forEach(b => b.onclick = () => { setup.name = $("nmo").value.trim(); setup.tableSize = +b.dataset.size; store("nb-setup", setup); menu("online"); });
@@ -321,6 +331,7 @@ function menu(which = "solo") {
     $("joinbtn").onclick = () => {
       const code = $("code").value.trim().toUpperCase();
       if (code.length !== 5) { $("neterr").textContent = L("Enter the five-letter code.", "請輸入5個字母的桌號。"); return; }
+      if (net && net.role === "guest" && net.code === code) leaveGame();   // a fresh search, not the end of the last one
       joinTable(code, nm());
     };
   }
@@ -394,15 +405,25 @@ function hostTable(name, restore = null, tries = 0, watch = false) {
     // players who have not reconnected yet are played by the host, as when anyone drops out mid-game
     seats = restore?.started ? hostSeats() : new Set(watch ? [] : [0]);
     if (restore?.s) beginGame(restore.s);
-    else lobby(L("Opening the table…", "正在開桌…"));
+    else lobby();
   }
   net.api = N.host(code, {
     open: () => {
-      if (net.started) toast(L(`Table ${code} is open again. The other players rejoin as their browsers reconnect.`, `牌桌 ${code} 已重新開啟。其他玩家的瀏覽器重新連線後就會回到牌桌。`));
-      else lobby();
+      const back = net.away;
+      net.ready = true; net.away = false;
+      if (net.started && (back || restore)) toast(L(`Table ${code} is open again. The other players rejoin as their browsers reconnect.`, `牌桌 ${code} 已重新開啟。其他玩家的瀏覽器重新連線後就會回到牌桌。`));
+      if (!net.started) lobby();
       saveGame();
     },
+    // the line to the matchmaking server dropped: nobody new can find the table until it is back
+    away: () => {
+      if (!net || net.closed || net.away) return;
+      net.away = true;
+      if (!net.started) lobby();
+    },
     error: e => {
+      if (!net || net.closed) return;
+      if (net.ready && SERVER_DROP.includes(e?.type)) { net.away = true; if (!net.started) lobby(); return; }
       // after a refresh the old table can take a few seconds to be released: try the same code again
       if (e?.type === "unavailable-id" && restore && tries < 20) {
         net.api.close();
@@ -505,6 +526,14 @@ function joinTable(code, name, restore = null) {
     error: e => {
       if (!net || net.closed) return;
       if (net.rejoining || net.started) { reconnect(); return; }
+      // the host may still be opening the table, or be back in a moment (a phone that switched apps): look again for a while
+      if (e?.type === "peer-unavailable" && !net.joined && (net.looks || 0) < 15) {
+        net.looks = (net.looks || 0) + 1;
+        lobby(L(`Looking for table ${code}…`, `正在尋找桌號 ${code} 的牌桌…`));
+        net.api?.close();
+        net.retry = setTimeout(() => { if (net && !net.closed) joinTable(code, name); }, 3000);
+        return;
+      }
       const text = netError(e);
       if (S) toast(text); else lobby(text);
     },
@@ -535,10 +564,14 @@ function guestMessage(msg) {
   }
 }
 
+// Errors that only mean the line to the matchmaking server dropped for a moment; the host keeps retrying.
+const SERVER_DROP = ["network", "server-error", "socket-error", "socket-closed", "disconnected"];
+
 // Plain words for what went wrong with a connection.
 function netError(e) {
   const type = e?.type || e?.message || String(e);
-  if (type === "peer-unavailable") return L("No open table with that code.", "找不到這個桌號的牌桌。");
+  if (type === "peer-unavailable") return L("No open table with that code. Check the code with your host, and ask them to keep the Netherbloom page open and in front: on a phone, switching to another app can hide the table until they come back.",
+    "找不到這個桌號的牌桌。請向主持人確認桌號，並請主持人讓《彼岸花渡》的頁面保持開啟、留在最前面：在手機上切換到其他應用程式時，牌桌可能會暫時找不到，直到主持人回到頁面。");
   if (type === "negotiation-failed" || type === "webrtc")
     return N.hasRelay() ? L("Your two networks could not reach each other, even through the relay. Try again, or try another network.", "雙方的網路即使透過中繼伺服器也無法連通。請再試一次，或換一個網路。")
       : L("Your two networks could not reach each other directly (a strict router or a mobile network). Online play needs a relay server for this; ask the site owner to set one up.", "雙方的網路無法直接連通（例如嚴格的路由器或行動網路）。這種情況需要中繼伺服器；請網站管理者設定。");
@@ -560,8 +593,12 @@ function lobby(note = "") {
   <div class="screen">
     <section class="panel" style="justify-items:center;text-align:center">
       <div class="eyebrow">${L("Online table", "線上牌桌")}</div>
-      <div class="code">${esc(net.code)}</div>
-      <p class="muted" style="margin:0">${host ? L("Share this code. Other players choose Online → Join a table.", "分享這個桌號。其他玩家選擇「線上模式 → 加入牌桌」。") : L("Waiting for the host to begin.", "等待主持人開始遊戲。")}</p>
+      <div class="code ${host && !net.ready ? "dim" : ""}">${esc(net.code)}</div>
+      ${host ? `<p class="tablestate ${net.away ? "away" : net.ready ? "open" : ""}"><span class="dot ${net.ready && !net.away ? "" : "off"}"></span>${net.away
+        ? L("Reconnecting to the matchmaking server… Players cannot find the table until this page is back online.", "正在重新連線到配對伺服器…在此頁面恢復連線之前，其他玩家找不到這張牌桌。")
+        : net.ready ? L("Open: players can join with this code.", "已開桌：其他玩家可以用這個桌號加入。") : L("Opening the table…", "正在開桌…")}</p>
+      <p class="muted" style="margin:0">${L("Other players choose Online → Join a table and type the code. Keep this page open and in front until everyone is in: on a phone, switching to another app can hide the table.", "其他玩家選擇「線上模式 → 加入牌桌」並輸入桌號。在所有人到齊之前，請讓這個頁面保持開啟、留在最前面：在手機上切換到其他應用程式時，牌桌可能會找不到。")}</p>`
+        : `<p class="muted" style="margin:0">${L("Waiting for the host to begin.", "等待主持人開始遊戲。")}</p>`}
       ${note ? `<p style="margin:0;color:var(--crimson)">${esc(note)}</p>` : ""}
     </section>
     <section class="panel">

@@ -1175,3 +1175,14 @@ html:lang(zh-Hant-TW) .pz-line { font-family: "Noto Serif TC", serif; font-style
 .rfig .nbface { cursor: zoom-in; }
 .rfig-in figcaption, .rf-panel > span { color: var(--mist); }
 .rf-panel > b { color: var(--bone); }
+
+/* Online menu: hosting and joining side by side, so a joining player only sees the code */
+.netpick { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.netcard { border: 1px solid var(--ash); border-radius: 8px; padding: 14px; display: grid; gap: 10px; align-content: start; background: rgba(14,12,17,.35); }
+.netcard h3 { margin: 0; }
+.netcard > p { margin: 0; font-size: .9rem; }
+.netcard .row { margin-top: 2px; }
+.code.dim { opacity: .45; }
+.tablestate { margin: 0; display: flex; gap: 8px; align-items: center; justify-content: center; color: var(--mist); }
+.tablestate.open { color: var(--bone); }
+.tablestate.away { color: var(--crimson); }
