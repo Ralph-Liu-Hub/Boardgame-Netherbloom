@@ -306,33 +306,36 @@ function menu(which = "solo") {
   } else {
     const sizes = [2, 3, 4].map(n => `<button type="button" data-size="${n}" class="${setup.tableSize === n ? "on" : ""}">${L(`${n} players`, `${n}人`)}</button>`).join("");
     mp.innerHTML = `<h2>${L("Online", "線上模式")}</h2>
-      <div class="form"><label class="field"><span>${L("Your name", "你的名字")}</span><input id="nmo" maxlength="18" value="${esc(setup.name)}" placeholder="${L("Your name", "你的名字")}"></label></div>
       <div class="netpick">
         <section class="netcard">
           <h3>${L("Host a new table", "開新桌")}</h3>
           <p class="muted">${L("You open the table, choose how many players will sit at it, and share its code.", "由你開桌、決定這桌的人數，再把桌號分享給其他玩家。")}</p>
+          <label class="field"><span>${L("Your name", "你的名字")}</span><input id="nmh" class="nmo" maxlength="18" value="${esc(setup.name)}" placeholder="${L("Your name", "你的名字")}"></label>
           <div class="field"><span>${L("Players at this table", "這桌的人數")}</span><div class="lanterns">${sizes}</div></div>
           ${amAdmin ? `<label class="check"><input type="checkbox" id="watchhost" ${setup.watchHost ? "checked" : ""}> ${L("Host without playing: watch the whole table, no hands shown (admin)", "主持但不參與：旁觀整張牌桌，不顯示任何手牌（管理員）")}</label>` : ""}
           <div class="row"><button type="button" class="primary" id="hostbtn">${L("Host a new table", "開新桌")}</button></div>
         </section>
         <section class="netcard">
           <h3>${L("Join a table", "加入牌桌")}</h3>
-          <p class="muted">${L("All you need is the five-letter code from your host. The host has already chosen the number of players.", "只需要主持人給你的5個字母桌號。人數已由主持人決定。")}</p>
+          <p class="muted">${L("Just your name and the five-letter code from your host. The host has already chosen the number of players.", "只需要填寫你的名字，以及主持人給你的5個字母桌號。人數已由主持人決定。")}</p>
+          <label class="field"><span>${L("Your name", "你的名字")}</span><input id="nmj" class="nmo" maxlength="18" value="${esc(setup.name)}" placeholder="${L("Your name", "你的名字")}"></label>
           <label class="field"><span>${L("Table code", "桌號")}</span><input id="code" maxlength="5" autocomplete="off" autocapitalize="characters" placeholder="${L("e.g. K7QXM", "例如 K7QXM")}" style="text-transform:uppercase;letter-spacing:.2em"></label>
           <div class="row"><button type="button" class="primary" id="joinbtn">${L("Join a table", "加入牌桌")}</button></div>
         </section>
       </div>
       <span class="muted" id="neterr"></span>
       <p class="muted" style="margin:0;font-size:.88rem">${L("Players connect browser to browser. Everyone signs in with the publisher account, then the host shares the five-letter code.", "玩家之間以瀏覽器直接連線。所有人都用出版社帳號登入，再由主持人分享5個字母的桌號。")}</p>`;
-    const nm = () => { setup.name = $("nmo").value.trim() || "Player"; store("nb-setup", setup); return setup.name; };
-    mp.querySelectorAll("[data-size]").forEach(b => b.onclick = () => { setup.name = $("nmo").value.trim(); setup.tableSize = +b.dataset.size; store("nb-setup", setup); menu("online"); });
+    // one name, typed in whichever panel: the two boxes stay the same
+    const nm = id => { setup.name = $(id).value.trim() || "Player"; store("nb-setup", setup); return setup.name; };
+    mp.querySelectorAll(".nmo").forEach(el => el.oninput = () => mp.querySelectorAll(".nmo").forEach(o => { if (o !== el) o.value = el.value; }));
+    mp.querySelectorAll("[data-size]").forEach(b => b.onclick = () => { setup.name = $("nmh").value.trim(); setup.tableSize = +b.dataset.size; store("nb-setup", setup); menu("online"); });
     if ($("watchhost")) $("watchhost").onchange = e => { setup.watchHost = e.target.checked; store("nb-setup", setup); };
-    $("hostbtn").onclick = () => hostTable(nm(), null, 0, amAdmin && !!setup.watchHost);
+    $("hostbtn").onclick = () => hostTable(nm("nmh"), null, 0, amAdmin && !!setup.watchHost);
     $("joinbtn").onclick = () => {
       const code = $("code").value.trim().toUpperCase();
       if (code.length !== 5) { $("neterr").textContent = L("Enter the five-letter code.", "請輸入5個字母的桌號。"); return; }
       if (net && net.role === "guest" && net.code === code) leaveGame();   // a fresh search, not the end of the last one
-      joinTable(code, nm());
+      joinTable(code, nm("nmj"));
     };
   }
 }
