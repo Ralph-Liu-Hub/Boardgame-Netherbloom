@@ -52,6 +52,9 @@ class Config:
         self.bride_forgets = False   # tuning: the Bride still forgets when pulled back
         self.lit_both = False        # tuning: a space is Lit only with Blooms on both banks
         self.burn_forget = 2         # tuning: cards forgotten per Burn
+        self.burn_mode = "solo"      # "solo": Burn one card (effect x2, forget it and the top card); "joint_a": another player
+                                     # adds a same-thread card as fuel, the active player's card doubles, both are forgotten;
+                                     # "joint_b": as joint_a, but either card may be the one that doubles (solo: two own cards)
         self.extra_mist = 2          # tuning: extra Rising Water / Grievance cards per Reach deck
         self.light_per_bloom = 1     # tuning: Light gained per Bloom passed
         self.ghost_forgets = False   # tuning: the Ghost's Oblivion card forgets 1
@@ -534,6 +537,27 @@ class State:
         d = sp - self.soul
         return 11 - min(d, 9) * 2
 
+    # ------------------------------------------------------------- joint Burn
+    def burn_partners(self):
+        """The hands a joint Burn's other card can come from: the other players (solo: your own)."""
+        return [self.cur] if self.n == 1 else [p for p in range(self.n) if p != self.cur]
+
+    def burn_fuel(self, cid, mode):
+        """(hand, card) of the other card in a joint Burn of cid, or None. mode 'burn': cid is the active player's
+        card and the fuel comes from a partner; 'burnx': cid is a partner's card and the fuel is the active player's."""
+        tag = CARD[cid].tag
+        if mode == "burnx":
+            mine = [c for c in self.hands[self.cur] if CARD[c].tag == tag]
+            owner = next((p for p in self.burn_partners() if cid in self.hands[p]), None)
+            return (owner, mine[0]) if mine and owner is not None else None
+        for p in self.burn_partners():
+            cands = [c for c in self.hands[p] if CARD[c].tag == tag and not (p == self.cur and c == cid)]
+            if p == self.cur and cid in self.hands[p] and self.hands[p].count(cid) > 1:
+                cands.append(cid)
+            if cands:
+                return (p, min(cands, key=lambda c: (CARD[c].key, c)))
+        return None
+
     # ------------------------------------------------------------- playing cards
     def play(self, cid, mode, chooser, first):
         """mode: 'up', 'down' or 'burn'. Returns True if the card Resonated."""
@@ -557,7 +581,21 @@ class State:
             self.push_through()
             return False
         card = CARD[cid]
-        self.hands[self.cur].remove(cid)
+        fuel = None
+        if mode in ("burn", "burnx") and self.cfg.burn_mode != "solo":
+            # Joint Burn: the doubled card and a same-thread fuel card from another hand (solo: from your own hand).
+            fuel = self.burn_fuel(cid, mode)
+            if mode == "burnx":
+                self.hands[fuel[0]].remove(cid)
+                self.hands[self.cur].remove(fuel[1])
+            else:
+                self.hands[fuel[0]].remove(fuel[1])
+                self.hands[self.cur].remove(cid)
+            if fuel[0] != self.cur:
+                self.draw_up(fuel[0])        # the partner refills at once, so no hand is left empty
+            mode = "burn"
+        else:
+            self.hands[self.cur].remove(cid)
         if mode == "seek":
             # Seek: draw, then discard this one. While planning, the AI cannot see the draw.
             self.stats["sought"] = 1
@@ -620,6 +658,10 @@ class State:
         if mode == "burn":
             self.stats["burns"] += 1
             self.forget_card(cid)
+            if fuel is not None:
+                self.stats["joint_burns"] = self.stats.get("joint_burns", 0) + 1
+                self.forget_card(fuel[1])
+                return resonated
             if self.cfg.burn_forget > 1:
                 self.forget_top(self.cfg.burn_forget - 1)
             return resonated

@@ -35,7 +35,7 @@ def play_game(cfg, agent=None, record=False):
             s.note(f"T{s.turn} P{p + 1} soul@{s.soul} forgotten {len(s.forgotten)} fract {s.fract} "
                    f"bw {s.bw_supply} light {s.light} loom {s.karma} echo {s.echo}")
             agent.maybe_summon(s)
-            plays = agent.choose(s)
+            plays = agent.choose(s) or []
             s.last_mist = None
             plays_txt = [label(cid, mode) for cid, mode in plays]
             if plays and plays[0][1] == "seek":

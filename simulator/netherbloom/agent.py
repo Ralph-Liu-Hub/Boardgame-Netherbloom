@@ -177,8 +177,14 @@ class EchoAgent:
             seen.add(key)
             out.append((cid, "up"))
             out.append((cid, "down"))
-            if self.allow_burn:
+            if self.allow_burn and (s.cfg.burn_mode == "solo" or s.burn_fuel(cid, "burn")):
                 out.append((cid, "burn"))
+        if self.allow_burn and s.cfg.burn_mode == "joint_b" and s.n > 1:
+            # either card of a joint Burn may be the one that doubles: a partner's card, fuelled by one of yours
+            for p in s.burn_partners():
+                for cid in dict.fromkeys(s.hands[p]):
+                    if s.burn_fuel(cid, "burnx"):
+                        out.append((cid, "burnx"))
         return out
 
     def _apply(self, s, cid, mode, first):
