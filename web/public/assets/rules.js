@@ -125,13 +125,13 @@ const BOOK = [
     </ol>
     <p>Then the Rule of Silence begins, and the first player takes the first turn.</p>` },
 
-  { id: "turn", title: "3. Your turn", keys: "turn order sequence summon play draw action face up face down burn mode offer seek give gift discard push through recall echo resonance resonate thread", body: `
+  { id: "turn", title: "3. Your turn", keys: "turn order sequence summon play draw action face up face down burn mode share offer seek give gift discard push through recall echo resonance resonate thread", body: `
     ${LOSE}
     <p>Players take turns clockwise, starting with the first player, who holds the Oar. On your turn:</p>
     <ol class="steps">
       <li><b>Summon a Mantle</b> (optional, before your first action; section 8).</li>
-      <li><b>The Answer</b> (your first action): play a card, Offer, Recall or Push Through.</li>
-      <li><b>The Steer</b> (your second action): play a card, Offer or Push Through.</li>
+      <li><b>The Answer</b> (your first action): play a card, Share, Recall or Push Through.</li>
+      <li><b>The Steer</b> (your second action): play a card, Share or Push Through.</li>
       <li><b>End of turn</b>: carry out the end-of-turn steps (section 4).</li>
     </ol>
     <p>Hand size is 4 in solo play and 3 with 2–4 players.</p>
@@ -143,14 +143,14 @@ const BOOK = [
       <li><b>Burn</b>: do the card's effect <b>twice</b>, add one knot to its thread, and move the Echo to that thread. Then put the card on the forgotten pile, and also forget the top card of the deck.</li>
     </ul>
     ${fig("card")}
-    <h4>Offer, Recall and Push Through</h4>
-    <p><b>Offer</b> (once per turn): discard a card from your hand, then draw 2 cards. Keep 1 and give the other to another player of your choice; they add it to their hand (this may take them above their hand size, so they draw fewer at the end of their turn). In solo play, put the other card on the bottom of the deck instead. No card is played, no knot is added and the Echo does not move. The Rule of Silence still holds: you may not say why you give the card.</p>
+    <h4>Share, Recall and Push Through</h4>
+    <p><b>Share</b> (once per turn): discard a card from your hand, then draw 2 cards. Keep 1 and give the other to another player of your choice; they add it to their hand (this may take them above their hand size, so they draw fewer at the end of their turn). In solo play, put the other card on the bottom of the deck instead. No card is played, no knot is added and the Echo does not move. The Rule of Silence still holds: you may not say why you give the card.</p>
     <p><b>Recall</b> (Answer only): spend <b>3 Light</b> and choose any card in the forgotten pile; put it on the discard pile, so it can be drawn again later. A forgotten Key Memory can be Recalled.</p>
     <p><b>Push Through</b> (each player only <b>once per game</b>): only when Shades are on <b>both</b> banks of the next space and that space has no Black Water. Return both Shades to the supply, move the soul onto that space (gain its Light as usual, section 8) and flip your Push Through token face down. The soul then takes <b>1 Fracture</b>, plus 1 more for each Push Through token that was already face down, and you forget the top card of the deck. So the first Push Through costs 1 Fracture, the second 2 and the third 3 (which means Shattered). Your turn continues as usual.</p>
     <h4>The Echo and Resonance</h4>
-    <p>The <b>Echo</b> token sits on the thread of the last card played face up or Burned, by any player (or the Ghost). It does not move for a card played face down, an Offer, a Recall or a Push Through.</p>
+    <p>The <b>Echo</b> token sits on the thread of the last card played face up or Burned, by any player (or the Ghost). It does not move for a card played face down, a Share, a Recall or a Push Through.</p>
     <p>If your <b>Answer</b> is a card played face up or Burned on the Echo's thread, the card <b>Resonates</b>: also do its Resonance effect. On some Oblivion cards the Resonance replaces the normal effect ("Instead"). A Resonating card may be inscribed in the Book of Remembrance (section 9).</p>
-    <p>Your Steer never Resonates. If your Answer is an Offer, a Recall or a Push Through, you cannot Resonate this turn.</p>
+    <p>Your Steer never Resonates. If your Answer is a Share, a Recall or a Push Through, you cannot Resonate this turn.</p>
     ${fig("echo")}
     <h4>Forgetting and the two piles</h4>
     <p><b>Forget</b> a card: put it face up on the next number of the Ledger's forgotten track, overlapping the card before it. The number above the newest card is how many cards are forgotten. <b>Forget the top card of the deck</b>: put the top card of the Memory deck on the forgotten track without playing it. If a card leaves the forgotten pile (Recall, a Chapter Blessing), slide the later cards back.</p>
@@ -388,7 +388,7 @@ export function playerAid(cfg) {
     <ol class="steps">
       <li><b>Summon</b> <span>optional · pay Light, discard a matching card${!cfg || cfg.resummon ? ". Solo: you may trade your Mantle for a new one (the old is laid down for good), 3 summons a game" : ""}</span></li>
       <li><b>Answer</b> <span>your first action: a card played face up or Burned on the Echo's thread Resonates</span></li>
-      <li><b>Steer</b> <span>your second action. Either may be an Offer (once a turn) or a Push Through (once a game for each Ferryman)</span></li>
+      <li><b>Steer</b> <span>your second action. Either may be a Share (once a turn) or a Push Through (once a game for each Ferryman)</span></li>
       <li><b>End of turn</b> <span>1 Bloom-Bringer · 2 Soul Step: next space Lit and no Black Water, move; otherwise Linger · 3 Mist: flip the top card of this Reach's deck · 4 Cleanup · 5 Draw up · 6 Solo: Ghost · 7 Pass the Oar</span></li>
       <li><b>Cleanup</b> <span>remove Black Water where both banks have a disc; remove a Shade with a Bloom on the same bank before and after it</span></li>
     </ol>
@@ -397,7 +397,7 @@ export function playerAid(cfg) {
       <div><b>Face up</b><span>effect + knot + new Echo</span></div>
       <div><b>Face down</b><span>place 1 Root; no knot, Echo stays</span></div>
       <div><b>Burn</b><span>effect ×2 + knot + new Echo; forget it and the top card of the deck</span></div>
-      <div><b>Offer</b><span>once a turn: discard 1, draw 2, keep 1, give 1 to another player (solo: deck bottom); no Resonance this turn if it is your Answer</span></div>
+      <div><b>Share</b><span>once a turn: discard 1, draw 2, keep 1, give 1 to another player (solo: deck bottom); no Resonance this turn if it is your Answer</span></div>
       <div><b>Recall</b><span>your Answer only; 3 Light: a forgotten card of your choice returns to the discard pile</span></div>
       <div><b>Push Through</b><span>Shades on both banks of the next space (no Black Water): remove both and move the soul there; 1 Fracture (+1 per face-down Push Through token), forget 1; once a game for each player</span></div>
     </div>

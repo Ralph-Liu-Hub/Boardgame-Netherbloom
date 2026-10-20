@@ -8,7 +8,7 @@ import { LANTERN, LANTERN_NAMES, lanternIcon } from "../../web/public/assets/car
 import { ZH_LANTERNS } from "../../web/public/assets/zh.js";
 
 const BW = 297, BH = 210;
-const SLOTS = Math.max(...Object.values(LANTERN).map(l => l[1]));   // the longest Faded limit (Gentle)
+const SLOTS = Math.max(...Object.values(LANTERN).map(l => l[1])) + 1;   // the longest Faded limit (Gentle), +1 for the Child
 const COL0 = 16, STEP = 11, CARD_W = 63, CARD_H = 88, TRACK_Y = 54;
 const colX = k => COL0 + (k - 1) * STEP;                            // left edge of forgotten card k
 // Lantern levels by their Faded limit, e.g. { 9: ["4"], 10: ["3"], ... }
