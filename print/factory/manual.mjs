@@ -89,6 +89,7 @@ const W = {
     board: [
       "<code>board/river-board.pdf</code> has three A3 landscape pages, one panel each (4/0). Mount each on 2 mm greyboard, matte laminate, trim. The panels are separate pieces laid edge to edge on the table, I | II | III, left to right; the river runs straight across the joins.",
       "<b>Loom of the Fates board.</b> <code>loom/loom-of-the-fates.pdf</code>, page 1 (4/0); page 2 is its trim line (not printed). Mount on 2 mm greyboard, matte laminate, trim to 297 × 210 mm with 3 mm round corners. Its 22 mm knot circles take the 18 mm knot discs from the punchboard.",
+      "<b>The Ledger board.</b> <code>ledger/the-ledger.pdf</code>, page 1 (4/0); page 2 is its trim line (not printed). Mount, laminate and trim like the Loom board (297 × 210 mm, 3 mm round corners). It holds the forgotten pile (a card-width numbered track), the 3 Fracture discs and the Black Water discs.",
     ],
     s5: "5. Punchboard (tokens)",
     punch: [
@@ -96,7 +97,7 @@ const W = {
     ],
     tokHead: ["Token", "Front", "Back", "Qty", "Size"],
     tokenNames: { "nb-tok-oar": "The Oar", "nb-tok-push": "Push Through", "nb-tok-hold": "Hold Fast", "nb-tok-shield": "Shield", "nb-tok-resign": "Resignation", "nb-soul": "The soul / the Ghost",
-      "nb-root": "Root / Bloom", "nb-grievance": "Grievance", "nb-blackwater": "Black Water", "nb-fracture": "Fracture", "nb-light": "Light", "nb-knot": "Knot", "nb-echo": "The Echo" },
+      "nb-root": "Root / Bloom", "nb-grievance": "Shade", "nb-blackwater": "Black Water", "nb-fracture": "Fracture", "nb-light": "Light", "nb-knot": "Knot", "nb-echo": "The Echo" },
     sameBoth: "same", spent: "spent (dimmed)", ghost: "the Ghost", bloom: "Bloom",
     s6: "6. Books of Remembrance (5) and rulebook",
     books: [
@@ -113,7 +114,7 @@ const W = {
     s8: "8. Assembly and packing (one copy)",
     pack: [
       "Base on the table. In this order, bottom to top:",
-      "The three river board panels, stacked I, II, III, face up, then the Loom of the Fates board on top.",
+      "The three river board panels, stacked I, II, III, face up, then the Loom of the Fates board and the Ledger board on top.",
       "The punchboard, face up (unpunched).",
       "The five Books of Remembrance, each with its photo corners applied.",
       "The cards, each deck shrink-wrapped or banded separately: Memory 72, Mist 42, Ghost 12, bank 20, then Soul 5 and Mantle 4 together.",
@@ -145,6 +146,7 @@ const W = {
       ["Bank cards", n.bank, "63 × 88 mm", "4/4", "as above", "cards/cards-bank.pdf"],
       ["River board panels", 3, "420 × 297 mm", "4/0", "mounted on 2 mm greyboard, matte laminated", "board/river-board.pdf"],
       ["Loom of the Fates board", 1, "297 × 210 mm", "4/0", "mounted on 2 mm greyboard, matte laminated", "loom/loom-of-the-fates.pdf"],
+      ["The Ledger board", 1, "297 × 210 mm", "4/0", "mounted on 2 mm greyboard, matte laminated", "ledger/the-ledger.pdf"],
       ["Punchboard", `1 (${n.tokens} tokens)`, "297 × 210 mm", "4/4", "2 mm greyboard, laminated, die-cut", "tokens/punchboard.pdf"],
       ["Books of Remembrance", 5, "A4, 8 pages", "4/4", "cover 250 g/m², inside 157 g/m² matte; saddle stitch", "books/…"],
       ["Clear photo corners", 240, "≈12 mm", "—", "self-adhesive, 48 per Book", "—"],
@@ -181,6 +183,7 @@ const W = {
     board: [
       "<code>board/river-board.pdf</code> 有三頁 A3 橫式，每頁一塊（4/0）。各自裱於 2 mm 灰紙板，上霧膜後裁切。三塊為獨立配件，於桌上依 I | II | III 由左至右邊對邊排列；河流會直接跨過接縫。",
       "<b>命運織機圖板。</b><code>loom/loom-of-the-fates.pdf</code> 第 1 頁（4/0）；第 2 頁為裁切線（不印）。裱於 2 mm 灰紙板，上霧膜，裁切為 297 × 210 mm，圓角 3 mm。其 22 mm 的結圓圈用來放標記板上 18 mm 的結圓片。",
+      "<b>渡帳圖板。</b><code>ledger/the-ledger.pdf</code> 第 1 頁（4/0）；第 2 頁為裁切線（不印）。裱板、上膜與裁切方式同命運織機圖板（297 × 210 mm，圓角 3 mm）。板上放遺忘堆（一條與牌同寬的編號軌）、3 個裂痕圓片與黑水圓片。",
     ],
     s5: "5. 標記板（模切標記）",
     punch: [
@@ -205,7 +208,7 @@ const W = {
     s8: "8. 組裝與包裝（一套）",
     pack: [
       "盒底放在桌上，由下而上依序放入：",
-      "三塊河流圖板，依 I、II、III 疊放，正面朝上；最上面放命運織機圖板。",
+      "三塊河流圖板，依 I、II、III 疊放，正面朝上；最上面放命運織機圖板與渡帳圖板。",
       "標記板，正面朝上（未壓出）。",
       "五本憶念之書，各自貼好相角。",
       "卡牌，各牌組分別收縮膜或以束帶綁好：記憶牌 72、迷霧牌 42、幽靈牌 12、河岸牌 20，亡魂牌 5 與稱號牌 4 合為一疊。",
@@ -236,6 +239,7 @@ const W = {
       ["河岸牌", n.bank, "63 × 88 mm", "4/4", "同上", "cards/cards-bank.pdf"],
       ["河流圖板", 3, "420 × 297 mm", "4/0", "裱 2 mm 灰紙板，上霧膜", "board/river-board.pdf"],
       ["命運織機圖板", 1, "297 × 210 mm", "4/0", "裱 2 mm 灰紙板，上霧膜", "loom/loom-of-the-fates.pdf"],
+      ["渡帳圖板", 1, "297 × 210 mm", "4/0", "裱 2 mm 灰紙板，上霧膜", "ledger/the-ledger.pdf"],
       ["標記板", `1（${n.tokens} 個標記）`, "297 × 210 mm", "4/4", "2 mm 灰紙板，上膜，模切", "tokens/punchboard.pdf"],
       ["憶念之書", 5, "A4，8 頁", "4/4", "封面 250 g/m²，內頁 157 g/m² 霧面；騎馬釘", "books/…"],
       ["透明相角", 240, "約 12 mm", "—", "自黏，每本 48 個", "—"],
@@ -254,7 +258,7 @@ const W = {
 
 const FILES = [
   "MANUAL.pdf", "cards/cards-memory.pdf", "cards/cards-mist.pdf", "cards/cards-ghost.pdf", "cards/cards-mantle.pdf", "cards/cards-soul.pdf", "cards/cards-bank.pdf", "cards/card-backs.pdf",
-  "board/river-board.pdf", "loom/loom-of-the-fates.pdf", "tokens/punchboard.pdf",
+  "board/river-board.pdf", "loom/loom-of-the-fates.pdf", "ledger/the-ledger.pdf", "tokens/punchboard.pdf",
   "books/book-of-remembrance-child.pdf", "books/book-of-remembrance-garland.pdf", "books/book-of-remembrance-king.pdf", "books/book-of-remembrance-bride.pdf", "books/book-of-remembrance-open.pdf",
   "rulebook/rulebook.pdf", "rulebook/player-aid.pdf",
   "box/box-lid-wrap.pdf", "box/box-lid-dieline.pdf", "box/box-base-wrap.pdf", "box/box-base-dieline.pdf", "box/box-lid-liner.pdf", "box/box-base-liner.pdf",

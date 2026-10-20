@@ -22,13 +22,20 @@ export const icon = (id, col = "currentColor", cls = "ic") => `<svg class="${cls
 
 const NUM = ["I", "II", "III"];
 
+// Rules keywords on the card faces, shown in one style (.kw) so players know Appendix B, "Card terms", explains them.
+const KW = {
+  en: /\b(?:blooms?(?= (?:\d|the\b))|banish(?:es)?|drains?|mend|untie|tie|wash away|lift the fog|withers?|forget|forgotten|backlash|summon|lit|linger)\b/gi,
+  zh: /綻放|驅散|排乾|修補|解開|打(?:\d+|一)個結|沖走|掀開|凋零|遺忘|反噬|召喚|照亮|徘徊/g,
+};
+export const keywords = (s, lang) => esc(s).replace(KW[lang], w => `<span class="kw">${w}</span>`);
+
 // ---------------------------------------------------------------- words, per language
 const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
 function mistOpEn(op) {
   switch (op[0]) {
     case "bw": return `Place 1 Black Water ${op[1]} ${op[1] === 1 ? "space" : "spaces"} ahead of the soul (if that space is flooded, the next one)`;
-    case "grv": return `Place 1 Grievance on the ${op[2] ? "right" : "left"} bank ${op[1]} ${op[1] === 1 ? "space" : "spaces"} ahead of the soul`;
-    case "grv_near": return "Place 1 Grievance on the soul's space (left bank first; if both are taken, the left bank of the next space)";
+    case "grv": return `Place 1 Shade on the ${op[2] ? "right" : "left"} bank ${op[1]} ${op[1] === 1 ? "space" : "spaces"} ahead of the soul`;
+    case "grv_near": return "Place 1 Shade on the soul's space (left bank first; if both are taken, the left bank of the next space)";
     case "wither": return `The ${plural(op[1], "Bloom")} furthest ahead of the soul wither to Roots`;
     case "wither_far": return `Every Bloom more than ${op[1]} spaces ahead of the soul withers to a Root`;
     case "wither_at": return `The Bloom ${op[1]} ${op[1] === 1 ? "space" : "spaces"} ahead of the soul withers to a Root`;
@@ -58,7 +65,7 @@ function mistOpZh(op) {
 }
 const GHOST_ACT = {
   en: { root_far: "Roots on the furthest open bank.", root_near: "Roots on the nearest open bank.", bloom_near: "Blooms the nearest Root.",
-    bloom_far: "Blooms the furthest Root.", banish_forget: "Banishes the nearest Grievance, or drains Black Water.", none: "Does nothing." },
+    bloom_far: "Blooms the furthest Root.", banish_forget: "Banishes the nearest Shade, or drains Black Water.", none: "Does nothing." },
   zh: { root_far: "在最遠的空河岸扎根。", root_near: "在最近的空河岸扎根。", bloom_near: "使最近的根綻放。",
     bloom_far: "使最遠的根綻放。", banish_forget: "驅散最近的怨念，或排乾黑水。", none: "不採取行動。" },
 };
@@ -71,7 +78,7 @@ export const SOUL_PAINT = {
 
 export const T = {
   en: {
-    tag: ["Obsession", "Acceptance", "Oblivion"], slot: s => s, name: n => n, band: c => c.band, ops: opsText,
+    kw: s => keywords(s, "en"), lc: s => s[0].toLowerCase() + s.slice(1), tag: ["Obsession", "Acceptance", "Oblivion"], slot: s => s, name: n => n, band: c => c.band, ops: opsText,
     res: "Resonance:", resInstead: "instead, ", key: "Key Memory", oblNote: "An Oblivion card is forgotten after use.",
     soul: k => SOULS[k], soulKick: k => `Soul${k === FIRST_SOUL ? " · first game" : ""}`, twist: "Twist:",
     soulNote: k => k === "open" ? "Add the 8 Echo cards." : "Add this Soul's 8 cards (1 Key Memory).",
@@ -80,12 +87,12 @@ export const T = {
     ghostKick: "Ghost · solo", ghostName: t => ["The Ghost Roots", "The Ghost Blooms", "The Ghost Forgets"][t], ghostAct: a => GHOST_ACT.en[a],
     ghostNote: t => `Tie a knot on the ${["Obsession", "Acceptance", "Oblivion"][t]} thread; the Echo moves there.`,
     mantle: m => MANTLES[m], mantleKick: "Mantle", mantleNote: t => `Summon: pay 3 Light (2 with the King) and discard one ${["Obsession", "Acceptance", "Oblivion"][t]} card.`,
-    tile: t => TILE_NAMES[t], tileText: ["The Root takes.", "An ordinary Root will not take, and the Root is lost. Stubborn Roots and the Root-Weaver can grow here.", "The Root takes and you find a keepsake. In the Open Crossing it also gives +2 Light.", "No Root grows, and a Grievance rises on that bank."],
+    tile: t => TILE_NAMES[t], tileText: ["The Root takes.", "An ordinary Root will not take, and the Root is lost. Stubborn Roots and the Root-Weaver can grow here.", "The Root takes and you find a keepsake. In the Open Crossing it also gives +2 Light.", "No Root grows, and a Shade rises on that bank."],
     reachName: r => REACH_NAMES[r], fog: "Fog", bank: "Bank card", pack: { core: "Core", echo: "Echo · Open Crossing" },
     backWord: { mist: "Mist", ghost: "Ghost", soul: "Soul", mantle: "Mantle" },
   },
   zh: {
-    tag: ZH_TAGS, slot: s => ZH_SLOTS[s], name: n => ZH_CARD_NAMES[n] || n, band: c => ZH_BANDS[c.id] || c.band, ops: zhOpsText,
+    kw: s => keywords(s, "zh"), lc: s => s, tag: ZH_TAGS, slot: s => ZH_SLOTS[s], name: n => ZH_CARD_NAMES[n] || n, band: c => ZH_BANDS[c.id] || c.band, ops: zhOpsText,
     res: "共鳴：", resInstead: "改為", key: "關鍵記憶", oblNote: "忘卻牌使用後會被遺忘。",
     soul: k => ZH_SOULS[k], soulKick: k => `亡魂${k === FIRST_SOUL ? " · 新手推薦" : ""}`, twist: "特色規則：",
     soulNote: k => k === "open" ? "加入8張迴響牌。" : "加入此亡魂的8張專屬牌（含1張關鍵記憶）。",
@@ -128,13 +135,13 @@ export function cardKit(artImg) {
 
   function memoryFace(L, cid, pack, artName) {
     const c = typeof cid === "object" ? cid : CARDS[cid];
-    const res = `<span class="res"><b>${L.res}</b> ${c.rr ? L.resInstead : ""}${esc(L.ops(c.res))}</span>`;
+    const res = `<span class="res"><b>${L.res}</b> ${c.rr ? L.resInstead : ""}${L.kw(c.rr ? L.lc(L.ops(c.res)) : L.ops(c.res))}</span>`;
     const band = c.slot
       ? `<div class="band">${icon(SLOT_ICON[c.slot], "#5c4a3a")}<span><i>${L.slot(c.slot)}</i>${esc(L.band(c))}</span></div>`
       : `<div class="band none"><span>${L.oblNote}</span></div>`;
     return card(`t${c.tag}${c.key ? " key" : ""}`, `
     <div class="top">${icon(TAG_ICON[c.tag], TAG_COL[c.tag])}<div class="nm">${esc(L.name(c.name))}<small>${L.tag[c.tag]}${c.key ? ` · <span style="color:${C.crimson}">${L.key}</span>` : ""}</small></div><span class="id">${c.id}</span></div>
-    <div class="rules">${esc(L.ops(c.eff))}${res}</div>
+    <div class="rules">${L.kw(L.ops(c.eff))}${res}</div>
     ${artBox(artName, c.key)}
     ${band}
     <div class="foot"><span>${esc(pack)}</span><span>${c.id}</span></div>`);
@@ -146,7 +153,7 @@ export function cardKit(artImg) {
     const [nm, flav] = L.mist(name);
     return card(harsh ? "mist harsh" : "mist", `
     <div class="top">${icon("nb-fog", harsh ? C.crimson : C.cyan)}<div class="nm">${esc(nm)}<small>${L.mistKick(harsh)}${harsh ? "" : ` · ${L.reach(r)}`}</small></div><span class="id">${id}</span></div>
-    <div class="rules">${esc(L.mistJoin(ops))}</div>
+    <div class="rules">${L.kw(L.mistJoin(ops))}</div>
     ${artBox(harsh ? "card-harsh" : `card-mist-${r + 1}`)}
     <div class="band ${harsh ? "red" : "cyan"}"><span>${esc(flav)}</span></div>
     <div class="foot"><span>${harsh ? L.harsh : L.reach(r)}</span><span>${id}</span></div>`);
@@ -154,7 +161,7 @@ export function cardKit(artImg) {
 
   const ghostFace = (L, t, a, id) => card("ghost", `
       <div class="top">${icon(TAG_ICON[t], TAG_COL[t])}<div class="nm">${esc(L.ghostName(t))}<small>${L.ghostKick}</small></div><span class="id">${id}</span></div>
-      <div class="rules">${esc(L.ghostAct(a))}</div>
+      <div class="rules">${L.kw(L.ghostAct(a))}</div>
       ${artBox("card-ghost")}
       <div class="band cyan"><span>${esc(L.ghostNote(t))}</span></div>
       <div class="foot"><span>${L.ghostKick}</span><span>${id}</span></div>`);
@@ -164,7 +171,7 @@ export function cardKit(artImg) {
     return card(`t${t}`, `
       <div class="top">${icon(TAG_ICON[t], TAG_COL[t])}<div class="nm">${esc(info.name)}<small>${L.mantleKick} · ${L.tag[t]}</small></div><span class="id">${m.toUpperCase()}</span></div>
       ${artBox(`card-mantle-${m}`)}
-      <div class="rules">${esc(info.text)}</div>
+      <div class="rules">${L.kw(info.text)}</div>
       <div class="band none"><span>${esc(L.mantleNote(t))}</span></div>
       <div class="foot"><span>${L.mantleKick}</span><span>${m}</span></div>`);
   }
@@ -175,7 +182,7 @@ export function cardKit(artImg) {
       <div class="kick">${L.soulKick(k)}</div>
       <div class="big">${esc(s.name)}</div>
       <div class="flav">${esc(s.blurb)}</div>
-      <div class="rules"><b style="color:${C.bone};font-weight:500">${L.twist}</b> ${esc(s.twist)}</div>
+      <div class="rules"><b style="color:${C.bone};font-weight:500">${L.twist}</b> ${L.kw(s.twist)}</div>
       <div class="note">${L.soulNote(k)}</div>
       <div class="foot"><span>${L.backWord.soul}</span><span>${k}</span></div>`, `<div class="full">${artImg(`soul-${SOUL_ART[k]}`, "50% 12%")}</div>`);
   }
@@ -213,6 +220,9 @@ export function cardCSS(B = 0) {
 .nbcard .rules { font-size: 7.6pt; line-height: 1.32; color: ${C.paper}; }
 .nbcard .rules .res { display: block; margin-top: 1mm; padding: .9mm 1.3mm; border-radius: 1.2mm; background: rgba(230,211,163,.08); color: #ddd2bf; font-size: 7.1pt; }
 .nbcard .rules .res b { color: ${C.bone}; font-weight: 500; }
+.nbcard .kw { color: ${C.cyan}; font-variant: small-caps; letter-spacing: .02em; font-weight: 500; }
+.nbcard .kw::before { content: "◆"; font-size: .55em; vertical-align: .25em; margin-right: .2em; opacity: .8; }
+[lang="zh-Hant-TW"] .nbcard .kw, .nbcard:lang(zh) .kw { font-variant: normal; letter-spacing: 0; }
 [lang="zh-Hant-TW"] .nbcard .rules { font-size: 7.4pt; line-height: 1.45; }
 .nbcard .art { position: relative; flex: 1; min-height: 18mm; border-radius: 1.6mm; overflow: hidden; }
 .nbcard .art::after { content: ""; position: absolute; inset: 0; border-radius: 1.6mm; box-shadow: inset 0 0 0 .25mm rgba(138,109,72,.7), inset 0 0 4mm rgba(0,0,0,.6); }

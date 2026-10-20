@@ -1094,7 +1094,7 @@ function riverRipple(x, y, num, seed) {
 }
 
 // A revealed bank card's symbol: full size in the middle while the bank is empty, tucked small into the
-// bottom-right corner once a Root, Bloom or Grievance sits on it.
+// bottom-right corner once a Root, Bloom or Shade sits on it.
 function tileMark(t, cx, cy, covered) {
   const icon = { [STONY]: "nb-stony", [MEMORY]: "nb-memorysite", [GRAVE]: "nb-grave", [FERTILE]: "nb-fertile" }[t];
   const col = { [STONY]: "#cfc8bd", [MEMORY]: "#E6D3A3", [GRAVE]: "#8FD6E1", [FERTILE]: "#b9ae9c" }[t];
@@ -1242,7 +1242,7 @@ function slotTitle(k) {
   const s = S;
   const where = L(`Space ${k >> 1}, ${k % 2 ? "right" : "left"} bank`, `第${k >> 1}格${k % 2 ? "右岸" : "左岸"}`);
   const sep = L(": ", "：");
-  if (s.griev[k]) return where + sep + L("Grievance", "怨念");
+  if (s.griev[k]) return where + sep + L("Shade", "怨念");
   if (s.tok[k] === E.BLOOM) return where + sep + L("Bloom", "花");
   if (s.tok[k] === E.ROOT) return where + sep + L("Root", "根");
   return where + sep + (s.revealed[k] ? tileName(s.tile[k]) : L("fog", "霧"));
@@ -1428,17 +1428,17 @@ const GLOSS = {
   unmake: ["<b>Unmake</b>: the fullest thread is emptied at once, with no Backlash.", "<b>消解</b>：最滿的絲線立即清空，不會反噬。"],
   guide: ["<b>Guide</b>: the soul steps forward now, but only if the next space is Lit.", "<b>引導</b>：若下一格被照亮，亡魂立刻前進一格。"],
   vigil: ["<b>Vigil</b>: look at the top 3 cards of this Reach's Mist deck and put them back on top in any order you choose.", "<b>守夜</b>：查看本河段迷霧牌庫頂的3張牌，再依你選擇的任意順序放回牌庫頂。"],
-  banish: ["<b>Banish</b>: remove the Grievance that threatens the soul most.", "<b>驅散</b>：移除對亡魂威脅最大的怨念。"],
+  banish: ["<b>Banish</b>: remove the Shade that threatens the soul most.", "<b>驅散</b>：移除對亡魂威脅最大的怨念。"],
   drain: ["<b>Drain</b>: remove the Black Water nearest the soul and return it to the supply.", "<b>排水</b>：移除離亡魂最近的黑水，放回供應區。"],
-  banish_or_drain: ["<b>Banish or Drain</b>: clear whichever is more urgent, a Grievance or Black Water.", "<b>驅散或排水</b>：清除較緊迫的一個，怨念或黑水。"],
-  wash: ["<b>Wash</b>: the Grievances on the soul's own space are washed away.", "<b>洗淨</b>：洗去亡魂所在格上的怨念。"],
+  banish_or_drain: ["<b>Banish or Drain</b>: clear whichever is more urgent, a Shade or Black Water.", "<b>驅散或排水</b>：清除較緊迫的一個，怨念或黑水。"],
+  wash: ["<b>Wash</b>: the Shades on the soul's own space are washed away.", "<b>洗淨</b>：洗去亡魂所在格上的怨念。"],
   lowtide: ["<b>Low Tide</b>: all Black Water in this Reach drains away.", "<b>退潮</b>：本河段所有黑水退去。"],
   light: ["<b>Light</b>: spend 3 to Recall a forgotten card as your Answer, or (with a card of its thread) to summon a Mantle.", "<b>光</b>：以回應花3點光喚回一張被遺忘的牌，或搭配同絲線的牌召喚稱號。"],
   reveal_reach: ["<b>Reveal</b>: every fogged bank in this Reach is turned up. Graves found this way turn Fertile.", "<b>揭示</b>：翻開本河段所有被霧覆蓋的河岸。以此翻出的墳墓會變成沃土。"],
   extra_karma: ["<b>Extra knot</b>: one more knot is tied on the Obsession thread.", "<b>額外的結</b>：執念絲線再打上一個結。"],
 };
 const THREAD_NOTE = [
-  ["Played face up, it ties a knot on the <b>Obsession</b> thread. When the thread fills: <i>Grasping</i>, a Grievance claws at the soul.", "正面打出時在<b>執念</b>絲線上打結。絲線滿時：<i>攫取</i>，一個怨念撲向亡魂。"],
+  ["Played face up, it ties a knot on the <b>Obsession</b> thread. When the thread fills: <i>Grasping</i>, a Shade claws at the soul.", "正面打出時在<b>執念</b>絲線上打結。絲線滿時：<i>攫取</i>，一個怨念撲向亡魂。"],
   ["Played face up, it ties a knot on the <b>Acceptance</b> thread. When the thread fills: <i>Resignation</i>, the soul sits down and Lingers.", "正面打出時在<b>釋懷</b>絲線上打結。絲線滿時：<i>認命</i>，亡魂坐下並徘徊。"],
   ["Played face up, it ties a knot on the <b>Oblivion</b> thread. When the thread fills: <i>The Tide Rises</i>, Black Water floods ahead.", "正面打出時在<b>忘卻</b>絲線上打結。絲線滿時：<i>漲潮</i>，黑水淹沒前方。"],
 ];
@@ -1594,7 +1594,7 @@ const TOKS = {
   down: { icon: () => "nb-tok-down", col: () => "#E6D3A3", en: "Card played face down: 1 Root", zh: "背面打出：放1個根" },
   seek: { icon: () => "nb-tok-seek", col: () => "#8FD6E1", en: "Seek: discard 1, draw 1", zh: "尋覓：棄1張，抽1張" },
   recall: { icon: () => "nb-tok-recall", col: () => "#E6D3A3", en: "Recall: Light spent to bring a memory back", zh: "喚回：花光把一段記憶帶回" },
-  push: { icon: () => "nb-tok-push", col: () => "#D7263D", en: "Push Through the Grievances", zh: "奮力駛過怨念" },
+  push: { icon: () => "nb-tok-push", col: () => "#D7263D", en: "Push Through the Shades", zh: "奮力駛過怨念" },
   summon: { icon: () => "nb-tok-summon", col: m => TAGCOL[MANTLES[m]?.tag ?? 1], en: "Mantle summoned with Light", zh: "以光召喚稱號" },
   hold: { icon: () => "nb-tok-hold", col: () => "#8FD6E1", en: "Hold Fast", zh: "堅守" },
   shield: { icon: () => "nb-tok-shield", col: () => "#E6D3A3", en: "Shield", zh: "護盾" },
@@ -1814,7 +1814,7 @@ function guideHint() {
   if (S.result) return S.result === "win" ? L("The crossing is complete. Open the Book to read the soul's story.", "渡河完成。翻開書本，讀讀亡魂的故事。")
     : L("The crossing has failed. Open the Book to read what was kept.", "渡河失敗了。翻開書本，看看留下了什麼。");
   const anim = guideStep && S.played === 0 && !pending && !busy;
-  if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers. Grievances on both banks ahead also make it Linger, unless a player spent an action to Push Through.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。前方兩岸都被怨念佔據時也會徘徊，除非有玩家花了行動奮力駛過。");
+  if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers. Shades on both banks ahead also make it Linger, unless a player spent an action to Push Through.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。前方兩岸都被怨念佔據時也會徘徊，除非有玩家花了行動奮力駛過。");
   if (anim && guideStep === "mist") return L("The Mist turns a card for this Reach.", "迷霧為本河段翻開一張牌。");
   if (anim && guideStep === "draw") return L("The river settles and hands are refilled.", "河面平靜下來，玩家補滿手牌。");
   const who = esc(pname(S.names[S.cur]));
@@ -1826,8 +1826,8 @@ function guideHint() {
   if (pending?.type === "inscribe") return L("Write this memory into the <b>Book</b>, or keep the card in the deck.", "將這段記憶寫進<b>憶念之書</b>，或把這張牌留在牌庫中。");
   const echo = S.echo >= 0 && S.played === 0 ? L(` A <b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b> card will Resonate.`, `<b class="${TAGCLS[S.echo]}">${tagName(S.echo)}</b>牌會產生共鳴。`) : "";
   const wounds = E.pushCost(S);
-  const push = E.canPush(S) ? `<span class="pushwarn">${L(`Grievances hold both banks ahead, so the soul will Linger. You may spend an action to <b>Push Through</b>: both Grievances scatter and the soul steps forward now, at ${wounds} Fracture${wounds > 1 ? "s" : ""} and 1 forgotten card. Each Ferryman may do this only once in the whole game.`, `前方兩岸都被怨念佔據，亡魂將會徘徊。你可以花1個行動<b>奮力駛過</b>：兩個怨念四散，亡魂立刻前進一格，代價是${wounds}道裂痕並遺忘1張牌。每位擺渡人整局只能這麼做一次。`)}</span>`
-    : E.blockedByGrievances(S) && E.hasPushed(S) ? `<span class="pushwarn">${L("Grievances hold both banks ahead. You have already used your one Push Through this game: clear a bank with your cards.", "前方兩岸都被怨念佔據。你本局的奮力駛過已經用過了：請用手牌清出一側河岸。")}</span>` : "";
+  const push = E.canPush(S) ? `<span class="pushwarn">${L(`Shades hold both banks ahead, so the soul will Linger. You may spend an action to <b>Push Through</b>: both Shades scatter and the soul steps forward now, at ${wounds} Fracture${wounds > 1 ? "s" : ""} and 1 forgotten card. Each Ferryman may do this only once in the whole game.`, `前方兩岸都被怨念佔據，亡魂將會徘徊。你可以花1個行動<b>奮力駛過</b>：兩個怨念四散，亡魂立刻前進一格，代價是${wounds}道裂痕並遺忘1張牌。每位擺渡人整局只能這麼做一次。`)}</span>`
+    : E.blockedByGrievances(S) && E.hasPushed(S) ? `<span class="pushwarn">${L("Shades hold both banks ahead. You have already used your one Push Through this game: clear a bank with your cards.", "前方兩岸都被怨念佔據。你本局的奮力駛過已經用過了：請用手牌清出一側河岸。")}</span>` : "";
   return L(`Click a card in your hand to hold it up close, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `點擊手牌中的一張牌把它拿近細看，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`) + push;
 }
 
@@ -1895,7 +1895,7 @@ function rebuildDrawer() {
 // The search box's prompt: the rules, or the cards.
 function searchLabels() {
   const cards = drawerTab === "cards";
-  $("dq").placeholder = cards ? L("Search the cards… e.g. Bloom, Grievance, Light", "搜尋卡牌…例如：綻放、怨念、光") : L("Search the rules… e.g. Backlash, Stony, Linger", "搜尋規則…例如：反噬、石地、徘徊");
+  $("dq").placeholder = cards ? L("Search the cards… e.g. Bloom, Shade, Light", "搜尋卡牌…例如：綻放、怨念、光") : L("Search the rules… e.g. Backlash, Stony, Linger", "搜尋規則…例如：反噬、石地、徘徊");
   $("dq").setAttribute("aria-label", cards ? L("Search the cards", "搜尋卡牌") : L("Search the rules", "搜尋規則"));
 }
 
@@ -2545,7 +2545,7 @@ function stepEvent(ev) {
         cap(); A.sfx("card"); return 700 + n * 110;
       }
       if (m === "ash") { cap("good"); A.sfx("chime"); return callout(L("Light as Ash", "輕如灰燼"), text, "good"); }
-      if (m === "feed" || m === "darkWindHurt") { cap("bad"); A.sfx("linger"); return callout(m === "feed" ? L("A Grievance feeds", "怨念吞噬亡魂") : L("The Dark Wind wounds", "黑風傷了亡魂"), text, "bad"); }
+      if (m === "feed" || m === "darkWindHurt") { cap("bad"); A.sfx("linger"); return callout(m === "feed" ? L("A Shade feeds", "怨念吞噬亡魂") : L("The Dark Wind wounds", "黑風傷了亡魂"), text, "bad"); }
       if (m === "hold" || m === "holding") {    // the Hold Fast token goes down beside the soul, and is shown again when it takes effect
         if (m === "holding") boardToken("hold", [X(Math.min(vs().soul, 12)), Y(Math.min(vs().soul, 12)) - 58]);
         cap(m === "holding" ? "good" : ""); A.sfx("chime");

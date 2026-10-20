@@ -61,6 +61,14 @@ class Config:
         self.push_once_each = True   # each player may Push Through only once per game
         self.push_action = True      # push-through is an action a player takes (False: the soul pushes on its own at the Soul Step)
         self.seek = True             # one action per turn may be Seek: discard a card and draw one (that turn's next card cannot Resonate)
+        # Playtest options (2026-10): what a Seek does, and how the Book rewards inscriptions
+        self.seek_mode = "classic"   # "classic" discard 1 draw 1; "keep1give" draw 2, keep 1, give the other to the next player;
+                                     # "keep1light" draw 2, keep 1, give the other or forget it for +1 Light; "pass" give the card
+                                     # to the next player instead of discarding it, then draw 1; "scry" look at the top 3, take 1
+        self.book_mode = "blessing"  # "blessing": one Chapter Blessing at blessing_at memories; "pairs": a reward for each
+                                     # adjacent pair of slots filled on a page, and the Blessing for a full page
+        self.pair_rewards = None     # with "pairs": {page: [Place+Person, Person+Deed, Deed+Feeling]} lists of ops
+        self.full_page = ["blessing"]  # with "pairs": what a full page gives (ops; "blessing" = the Chapter Blessing)
         # Light sinks (experiments; off by default)
         self.light_action = "recall" # None, "recall" (the Answer action: spend Light, a forgotten card returns) or
                                      # "kindle" (spend Light for one of: a forgotten card returns, mend a Fracture, drain a Black Water)
@@ -434,7 +442,7 @@ class State:
         elif kind == "mend":
             self.fract = max(0, self.fract - op[1])
         elif kind == "release":
-            col = max(range(3), key=lambda i: self.karma[i])
+            col = self.fullest(chooser)
             self.karma[col] = max(0, self.karma[col] - op[1])
         elif kind == "guide":
             if self.passable(self.soul + 1):
@@ -472,7 +480,7 @@ class State:
                             if self.tile[k] == GRAVE:
                                 self.tile[k] = FERTILE
         elif kind == "unmake":
-            col = max(range(3), key=lambda i: self.karma[i])
+            col = self.fullest(chooser)
             self.karma[col] = 0
         elif kind == "wash":
             for b in (0, 1):
@@ -484,6 +492,17 @@ class State:
                 self.drain(sp)
         elif kind == "extra_karma":
             self.tie_knot(op[1])
+        elif kind == "recall_free":
+            if self.forgotten:
+                self.discard.append(self.forgotten.pop())
+        elif kind == "blessing":
+            self.blessing(chooser)
+
+    def fullest(self, chooser):
+        """The thread with the most knots; on a tie the player chooses."""
+        top = max(self.karma)
+        tied = [i for i in range(3) if self.karma[i] == top]
+        return tied[0] if len(tied) == 1 or not hasattr(chooser, "pick_thread") else chooser.pick_thread(self, tied)
 
     def urgent_grievance(self):
         best, bu = None, -1
@@ -533,15 +552,42 @@ class State:
         card = CARD[cid]
         self.hands[self.cur].remove(cid)
         if mode == "seek":
-            # Seek: draw a card, then discard this one. While planning, the AI cannot see the draw.
+            # Seek: draw, then discard this one. While planning, the AI cannot see the draw.
             self.stats["sought"] = 1
             self.stats["seeks"] = self.stats.get("seeks", 0) + 1
+            sm = self.cfg.seek_mode
+            nxt = (self.cur + 1) % self.n
+            if sm == "pass" and self.n > 1:
+                self.hands[nxt].append(cid)          # the card goes to the next player instead of the discard pile
+            else:
+                self.discard.append(cid)
             if not self.sim:
-                if not self.deck:
-                    self.reshuffle()
-                if self.deck:
-                    self.hands[self.cur].append(self.deck.pop())
-            self.discard.append(cid)
+                draws = 3 if sm == "scry" else 2 if sm in ("keep1give", "keep1light") else 1
+                got = []
+                for _ in range(draws):
+                    if not self.deck:
+                        self.reshuffle()
+                    if self.deck:
+                        got.append(self.deck.pop())
+                if len(got) > 1:
+                    keep = chooser.keep_best(self, got)
+                    got.remove(keep)
+                    self.hands[self.cur].append(keep)
+                    if sm == "scry":
+                        self.deck[:0] = got                # the rest go to the bottom of the deck
+                    else:
+                        for other in got:
+                            if sm == "keep1light" and chooser.forget_for_light(self, other):
+                                self.forget_card(other)
+                                self.light += 1
+                                self.stats["seek_light"] = self.stats.get("seek_light", 0) + 1
+                            elif self.n > 1:
+                                self.hands[nxt].append(other)
+                                self.stats["seek_gifts"] = self.stats.get("seek_gifts", 0) + 1
+                            else:
+                                self.deck.insert(0, other)
+                else:
+                    self.hands[self.cur] += got
             return False
         if mode == "down":
             self.stats["face_down"] += 1
@@ -583,7 +629,16 @@ class State:
             self.stats["inscribed"] += 1
             self.note(f"  inscribed {card.cid} ({card.slot}): {card.band}")
             filled = len(self.book[self.reach])
-            if not self.blessed[self.reach] and filled >= self.cfg.blessing_at:
+            if self.cfg.book_mode == "pairs":
+                page = self.book[self.reach]
+                for i, (a, b) in enumerate((("Place", "Person"), ("Person", "Deed"), ("Deed", "Feeling"))):
+                    if card.slot in (a, b) and a in page and b in page:
+                        self.stats["pair_rewards"] = self.stats.get("pair_rewards", 0) + 1
+                        self.do_ops(self.cfg.pair_rewards[self.reach][i], chooser)
+                if filled == 4:
+                    self.stats["blessings"] += 1
+                    self.do_ops([(op,) if isinstance(op, str) else op for op in self.cfg.full_page], chooser)
+            elif not self.blessed[self.reach] and filled >= self.cfg.blessing_at:
                 self.blessed[self.reach] = True
                 self.stats["blessings"] += 1
                 self.blessing(chooser)

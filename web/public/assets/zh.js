@@ -4,7 +4,7 @@
 //   Soul 亡魂 · Far Shore 彼岸 · near shore 此岸 · space 格 · bank 河岸（left 左岸 / right 右岸；面向下游，左岸在版圖上方）· Reach 河段
 //   Root 根 · Bloom 花（動詞：綻放）· Lit 照亮 · network 根網 · fog 霧 · Light 光（點）
 //   Fertile 沃土 · Stony 石地 · Memory Site 記憶之地 · Grave 墳墓 · keepsake 信物
-//   Black Water 黑水 · flood 淹沒 · drain 排乾 · Deluge 滅頂 · Grievance 怨念 · banish 驅散 · Fracture 裂痕 · Shield 護盾
+//   Black Water 黑水 · flood 淹沒 · drain 排乾 · Deluge 滅頂 · Shade 怨念 · banish 驅散 · Fracture 裂痕 · Shield 護盾
 //   Shattered 破碎 · Faded 消散 · Linger 徘徊 · forget 遺忘 · forgotten pile 遺忘堆 · Light as Ash 輕如灰燼 · Adrift 漂離
 //   Loom of the Fates 命運織機 · thread 絲線 · knot 結 · Backlash 反噬 · Obsession 執念 · Acceptance 釋懷 · Oblivion 忘卻
 //   Echo 迴響 · Resonate / Resonance 共鳴 · face up 正面打出 · face down 背面打出 · Burn 焚燒
@@ -70,8 +70,8 @@ export const ZH_SOULS = {
 
 export const ZH_MIST = {
   "Rising Water": ["漲水", "黑水淹沒前方的河道。"],
-  "Grievance": ["怨念", "一個怨念佔據前方的河岸。"],
-  "Grievance Drawn Near": ["怨念逼近", "一個怨念落在亡魂身旁。"],
+  "Shade": ["怨念", "一個怨念佔據前方的河岸。"],
+  "Shade Drawn Near": ["怨念逼近", "一個怨念落在亡魂身旁。"],
   "Withering": ["凋零", "前方最遠的2朵花凋零為根。"],
   "Great Withering": ["大凋零", "前方3朵花凋零為根。"],
   "Fog Returns": ["霧氣重返", "霧氣重新籠罩空無一物的河岸。"],
@@ -80,9 +80,9 @@ export const ZH_MIST = {
   "The Mist Parts": ["迷霧散開", "一切平靜。喘口氣吧。"],
   "Echo Severed": ["迴響斷絕", "迴響從織機上被扯下。"],
   "Undertow": ["暗流", "水位上漲，一旁的花隨之凋零。"],
-  "Twin Grievances": ["雙生怨念", "兩個怨念佔據前方的河岸。"],
+  "Twin Shades": ["雙生怨念", "兩個怨念佔據前方的河岸。"],
   "Flood Surge": ["洪水暴漲", "黑水兩度氾濫。"],
-  "Grievance Host": ["怨念成群", "怨念擠滿前方兩岸。"],
+  "Shade Host": ["怨念成群", "怨念擠滿前方兩岸。"],
   "Wither Storm": ["凋零風暴", "前方兩格之外的所有花全部凋零。"],
   "Deep Cold": ["深寒", "遺忘兩段記憶。"],
   "Karma Surge": ["業力湧現", "每條絲線各打上一個結。"],
@@ -109,19 +109,20 @@ export function zhOpText(op) {
     case "hold": return "本回合亡魂停留時不會遺忘";
     case "shield": return "在你的下個回合之前，防止下一道裂痕";
     case "mend": return `修補${op[1]}道裂痕`;
-    case "release": return `在最滿的絲線上解開${op[1]}個結`;
+    case "release": return `在最滿的絲線上解開${op[1]}個結（若平手，由你選擇）`;
     case "guide": return "若下一格已被照亮，亡魂立即前進一格";
     case "vigil": return "查看迷霧牌庫頂的3張牌，再以任意順序放回牌庫頂";
-    case "banish_or_drain": return "驅散最近的怨念，或排乾最近的黑水";
+    case "banish_or_drain": return "移除1個（由你選擇）：最近的怨念，或最近的黑水";
     case "banish": return "驅散最近的怨念";
     case "drain": return "排乾最近的黑水";
     case "light": return `獲得${op[1]}點光`;
     case "reveal_reach": return "掀開本河段的所有霧氣；墳墓變為沃土";
-    case "unmake": return "清空最滿的絲線，且不觸發反噬";
+    case "unmake": return "清空最滿的絲線，且不觸發反噬（若平手，由你選擇）";
     case "wash": return "沖走亡魂身旁的怨念";
     case "lowtide": return "排乾本河段的所有黑水";
     case "extra_karma": return "額外在執念絲線上打1個結";
   }
   return op[0];
 }
-export const zhOpsText = ops => ops.map(zhOpText).join("。") + "。";
+const both = ops => ops.length === 2 && ops[0][0] === "banish" && ops[1][0] === "drain";
+export const zhOpsText = ops => both(ops) ? "移除最近的1個怨念與最近的1個黑水。" : ops.map(zhOpText).join("。") + "。";

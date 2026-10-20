@@ -138,23 +138,23 @@ export const SOULS = {
 // Mist. Placement ops are relative to the soul's space S.
 export const MIST = [
   [["Rising Water", [["bw", 2]]], ["Rising Water", [["bw", 3]]],
-   ["Grievance", [["grv", 1, 0]]], ["Grievance", [["grv", 2, 1]]],
-   ["Grievance Drawn Near", [["grv_near"]]], ["Withering", [["wither", 2]]],
+   ["Shade", [["grv", 1, 0]]], ["Shade", [["grv", 2, 1]]],
+   ["Shade Drawn Near", [["grv_near"]]], ["Withering", [["wither", 2]]],
    ["Fog Returns", [["fog", 1]]], ["Cold Wind", [["forget", 1]]],
    ["The Mist Parts", []], ["The Mist Parts", []]],
   [["Rising Water", [["bw", 1]]], ["Rising Water", [["bw", 2]]],
-   ["Grievance", [["grv", 1, 0]]], ["Grievance", [["grv", 2, 1]]],
-   ["Grievance Drawn Near", [["grv_near"]]], ["Withering", [["wither", 2]]],
+   ["Shade", [["grv", 1, 0]]], ["Shade", [["grv", 2, 1]]],
+   ["Shade Drawn Near", [["grv_near"]]], ["Withering", [["wither", 2]]],
    ["Withering", [["wither", 2]]], ["Fog Returns", [["fog", 2]]],
    ["Cold Wind", [["forget", 1]]], ["Echo Severed", [["sever"]]]],
   [["Rising Water", [["bw", 1]]], ["Rising Water", [["bw", 2]]],
-   ["Undertow", [["bw", 2], ["wither_at", 1]]], ["Grievance Drawn Near", [["grv_near"]]],
-   ["Twin Grievances", [["grv", 2, 0], ["grv", 2, 1]]], ["Withering", [["wither", 2]]],
+   ["Undertow", [["bw", 2], ["wither_at", 1]]], ["Shade Drawn Near", [["grv_near"]]],
+   ["Twin Shades", [["grv", 2, 0], ["grv", 2, 1]]], ["Withering", [["wither", 2]]],
    ["Great Withering", [["wither", 3]]], ["Cold Wind", [["forget", 1]]],
    ["Bitter Wind", [["forget", 2]]], ["Echo Severed", [["sever"]]]],
 ];
 export const HARSH = [
-  ["Flood Surge", [["bw", 1], ["bw", 3]]], ["Grievance Host", [["grv", 1, 0], ["grv", 1, 1]]],
+  ["Flood Surge", [["bw", 1], ["bw", 3]]], ["Shade Host", [["grv", 1, 0], ["grv", 1, 1]]],
   ["Wither Storm", [["wither_far", 2]]], ["Deep Cold", [["forget", 2]]],
   ["Karma Surge", [["karma_all"]]], ["Dark Wind", [["dark_wind"]]],
 ];
@@ -175,7 +175,7 @@ export const STANDARD_LANTERN = 2;
 // The Faded limits across all Lanterns, as "9–14".
 export const limitRange = () => { const l = Object.values(LANTERN).map(r => r[1]); return `${Math.min(...l)}–${Math.max(...l)}`; };
 // Each Reach's Mist deck also holds these extra cards (the engine's extraMist: 2).
-export const MIST_EXTRA = [["Rising Water", [["bw", 2]]], ["Grievance Drawn Near", [["grv_near"]]]];
+export const MIST_EXTRA = [["Rising Water", [["bw", 2]]], ["Shade Drawn Near", [["grv_near"]]]];
 export const lanternIcon = l => "◆".repeat(+l) + "◇".repeat(Object.keys(LANTERN).length - l);
 
 export const GHOST = [
@@ -205,27 +205,29 @@ export function opText(op) {
     case "hold": return "The soul waits without forgetting this turn";
     case "shield": return "Prevent the next Fracture before your next turn";
     case "mend": return `Mend ${plural(op[1], "Fracture")}`;
-    case "release": return `Untie ${plural(op[1], "knot")} on the fullest thread`;
+    case "release": return `Untie ${plural(op[1], "knot")} on the fullest thread (if tied, you choose)`;
     case "guide": return "The soul steps forward now, if the next space is Lit";
     case "vigil": return "Read the top 3 Mist cards and put them back on top in any order";
-    case "banish_or_drain": return "Banish the nearest Grievance or drain the nearest Black Water";
-    case "banish": return "Banish the nearest Grievance";
+    case "banish_or_drain": return "Remove 1 of your choice: the nearest Shade or the nearest Black Water";
+    case "banish": return "Banish the nearest Shade";
     case "drain": return "Drain the nearest Black Water";
     case "light": return `Gain ${op[1]} Light`;
     case "reveal_reach": return "Lift the fog across this Reach; Graves turn Fertile";
-    case "unmake": return "Empty the fullest thread with no Backlash";
-    case "wash": return "Wash away the Grievances beside the soul";
+    case "unmake": return "Empty the fullest thread with no Backlash (if tied, you choose)";
+    case "wash": return "Wash away the Shades beside the soul";
     case "lowtide": return "Drain all Black Water in this Reach";
     case "extra_karma": return "Tie 1 extra Obsession knot";
   }
   return op[0];
 }
-export const opsText = ops => ops.map(opText).join(". ") + ".";
+// Unremember's Resonance reads as one removal of both, not as two separate verbs.
+const both = ops => ops.length === 2 && ops[0][0] === "banish" && ops[1][0] === "drain";
+export const opsText = ops => both(ops) ? "Remove the nearest Shade and the nearest Black Water." : ops.map(opText).join(". ") + ".";
 
 export const MIST_TEXT = {
   "Rising Water": "Black Water floods the river ahead.",
-  "Grievance": "A Grievance takes a bank ahead.",
-  "Grievance Drawn Near": "A Grievance settles beside the soul.",
+  "Shade": "A Shade takes a bank ahead.",
+  "Shade Drawn Near": "A Shade settles beside the soul.",
   "Withering": "The 2 furthest Blooms ahead wither to Roots.",
   "Great Withering": "Three Blooms ahead wither to Roots.",
   "Fog Returns": "Fog rolls back over empty ground.",
@@ -234,9 +236,9 @@ export const MIST_TEXT = {
   "The Mist Parts": "Nothing stirs. Breathe.",
   "Echo Severed": "The Echo is torn from the Loom.",
   "Undertow": "Water rises and the Blooms beside it wither.",
-  "Twin Grievances": "Two Grievances take the banks ahead.",
+  "Twin Shades": "Two Shades take the banks ahead.",
   "Flood Surge": "Black Water floods twice.",
-  "Grievance Host": "Grievances crowd both banks ahead.",
+  "Shade Host": "Shades crowd both banks ahead.",
   "Wither Storm": "Every Bloom beyond the next two spaces withers.",
   "Deep Cold": "Two memories are forgotten.",
   "Karma Surge": "A knot is tied on every thread.",

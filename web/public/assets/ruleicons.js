@@ -10,7 +10,7 @@ const TERMS = {
     [/\bShield token\b/, "nb-tok-shield", BONE], [/\bResignation token\b/, "nb-tok-resign", BONE],
     [/\bsoul token\b/, "nb-soul", "#EFE7D6"], [/\bOar\b/, "nb-tok-oar", BONE],
     [/\bBook of Remembrance\b/, "nb-seal", BONE], [/\bKey Memory\b/, "nb-seal", CRIMSON],
-    [/\bBlack Water\b/, "nb-blackwater", MIST], [/\bGrievances?\b/, "nb-grievance", CYAN],
+    [/\bBlack Water\b/, "nb-blackwater", MIST], [/\bShades?\b/, "nb-grievance", CYAN],
     [/\bFractures?\b/, "nb-fracture", CRIMSON], [/\bBlooms?\b(?!-)/, "nb-bloom", CRIMSON],
     [/\bRoots?\b(?!-)/, "nb-root", BONE], [/\bLight\b(?! as Ash)/, "nb-light", BONE],
     [/\bEcho\b(?! cards| deck)/, "nb-echo", CYAN], [/\bknots?\b/, "nb-knot", BONE],

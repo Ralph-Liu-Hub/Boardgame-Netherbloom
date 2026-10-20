@@ -141,4 +141,4 @@ export function say(entry) {
   if (zh() && entry.m && ZH_MSG[entry.m[0]]) return ZH_MSG[entry.m[0]](...entry.m.slice(1));
   return entry.msg || "";
 }
-export const backlashText = tag => (zh() ? BACKLASH_ZH[tag] : ["Grasping: a Grievance claws at the soul.", "Resignation: the soul will sit down and Linger.", "The Tide Rises: Black Water floods ahead."][tag]);
+export const backlashText = tag => (zh() ? BACKLASH_ZH[tag] : ["Grasping: a Shade claws at the soul.", "Resignation: the soul will sit down and Linger.", "The Tide Rises: Black Water floods ahead."][tag]);

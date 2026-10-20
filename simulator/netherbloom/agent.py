@@ -83,6 +83,29 @@ class EchoAgent:
     def want_inscribe(self, s, cid):
         return self.use_book
 
+    # ------------------------------------------------------------ playtest choices
+    def card_value(self, s, cid):
+        """How much good this card would do played now (best of face up / face down), for keeping or giving."""
+        best = -1e18
+        for mode in ("up", "down"):
+            c = s.clone()
+            c.hands[c.cur].append(cid)
+            self._apply(c, cid, mode, False)
+            best = max(best, self._after_step(c))
+        return best
+
+    def keep_best(self, s, cids):
+        return max(cids, key=lambda cid: self.card_value(s, cid))
+
+    def forget_for_light(self, s, cid):
+        # forget for Light while the forgotten pile is still short; otherwise hand it to the next player
+        return len(s.forgotten) < s.cfg.ash_at - 1
+
+    def pick_thread(self, s, tied):
+        # empty the thread whose Backlash would hurt most now: Oblivion floods, Obsession adds a Shade, Acceptance a Linger
+        order = [2, 0, 1]
+        return min(tied, key=order.index)
+
     # ------------------------------------------------------------ evaluation
     def evaluate(self, s):
         if s.result == "win":
@@ -145,7 +168,7 @@ class EchoAgent:
             out.append((None, "push"))
         if seek:   # only the Answer (first) action may spend Light
             out += [(None, m) for m in E.light_actions(s)]
-        if seek and s.cfg.seek and not s.stats.get("sought") and len(hand) > 1:
+        if seek and s.cfg.seek and s.cfg.seek_mode != "off" and not s.stats.get("sought") and len(hand) > 1:
             out += [(cid, "seek") for cid in dict.fromkeys(hand)]
         for cid in hand:
             key = CARD[cid].cid

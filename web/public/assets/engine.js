@@ -196,7 +196,7 @@ function placeRoot(s, k, stonyOk) {
     note(s, "reveal", `The fog lifts at ${slotName(k)}: ${TILE_NAMES[t]}.`, { k, tile: t, m: ["reveal", k, t] });
     if (t === GRAVE) {
       s.griev[k] = true;
-      note(s, "grievance", "A Grievance rises from the Grave.", { k, m: ["grave"] });
+      note(s, "grievance", "A Shade rises from the Grave.", { k, m: ["grave"] });
       return false;
     }
     if (t === STONY && !stonyOk) {
@@ -307,7 +307,7 @@ function placeGriev(s, sp, bank) {
       const had = s.tok[k];
       s.griev[k] = true;
       s.tok[k] = NONE;
-      note(s, "grievance", `A Grievance takes ${slotName(k)}${had === BLOOM ? " and smothers the Bloom there" : had === ROOT ? " and smothers the Root there" : ""}.`,
+      note(s, "grievance", `A Shade takes ${slotName(k)}${had === BLOOM ? " and smothers the Bloom there" : had === ROOT ? " and smothers the Root there" : ""}.`,
         { k, m: had === NONE ? ["griev", k] : ["grievOver", k, had === BLOOM] });
       return;
     }
@@ -324,7 +324,7 @@ function tieKnot(s, tag) {
 }
 function backlash(s, tag) {
   s.stats.backlashes += 1;
-  note(s, "backlash", `Backlash of ${TAG_NAMES[tag]}! ${["Grasping: a Grievance claws at the soul.", "Resignation: the soul will sit down and Linger.", "The Tide Rises: Black Water floods ahead."][tag]}`, { tag, m: ["backlash", tag] });
+  note(s, "backlash", `Backlash of ${TAG_NAMES[tag]}! ${["Grasping: a Shade claws at the soul.", "Resignation: the soul will sit down and Linger.", "The Tide Rises: Black Water floods ahead."][tag]}`, { tag, m: ["backlash", tag] });
   if (tag === OBS) {
     const k0 = s.soul * 2, k1 = k0 + 1;
     if (s.soul >= 1 && !s.griev[k0]) placeGriev(s, s.soul, 0);
@@ -427,7 +427,7 @@ async function doOp(s, op, ch) {
 
 function banish(s, k) {
   s.griev[k] = false;
-  note(s, "banish", `The Grievance at ${slotName(k)} is banished.`, { k, m: ["banish", k] });
+  note(s, "banish", `The Shade at ${slotName(k)} is banished.`, { k, m: ["banish", k] });
 }
 function fullest(s) {
   let col = 0;
@@ -681,12 +681,12 @@ function soulStep(s) {
   feed(s);
 }
 
-// The next space is dark only because Grievances hold both of its banks.
+// The next space is dark only because Shades hold both of its banks.
 export function blockedByGrievances(s) {
   const sp = s.soul + 1;
   return sp >= 1 && sp <= 11 && !s.flooded[sp] && s.griev[sp * 2] && s.griev[sp * 2 + 1];
 }
-// Push Through is an action a player chooses; it uses no card. Without it, a soul facing two Grievances Lingers.
+// Push Through is an action a player chooses; it uses no card. Without it, a soul facing two Shades Lingers.
 // Each Ferryman may Push Through only once in the whole game.
 export const hasPushed = (s, p = s.cur) => !!(s.pushedBy && s.pushedBy[p]);
 export const canPush = s => s.phase === "play" && !s.pushed && !hasPushed(s) && s.played < s.cfg.cardsPerTurn && blockedByGrievances(s);
@@ -699,13 +699,13 @@ export function pushAction(s) {
   s.pushedBy[s.cur] = true;
   pushThrough(s);
 }
-// Push through the shades: both Grievances scatter, the soul steps forward, and it pays with a memory and a
+// Push through the shades: both Shades scatter, the soul steps forward, and it pays with a memory and a
 // Fracture. Each push already made this game adds another Fracture, so a second push is close to fatal.
 function pushThrough(s) {
   const sp = s.soul + 1, wounds = 1 + (s.stats.pushes || 0);
   s.griev[sp * 2] = s.griev[sp * 2 + 1] = false;
   s.stats.pushes = wounds;
-  note(s, "push", `${s.names[s.cur]} drives the soul through the Grievances. They scatter, but they wound it: ${wounds} Fracture${wounds > 1 ? "s" : ""}.`, { sp, p: s.cur, m: ["push", wounds, s.names[s.cur]] });
+  note(s, "push", `${s.names[s.cur]} drives the soul through the Shades. They scatter, but they wound it: ${wounds} Fracture${wounds > 1 ? "s" : ""}.`, { sp, p: s.cur, m: ["push", wounds, s.names[s.cur]] });
   moveSoul(s, 1);
   for (let i = 0; i < wounds; i++) addFracture(s);
   forgetTop(s, 1);
@@ -740,7 +740,7 @@ function linger(s, force) {
 
 function feed(s) {
   if (s.soul >= 1 && s.soul <= 11 && (s.griev[s.soul * 2] || s.griev[s.soul * 2 + 1])) {
-    note(s, "info", "A Grievance feeds on the soul.", { m: ["feed"] });
+    note(s, "info", "A Shade feeds on the soul.", { m: ["feed"] });
     addFracture(s);
   }
 }
@@ -799,7 +799,7 @@ function endOfTurnChecks(s) {
       const sp = k >> 1, b = k % 2;
       if (sp >= 2 && sp <= 10 && s.tok[(sp - 1) * 2 + b] === BLOOM && s.tok[(sp + 1) * 2 + b] === BLOOM) {
         s.griev[k] = false;
-        note(s, "banish", `Trapped between Blooms, the Grievance at ${slotName(k)} dissolves in the light.`, { k, m: ["trapped", k] });
+        note(s, "banish", `Trapped between Blooms, the Shade at ${slotName(k)} dissolves in the light.`, { k, m: ["trapped", k] });
       }
     }
   }

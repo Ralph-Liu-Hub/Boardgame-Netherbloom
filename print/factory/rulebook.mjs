@@ -43,6 +43,12 @@ table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: .8
 th, td { border: .25mm solid #c9b48a; padding: 1.2mm 2mm; text-align: left; vertical-align: top; } th { background: #e2d3b2; }
 tr { break-inside: avoid; }
 .rsuggest { border: .3mm solid #c9b48a; border-radius: 2mm; padding: 3mm 4mm; background: rgba(255,250,238,.6); }
+.rlose { border: .5mm solid #b3243a; background: rgba(215,38,61,.06); margin: 0 0 3mm; }
+.rlose p { margin: .5mm 0; } .rlose ul { margin: 1mm 0; }
+.kw { color: #2f7f8e; font-variant: small-caps; font-weight: 600; letter-spacing: .02em; }
+.kw::before { content: "◆"; font-size: .55em; vertical-align: .25em; margin-right: .2em; }
+[lang="zh-Hant-TW"] .kw { font-variant: normal; letter-spacing: 0; }
+.rterms td:first-child { width: 38%; }
 .rkey { font-family: "IBM Plex Mono", monospace; font-size: .75em; letter-spacing: .1em; }
 .c-obs { color: #a32a30; } .c-acc { color: #8a6a3e; } .c-obl { color: #2f7f8e; }
 .aidgrid, .aidicons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5mm; break-inside: avoid; margin-bottom: 2mm; }
