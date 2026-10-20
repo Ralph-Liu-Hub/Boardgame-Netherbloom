@@ -33,7 +33,7 @@ export const STORIES = {
         "After that she sang. She sang the old songs, half of them wrong, and went through the house giving her flowers away: rosemary to her brother, fennel to the king, rue to the queen and a little for herself. One afternoon she went down to the willow that leaned over the brook, to hang the last of her garlands on its branches. The branch broke. Her dress spread out on the water and held her up a while, and she went on singing, as if she did not understand what was happening, until the water grew too heavy.",
         "Everyone remembered her flowers. No one ever asked which one she had kept for herself. The old ferryman would not carry her; there was no coin under her tongue, only a petal. So she waits with you, still singing, her hands full of wet flowers.",
       ],
-      ferry: "She has always understood the Book better than anyone; she lived by the meanings of things. Her pages are blessed when only two memories are written there, for she never needed many words to say what she meant.",
+      ferry: "She has always understood the Book better than anyone; she lived by the meanings of things. Her pages are blessed when only three memories are written there, for she never needed many words to say what she meant.",
     },
     zh: {
       epigraph: "她為每個人編了花，卻沒有為自己編一朵。",
@@ -43,7 +43,7 @@ export const STORIES = {
         "從那以後，她便開始唱歌。她唱古老的歌謠，有一半唱錯了詞；她在屋裡走來走去，把她的花一朵一朵送人：迷迭香給哥哥，茴香給國王，芸香給王后，也留了一點給自己。某天午後，她走到那棵斜倚在溪水上的垂柳下，想把最後幾個花環掛上枝頭。樹枝斷了。她的衣裙在水面上散開，托著她浮了一會兒；她還在唱，彷彿不明白發生了什麼，直到溪水變得太沉。",
         "每個人都記得她的花，卻從沒有人問過，她為自己留下的是哪一朵。老擺渡人不肯載她：她的舌下沒有銅錢，只有一片花瓣。於是她和你們一起等待，仍在輕聲唱著，雙手捧滿濕透的花。",
       ],
-      ferry: "她向來比任何人都更懂得這本書；她一生都依著萬物的寓意而活。她的書頁只要寫下兩段記憶，便能獲得章節祝福，因為她從來不需要太多言語，就能說出心裡的話。",
+      ferry: "她向來比任何人都更懂得這本書；她一生都依著萬物的寓意而活。她的書頁只要寫下三段記憶，便能獲得章節祝福，因為她從來不需要太多言語，就能說出心裡的話。",
     },
   },
   king: {

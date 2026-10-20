@@ -13,7 +13,7 @@
 //   Soul Step 亡魂步驟 · deck 牌庫 · discard pile 棄牌堆 · hand 手牌 · draw 抽牌 · turn 回合 · round 輪
 //   Place 地點 · Person 人物 · Deed 事蹟 · Feeling 感受
 //   Ferrymen 擺渡人（玩家：冥府的僕役，既非生者也非亡魂）· old ferryman 老擺渡人（傳說中只載付了船資的亡者）· Keeper 守岸人
-//   action 行動 · Answer (first action) 回應 · Steer (second action) 掌舵 · Seek 尋覓 · discard 棄掉 · push through 奮力駛過 · Recall 喚回 · lay down (a Mantle, for good) 永久放下 · Chronicle 紀事
+//   action 行動 · Answer (first action) 回應 · Steer (second action) 掌舵 · Offer 轉贈（原 Seek 尋覓）· discard 棄掉 · push through 奮力駛過 · Recall 喚回 · lay down (a Mantle, for good) 永久放下 · Chronicle 紀事
 //   tokens: the Oar (whose turn) 船槳 · Push Through token 破浪標記（擺渡人使盡全力、破浪駛過險阻） · Hold Fast token 堅守標記 · Shield token 護盾標記 · Resignation token 認命標記 · turn a card sideways 橫放 · straighten 轉正
 //   Backlash 反噬：Grasping 攫取 / Resignation 認命 / The Tide Rises 漲潮
 
@@ -63,7 +63,7 @@ export const ZH_BANDS = {
 export const ZH_SOULS = {
   open: { name: "無名渡河", blurb: "一個無名的亡魂。迴響牌加入基本牌庫。記憶之地給予2點光。", twist: "記憶之地給予+2點光。" },
   child: { name: "最後火光的孩子", blurb: "再點亮一簇小小的火光，抵擋寒冷。", twist: "起始擁有3點光。每個河段的第一道裂痕會被忽略。永遠不會漂離。消散前可多遺忘1張牌。沒有凶霧。" },
-  garland: { name: "花環少女", blurb: "她為每個人編了花，卻沒有為自己編一朵。", twist: "只需銘刻2段記憶，就能獲得章節祝福。" },
+  garland: { name: "花環少女", blurb: "她為每個人編了花，卻沒有為自己編一朵。", twist: "每一頁只需銘刻3段記憶，就能獲得章節祝福。" },
   king: { name: "渡船上的國王", blurb: "王國覆滅已久，王冠仍戴在頭上。", twist: "稱號花費2點光。造成裂痕的玩家會失去自己的稱號。" },
   bride: { name: "留在冥府的新娘", blurb: "差一點，就得救了。", twist: "她第一次將在黑暗中徘徊時，不會遺忘，而是被拉回一格。" },
 };
@@ -121,6 +121,7 @@ export function zhOpText(op) {
     case "wash": return "沖走亡魂身旁的怨念";
     case "lowtide": return "排乾本河段的所有黑水";
     case "extra_karma": return "額外在執念絲線上打1個結";
+    case "recall_free": return "把最新被遺忘的那張牌放回棄牌堆";
   }
   return op[0];
 }

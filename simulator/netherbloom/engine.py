@@ -60,14 +60,20 @@ class Config:
         self.push_again = "escalate" # a later push in the same scope: "escalate" (+1 Fracture each time) or "linger" (not allowed)
         self.push_once_each = True   # each player may Push Through only once per game
         self.push_action = True      # push-through is an action a player takes (False: the soul pushes on its own at the Soul Step)
-        self.seek = True             # one action per turn may be Seek: discard a card and draw one (that turn's next card cannot Resonate)
+        self.seek = True             # one action per turn may be an Offer (formerly Seek; that turn's next card cannot Resonate)
         # Playtest options (2026-10): what a Seek does, and how the Book rewards inscriptions
-        self.seek_mode = "classic"   # "classic" discard 1 draw 1; "keep1give" draw 2, keep 1, give the other to the next player;
+        self.seek_mode = "keep1give" # the Offer: "keep1give" discard 1, draw 2, keep 1, give the other to another player
+                                     # (solo: to the bottom of the deck); older options: "classic" discard 1 draw 1; "keep1give" draw 2, keep 1, give the other to the next player;
                                      # "keep1light" draw 2, keep 1, give the other or forget it for +1 Light; "pass" give the card
                                      # to the next player instead of discarding it, then draw 1; "scry" look at the top 3, take 1
-        self.book_mode = "blessing"  # "blessing": one Chapter Blessing at blessing_at memories; "pairs": a reward for each
+        self.book_mode = "pairs"     # "blessing": one Chapter Blessing at blessing_at memories; "pairs": a reward for each
                                      # adjacent pair of slots filled on a page, and the Blessing for a full page
-        self.pair_rewards = None     # with "pairs": {page: [Place+Person, Person+Deed, Deed+Feeling]} lists of ops
+        self.pair_rewards = {        # with "pairs": {page: [Place+Person, Person+Deed, Deed+Feeling]} lists of ops
+            0: [[("root", 1, False)], [("bloom", 1)], [("light", 2)]],
+            1: [[("banish", 1)], [("drain", 1)], [("release", 1)]],
+            2: [[("recall_free",)], [("mend", 1)], [("guide",)]],
+        }
+        self.full_page_at = 4        # with "pairs": inscribed cards for the page's Chapter Blessing (the Garland Girl: 3)
         self.full_page = ["blessing"]  # with "pairs": what a full page gives (ops; "blessing" = the Chapter Blessing)
         # Light sinks (experiments; off by default)
         self.light_action = "recall" # None, "recall" (the Answer action: spend Light, a forgotten card returns) or
@@ -85,6 +91,7 @@ class Config:
             self.mantle_cost = overrides.get("mantle_cost", 2)
         if soul == "garland":
             self.blessing_at = overrides.get("blessing_at", 2)
+            self.full_page_at = overrides.get("full_page_at", 3)
         if soul == "child":
             self.start_light = overrides.get("start_light", 3)
             self.adrift_at = 99
@@ -635,7 +642,7 @@ class State:
                     if card.slot in (a, b) and a in page and b in page:
                         self.stats["pair_rewards"] = self.stats.get("pair_rewards", 0) + 1
                         self.do_ops(self.cfg.pair_rewards[self.reach][i], chooser)
-                if filled == 4:
+                if filled == self.cfg.full_page_at:
                     self.stats["blessings"] += 1
                     self.do_ops([(op,) if isinstance(op, str) else op for op in self.cfg.full_page], chooser)
             elif not self.blessed[self.reach] and filled >= self.cfg.blessing_at:

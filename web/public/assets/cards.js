@@ -130,7 +130,7 @@ export const FIRST_SOUL = "child";
 export const SOULS = {
   open: { name: "Open Crossing", blurb: "A nameless soul. The Echo deck joins the core. Memory Sites give 2 Light.", twist: "Memory Sites give +2 Light." },
   child: { name: "Child of the Last Flame", blurb: "One more little light, struck against the cold.", twist: "Starts with 3 Light. The first Fracture in each Reach is ignored. Never drifts Adrift. She can forget 1 more card before she Fades. No harsh Mist." },
-  garland: { name: "The Garland Girl", blurb: "She wove a flower for everyone but herself.", twist: "The Chapter Blessing comes after only 2 inscribed memories." },
+  garland: { name: "The Garland Girl", blurb: "She wove a flower for everyone but herself.", twist: "Each page gives its Chapter Blessing at only 3 inscribed memories." },
   king: { name: "The King on the Barge", blurb: "A crown carried long after the kingdom fell.", twist: "Mantles cost 2 Light. A Fracture strips the Mantle of the player who caused it." },
   bride: { name: "The Bride Who Stayed Below", blurb: "Almost saved, once.", twist: "The first time she would Linger in the dark, she is pulled one space back instead of forgetting." },
 };
@@ -169,7 +169,7 @@ export const TILES = [
 export const REACH_NAMES = ["The Asphodel Road", "The Fields of Mourning", "The Banks of Lethe"];
 
 // Lantern: [black water supply, forgotten limit, harsh Mist per Reach]. Standard is the intended game.
-export const LANTERN = { 1: [6, 14, 0], 2: [6, 11, 2], 3: [4, 10, 3], 4: [3, 9, 3] };
+export const LANTERN = { 1: [6, 14, 0], 2: [5, 10, 2], 3: [4, 9, 3], 4: [3, 8, 3] };
 export const LANTERN_NAMES = { 1: "Gentle", 2: "Standard", 3: "Hard", 4: "Heroic" };
 export const STANDARD_LANTERN = 2;
 // The Faded limits across all Lanterns, as "9–14".
@@ -190,6 +190,16 @@ export const MANTLES = {
   bringer: { tag: ACC, name: "The Bloom-Bringer", text: "At the end of each of your turns, Bloom 1 Root for free." },
   breaker: { tag: OBL, name: "The Fog-Breaker", text: "Your first Oblivion card each turn is discarded instead of forgotten." },
 };
+
+// Page rewards: each pair of neighbouring slots on a page gives its reward once, when an inscription fills both slots.
+export const PAIR_SLOTS = [["Place", "Person"], ["Person", "Deed"], ["Deed", "Feeling"]];
+export const PAIR_REWARDS = [
+  [[["root", 1]], [["bloom", 1]], [["light", 2]]],
+  [[["banish", 1]], [["drain", 1]], [["release", 1]]],
+  [[["recall_free"]], [["mend", 1]], [["guide"]]],
+];
+// A full page (all 4 slots) also gives the Chapter Blessing; the Garland Girl's pages at 3.
+export const CHAPTER_AT = 4;
 
 export const BOOK_FRAMES = [
   ["I · Who I Was", "I was born near {Place}. I loved {Person}. I once {Deed}, and ever since I have carried {Feeling}."],
@@ -217,6 +227,7 @@ export function opText(op) {
     case "wash": return "Wash away the Shades beside the soul";
     case "lowtide": return "Drain all Black Water in this Reach";
     case "extra_karma": return "Tie 1 extra Obsession knot";
+    case "recall_free": return "Return the newest forgotten card to the discard pile";
   }
   return op[0];
 }

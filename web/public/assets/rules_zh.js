@@ -1,11 +1,11 @@
 // 規則書與玩家輔助卡（正體中文，台灣桌遊用語）。結構與 rules.js 相同；卡牌、迷霧、燈籠與幽靈表格
 // 直接由 cards.js 與 zh.js 產生，因此無論目前介面語言為何，這裡的表格一律是中文。
 import {
-  CARDS, TAG_ICONS, MANTLES, FIRST_SOUL, LANTERN, lanternIcon, limitRange, MIST, MIST_EXTRA, HARSH, GHOST, TILES,
+  CARDS, TAG_ICONS, MANTLES, FIRST_SOUL, LANTERN, lanternIcon, limitRange, MIST, MIST_EXTRA, HARSH, GHOST, TILES, PAIR_SLOTS, PAIR_REWARDS, CHAPTER_AT,
 } from "./cards.js";
 // 亡魂變得輕如灰燼與漂離時的遺忘張數（與 engine makeConfig 相同）。
 const CFG = { ashAt: 6, adriftAt: 9 };
-import { ZH_LANTERNS, ZH_TAGS, ZH_CARD_NAMES, ZH_SOULS, ZH_MIST, ZH_MANTLES, ZH_REACHES, ZH_TILES, ZH_BANDS, zhOpsText } from "./zh.js";
+import { ZH_LANTERNS, ZH_SLOTS, ZH_TAGS, ZH_CARD_NAMES, ZH_SOULS, ZH_MIST, ZH_MANTLES, ZH_REACHES, ZH_TILES, ZH_BANDS, zhOpsText } from "./zh.js";
 import { T as FACE_WORDS } from "./cardface.js";
 import { iconize } from "./ruleicons.js";
 
@@ -38,6 +38,13 @@ function mistTableZh() {
   const rows = [...names.entries()].map(([n, reaches]) => `<tr><td><b>${esc(zn(n)[0])}</b></td><td>${[...reaches].join("、")}</td><td>${esc(FACE_WORDS.zh.mistJoin(ops.get(n)))}</td></tr>`).join("");
   const harsh = HARSH.map(([n, o]) => `<tr><td><b>${esc(zn(n)[0])}</b></td><td>凶霧</td><td>${esc(FACE_WORDS.zh.mistJoin(o))}</td></tr>`).join("");
   return `<table class="rtable"><thead><tr><th>迷霧牌</th><th>河段</th><th>指示</th></tr></thead><tbody>${rows}${harsh}</tbody></table>`;
+}
+
+// 頁面獎勵：每頁一列，每組相鄰欄位一欄。
+function pairTableZh() {
+  const pages = ["第一頁《我曾是誰》", "第二頁《我做過什麼》", "第三頁《我所懷抱的》"];
+  return `<table class="rtable"><thead><tr><th>頁</th>${PAIR_SLOTS.map(([a, b]) => `<th>${ZH_SLOTS[a]}＋${ZH_SLOTS[b]}</th>`).join("")}</tr></thead><tbody>${
+    PAIR_REWARDS.map((row, r) => `<tr><td><b>${pages[r]}</b></td>${row.map(ops => `<td>${esc(zhOpsText(ops))}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
 }
 
 function lanternTableZh() {
@@ -118,13 +125,13 @@ const BOOK_ZH = [
     </ol>
     <p>接著靜默之律開始，由起始玩家進行第一個回合。</p>` },
 
-  { id: "turn", title: "3. 你的回合", keys: "回合 順序 流程 召喚 打出 抽牌 手牌上限 正面打出 背面打出 焚燒 尋覓 喚回 奮力駛過 迴響 共鳴 遺忘 棄牌堆 turn order sequence summon play draw face up face down burn seek recall push through echo resonance forget", body: `
+  { id: "turn", title: "3. 你的回合", keys: "回合 順序 流程 召喚 打出 抽牌 手牌上限 正面打出 背面打出 焚燒 轉贈 尋覓 贈送 喚回 奮力駛過 迴響 共鳴 遺忘 棄牌堆 turn order sequence summon play draw face up face down burn seek recall push through echo resonance forget", body: `
     ${LOSE}
     <p>從拿著船槳的起始玩家開始，玩家依順時針輪流進行回合。輪到你時：</p>
     <ol class="steps">
       <li><b>召喚稱號</b>（可選，須在第一個行動之前；見第8節）。</li>
-      <li><b>回應</b>（你的第一個行動）：打出一張牌、尋覓、喚回或奮力駛過。</li>
-      <li><b>掌舵</b>（你的第二個行動）：打出一張牌、尋覓或奮力駛過。</li>
+      <li><b>回應</b>（你的第一個行動）：打出一張牌、轉贈、喚回或奮力駛過。</li>
+      <li><b>掌舵</b>（你的第二個行動）：打出一張牌、轉贈或奮力駛過。</li>
       <li><b>回合結束</b>：執行回合結束步驟（見第4節）。</li>
     </ol>
     <p>單人模式的手牌上限為4張；2–4人遊戲時為3張。</p>
@@ -136,14 +143,14 @@ const BOOK_ZH = [
       <li><b>焚燒</b>：執行卡牌效果<b>兩次</b>，在該牌的絲線加1個結，並把迴響移到該絲線。然後把這張牌放入遺忘堆，並遺忘牌庫頂的1張牌。</li>
     </ul>
     ${fig("card")}
-    <h4>尋覓、喚回與奮力駛過</h4>
-    <p><b>尋覓</b>（每回合一次）：從手牌棄掉一張牌，再抽一張牌。不打出牌、不加結，迴響不移動。</p>
+    <h4>轉贈、喚回與奮力駛過</h4>
+    <p><b>轉贈</b>（每回合一次）：從手牌棄掉一張牌，然後抽2張牌。留下1張，把另一張交給你選擇的另一位玩家，加入他的手牌（這可能讓他的手牌超過上限，他在回合結束時便少抽幾張）。單人模式中，改為把另一張牌放到牌庫底。不打出牌、不加結，迴響不移動。靜默規則仍然有效：你不能說明為什麼送出這張牌。</p>
     <p><b>喚回</b>（僅限回應）：花費<b>3點光</b>，從遺忘堆中任選一張牌放入棄牌堆，日後就能再被抽到。被遺忘的關鍵記憶也能被喚回。</p>
     <p><b>奮力駛過</b>（每位玩家<b>整局一次</b>）：只能在下一格的<b>兩個</b>河岸都有怨念、且該格沒有黑水時使用。把兩個怨念放回供應區，把亡魂移到該格（照常獲得光，見第8節），並把你的破浪標記翻到背面。接著亡魂承受<b>1道裂痕</b>，之前每有一個已翻到背面的破浪標記就再多承受1道，並遺忘牌庫頂的1張牌。因此第一次奮力駛過承受1道裂痕，第二次2道，第三次3道（即破碎）。你的回合照常繼續。</p>
     <h4>迴響與共鳴</h4>
-    <p><b>迴響</b>標記放在任何玩家（或幽靈）最後一張正面打出或焚燒的牌所屬的絲線上。背面打出、尋覓、喚回或奮力駛過都不會移動迴響。</p>
+    <p><b>迴響</b>標記放在任何玩家（或幽靈）最後一張正面打出或焚燒的牌所屬的絲線上。背面打出、轉贈、喚回或奮力駛過都不會移動迴響。</p>
     <p>若你的<b>回應</b>是一張正面打出或焚燒、且與迴響同一絲線的牌，它便<b>共鳴</b>：另外執行它的共鳴效果。部分忘卻牌的共鳴效果會取代一般效果（標示「改為」）。共鳴的牌可以銘刻進憶念之書（見第9節）。</p>
-    <p>掌舵永遠不會共鳴。若你的回應是尋覓、喚回或奮力駛過，本回合便無法共鳴。</p>
+    <p>掌舵永遠不會共鳴。若你的回應是轉贈、喚回或奮力駛過，本回合便無法共鳴。</p>
     ${fig("echo")}
     <h4>遺忘與兩個牌堆</h4>
     <p><b>遺忘</b>一張牌：把它正面朝上放在渡帳遺忘軌的下一個數字上，壓住前一張牌的一部分。最新那張牌上方的數字，就是已遺忘的牌數。<b>遺忘牌庫頂的1張牌</b>：把記憶牌庫頂的1張牌直接放到遺忘軌上，不執行它。若有牌離開遺忘堆（喚回、章節祝福），將後面的牌往前移。</p>
@@ -177,7 +184,7 @@ const BOOK_ZH = [
       <li>尚未抵銷裂痕的護盾標記，在其擁有者的下一個回合結束時移除。</li>
     </ul>
     <h4>立即生效的效果</h4>
-    <p>絲線打滿時立即引發<b>反噬</b>（見第6節）。一頁達到規定數量時立即給予<b>章節祝福</b>（見第9節）。記憶之地在河岸牌翻開時立即給予信物（無名渡河中還有光）。遊戲會在以下時刻立即結束：亡魂抵達彼岸（勝利）、遺忘堆達到燈籠的上限（消散）、亡魂承受第3道裂痕（破碎），或必須放置黑水但供應區已空（滅頂）。被護盾標記或孩子的特色規則抵銷的裂痕不算承受。</p>
+    <p>絲線打滿時立即引發<b>反噬</b>（見第6節）。頁面獎勵與章節祝福在完成條件的那次銘刻時立即發生（見第9節）。記憶之地在河岸牌翻開時立即給予信物（無名渡河中還有光）。遊戲會在以下時刻立即結束：亡魂抵達彼岸（勝利）、遺忘堆達到燈籠的上限（消散）、亡魂承受第3道裂痕（破碎），或必須放置黑水但供應區已空（滅頂）。被護盾標記或孩子的特色規則抵銷的裂痕不算承受。</p>
     ${fig("mist")}` },
 
   { id: "board", title: "5. 河流、根與花", keys: "河流 格 河段 河岸 此岸 彼岸 左岸 右岸 根 花 綻放 凋零 照亮 根網 連接 放置 霧 沃土 石地 記憶之地 墳墓 河岸牌 信物 spaces reach bank near shore far shore root bloom wither lit network place fog bank card fertile stony memory site grave keepsake", body: `
@@ -231,7 +238,9 @@ const BOOK_ZH = [
   { id: "book", title: "9. 憶念之書與結局", keys: "憶念之書 記憶之泉 銘刻 頁 章節 祝福 關鍵記憶 信物 欄位 地點 人物 事蹟 感受 結局 朗讀 彼岸 那一杯 守岸人 inscribe page chapter blessing key memory slot place person deed feeling ending read aloud cup keeper", body: `
     <p>憶念之書每個河段各有一頁：第一頁《我曾是誰》（第一河段）、第二頁《我做過什麼》（第二河段）、第三頁《我所懷抱的》（第三河段）。每頁有四個欄位：<b>地點</b>、<b>人物</b>、<b>事蹟</b>與<b>感受</b>，填滿後便組成一句關於亡魂生平的話。</p>
     <p><b>銘刻。</b>當一張牌共鳴時，若牌上標示的欄位在亡魂目前所在河段的那一頁仍是空的，你可以銘刻它。<b>關鍵記憶</b>只要正面打出，無論是否共鳴都可以銘刻。銘刻時，用相角把這張牌貼進對應的欄位，而不是放入棄牌堆；它會留在那裡直到遊戲結束。忘卻牌與焚燒的牌不能銘刻。</p>
-    <p><b>章節祝福。</b>當一頁銘刻了3張牌（花環少女為2張），立即給予一次章節祝福（每頁僅一次）。祝福不能選擇。依序檢查，執行第一個可以執行的項目：</p>
+    <p><b>頁面獎勵。</b>每一頁的每一組相鄰欄位都有一個小獎勵：<b>地點＋人物</b>、<b>人物＋事蹟</b>、<b>事蹟＋感受</b>。當一次銘刻填上某組的第二個欄位時，立即執行該組的獎勵。一張牌可能同時完成兩組（例如人物旁的地點與事蹟都已銘刻）：兩個獎勵都執行。每個獎勵每頁只發生一次；在書上勾選它的方框。獎勵印在每一頁上：</p>
+    ${pairTableZh()}
+    <p><b>章節祝福。</b>當一頁的${CHAPTER_AT}個欄位全部填滿（花環少女為${CHAPTER_AT - 1}個），該頁另外立即給予一次章節祝福（每頁僅一次）。祝福不能選擇。依序檢查，執行第一個可以執行的項目：</p>
     <ol class="steps">
       <li>若亡魂至少有1道裂痕：移除1道裂痕。</li>
       <li>否則，若任一格有黑水：把亡魂前方最近的黑水標記移出遊戲。</li>
@@ -377,7 +386,7 @@ export function playerAidZh(cfg) {
     <ol class="steps">
       <li><b>召喚</b> <span>可選・支付光，棄掉1張同絲線的牌${!cfg || cfg.resummon ? "。單人：可換成新的稱號（舊的永久放下），一局3次" : ""}</span></li>
       <li><b>回應</b> <span>你的第一個行動：正面打出或焚燒、且與迴響同一絲線的牌會共鳴</span></li>
-      <li><b>掌舵</b> <span>你的第二個行動。任一行動都可改為尋覓（每回合一次）或奮力駛過（每位擺渡人整局一次）</span></li>
+      <li><b>掌舵</b> <span>你的第二個行動。任一行動都可改為轉贈（每回合一次）或奮力駛過（每位擺渡人整局一次）</span></li>
       <li><b>回合結束</b> <span>1 引花人・2 亡魂步驟：下一格已照亮且沒有黑水就移動，否則徘徊・3 迷霧：翻開本河段牌庫頂的1張牌・4 整理・5 補滿手牌・6 單人：幽靈・7 傳遞船槳</span></li>
       <li><b>整理</b> <span>兩岸都有圓片的格子移除黑水；同側前後兩格都有花的怨念放回供應區</span></li>
     </ol>
@@ -386,7 +395,7 @@ export function playerAidZh(cfg) {
       <div><b>正面打出</b><span>效果＋結＋新迴響</span></div>
       <div><b>背面打出</b><span>放置1個根；不加結，迴響不動</span></div>
       <div><b>焚燒</b><span>效果×2＋結＋新迴響；遺忘此牌與牌庫頂的1張牌</span></div>
-      <div><b>尋覓</b><span>每回合一次：棄1抽1；若作為回應，本回合不能共鳴</span></div>
+      <div><b>轉贈</b><span>每回合一次：棄1抽2，留1張，另1張交給另一位玩家（單人：放牌庫底）；若作為回應，本回合不能共鳴</span></div>
       <div><b>喚回</b><span>僅限回應；花3點光，選一張被遺忘的牌回到棄牌堆</span></div>
       <div><b>奮力駛過</b><span>下一格兩岸都有怨念（且沒有黑水）：移除兩個怨念並把亡魂移到該格；1道裂痕（每個背面朝上的破浪標記+1），遺忘1張；每位玩家整局一次</span></div>
     </div>

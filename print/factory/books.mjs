@@ -7,8 +7,8 @@ import { join } from "node:path";
 import { BLEED, C, doc, artImg, ghostArt, render, icon, esc, SLOT_ICON } from "./lib.mjs";
 import { RULEBOOK } from "../../web/public/assets/rules.js";
 import { RULEBOOK_ZH } from "../../web/public/assets/rules_zh.js";
-import { SOULS, BOOK_FRAMES, CARDS, REACH_NAMES } from "../../web/public/assets/cards.js";
-import { ZH_SOULS, ZH_BOOK_FRAMES, ZH_SLOTS, ZH_REACHES, ZH_BANDS } from "../../web/public/assets/zh.js";
+import { SOULS, BOOK_FRAMES, CARDS, REACH_NAMES, PAIR_SLOTS, PAIR_REWARDS, opsText } from "../../web/public/assets/cards.js";
+import { ZH_SOULS, ZH_BOOK_FRAMES, ZH_SLOTS, ZH_REACHES, ZH_BANDS, zhOpsText } from "../../web/public/assets/zh.js";
 import { STORIES } from "./stories.mjs";
 
 const PW = 210 + 2 * BLEED, PH = 297 + 2 * BLEED;
@@ -27,14 +27,14 @@ const bookPart = (book, part) => section(book, "book").split("<h4>")[part];
 const W = {
   en: { book: RULEBOOK, title: "Book of Remembrance", soul: k => SOULS[k], frames: BOOK_FRAMES, slot: s => s, reach: r => `Reach ${["I", "II", "III"][r]} · ${REACH_NAMES[r]}`,
     keeping: "Keeping the Book", tuck: "Tuck an inscribed card into the well for its slot: slide its four corners into the photo corners. Slide it out again to reuse the card next game.",
-    taken: "…but this, the river has taken", blessing: "Chapter Blessing", keepsakes: "Keepsakes", tale: "The soul of this Book", ferry: "What the Ferrymen know", twist: "Twist", key: "Key Memory",
+    taken: "…but this, the river has taken", blessing: "Chapter Blessing (full page)", ops: opsText, plus: " + ", keepsakes: "Keepsakes", tale: "The soul of this Book", ferry: "What the Ferrymen know", twist: "Twist", key: "Key Memory",
     far: "The Far Shore",
     bookLore: "The old grave-texts told the dead: do not drink from Lethe; find the spring of Memory. This Book is that spring.",
     endLore: "At the Far Shore the Keeper lifts the veil and offers the cup. What the soul remembers decides how it drinks.", sign: ["Ferrymen", "Lantern", "Date"], read: "Read the Book aloud, page by page.", band: id => CARDS.find(c => c.id === id).band,
     outcomes: ["Inscribed in the Book", "Forgotten", "Never written"] },
   zh: { book: RULEBOOK_ZH, title: "憶念之書", soul: k => ZH_SOULS[k], frames: ZH_BOOK_FRAMES, slot: s => ZH_SLOTS[s], reach: r => `第${["一", "二", "三"][r]}河段 · ${ZH_REACHES[r]}`,
     keeping: "保管這本書", tuck: "將銘刻的牌插入其欄位的牌槽：把四個角塞進相角裡。下一局要再用這張牌時，將它滑出即可。",
-    taken: "……但這一段，已被河水帶走", blessing: "章節祝福", keepsakes: "信物", tale: "本書的亡魂", ferry: "擺渡人所知道的", twist: "特色規則", key: "關鍵記憶",
+    taken: "……但這一段，已被河水帶走", blessing: "章節祝福（整頁）", ops: zhOpsText, plus: "＋", keepsakes: "信物", tale: "本書的亡魂", ferry: "擺渡人所知道的", twist: "特色規則", key: "關鍵記憶",
     far: "彼岸",
     bookLore: "古老的墓文告誡亡者：莫飲忘川之水，當尋記憶之泉。這本書，就是那道泉水。",
     endLore: "在彼岸，守岸人掀起面紗，遞上那一杯。亡魂記得什麼，決定了它如何飲下。", sign: ["擺渡人", "燈籠", "日期"], read: "逐頁朗讀憶念之書。", band: id => ZH_BANDS[id] || CARDS.find(c => c.id === id).band,
@@ -66,6 +66,10 @@ p { font-family: var(--f-serif); font-size: 11pt; line-height: 1.55; margin: 0 0
 .well i { font-family: var(--f-hand); font-size: 9pt; color: #9a8466; }
 .corner { position: absolute; width: 9mm; height: 9mm; background: linear-gradient(135deg, #8a6a3e 50%, transparent 50%); opacity: .85; }
 .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-family: var(--f-mono); font-size: 7pt; color: #8a6a3e; letter-spacing: .15em; }
+.pairs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5mm; margin-top: 4mm; font-size: 7.6pt; line-height: 1.3; color: #3c2f22; }
+.pairs > div { display: grid; grid-template-columns: 5.5mm 1fr; align-items: start; }
+.pairs .box { grid-row: span 2; margin-top: .4mm; }
+.pairs b { font-family: var(--f-mono); font-weight: 400; font-size: 6pt; letter-spacing: .12em; text-transform: uppercase; color: #8a6a3e; }
 .box { display: inline-block; width: 4mm; height: 4mm; border: .3mm solid #8a6a3e; vertical-align: -.6mm; margin-right: 1.5mm; }
 .rules p { font-size: 10pt; }
 .epi { margin: -1mm 10mm 5mm; font-size: 12pt; }
@@ -126,8 +130,11 @@ function soulBook(lang, k) {
       <span class="corner" style="left:0;top:0"></span><span class="corner" style="right:0;top:0;transform:rotate(90deg)"></span>
       <span class="corner" style="left:0;bottom:0;transform:rotate(-90deg)"></span><span class="corner" style="right:0;bottom:0;transform:rotate(180deg)"></span>
       ${icon(SLOT_ICON[slot], "#8a6a3e")}<b>${w.slot(slot)}</b><i>${w.taken}</i></div></div>`).join("");
+    // the page rewards: one box for each pair of neighbouring slots, ticked when the pair is filled
+    const pairs = PAIR_SLOTS.map(([a, b], i) => `<div><span class="box"></span><b>${w.slot(a)}${w.plus}${w.slot(b)}</b><span>${esc(w.ops(PAIR_REWARDS[r][i]))}</span></div>`).join("");
     pages.push(page(`<div class="eyebrow">${w.reach(r)}</div><h2>${esc(title)}</h2><div class="wells">${wells}</div>
-      <div class="foot" style="margin-top:6mm"><span><span class="box"></span>${w.blessing}</span><span>${w.keepsakes} <span class="box"></span><span class="box"></span><span class="box"></span></span><span>${4 + r}</span></div>`, PAINT[k][r]));
+      <div class="pairs">${pairs}</div>
+      <div class="foot" style="margin-top:4mm"><span><span class="box"></span>${w.blessing}</span><span>${w.keepsakes} <span class="box"></span><span class="box"></span><span class="box"></span></span><span>${4 + r}</span></div>`, PAINT[k][r]));
   });
   const end = paras(bookPart(w.book, 1));
   pages.push(page(`<div class="eyebrow">${w.far}</div><h2>${w.far}</h2><p class="lore">${esc(w.endLore)}</p>
