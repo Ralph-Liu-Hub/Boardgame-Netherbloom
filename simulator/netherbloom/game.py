@@ -29,6 +29,7 @@ def play_game(cfg, agent=None, record=False):
             s.weaver_used = s.bringer_used = s.breaker_used = False
             s.stats["sought"] = 0
             s.stats["pushed"] = 0
+            s.stats["burned_turn"] = 0
             if s.mantles["warden"] == p:
                 s.warden_ready = True
             s.stats["turns_in_reach"][s.reach] += 1

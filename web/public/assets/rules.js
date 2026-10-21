@@ -87,12 +87,12 @@ const piece = (icon, color, name, story, play) =>
 // Each section: id, title, keywords (extra search terms) and body HTML. Story first, then setup, the turn and its end,
 // then the details, then the appendices. Story prose appears only in section 1 and the Soul stories.
 const BOOK = [
-  { id: "story", title: "1. The story and the goal", keys: "story lore setting world lethe ferryman ferrymen servant underworld coin prologue theme who are we role goal mission objective win lose faded shattered deluge silence talk communicate table talk", body: `
+  { id: "story", title: "1. The story and the goal", keys: "story lore setting world lethe ferryman ferrymen servant underworld coin prologue theme who are we role goal mission objective win lose faded shattered deluge veiled memories talk discuss communicate table talk silence", body: `
     ${lore("Whoever drinks from the River Lethe forgets.")}
     <p class="story">Below the world of the living runs a black river. The dead must cross it to reach the <b>Far Shore</b>, where a veiled <b>Keeper</b> waits with one cup of river water. Drink it, and the weight of a whole life slips away.</p>
     <p class="story">An old ferryman carries the dead across, but only those who were buried with a coin for the fare. The others, the <b>coinless dead</b>, wake alone on the <b>near shore</b> and wander the bank. Fog fills them, and they begin to forget: first the small things, then the faces, then their own names. A soul that forgets everything simply fades into the mist.</p>
     <p class="story">You are the <b>Ferrymen</b>: servants of the underworld, neither living nor dead. The coinless the old ferryman will not carry are given to you. You have no boat. You have something stranger. Along the banks of Lethe grows the <b>Netherbloom</b>, a crimson flower of long, curling petals, blooming on a bare stalk with no leaves, because <i>flower and leaf never meet</i>. Its glow is the only light in the fog that a lost soul can follow. Where you plant Netherblooms, a soul can walk in the river toward the Far Shore.</p>
-    <p class="story">One more thing: the servants of the river are bound to silence. No Ferryman may speak on the water, not to the dead and not to one another. Whatever you mean to say to each other, you must say with the flowers you plant and the choices you make.</p>
+    <p class="story">One more thing: a soul's memories are not yours to tell. The Ferrymen may speak with one another on the water, but never of the memories they carry: only of the river, and of which threads of a life they hold in their hands.</p>
     <h4>The goal</h4>
     <p>Netherbloom is a co-operative game for 1 to 4 players and lasts about 15 turns. One soul starts on the near shore (space 0). All players win or lose together.</p>
     <p><b>You win</b> when the soul token reaches the Far Shore (space 12). The soul only moves onto spaces with a Bloom, so you place Roots ahead of it and turn them into Blooms. Along the way, some cards can be inscribed in the Book of Remembrance (section 9); the Book does not decide whether you win, but it decides how the story ends.</p>
@@ -103,9 +103,9 @@ const BOOK = [
       <li><b>Deluge</b>: you must place a Black Water token but none is left in the supply.</li>
     </ul>
     <p>Forgetting cards helps and hurts. Many strong cards put cards on the forgotten pile, and with 6 or more forgotten cards the soul moves faster (section 4). But each forgotten card brings you closer to Faded.</p>
-    <h4>The Rule of Silence</h4>
-    <p>From setup until the game ends, players do not talk about the game. Do not name, show or hint at the cards in your hand, point at the board to suggest a move, or ask others what to play. You may talk about what everyone can already see: the board, the Loom and the Book.</p>
-    <p>Players communicate through the <b>Echo</b> (section 3). Playing a card on the Echo's thread shows you understood the last player; leaving the Echo on a thread tells the next player which kind of card you hope they can play. When the game ends, the silence ends, and one player reads the Book aloud.</p>` },
+    <h4>The Veiled Memories</h4>
+    <p>Talk as much as you like: plans, the board, the Loom, the Book and what each of you means to do next. But the memories stay veiled. Never show your hand, and never say a card's name, its effect, its Resonance or the memory written on it. You may say which threads you hold ("I have two Obsession and one Oblivion").</p>
+    <p>The <b>Echo</b> still matters: a card played on its thread as your Answer Resonates (section 3). When the game ends, the veil lifts, and one player reads the Book aloud.</p>` },
 
   { id: "setup", title: "2. Setting up", keys: "setup set up prepare start begin layout table where put deal shuffle bank cards mist decks supply first player oar", body: `
     <p>The picture shows the table set up for the Child of the Last Flame. Its numbers match the steps below. Appendix A shows every component.</p>
@@ -123,15 +123,15 @@ const BOOK = [
       <li><b>The Ledger and the supply.</b> Put the Ledger board next to the Loom: forgotten cards go on its numbered track, Fractures on its Fracture wells. Put only the Lantern's number of Black Water tokens (${Object.values(LANTERN).map(l => l[0]).join(", ")} for ${Object.values(LANTERN_NAMES).join(", ")}) in its Black Water well and the rest back in the box. Put the Root/Bloom discs, Shades, Light, Fractures, knots and the Hold Fast token, Shield token and Resignation token within reach.</li>
       <li><b>The Ferrymen.</b> Deal each player a hand: 4 cards in solo play, 3 with 2–4 players. Each player takes a Push Through token, face up. The first player takes the Oar. In solo play, shuffle the ${GHOST.length} Ghost cards into a face-down Ghost deck next to you.</li>
     </ol>
-    <p>Then the Rule of Silence begins, and the first player takes the first turn.</p>` },
+    <p>From now on the Veiled Memories apply (section 1), and the first player takes the first turn.</p>` },
 
-  { id: "turn", title: "3. Your turn", keys: "turn order sequence summon play draw action face up face down burn mode share offer seek give gift discard push through recall echo resonance resonate thread", body: `
+  { id: "turn", title: "3. Your turn", keys: "turn order sequence summon play draw action face up face down burn joint mode discard push through recall echo resonance resonate thread", body: `
     ${LOSE}
     <p>Players take turns clockwise, starting with the first player, who holds the Oar. On your turn:</p>
     <ol class="steps">
       <li><b>Summon a Mantle</b> (optional, before your first action; section 8).</li>
-      <li><b>The Answer</b> (your first action): play a card, Share, Recall or Push Through.</li>
-      <li><b>The Steer</b> (your second action): play a card, Share or Push Through.</li>
+      <li><b>The Answer</b> (your first action): play a card (face up, face down or Burn), Recall or Push Through.</li>
+      <li><b>The Steer</b> (your second action): play a card or Push Through. You may Burn only once per turn.</li>
       <li><b>End of turn</b>: carry out the end-of-turn steps (section 4).</li>
     </ol>
     <p>Hand size is 4 in solo play and 3 with 2–4 players.</p>
@@ -140,17 +140,16 @@ const BOOK = [
     <ul>
       <li><b>Face up</b>: do the card's effect, add one knot to its thread on the Loom, and move the Echo to that thread. Then put an Obsession or Acceptance card on the discard pile and an Oblivion card on the forgotten pile.</li>
       <li><b>Face down</b>: place 1 Root (section 5). Ignore the card's printed effect. No knot is added and the Echo does not move. Then put the card face up on the discard pile.</li>
-      <li><b>Burn</b>: do the card's effect <b>twice</b>, add one knot to its thread, and move the Echo to that thread. Then put the card on the forgotten pile, and also forget the top card of the deck.</li>
+      <li><b>Burn</b> (at most once per turn): choose another player who also holds a card of that card's thread. You each put one card of that thread face down on the table, then flip both. Choose one of the two cards: do its effect <b>twice</b>, add one knot to its thread, and move the Echo to that thread. Then forget both cards, and the other player draws 1 card at once. If no other player holds a card of the same thread, you cannot Burn. <i>Solo:</i> Burn one card from your hand: do its effect twice, add one knot, move the Echo, then forget the card and the top card of the deck.</li>
     </ul>
     ${fig("card")}
-    <h4>Share, Recall and Push Through</h4>
-    <p><b>Share</b> (once per turn): discard a card from your hand, then draw 2 cards. Keep 1 and give the other to another player of your choice; they add it to their hand (this may take them above their hand size, so they draw fewer at the end of their turn). In solo play, put the other card on the bottom of the deck instead. No card is played, no knot is added and the Echo does not move. The Rule of Silence still holds: you may not say why you give the card.</p>
+    <h4>Recall and Push Through</h4>
     <p><b>Recall</b> (Answer only): spend <b>3 Light</b> and choose any card in the forgotten pile; put it on the discard pile, so it can be drawn again later. A forgotten Key Memory can be Recalled.</p>
     <p><b>Push Through</b> (each player only <b>once per game</b>): only when Shades are on <b>both</b> banks of the next space and that space has no Black Water. Return both Shades to the supply, move the soul onto that space (gain its Light as usual, section 8) and flip your Push Through token face down. The soul then takes <b>1 Fracture</b>, plus 1 more for each Push Through token that was already face down, and you forget the top card of the deck. So the first Push Through costs 1 Fracture, the second 2 and the third 3 (which means Shattered). Your turn continues as usual.</p>
     <h4>The Echo and Resonance</h4>
-    <p>The <b>Echo</b> token sits on the thread of the last card played face up or Burned, by any player (or the Ghost). It does not move for a card played face down, a Share, a Recall or a Push Through.</p>
+    <p>The <b>Echo</b> token sits on the thread of the last card played face up or Burned, by any player (or the Ghost). It does not move for a card played face down, a Recall or a Push Through.</p>
     <p>If your <b>Answer</b> is a card played face up or Burned on the Echo's thread, the card <b>Resonates</b>: also do its Resonance effect. On some Oblivion cards the Resonance replaces the normal effect ("Instead"). A Resonating card may be inscribed in the Book of Remembrance (section 9).</p>
-    <p>Your Steer never Resonates. If your Answer is a Share, a Recall or a Push Through, you cannot Resonate this turn.</p>
+    <p>Your Steer never Resonates. If your Answer is a Recall or a Push Through, you cannot Resonate this turn. For a Burn, the card that Resonates is the one whose effect you double.</p>
     ${fig("echo")}
     <h4>Forgetting and the two piles</h4>
     <p><b>Forget</b> a card: put it face up on the next number of the Ledger's forgotten track, overlapping the card before it. The number above the newest card is how many cards are forgotten. <b>Forget the top card of the deck</b>: put the top card of the Memory deck on the forgotten track without playing it. If a card leaves the forgotten pile (Recall, a Chapter Blessing), slide the later cards back.</p>
@@ -249,7 +248,7 @@ const BOOK = [
     </ol>
     ${fig("book")}
     <h4>The ending</h4>
-    <p>When the game ends, the Rule of Silence ends. Check where the soul's <b>Key Memory</b> card is:</p>
+    <p>When the game ends, the veil lifts. Check where the soul's <b>Key Memory</b> card is:</p>
     <ul>
       <li><b>Inscribed in the Book</b>: the soul crosses remembering what mattered most.</li>
       <li><b>In the forgotten pile</b>: the soul crosses without it, lighter and emptier.</li>
@@ -303,11 +302,11 @@ const BOOK = [
       ${piece(TAG_ICONS[1], TAGCOL[1], "Acceptance thread", "Tenderness, forgiveness, peace.", "Mostly Bloom and Mend cards. Backlash: Resignation.")}
       ${piece(TAG_ICONS[2], TAGCOL[2], "Oblivion thread", "Deliberate forgetting.", "Strong cards; forgotten after use. Backlash: the Tide Rises.")}
       ${piece("nb-knot", "#E6D3A3", "Knot", "The Fates' weaving of the soul's last journey.", "Marks how full a thread is on the Loom.")}
-      ${piece("nb-echo", "#8FD6E1", "Echo token", "The shuttle of the Loom. In a silent world, your voice.", "Shows the thread a card must match to Resonate.")}
+      ${piece("nb-echo", "#8FD6E1", "Echo token", "The shuttle of the Loom, carrying each thread to the next hand.", "Shows the thread a card must match to Resonate.")}
       ${piece("nb-grievance", "#8FD6E1", "Shade", "A restless shade of the soul's unfinished resentment.", "Blocks a bank; damages the soul beside it.")}
       ${piece("nb-blackwater", "#9A948C", "Black Water", "The river rising to swallow the path.", "The soul cannot enter its space.")}
       ${piece("nb-fracture", "#D7263D", "Fracture", "A crack in the soul's sense of self.", "Goes on the Ledger's Fracture wells. Third one: Shattered.")}
-      ${piece("nb-tok-oar", "#E6D3A3", "Oar", "The ferry's oar, passed in silence.", "Shows whose turn it is.")}
+      ${piece("nb-tok-oar", "#E6D3A3", "Oar", "The ferry's oar, passed hand to hand.", "Shows whose turn it is.")}
       ${piece("nb-tok-push", "#D7263D", "Push Through token", "A Ferryman's one hard shove.", "One per player; flipped face down when used.")}
       ${piece("nb-tok-hold", "#8FD6E1", "Hold Fast token", "An anchor let down beside the soul.", "If the soul Lingers, nothing is forgotten.")}
       ${piece("nb-tok-shield", "#E6D3A3", "Shield token", "A Ferryman between the soul and harm.", "Cancels the next Fracture.")}
@@ -363,7 +362,7 @@ const BOOK = [
       ${term(`${kw("Linger")}`, "The soul does not move in the Soul Step (section 4, step d).")}
       ${term(`${kw("Summon")} a Mantle`, "Before your Answer: pay 3 Light (2 with the King on the Barge) and discard 1 card from your hand of the Mantle's thread. Take the Mantle card.")}
       ${term(`Recall`, "As your Answer: pay 3 Light and move any card from the forgotten pile to the discard pile.")}
-      ${term(`Burn`, "Do the card's effect twice, tie 1 knot on its thread and move the Echo there. Then forget the card and the top card of the deck.")}
+      ${term(`Burn`, "Once per turn, with another player who holds the same thread: you each reveal a card of that thread and you choose one; do its effect twice, tie 1 knot and move the Echo there. Forget both cards; the other player draws 1. Solo: Burn one card, effect twice, then forget it and the top card of the deck.")}
       ${term(`Resonance / Resonates`, "Your Answer is played face up or Burned on the Echo's thread: also do the card's Resonance effect. <i>Instead</i>: do the Resonance effect in place of the normal one.")}
       ${term(`Inscribe`, "Put a Resonating card in its slot on the current Reach's Book page instead of discarding it (section 9).")}
       ${term(`Remove the Echo from the Loom (Mist)`, "Take the Echo token off its thread. No card can Resonate until a card is played face up or Burned again.")}
@@ -388,7 +387,7 @@ export function playerAid(cfg) {
     <ol class="steps">
       <li><b>Summon</b> <span>optional · pay Light, discard a matching card${!cfg || cfg.resummon ? ". Solo: you may trade your Mantle for a new one (the old is laid down for good), 3 summons a game" : ""}</span></li>
       <li><b>Answer</b> <span>your first action: a card played face up or Burned on the Echo's thread Resonates</span></li>
-      <li><b>Steer</b> <span>your second action. Either may be a Share (once a turn) or a Push Through (once a game for each Ferryman)</span></li>
+      <li><b>Steer</b> <span>your second action. Either may be a Push Through (once a game for each Ferryman); Burn at most once a turn</span></li>
       <li><b>End of turn</b> <span>1 Bloom-Bringer · 2 Soul Step: next space Lit and no Black Water, move; otherwise Linger · 3 Mist: flip the top card of this Reach's deck · 4 Cleanup · 5 Draw up · 6 Solo: Ghost · 7 Pass the Oar</span></li>
       <li><b>Cleanup</b> <span>remove Black Water where both banks have a disc; remove a Shade with a Bloom on the same bank before and after it</span></li>
     </ol>
@@ -396,8 +395,7 @@ export function playerAid(cfg) {
     <div class="aidgrid">
       <div><b>Face up</b><span>effect + knot + new Echo</span></div>
       <div><b>Face down</b><span>place 1 Root; no knot, Echo stays</span></div>
-      <div><b>Burn</b><span>effect ×2 + knot + new Echo; forget it and the top card of the deck</span></div>
-      <div><b>Share</b><span>once a turn: discard 1, draw 2, keep 1, give 1 to another player (solo: deck bottom); no Resonance this turn if it is your Answer</span></div>
+      <div><b>Burn</b><span>once a turn, with a player holding the same thread: both reveal a card, you pick one; effect ×2 + knot + new Echo; forget both, they draw 1. Solo: one card, then forget it and the top card</span></div>
       <div><b>Recall</b><span>your Answer only; 3 Light: a forgotten card of your choice returns to the discard pile</span></div>
       <div><b>Push Through</b><span>Shades on both banks of the next space (no Black Water): remove both and move the soul there; 1 Fracture (+1 per face-down Push Through token), forget 1; once a game for each player</span></div>
     </div>

@@ -52,9 +52,12 @@ class Config:
         self.bride_forgets = False   # tuning: the Bride still forgets when pulled back
         self.lit_both = False        # tuning: a space is Lit only with Blooms on both banks
         self.burn_forget = 2         # tuning: cards forgotten per Burn
-        self.burn_mode = "solo"      # "solo": Burn one card (effect x2, forget it and the top card); "joint_a": another player
+        self.burn_mode = "joint_b"   # "solo": Burn one card (effect x2, forget it and the top card); "joint_a": another player
                                      # adds a same-thread card as fuel, the active player's card doubles, both are forgotten;
-                                     # "joint_b": as joint_a, but either card may be the one that doubles (solo: two own cards)
+                                     # "joint_b": as joint_a, but either card may be the one that doubles. Solo always
+                                     # plays the one-card Burn.
+        self.burn_limit = "once"     # Burns per turn: "any" (each action may Burn), "once" (one of the two actions),
+                                     # "turn" (a Burn is the Answer and ends the turn's actions)
         self.extra_mist = 2          # tuning: extra Rising Water / Grievance cards per Reach deck
         self.light_per_bloom = 1     # tuning: Light gained per Bloom passed
         self.ghost_forgets = False   # tuning: the Ghost's Oblivion card forgets 1
@@ -63,10 +66,10 @@ class Config:
         self.push_again = "escalate" # a later push in the same scope: "escalate" (+1 Fracture each time) or "linger" (not allowed)
         self.push_once_each = True   # each player may Push Through only once per game
         self.push_action = True      # push-through is an action a player takes (False: the soul pushes on its own at the Soul Step)
-        self.seek = True             # one action per turn may be a Share (formerly Seek; that turn's next card cannot Resonate)
+        self.seek = True             # with seek_mode on, one action per turn may be a Seek / Share (that turn's next card cannot Resonate)
         # Playtest options (2026-10): what a Seek does, and how the Book rewards inscriptions
-        self.seek_mode = "keep1give" # the Share: "keep1give" discard 1, draw 2, keep 1, give the other to another player
-                                     # (solo: to the bottom of the deck); older options: "classic" discard 1 draw 1; "keep1give" draw 2, keep 1, give the other to the next player;
+        self.seek_mode = "off"       # "off": no Seek (dropped for the joint Burn); "keep1give" (Share) discard 1, draw 2, keep 1, give the
+                                     # other to the next player (solo: bottom of the deck); "classic" discard 1 draw 1;
                                      # "keep1light" draw 2, keep 1, give the other or forget it for +1 Light; "pass" give the card
                                      # to the next player instead of discarding it, then draw 1; "scry" look at the top 3, take 1
         self.book_mode = "pairs"     # "blessing": one Chapter Blessing at blessing_at memories; "pairs": a reward for each
@@ -582,7 +585,11 @@ class State:
             return False
         card = CARD[cid]
         fuel = None
-        if mode in ("burn", "burnx") and self.cfg.burn_mode != "solo":
+        if mode in ("burn", "burnx"):
+            if self.stats.get("burned_turn"):
+                self.stats["double_burns"] = self.stats.get("double_burns", 0) + 1
+            self.stats["burned_turn"] = 1
+        if mode in ("burn", "burnx") and self.cfg.burn_mode != "solo" and self.n > 1:
             # Joint Burn: the doubled card and a same-thread fuel card from another hand (solo: from your own hand).
             fuel = self.burn_fuel(cid, mode)
             if mode == "burnx":
