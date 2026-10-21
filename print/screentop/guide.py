@@ -157,24 +157,37 @@ in the Chest puts out the whole supply. Two-sided tokens (Root/Bloom, Push Throu
 
 ## 4. Boards
 
-**Blank Tile** components, Shape **Rectangle**, Corner **8**. After you place them (step 7), lock each board with **L**
-so it stays put under the cards.
+You make **three components** here: **River Panel** (with 3 variants, one per Reach), **Loom** and **Ledger**.
+A board is just a big picture card that never needs flipping, so its front and back use the same image.
+Do them one at a time.
 
-| Component | Width | Height | Variants (front and back asset, index 1) |
-|---|---|---|---|
-| River Panel | {420 * U} | {297 * U} | 3: River Panel 1, River Panel 2, River Panel 3 |
-| Loom | {297 * U} | {210 * U} | 1: Loom |
-| Ledger | {297 * U} | {210 * U} | 1: Ledger |
+### 4a. River Panel (3 variants)
 
-River Panel variants:
+1. Go to **Components** and click **New → Blank Tile**.
+2. Set **Name**: `River Panel`.
+3. Under **Shape** set **Kind**: Rectangle, **Width**: `{420 * U}`, **Height**: `{297 * U}`, **Corner**: `8`.
+4. Open this component's **Variants** section. There is already one variant, **Variant 1**. Click it and set:
+   - **Front Asset**: `River Panel 1`, **Front Asset Index**: `1`
+   - **Back Asset**: `River Panel 1`, **Back Asset Index**: `1`
+   - (optional) **Name**: `Reach I`
+5. Open Variant 1's item menu (the ⋯ beside it) and choose **Clone...** twice, so you have **3 variants**.
+6. Click **Variant 2** and change both assets to `River Panel 2` (indexes stay `1`); optional name `Reach II`.
+7. Click **Variant 3** and change both assets to `River Panel 3` (indexes stay `1`); optional name `Reach III`.
 
-{fn('''export default function(variant, index) {
-  return {
-    name: `Reach ${["I", "II", "III"][index - 1]}`,
-    frontAsset: `River Panel ${index}`, frontAssetIndex: 1,
-    backAsset: `River Panel ${index}`, backAssetIndex: 1,
-  };
-}''')}
+### 4b. Loom (1 variant)
+
+1. **Components → New → Blank Tile**, **Name**: `Loom`.
+2. **Shape**: Rectangle, **Width**: `{297 * U}`, **Height**: `{210 * U}`, **Corner**: `8`.
+3. In **Variants**, click **Variant 1** and set Front Asset `Loom`, index `1`; Back Asset `Loom`, index `1`.
+
+### 4c. Ledger (1 variant)
+
+Same as the Loom, with **Name**: `Ledger` and both assets set to `Ledger`, index `1`.
+
+### Check
+
+Open the **Chest** in the main view, pick **River Panel**, **Select All**, **Create**: three river panels appear.
+Do the same for Loom and Ledger. You will arrange and lock them in step 7, so it is fine if they overlap now.
 
 ## 5. Books of Remembrance — Book Page, 40 variants
 
