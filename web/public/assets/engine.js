@@ -30,6 +30,7 @@ export function makeConfig({ players = 3, soul = "open", lantern = STANDARD_LANT
   if (soul === "king") cfg.mantleCost = 2;
   if (soul === "garland") cfg.blessingAt = 2;
   if (soul === "child") { cfg.startLight = 3; cfg.adriftAt = 99; cfg.harshPerReach = 0; cfg.forgottenLimit += 1; }
+  if (soul === "bride") cfg.startLight = 1;
   return cfg;
 }
 

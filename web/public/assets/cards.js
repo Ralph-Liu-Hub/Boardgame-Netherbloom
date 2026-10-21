@@ -132,7 +132,7 @@ export const SOULS = {
   child: { name: "Child of the Last Flame", blurb: "One more little light, struck against the cold.", twist: "Starts with 3 Light. The first Fracture in each Reach is ignored. Never drifts Adrift. She can forget 1 more card before she Fades. No harsh Mist." },
   garland: { name: "The Garland Girl", blurb: "She wove a flower for everyone but herself.", twist: "Each page gives its Chapter Blessing at only 3 inscribed memories." },
   king: { name: "The King on the Barge", blurb: "A crown carried long after the kingdom fell.", twist: "Mantles cost 2 Light. A Fracture strips the Mantle of the player who caused it." },
-  bride: { name: "The Bride Who Stayed Below", blurb: "Almost saved, once.", twist: "The first time she would Linger in the dark, she is pulled one space back instead of forgetting." },
+  bride: { name: "The Bride Who Stayed Below", blurb: "Almost saved, once.", twist: "Starts with 1 Light. The first time she would Linger in the dark, she is pulled one space back instead of forgetting." },
 };
 
 // Mist. Placement ops are relative to the soul's space S.

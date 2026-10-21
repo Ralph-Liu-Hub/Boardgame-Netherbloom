@@ -50,6 +50,7 @@ class Config:
         self.key_any = True          # tuning: a Key Memory may be inscribed whenever played face up
         self.bride_once = True       # tuning: the Bride is pulled back only once per game
         self.bride_forgets = False   # tuning: the Bride still forgets when pulled back
+        self.bride_pullback = True   # tuning: the Bride is pulled one space back (False: she only stays, forgetting nothing)
         self.lit_both = False        # tuning: a space is Lit only with Blooms on both banks
         self.burn_forget = 2         # tuning: cards forgotten per Burn
         self.burn_mode = "joint_b"   # "solo": Burn one card (effect x2, forget it and the top card); "joint_a": another player
@@ -57,7 +58,8 @@ class Config:
                                      # "joint_b": as joint_a, but either card may be the one that doubles. Solo always
                                      # plays the one-card Burn.
         self.burn_limit = "once"     # Burns per turn: "any" (each action may Burn), "once" (one of the two actions),
-                                     # "turn" (a Burn is the Answer and ends the turn's actions)
+                                     # "turn" (a Burn is the Answer and ends the turn's actions),
+                                     # "answer" (only the Answer may Burn)
         self.extra_mist = 2          # tuning: extra Rising Water / Grievance cards per Reach deck
         self.light_per_bloom = 1     # tuning: Light gained per Bloom passed
         self.ghost_forgets = False   # tuning: the Ghost's Oblivion card forgets 1
@@ -98,6 +100,8 @@ class Config:
         if soul == "garland":
             self.blessing_at = overrides.get("blessing_at", 2)
             self.full_page_at = overrides.get("full_page_at", 3)
+        if soul == "bride":
+            self.start_light = overrides.get("start_light", 1)
         if soul == "child":
             self.start_light = overrides.get("start_light", 3)
             self.adrift_at = 99
@@ -825,7 +829,8 @@ class State:
         pulled = any(self.bride_pulled) if self.cfg.bride_once else self.bride_pulled[self.reach]
         if self.cfg.soul == "bride" and not force and self.soul >= 1 and not pulled:
             self.bride_pulled[self.reach] = True
-            self.soul -= 1
+            if self.cfg.bride_pullback:
+                self.soul -= 1
             self.note("  (Bride) she is pulled one space back")
             if not self.cfg.bride_forgets:
                 return

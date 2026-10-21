@@ -171,7 +171,7 @@ class EchoAgent:
         if seek and s.cfg.seek and s.cfg.seek_mode != "off" and not s.stats.get("sought") and len(hand) > 1:
             out += [(cid, "seek") for cid in dict.fromkeys(hand)]
         lim = s.cfg.burn_limit
-        can_burn = self.allow_burn and not (lim == "once" and s.stats.get("burned_turn")) and not (lim == "turn" and not seek)
+        can_burn = self.allow_burn and not (lim == "once" and s.stats.get("burned_turn")) and not (lim in ("turn", "answer") and not seek)
         for cid in hand:
             key = CARD[cid].cid
             if key in seen:
