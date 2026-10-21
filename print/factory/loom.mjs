@@ -14,7 +14,7 @@ const W = {
   en: {
     title: "The Loom of the Fates", sub: "Every card played face up or Burned ties a knot on its thread",
     threads: [
-      ["Obsession", "Clinging, grudges, what the soul cannot let go.", "Grasping", "The soul clutches its grudges: a Grievance appears beside it."],
+      ["Obsession", "Clinging, grudges, what the soul cannot let go.", "Grasping", "The soul clutches its grudges: a Shade appears beside it."],
       ["Acceptance", "Tenderness, forgiveness, peace.", "Resignation", "Put the Resignation token beside the soul: at the next Soul Step it Lingers, forgetting a card, and the token is removed."],
       ["Oblivion", "What has been let go.", "The Tide Rises", "Too much has been let go: Black Water floods the space ahead."],
     ],

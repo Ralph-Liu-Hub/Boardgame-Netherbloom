@@ -547,6 +547,11 @@ mark { background: rgba(215,38,61,.45); color: var(--paper); border-radius: 2px;
 .firsttag { justify-self: start; font-family: var(--mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink);
   background: var(--bone); border-radius: 9px; padding: 1px 7px; margin: 1px 0 2px; white-space: nowrap; }
 .rsuggest { border: 1px solid var(--bone); border-radius: 8px; padding: 8px 10px; background: rgba(230,211,163,.06); }
+.rlose { border-color: var(--crimson, #D7263D); background: rgba(215,38,61,.08); margin: 0 0 12px; }
+.rlose p { margin: 2px 0; } .rlose ul { margin: 4px 0; }
+.kw { color: var(--cyan, #8FD6E1); font-variant: small-caps; font-weight: 500; letter-spacing: .02em; }
+.kw::before { content: "◆"; font-size: .55em; vertical-align: .25em; margin-right: .2em; }
+.rterms td:first-child { width: 38%; }
 
 /* ================================================================ v3: replays in the Book */
 .bk-stage { gap: 10px; }

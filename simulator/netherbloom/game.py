@@ -29,13 +29,14 @@ def play_game(cfg, agent=None, record=False):
             s.weaver_used = s.bringer_used = s.breaker_used = False
             s.stats["sought"] = 0
             s.stats["pushed"] = 0
+            s.stats["burned_turn"] = 0
             if s.mantles["warden"] == p:
                 s.warden_ready = True
             s.stats["turns_in_reach"][s.reach] += 1
             s.note(f"T{s.turn} P{p + 1} soul@{s.soul} forgotten {len(s.forgotten)} fract {s.fract} "
                    f"bw {s.bw_supply} light {s.light} loom {s.karma} echo {s.echo}")
             agent.maybe_summon(s)
-            plays = agent.choose(s)
+            plays = agent.choose(s) or []
             s.last_mist = None
             plays_txt = [label(cid, mode) for cid, mode in plays]
             if plays and plays[0][1] == "seek":

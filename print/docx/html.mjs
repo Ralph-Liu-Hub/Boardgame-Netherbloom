@@ -8,10 +8,13 @@ const paper = c => ({ "#E6D3A3": "#8a6a3e", "#8FD6E1": "#2f7f8e", "#9A948C": "#6
 const ICONS = process.env.ICONS;
 const noIcons = h => h.replace(/<svg class="ri" style="color:(#[0-9A-Fa-f]{6})"[^>]*><use href="#([\w-]+)"\/><\/svg>/g,
   (_, c, id) => `<img class="ic" src="${ICONS}/${id}_${paper(c).slice(1)}.png" />`).replace(/<svg[^>]*>.*?<\/svg>/gs, "");
+// Keywords and the lose panel in forms Word keeps: coloured bold text, and a one-cell table with a red border.
+const wordish = h => h.replace(/<span class="kw">(.*?)<\/span>/g, '<b><font color="#2f7f8e"><span style="font-variant:small-caps">◆ $1</span></font></b>')
+  .replace(/<div class="rsuggest rlose">(.*?)<\/div>/gs, '<table width="100%" cellpadding="6" style="border:2px solid #b3243a;border-collapse:collapse"><tr><td style="border:2px solid #b3243a">$1</td></tr></table>');
 const img = (tag, id, w) => `<p class="fig"><img src="${imgdir}/${tag}_${id}.jpg" style="width:${w}in" /></p>`;
 const WIDE = new Set(["mantles", "souls", "mist", "card", "tiles", "echo", "threats"]);
 function doc(lang, tag, title, book, aid) {
-  const body = book.map(s => `<h2>${s.title}</h2>\n${noIcons(s.body)}`).join("\n")
+  const body = book.map(s => `<h2>${s.title}</h2>\n${wordish(noIcons(s.body))}`).join("\n")
     .replace(/<div class="setupfig"[^>]*><\/div>/, img(tag, "setup0", 6.3) + img(tag, "setup1", 6.3))
     .replace(/<div class="rfig" data-fig="(\w+)"><\/div>/g, (_, id) => img(tag, id, WIDE.has(id) ? 6.3 : 5.2))
     .replace(/<p class="lore">(.*?)<\/p>/g, "<p><i>$1</i></p>");
@@ -19,7 +22,7 @@ function doc(lang, tag, title, book, aid) {
 
 ${body}
 <h2>${lang === "en" ? "Player Aid" : "玩家輔助卡"}</h2>
-${noIcons(aid(null)).replace(/<\/?section[^>]*>/g, "")}
+${wordish(noIcons(aid(null))).replace(/<\/?section[^>]*>/g, "")}
 </body></html>`;
 }
 writeFileSync(out + "/en.html", doc("en", "en", "Netherbloom — Rulebook", RULEBOOK, playerAid));

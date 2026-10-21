@@ -52,6 +52,12 @@ class Config:
         self.bride_forgets = False   # tuning: the Bride still forgets when pulled back
         self.lit_both = False        # tuning: a space is Lit only with Blooms on both banks
         self.burn_forget = 2         # tuning: cards forgotten per Burn
+        self.burn_mode = "joint_b"   # "solo": Burn one card (effect x2, forget it and the top card); "joint_a": another player
+                                     # adds a same-thread card as fuel, the active player's card doubles, both are forgotten;
+                                     # "joint_b": as joint_a, but either card may be the one that doubles. Solo always
+                                     # plays the one-card Burn.
+        self.burn_limit = "once"     # Burns per turn: "any" (each action may Burn), "once" (one of the two actions),
+                                     # "turn" (a Burn is the Answer and ends the turn's actions)
         self.extra_mist = 2          # tuning: extra Rising Water / Grievance cards per Reach deck
         self.light_per_bloom = 1     # tuning: Light gained per Bloom passed
         self.ghost_forgets = False   # tuning: the Ghost's Oblivion card forgets 1
@@ -60,7 +66,21 @@ class Config:
         self.push_again = "escalate" # a later push in the same scope: "escalate" (+1 Fracture each time) or "linger" (not allowed)
         self.push_once_each = True   # each player may Push Through only once per game
         self.push_action = True      # push-through is an action a player takes (False: the soul pushes on its own at the Soul Step)
-        self.seek = True             # one action per turn may be Seek: discard a card and draw one (that turn's next card cannot Resonate)
+        self.seek = True             # with seek_mode on, one action per turn may be a Seek / Share (that turn's next card cannot Resonate)
+        # Playtest options (2026-10): what a Seek does, and how the Book rewards inscriptions
+        self.seek_mode = "off"       # "off": no Seek (dropped for the joint Burn); "keep1give" (Share) discard 1, draw 2, keep 1, give the
+                                     # other to the next player (solo: bottom of the deck); "classic" discard 1 draw 1;
+                                     # "keep1light" draw 2, keep 1, give the other or forget it for +1 Light; "pass" give the card
+                                     # to the next player instead of discarding it, then draw 1; "scry" look at the top 3, take 1
+        self.book_mode = "pairs"     # "blessing": one Chapter Blessing at blessing_at memories; "pairs": a reward for each
+                                     # adjacent pair of slots filled on a page, and the Blessing for a full page
+        self.pair_rewards = {        # with "pairs": {page: [Place+Person, Person+Deed, Deed+Feeling]} lists of ops
+            0: [[("root", 1, False)], [("bloom", 1)], [("light", 2)]],
+            1: [[("banish", 1)], [("drain", 1)], [("release", 1)]],
+            2: [[("recall_free",)], [("mend", 1)], [("guide",)]],
+        }
+        self.full_page_at = 4        # with "pairs": inscribed cards for the page's Chapter Blessing (the Garland Girl: 3)
+        self.full_page = ["blessing"]  # with "pairs": what a full page gives (ops; "blessing" = the Chapter Blessing)
         # Light sinks (experiments; off by default)
         self.light_action = "recall" # None, "recall" (the Answer action: spend Light, a forgotten card returns) or
                                      # "kindle" (spend Light for one of: a forgotten card returns, mend a Fracture, drain a Black Water)
@@ -77,6 +97,7 @@ class Config:
             self.mantle_cost = overrides.get("mantle_cost", 2)
         if soul == "garland":
             self.blessing_at = overrides.get("blessing_at", 2)
+            self.full_page_at = overrides.get("full_page_at", 3)
         if soul == "child":
             self.start_light = overrides.get("start_light", 3)
             self.adrift_at = 99
@@ -434,7 +455,7 @@ class State:
         elif kind == "mend":
             self.fract = max(0, self.fract - op[1])
         elif kind == "release":
-            col = max(range(3), key=lambda i: self.karma[i])
+            col = self.fullest(chooser)
             self.karma[col] = max(0, self.karma[col] - op[1])
         elif kind == "guide":
             if self.passable(self.soul + 1):
@@ -472,7 +493,7 @@ class State:
                             if self.tile[k] == GRAVE:
                                 self.tile[k] = FERTILE
         elif kind == "unmake":
-            col = max(range(3), key=lambda i: self.karma[i])
+            col = self.fullest(chooser)
             self.karma[col] = 0
         elif kind == "wash":
             for b in (0, 1):
@@ -484,6 +505,17 @@ class State:
                 self.drain(sp)
         elif kind == "extra_karma":
             self.tie_knot(op[1])
+        elif kind == "recall_free":
+            if self.forgotten:
+                self.discard.append(self.forgotten.pop())
+        elif kind == "blessing":
+            self.blessing(chooser)
+
+    def fullest(self, chooser):
+        """The thread with the most knots; on a tie the player chooses."""
+        top = max(self.karma)
+        tied = [i for i in range(3) if self.karma[i] == top]
+        return tied[0] if len(tied) == 1 or not hasattr(chooser, "pick_thread") else chooser.pick_thread(self, tied)
 
     def urgent_grievance(self):
         best, bu = None, -1
@@ -508,6 +540,27 @@ class State:
         d = sp - self.soul
         return 11 - min(d, 9) * 2
 
+    # ------------------------------------------------------------- joint Burn
+    def burn_partners(self):
+        """The hands a joint Burn's other card can come from: the other players (solo: your own)."""
+        return [self.cur] if self.n == 1 else [p for p in range(self.n) if p != self.cur]
+
+    def burn_fuel(self, cid, mode):
+        """(hand, card) of the other card in a joint Burn of cid, or None. mode 'burn': cid is the active player's
+        card and the fuel comes from a partner; 'burnx': cid is a partner's card and the fuel is the active player's."""
+        tag = CARD[cid].tag
+        if mode == "burnx":
+            mine = [c for c in self.hands[self.cur] if CARD[c].tag == tag]
+            owner = next((p for p in self.burn_partners() if cid in self.hands[p]), None)
+            return (owner, mine[0]) if mine and owner is not None else None
+        for p in self.burn_partners():
+            cands = [c for c in self.hands[p] if CARD[c].tag == tag and not (p == self.cur and c == cid)]
+            if p == self.cur and cid in self.hands[p] and self.hands[p].count(cid) > 1:
+                cands.append(cid)
+            if cands:
+                return (p, min(cands, key=lambda c: (CARD[c].key, c)))
+        return None
+
     # ------------------------------------------------------------- playing cards
     def play(self, cid, mode, chooser, first):
         """mode: 'up', 'down' or 'burn'. Returns True if the card Resonated."""
@@ -531,17 +584,62 @@ class State:
             self.push_through()
             return False
         card = CARD[cid]
-        self.hands[self.cur].remove(cid)
+        fuel = None
+        if mode in ("burn", "burnx"):
+            if self.stats.get("burned_turn"):
+                self.stats["double_burns"] = self.stats.get("double_burns", 0) + 1
+            self.stats["burned_turn"] = 1
+        if mode in ("burn", "burnx") and self.cfg.burn_mode != "solo" and self.n > 1:
+            # Joint Burn: the doubled card and a same-thread fuel card from another hand (solo: from your own hand).
+            fuel = self.burn_fuel(cid, mode)
+            if mode == "burnx":
+                self.hands[fuel[0]].remove(cid)
+                self.hands[self.cur].remove(fuel[1])
+            else:
+                self.hands[fuel[0]].remove(fuel[1])
+                self.hands[self.cur].remove(cid)
+            if fuel[0] != self.cur:
+                self.draw_up(fuel[0])        # the partner refills at once, so no hand is left empty
+            mode = "burn"
+        else:
+            self.hands[self.cur].remove(cid)
         if mode == "seek":
-            # Seek: draw a card, then discard this one. While planning, the AI cannot see the draw.
+            # Seek: draw, then discard this one. While planning, the AI cannot see the draw.
             self.stats["sought"] = 1
             self.stats["seeks"] = self.stats.get("seeks", 0) + 1
+            sm = self.cfg.seek_mode
+            nxt = (self.cur + 1) % self.n
+            if sm == "pass" and self.n > 1:
+                self.hands[nxt].append(cid)          # the card goes to the next player instead of the discard pile
+            else:
+                self.discard.append(cid)
             if not self.sim:
-                if not self.deck:
-                    self.reshuffle()
-                if self.deck:
-                    self.hands[self.cur].append(self.deck.pop())
-            self.discard.append(cid)
+                draws = 3 if sm == "scry" else 2 if sm in ("keep1give", "keep1light") else 1
+                got = []
+                for _ in range(draws):
+                    if not self.deck:
+                        self.reshuffle()
+                    if self.deck:
+                        got.append(self.deck.pop())
+                if len(got) > 1:
+                    keep = chooser.keep_best(self, got)
+                    got.remove(keep)
+                    self.hands[self.cur].append(keep)
+                    if sm == "scry":
+                        self.deck[:0] = got                # the rest go to the bottom of the deck
+                    else:
+                        for other in got:
+                            if sm == "keep1light" and chooser.forget_for_light(self, other):
+                                self.forget_card(other)
+                                self.light += 1
+                                self.stats["seek_light"] = self.stats.get("seek_light", 0) + 1
+                            elif self.n > 1:
+                                self.hands[nxt].append(other)
+                                self.stats["seek_gifts"] = self.stats.get("seek_gifts", 0) + 1
+                            else:
+                                self.deck.insert(0, other)
+                else:
+                    self.hands[self.cur] += got
             return False
         if mode == "down":
             self.stats["face_down"] += 1
@@ -567,6 +665,10 @@ class State:
         if mode == "burn":
             self.stats["burns"] += 1
             self.forget_card(cid)
+            if fuel is not None:
+                self.stats["joint_burns"] = self.stats.get("joint_burns", 0) + 1
+                self.forget_card(fuel[1])
+                return resonated
             if self.cfg.burn_forget > 1:
                 self.forget_top(self.cfg.burn_forget - 1)
             return resonated
@@ -583,7 +685,16 @@ class State:
             self.stats["inscribed"] += 1
             self.note(f"  inscribed {card.cid} ({card.slot}): {card.band}")
             filled = len(self.book[self.reach])
-            if not self.blessed[self.reach] and filled >= self.cfg.blessing_at:
+            if self.cfg.book_mode == "pairs":
+                page = self.book[self.reach]
+                for i, (a, b) in enumerate((("Place", "Person"), ("Person", "Deed"), ("Deed", "Feeling"))):
+                    if card.slot in (a, b) and a in page and b in page:
+                        self.stats["pair_rewards"] = self.stats.get("pair_rewards", 0) + 1
+                        self.do_ops(self.cfg.pair_rewards[self.reach][i], chooser)
+                if filled == self.cfg.full_page_at:
+                    self.stats["blessings"] += 1
+                    self.do_ops([(op,) if isinstance(op, str) else op for op in self.cfg.full_page], chooser)
+            elif not self.blessed[self.reach] and filled >= self.cfg.blessing_at:
                 self.blessed[self.reach] = True
                 self.stats["blessings"] += 1
                 self.blessing(chooser)

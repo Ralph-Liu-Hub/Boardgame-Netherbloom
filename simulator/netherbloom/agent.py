@@ -83,6 +83,29 @@ class EchoAgent:
     def want_inscribe(self, s, cid):
         return self.use_book
 
+    # ------------------------------------------------------------ playtest choices
+    def card_value(self, s, cid):
+        """How much good this card would do played now (best of face up / face down), for keeping or giving."""
+        best = -1e18
+        for mode in ("up", "down"):
+            c = s.clone()
+            c.hands[c.cur].append(cid)
+            self._apply(c, cid, mode, False)
+            best = max(best, self._after_step(c))
+        return best
+
+    def keep_best(self, s, cids):
+        return max(cids, key=lambda cid: self.card_value(s, cid))
+
+    def forget_for_light(self, s, cid):
+        # forget for Light while the forgotten pile is still short; otherwise hand it to the next player
+        return len(s.forgotten) < s.cfg.ash_at - 1
+
+    def pick_thread(self, s, tied):
+        # empty the thread whose Backlash would hurt most now: Oblivion floods, Obsession adds a Shade, Acceptance a Linger
+        order = [2, 0, 1]
+        return min(tied, key=order.index)
+
     # ------------------------------------------------------------ evaluation
     def evaluate(self, s):
         if s.result == "win":
@@ -145,8 +168,10 @@ class EchoAgent:
             out.append((None, "push"))
         if seek:   # only the Answer (first) action may spend Light
             out += [(None, m) for m in E.light_actions(s)]
-        if seek and s.cfg.seek and not s.stats.get("sought") and len(hand) > 1:
+        if seek and s.cfg.seek and s.cfg.seek_mode != "off" and not s.stats.get("sought") and len(hand) > 1:
             out += [(cid, "seek") for cid in dict.fromkeys(hand)]
+        lim = s.cfg.burn_limit
+        can_burn = self.allow_burn and not (lim == "once" and s.stats.get("burned_turn")) and not (lim == "turn" and not seek)
         for cid in hand:
             key = CARD[cid].cid
             if key in seen:
@@ -154,8 +179,14 @@ class EchoAgent:
             seen.add(key)
             out.append((cid, "up"))
             out.append((cid, "down"))
-            if self.allow_burn:
+            if can_burn and (s.cfg.burn_mode == "solo" or s.n == 1 or s.burn_fuel(cid, "burn")):
                 out.append((cid, "burn"))
+        if can_burn and s.cfg.burn_mode == "joint_b" and s.n > 1:
+            # either card of a joint Burn may be the one that doubles: a partner's card, fuelled by one of yours
+            for p in s.burn_partners():
+                for cid in dict.fromkeys(s.hands[p]):
+                    if s.burn_fuel(cid, "burnx"):
+                        out.append((cid, "burnx"))
         return out
 
     def _apply(self, s, cid, mode, first):
@@ -181,6 +212,11 @@ class EchoAgent:
                 if mode not in ("seek", "push", "recall", "mend", "drainl"):
                     return [(cid, mode)]
         for sc1, cid1, mode1, c1, res, bonus in firsts[:self.beam]:
+            if s.cfg.burn_limit == "turn" and mode1 in ("burn", "burnx") and c1.result is None:
+                v = self._after_step(c1.clone()) + bonus   # the Burn was the whole turn's play
+                if v > bv:
+                    best, bv = [(cid1, mode1)], v
+                continue
             if c1.result is not None:
                 v = self.evaluate(c1)
                 if v > bv:

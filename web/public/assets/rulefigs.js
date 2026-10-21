@@ -88,7 +88,7 @@ const FIGS = {
   },
 
   loom: t => {
-    const rows = [["nb-obsession", K.crimson, t("Obsession", "執念"), 2, t("Full: Grasping, a Grievance on the soul's space", "打滿：攫取，在亡魂所在格放置怨念")],
+    const rows = [["nb-obsession", K.crimson, t("Obsession", "執念"), 2, t("Full: Grasping, a Shade on the soul's space", "打滿：攫取，在亡魂所在格放置怨念")],
       ["nb-acceptance", K.bone, t("Acceptance", "釋懷"), 4, t("Full: Resignation, the soul does not move next Soul Step", "打滿：認命，下一次亡魂步驟不移動")],
       ["nb-oblivion", K.cyan, t("Oblivion", "忘卻"), 1, t("Full: the Tide Rises, Black Water on the next space", "打滿：漲潮，在下一格放置黑水")]];
     const svg = `<svg class="rf-svg" viewBox="0 0 620 190" role="img"><rect width="620" height="190" rx="10" fill="${K.plate}"/>
@@ -109,12 +109,12 @@ const FIGS = {
   ]), ""),
 
   threats: t => figure(panels([
-    [t("Removing a Grievance", "移除怨念"), river({ from: 2, to: 5, soul: 2, tok: { "3L": "bloom", "5L": "bloom", "2L": "bloom" }, griev: ["4L"], fog: ["3R", "4R", "5R"], lit: [2, 3, 5], w: 66 }),
-      t("A Bloom on the same bank directly before and after a Grievance: in Cleanup, return the Grievance to the supply.", "怨念同一側河岸的正前一格與正後一格都有花：整理時把該怨念放回供應區。")],
+    [t("Removing a Shade", "移除怨念"), river({ from: 2, to: 5, soul: 2, tok: { "3L": "bloom", "5L": "bloom", "2L": "bloom" }, griev: ["4L"], fog: ["3R", "4R", "5R"], lit: [2, 3, 5], w: 66 }),
+      t("A Bloom on the same bank directly before and after a Shade: in Cleanup, return the Shade to the supply.", "怨念同一側河岸的正前一格與正後一格都有花：整理時把該怨念放回供應區。")],
     [t("Removing Black Water", "移除黑水"), river({ from: 2, to: 5, soul: 2, tok: { "2L": "bloom", "4L": "root", "4R": "root" }, flood: [4], fog: ["3L", "3R", "5L", "5R"], w: 66 }),
       t("Black Water on a space with a Root or Bloom on both banks: in Cleanup, remove the Black Water from the game.", "有黑水的格子兩岸都有根或花：整理時把該黑水移出遊戲。")],
-    [t("Grievances on both banks", "兩岸都有怨念"), river({ from: 2, to: 5, soul: 2, tok: { "2L": "bloom" }, griev: ["3L", "3R"], fog: ["4L", "4R", "5L", "5R"], w: 66 }),
-      t("Grievances on both banks of the next space: the soul cannot move there unless a player uses an action to Push Through.", "下一格兩岸都有怨念：除非有玩家花1個行動奮力駛過，否則亡魂無法移動到該格。")],
+    [t("Shades on both banks", "兩岸都有怨念"), river({ from: 2, to: 5, soul: 2, tok: { "2L": "bloom" }, griev: ["3L", "3R"], fog: ["4L", "4R", "5L", "5R"], w: 66 }),
+      t("Shades on both banks of the next space: the soul cannot move there unless a player uses an action to Push Through.", "下一格兩岸都有怨念：除非有玩家花1個行動奮力駛過，否則亡魂無法移動到該格。")],
   ]), ""),
 
   book: (t, L) => {
@@ -132,7 +132,7 @@ const FIGS = {
   mist: (t, L, kit) => {
     const pick = (r, name) => { const i = mistDeck(r).findIndex(m => m[0] === name); return kit.mistFace(L, mistDeck(r)[i], mistId(r, i), r, false); };
     const h = HARSH.findIndex(m => m[0] === "Flood Surge");
-    return figure(cardRow([[pick(0, "Rising Water"), t("Reach I", "第一河段")], [pick(1, "Echo Severed"), t("Reach II", "第二河段")], [pick(2, "Twin Grievances"), t("Reach III", "第三河段")], [kit.mistFace(L, HARSH[h], harshId(h), 0, true), t("Harsh Mist", "凶霧")]], "four"),
+    return figure(cardRow([[pick(0, "Rising Water"), t("Reach I", "第一河段")], [pick(1, "Echo Severed"), t("Reach II", "第二河段")], [pick(2, "Twin Shades"), t("Reach III", "第三河段")], [kit.mistFace(L, HARSH[h], harshId(h), 0, true), t("Harsh Mist", "凶霧")]], "four"),
       t("Mist cards from each Reach, and a Harsh Mist card. Positions count from the soul's space.", "各河段的迷霧牌，以及一張凶霧牌。位置都從亡魂所在的格子算起。"));
   },
   solo: (t, L, kit) => figure(cardRow([0, 5, 9].map(i => [kit.ghostFace(L, GHOST[i][0], GHOST[i][1], ghostId(i)), ""]), "three"),

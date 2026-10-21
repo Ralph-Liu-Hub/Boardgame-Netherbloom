@@ -4,7 +4,7 @@
 //   Soul 亡魂 · Far Shore 彼岸 · near shore 此岸 · space 格 · bank 河岸（left 左岸 / right 右岸；面向下游，左岸在版圖上方）· Reach 河段
 //   Root 根 · Bloom 花（動詞：綻放）· Lit 照亮 · network 根網 · fog 霧 · Light 光（點）
 //   Fertile 沃土 · Stony 石地 · Memory Site 記憶之地 · Grave 墳墓 · keepsake 信物
-//   Black Water 黑水 · flood 淹沒 · drain 排乾 · Deluge 滅頂 · Grievance 怨念 · banish 驅散 · Fracture 裂痕 · Shield 護盾
+//   Black Water 黑水 · flood 淹沒 · drain 排乾 · Deluge 滅頂 · Shade 怨念 · banish 驅散 · Fracture 裂痕 · Shield 護盾
 //   Shattered 破碎 · Faded 消散 · Linger 徘徊 · forget 遺忘 · forgotten pile 遺忘堆 · Light as Ash 輕如灰燼 · Adrift 漂離
 //   Loom of the Fates 命運織機 · thread 絲線 · knot 結 · Backlash 反噬 · Obsession 執念 · Acceptance 釋懷 · Oblivion 忘卻
 //   Echo 迴響 · Resonate / Resonance 共鳴 · face up 正面打出 · face down 背面打出 · Burn 焚燒
@@ -13,7 +13,7 @@
 //   Soul Step 亡魂步驟 · deck 牌庫 · discard pile 棄牌堆 · hand 手牌 · draw 抽牌 · turn 回合 · round 輪
 //   Place 地點 · Person 人物 · Deed 事蹟 · Feeling 感受
 //   Ferrymen 擺渡人（玩家：冥府的僕役，既非生者也非亡魂）· old ferryman 老擺渡人（傳說中只載付了船資的亡者）· Keeper 守岸人
-//   action 行動 · Answer (first action) 回應 · Steer (second action) 掌舵 · Seek 尋覓 · discard 棄掉 · push through 奮力駛過 · Recall 喚回 · lay down (a Mantle, for good) 永久放下 · Chronicle 紀事
+//   action 行動 · Answer (first action) 回應 · Steer (second action) 掌舵 · Burn 焚燒（與另一位玩家共同進行）· Veiled Memories 隱憶之約 · discard 棄掉 · push through 奮力駛過 · Recall 喚回 · lay down (a Mantle, for good) 永久放下 · Chronicle 紀事
 //   tokens: the Oar (whose turn) 船槳 · Push Through token 破浪標記（擺渡人使盡全力、破浪駛過險阻） · Hold Fast token 堅守標記 · Shield token 護盾標記 · Resignation token 認命標記 · turn a card sideways 橫放 · straighten 轉正
 //   Backlash 反噬：Grasping 攫取 / Resignation 認命 / The Tide Rises 漲潮
 
@@ -63,15 +63,15 @@ export const ZH_BANDS = {
 export const ZH_SOULS = {
   open: { name: "無名渡河", blurb: "一個無名的亡魂。迴響牌加入基本牌庫。記憶之地給予2點光。", twist: "記憶之地給予+2點光。" },
   child: { name: "最後火光的孩子", blurb: "再點亮一簇小小的火光，抵擋寒冷。", twist: "起始擁有3點光。每個河段的第一道裂痕會被忽略。永遠不會漂離。消散前可多遺忘1張牌。沒有凶霧。" },
-  garland: { name: "花環少女", blurb: "她為每個人編了花，卻沒有為自己編一朵。", twist: "只需銘刻2段記憶，就能獲得章節祝福。" },
+  garland: { name: "花環少女", blurb: "她為每個人編了花，卻沒有為自己編一朵。", twist: "每一頁只需銘刻3段記憶，就能獲得章節祝福。" },
   king: { name: "渡船上的國王", blurb: "王國覆滅已久，王冠仍戴在頭上。", twist: "稱號花費2點光。造成裂痕的玩家會失去自己的稱號。" },
   bride: { name: "留在冥府的新娘", blurb: "差一點，就得救了。", twist: "她第一次將在黑暗中徘徊時，不會遺忘，而是被拉回一格。" },
 };
 
 export const ZH_MIST = {
   "Rising Water": ["漲水", "黑水淹沒前方的河道。"],
-  "Grievance": ["怨念", "一個怨念佔據前方的河岸。"],
-  "Grievance Drawn Near": ["怨念逼近", "一個怨念落在亡魂身旁。"],
+  "Shade": ["怨念", "一個怨念佔據前方的河岸。"],
+  "Shade Drawn Near": ["怨念逼近", "一個怨念落在亡魂身旁。"],
   "Withering": ["凋零", "前方最遠的2朵花凋零為根。"],
   "Great Withering": ["大凋零", "前方3朵花凋零為根。"],
   "Fog Returns": ["霧氣重返", "霧氣重新籠罩空無一物的河岸。"],
@@ -80,9 +80,9 @@ export const ZH_MIST = {
   "The Mist Parts": ["迷霧散開", "一切平靜。喘口氣吧。"],
   "Echo Severed": ["迴響斷絕", "迴響從織機上被扯下。"],
   "Undertow": ["暗流", "水位上漲，一旁的花隨之凋零。"],
-  "Twin Grievances": ["雙生怨念", "兩個怨念佔據前方的河岸。"],
+  "Twin Shades": ["雙生怨念", "兩個怨念佔據前方的河岸。"],
   "Flood Surge": ["洪水暴漲", "黑水兩度氾濫。"],
-  "Grievance Host": ["怨念成群", "怨念擠滿前方兩岸。"],
+  "Shade Host": ["怨念成群", "怨念擠滿前方兩岸。"],
   "Wither Storm": ["凋零風暴", "前方兩格之外的所有花全部凋零。"],
   "Deep Cold": ["深寒", "遺忘兩段記憶。"],
   "Karma Surge": ["業力湧現", "每條絲線各打上一個結。"],
@@ -109,19 +109,21 @@ export function zhOpText(op) {
     case "hold": return "本回合亡魂停留時不會遺忘";
     case "shield": return "在你的下個回合之前，防止下一道裂痕";
     case "mend": return `修補${op[1]}道裂痕`;
-    case "release": return `在最滿的絲線上解開${op[1]}個結`;
+    case "release": return `在最滿的絲線上解開${op[1]}個結（若平手，由你選擇）`;
     case "guide": return "若下一格已被照亮，亡魂立即前進一格";
     case "vigil": return "查看迷霧牌庫頂的3張牌，再以任意順序放回牌庫頂";
-    case "banish_or_drain": return "驅散最近的怨念，或排乾最近的黑水";
+    case "banish_or_drain": return "移除1個（由你選擇）：最近的怨念，或最近的黑水";
     case "banish": return "驅散最近的怨念";
     case "drain": return "排乾最近的黑水";
     case "light": return `獲得${op[1]}點光`;
     case "reveal_reach": return "掀開本河段的所有霧氣；墳墓變為沃土";
-    case "unmake": return "清空最滿的絲線，且不觸發反噬";
+    case "unmake": return "清空最滿的絲線，且不觸發反噬（若平手，由你選擇）";
     case "wash": return "沖走亡魂身旁的怨念";
     case "lowtide": return "排乾本河段的所有黑水";
     case "extra_karma": return "額外在執念絲線上打1個結";
+    case "recall_free": return "把最新被遺忘的那張牌放回棄牌堆";
   }
   return op[0];
 }
-export const zhOpsText = ops => ops.map(zhOpText).join("。") + "。";
+const both = ops => ops.length === 2 && ops[0][0] === "banish" && ops[1][0] === "drain";
+export const zhOpsText = ops => both(ops) ? "移除最近的1個怨念與最近的1個黑水。" : ops.map(zhOpText).join("。") + "。";
