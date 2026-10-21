@@ -133,7 +133,7 @@ async function boot() {
   let arrived = false;
   try { arrived = !!sessionStorage.getItem("nb-arrive"); sessionStorage.removeItem("nb-arrive"); } catch { /* storage blocked */ }
   if (arrived) passage("arrive", undefined, { ...crossing(), title: `Netherbloom${zh() ? "<small>彼岸花渡</small>" : ""}`,
-    sub: L("A silent crossing of the river of forgetting", "無聲渡過遺忘之河") });
+    sub: L("A crossing of the river of forgetting", "渡過遺忘之河") });
   else document.documentElement.classList.remove("arriving");
 }
 
@@ -250,8 +250,8 @@ function menu(which = "solo") {
       <div class="heroart" aria-hidden="true">${artImg("cover-f")}</div>
       <div class="eyebrow">${L("Publisher preview", "出版社試玩版")}</div>
       <h1>Netherbloom${zh() ? '<span class="zhtitle">彼岸花渡</span>' : ""}</h1>
-      <p>${L("Grow a path of Netherblooms across the river of forgetting, and carry one soul to the Far Shore before it forgets who it was. A silent co-operative game for 1 to 4.",
-        "在遺忘之河上種出一條彼岸花小徑，趕在亡魂忘記自己是誰之前，護送它抵達彼岸。一款1至4人的無聲合作遊戲。")}</p>
+      <p>${L("Grow a path of Netherblooms across the river of forgetting, and carry one soul to the Far Shore before it forgets who it was. A co-operative game for 1 to 4: plan together, but a soul's memories are never spoken.",
+        "在遺忘之河上種出一條彼岸花小徑，趕在亡魂忘記自己是誰之前，護送它抵達彼岸。一款1至4人的合作遊戲：一起商量，但亡魂的記憶絕不說出口。")}</p>
     </div>
     <div class="modes">
       <button type="button" class="mode ${which === "solo" ? "on" : ""}" data-mode="solo"><h3>${L("Solo", "單人模式")}</h3><p>${L("You and the Ghost, an automated companion who plays a card after each of your turns.", "你與幽靈同行。幽靈是自動夥伴，會在你每個回合結束後打出一張牌。")}</p></button>
@@ -476,7 +476,7 @@ function hostMessage(connId, msg) {
   } else if (msg.t === "state" && S && msg.s) {
     const p = net.players.find(x => x.conn === connId);
     const seat = net.players.indexOf(p);
-    if (msg.s.gid === S.gid && msg.s.ver > S.ver && seat === S.cur && !seats.has(seat)) {
+    if (msg.s.gid === S.gid && msg.s.ver > S.ver && seat === E.actor(S) && !seats.has(seat)) {
       S = msg.s;
       net.api.broadcast({ t: "state", s: S }, connId);
       onRemoteState();
@@ -782,9 +782,10 @@ function resumeGame(d) {
 }
 
 const controls = seat => seats.has(seat);
+// The seat that acts now: the active player, or the helper while a joint Burn waits for their card.
 function canAct() {
-  if (!S || S.result || !controls(S.cur)) return false;
-  if (mode === "local" && S.n > 1 && uncovered !== S.cur) return false;
+  if (!S || S.result || !controls(E.actor(S))) return false;
+  if (mode === "local" && S.n > 1 && uncovered !== E.actor(S)) return false;
   return true;
 }
 const canPlayCards = () => canAct() && !busy && !pending && !playingBack() && S.phase === "play" && S.played < S.cfg.cardsPerTurn && S.hands[S.cur].length > 0;
@@ -792,8 +793,8 @@ const canPlayCards = () => canAct() && !busy && !pending && !playingBack() && S.
 async function tick() {
   if (!S) return;
   if (S.result) { trackEnd(); showEnd(); return; }
-  if (!controls(S.cur)) return;
-  if (mode === "local" && S.n > 1 && uncovered !== S.cur) {
+  if (!controls(E.actor(S))) return;
+  if (mode === "local" && S.n > 1 && uncovered !== E.actor(S)) {
     if (passOpen) return;
     passOpen = true;
     await idle();
@@ -807,14 +808,15 @@ async function tick() {
 }
 
 function showPass() {
-  const name = pname(S.names[S.cur]);
+  const name = pname(S.names[E.actor(S)]);
   veil(`<div class="dialog pass">
     <svg class="lily" aria-hidden="true"><use href="#nb-bloom"/></svg>
     <h2>${L(`Pass the lantern to ${esc(name)}`, `把燈籠交給${esc(name)}`)}</h2>
-    <p class="muted">${L("Everyone else, look away from the screen. In Netherbloom nobody speaks about their cards.", "其他人請把視線移開螢幕。在這個遊戲裡，沒有人會談論自己的手牌。")}</p>
+    <p class="muted">${S.burn && S.burn.pcid === null ? L(`${esc(pname(S.names[S.cur]))} asks you to Burn with them. Everyone else, look away from the screen.`, `${esc(pname(S.names[S.cur]))}邀請你一起焚燒。其他人請把視線移開螢幕。`)
+      : L("Everyone else, look away from the screen. Talk as much as you like, but never name or show your cards.", "其他人請把視線移開螢幕。你們可以盡情討論，但絕不說出或展示自己的牌。")}</p>
     <button type="button" class="primary" id="reveal">${L(`I am ${esc(name)}: show my hand`, `我是${esc(name)}：顯示我的手牌`)}</button></div>`, "pass");
   $("reveal").onclick = () => {
-    uncovered = S.cur;
+    uncovered = E.actor(S);
     passOpen = false;
     closeVeil();
     A.sfx("turn");
@@ -829,6 +831,7 @@ const chooser = {
   bloomTarget: (s, targets, i, n) => ask({ type: "bloom", targets, i, n }),
   wantInscribe: (s, cid) => ask({ type: "inscribe", cid }),
   vigilOrder: (s, top) => ask({ type: "vigil", top: top.map(m => m[0]), ops: top.map(m => m[1]) }),
+  pickThread: (s, tied) => ask({ type: "thread", tied }),
 };
 function ask(p) {
   return new Promise(resolve => {
@@ -854,8 +857,62 @@ async function playSelected(cid, mode_) {
   busy = true;
   A.sfx("card");
   try {
-    if (mode_ === "seek") E.seek(S, cid);
-    else await E.playCard(S, cid, mode_, chooser);
+    await E.playCard(S, cid, mode_, chooser);
+  } catch (e) {
+    if (!(e instanceof E.GameOver)) throw e;
+    S.phase = "over";
+  }
+  busy = false;
+  await afterAction();
+}
+
+// ---------------------------------------------------------------- the joint Burn (2-4 players)
+// The active player picks a helper who holds the card's thread; the helper adds a card of that thread from their own hand;
+// both are revealed and the active player chooses which card's effect happens twice.
+function startBurn(cid) {
+  if (!canPlayCards() || !E.canBurn(S, cid)) return;
+  closeZoom();
+  const partners = E.burnPartners(S, cid);
+  const go = q => {
+    closeVeil();
+    E.askBurn(S, cid, q);
+    selected = null;
+    if (mode === "local") uncovered = -1;
+    commit();
+    tick();
+  };
+  if (partners.length === 1) return go(partners[0]);
+  veil(`<div class="dialog"><h2>${L("Burn with whom?", "與誰一起焚燒？")}</h2>
+    <p class="muted">${L(`These players hold a card of the <b>${tagName(CARDS[cid].tag)}</b> thread. Talk it over, then choose one.`, `這些玩家握有<b>${tagName(CARDS[cid].tag)}</b>牌。先商量，再選擇一位。`)}</p>
+    <div class="row">${partners.map(q => `<button type="button" class="primary" data-q="${q}">${esc(pname(S.names[q]))}</button>`).join("")}
+    <button type="button" id="cancel">${L("Cancel", "取消")}</button></div></div>`, "burn");
+  $("cancel").onclick = closeVeil;
+  $("veil").querySelectorAll("[data-q]").forEach(b => b.onclick = () => go(+b.dataset.q));
+}
+function joinBurnNow(pcid) {
+  if (!canAct() || busy || !E.joinBurn(S, pcid)) return;
+  closeZoom();
+  if (mode === "local") uncovered = -1;
+  commit();
+  tick();
+}
+function burnDialog() {
+  const b = S.burn;
+  if (!b || b.pcid === null) return;
+  const side = (cid, which, who) => `<div class="burnpick">${cardHTML(cid, { cls: "big", resonant: S.played === 0 && S.echo === CARDS[cid].tag })}
+    <button type="button" class="primary" data-which="${which}">${L(`Twice: ${esc(cardName(cid))}`, `執行兩次：${esc(cardName(cid))}`)}</button><small class="muted">${esc(who)}</small></div>`;
+  veil(`<div class="dialog wide"><h2>${L("Burn together", "共同焚燒")}</h2>
+    <p class="muted">${L("Both cards are revealed. Choose the one whose effect happens <b>twice</b>. Both cards are then forgotten, and your helper draws a card.", "兩張牌都已翻開。選擇效果要執行<b>兩次</b>的那一張。之後兩張牌都會被遺忘，協助者抽1張牌。")}</p>
+    <div class="burnrow">${side(b.cid, "own", pname(S.names[b.by]))}${side(b.pcid, "partner", pname(S.names[b.partner]))}</div></div>`, "burn");
+  $("veil").querySelectorAll("[data-which]").forEach(x => x.onclick = () => resolveBurnNow(x.dataset.which));
+}
+async function resolveBurnNow(which) {
+  if (!canAct() || busy || !S.burn || S.burn.pcid === null) return;
+  closeVeil();
+  busy = true;
+  A.sfx("card");
+  try {
+    await E.resolveBurn(S, which, chooser);
   } catch (e) {
     if (!(e instanceof E.GameOver)) throw e;
     S.phase = "over";
@@ -1357,17 +1414,37 @@ function setPrompt(html, mine = false) {
 
 function drawPrompt() {
   if (S.result) { setPrompt(`<span class="msg">${S.result === "win" ? L("<b>The soul has crossed.</b>", "<b>亡魂已經渡河。</b>") : L(`<b>Lost: ${esc(S.cause)}.</b>`, `<b>失敗：${esc(causeName(S.cause))}。</b>`)}</span><button type="button" id="seeend">${L("See the ending", "查看結局")}</button>`); $("seeend").onclick = () => { endShown = false; showEnd(); }; return; }
-  const who = esc(pname(S.names[S.cur]));
+  const who = esc(pname(S.names[E.actor(S)]));
   if (!canAct()) {
-    const why = mode === "local" ? L(`Waiting for <b>${who}</b> to take the lantern.`, `等待<b>${who}</b>接過燈籠。`)
+    const why = S.burn && S.burn.pcid === null ? L(`<b>${esc(pname(S.names[S.cur]))}</b> asks <b>${who}</b> to Burn with them: waiting for a card of the <b>${tagName(S.burn.tag)}</b> thread.`, `<b>${esc(pname(S.names[S.cur]))}</b>邀請<b>${who}</b>一起焚燒：等待一張<b>${tagName(S.burn.tag)}</b>牌。`)
+      : mode === "local" ? L(`Waiting for <b>${who}</b> to take the lantern.`, `等待<b>${who}</b>接過燈籠。`)
       : mode === "online" && mySeat < 0 ? (spy.on ? L(`Watching: <b>${who}</b> is playing. Hands are shown on your screen only.`, `旁觀中：<b>${who}</b>正在行動。手牌只顯示在你的螢幕上。`)
         : L(`Watching: <b>${who}</b> is playing. Hands are hidden.`, `旁觀中：<b>${who}</b>正在行動。手牌已隱藏。`))
       : L(`<b>${who}</b> is playing. ${mode === "online" ? "Study your hand while you wait." : ""}`, `<b>${who}</b>正在行動。${mode === "online" ? "等待時可以先研究你的手牌。" : ""}`);
     setPrompt(`<span class="msg">${why}</span>`);
     return;
   }
+  if (S.phase === "burn" && S.burn && !pending && !busy) {
+    if (S.burn.pcid === null) {
+      setPrompt(`<span class="msg">${L(`<b>${esc(pname(S.names[S.cur]))}</b> asks you to <b>Burn</b> with them. Open your hand and choose a card of the <b class="${TAGCLS[S.burn.tag]}">${tagName(S.burn.tag)}</b> thread to add.`,
+        `<b>${esc(pname(S.names[S.cur]))}</b>邀請你一起<b>焚燒</b>。打開手牌，選一張<b class="${TAGCLS[S.burn.tag]}">${tagName(S.burn.tag)}</b>牌加入。`)}</span>`, true);
+      if (!dockOpen) setDock(true);
+    } else {
+      setPrompt(`<span class="msg">${L("Both cards are revealed: choose which one Burns twice.", "兩張牌都已翻開：選擇哪一張執行兩次。")}</span>
+        <button type="button" class="primary" id="burnopen">${L("Choose", "選擇")}</button>`, true);
+      $("burnopen").onclick = burnDialog;
+      if (!$("veil")) burnDialog();
+    }
+    return;
+  }
   if (pending) {
     const skip = `<button type="button" id="skip">${L("Skip", "跳過")}</button>`;
+    if (pending.type === "thread") {
+      setPrompt(`<span class="msg">${L("The fullest threads are tied: choose which one.", "最滿的絲線平手：選擇其中一條。")}</span>
+        ${pending.tied.map(t => `<button type="button" class="primary" data-thread="${t}">${tagName(t)}</button>`).join("")}`, true);
+      document.querySelectorAll("[data-thread]").forEach(b => b.onclick = () => answer(+b.dataset.thread));
+      return;
+    }
     if (pending.type === "root") setPrompt(`<span class="msg">${L(`Choose where <b>Root ${pending.i} of ${pending.n}</b> grows. Glowing slots touch the network${pending.stony ? " (Stony ground allowed)" : ""}.`,
       `選擇<b>第${pending.i}個根（共${pending.n}個）</b>的位置。發光的河岸與根網相連${pending.stony ? "（可放在石地上）" : ""}。`)}</span>${skip}`, true);
     else if (pending.type === "bloom") setPrompt(`<span class="msg">${L(`Choose a Root to <b>Bloom</b> (${pending.i} of ${pending.n}).`, `選擇一個根使其<b>綻放</b>（第${pending.i}個，共${pending.n}個）。`)}</span>${skip}`, true);
@@ -1398,15 +1475,15 @@ function drawPrompt() {
   const rec = E.canRecall(S) ? `<button type="button" id="recall" class="recallbtn tokbtn">${tokIcon("recall")}${L(`Recall a memory · ${S.cfg.recallCost} Light`, `喚回記憶 · ${S.cfg.recallCost}點光`)}</button>` : "";
   const cost = E.pushCost(S);
   const push = E.canPush(S) ? `<button type="button" id="push" class="pushbtn tokbtn">${tokIcon("push")}${L(`Push Through · ${cost} Fracture${cost > 1 ? "s" : ""}, forget 1 · once a game`, `奮力駛過 · ${cost}道裂痕，遺忘1張 · 整局一次`)}</button>` : "";
-  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, ` : ""}${n === 1 ? (S.n > 1 ? "your <b>Answer</b>" : "Your <b>Answer</b>") : (S.n > 1 ? "now <b>Steer</b>" : "Now <b>Steer</b>")}: play a card${E.canSeek(S) ? ", Seek" : ""}${rec ? ", Recall" : ""}${push ? " or Push Through" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，` : ""}${n === 1 ? "你的<b>回應</b>" : "接著<b>掌舵</b>"}：打出一張牌${E.canSeek(S) ? "、尋覓" : ""}${rec ? "、喚回記憶" : ""}${push ? "或奮力駛過" : ""}。`)}${echo}</span>${push}${rec}${sum}`, true);
+  setPrompt(`<span class="msg">${L(`${S.n > 1 ? `<b>${who}</b>, ` : ""}${n === 1 ? (S.n > 1 ? "your <b>Answer</b>" : "Your <b>Answer</b>") : (S.n > 1 ? "now <b>Steer</b>" : "Now <b>Steer</b>")}: play a card${rec ? ", Recall" : ""}${push ? " or Push Through" : ""}.`, `${S.n > 1 ? `<b>${who}</b>，` : ""}${n === 1 ? "你的<b>回應</b>" : "接著<b>掌舵</b>"}：打出一張牌${rec ? "、喚回記憶" : ""}${push ? "或奮力駛過" : ""}。`)}${echo}</span>${push}${rec}${sum}`, true);
   if (sum) $("summon").onclick = summonDialog;
   if (rec) $("recall").onclick = recallDialog;
   if (push) $("push").onclick = pushNow;
 }
 
 function viewSeat() {
-  if (mode === "local") return S.n === 1 || uncovered === S.cur ? S.cur : -1;
-  if (controls(S.cur)) return S.cur;
+  if (mode === "local") return S.n === 1 || uncovered === E.actor(S) ? E.actor(S) : -1;
+  if (controls(E.actor(S))) return E.actor(S);
   if (watching() && spy.on) return spySeat();
   return mySeat;
 }
@@ -1499,15 +1576,16 @@ function drawHand() {
   }
   const hand = hands[seat];
   const playable = seat === S.cur && canPlayCards();
+  const joining = S.burn && S.burn.pcid === null && seat === S.burn.partner && canAct() && !busy;
   const n = hand.length;
   el.innerHTML = hand.map((cid, i) => cardHTML(cid, {
-    playable, focus: true, sel: selected === cid, dealt: !prevHand.includes(cid) && !arriving.has(cid),
+    playable: playable || (joining && CARDS[cid].tag === S.burn.tag), focus: true, sel: selected === cid, dealt: !prevHand.includes(cid) && !arriving.has(cid),
     resonant: playable && S.played === 0 && S.echo === CARDS[cid].tag,
     cls: `${arriving.has(cid) ? "await" : ""} ${watching() && looks[seat] === cid ? "peeked" : ""}`, style: fanPose(i, n),
   })).join("");
   prevHand = hand.filter(cid => !arriving.has(cid));
   if (tog) tog.innerHTML = dockLabel(seat !== S.cur || S.n > 1 ? L(`${pname(S.names[seat])}'s hand`, `${pname(S.names[seat])}的手牌`) : L("Your hand", "你的手牌"), n);
-  $("dock")?.classList.toggle("yourturn", playable);
+  $("dock")?.classList.toggle("yourturn", playable || joining);
   el.querySelectorAll(".card[data-cid]").forEach(card => {
     const cid = +card.dataset.cid;
     const open = () => openZoom(cid);
@@ -1558,19 +1636,22 @@ function openZoom(cid, look = false) {
   if (seat < 0 || !S.hands[seat].includes(cid)) return;
   selected = cid;
   const playable = seat === S.cur && canPlayCards();
+  const joining = S.burn && S.burn.pcid === null && seat === S.burn.partner && canAct() && !busy;
   const res = playable && S.played === 0 && S.echo === CARDS[cid].tag;
   const tag = CARDS[cid].tag;
   const modes = playable ? `<div class="zmodes">
       <button type="button" class="tokbtn primary" data-play="up">${tokIcon("card", tag)}<span><b>${L("Play face up", "正面打出")}</b>${res ? `<small>${L("Resonates with the Echo", "與迴響產生共鳴")}</small>` : `<small>${L("its effect, and a knot on its thread", "執行效果，並在其絲線上打結")}</small>`}</span></button>
       <button type="button" class="tokbtn" data-play="down">${tokIcon("down")}<span><b>${L("Face down", "背面打出")}</b><small>${L("1 Root, no knot", "放1個根，不打結")}</small></span></button>
-      <button type="button" class="tokbtn" data-play="burn">${tokIcon("burn", tag)}<span><b>${L("Burn", "焚燒")}</b><small>${L("its effect twice, then forget it and 1 more", "效果兩次，再遺忘此牌與另1張")}</small></span></button>
-      ${E.canSeek(S) ? `<button type="button" class="tokbtn" data-play="seek">${tokIcon("seek")}<span><b>${L("Seek", "尋覓")}</b><small>${L(`discard this, draw 1${S.played === 0 ? " (the Echo passes)" : ""}`, `棄掉此牌，抽1張${S.played === 0 ? "（放過迴響）" : ""}`)}</small></span></button>` : ""}
-    </div>` : watching() ? `<p class="muted zwait">${L(`${esc(pname(S.names[seat]))}'s card. You are watching.`, `${esc(pname(S.names[seat]))}的牌。你正在旁觀。`)}</p>` : `<p class="muted zwait">${seat === S.cur ? L("You can play it once the table is ready.", "桌面準備好後就能打出。") : L("Not your turn: study it while you wait.", "還沒輪到你：等待時可以先研究。")}</p>`;
+      ${E.canBurn(S, cid) ? `<button type="button" class="tokbtn" data-play="burn">${tokIcon("burn", tag)}<span><b>${L("Burn", "焚燒")}</b><small>${S.n === 1 ? L("its effect twice, then forget it and 1 more", "效果兩次，再遺忘此牌與另1張")
+        : L("with a player who holds this thread: both reveal a card, one effect happens twice", "與握有此絲線的玩家一起：各翻開一張，其中一張效果執行兩次")}</small></span></button>` : ""}
+    </div>` : joining ? (tag === S.burn.tag ? `<div class="zmodes"><button type="button" class="tokbtn primary" data-join>${tokIcon("burn", tag)}<span><b>${L("Add to the Burn", "加入焚燒")}</b><small>${L("it is revealed beside their card; one of the two happens twice", "它會與對方的牌一起翻開；兩者之一執行兩次")}</small></span></button></div>`
+      : `<p class="muted zwait">${L(`Only a card of the <b>${tagName(S.burn.tag)}</b> thread can join this Burn.`, `只有<b>${tagName(S.burn.tag)}</b>牌能加入這次焚燒。`)}</p>`) : watching() ? `<p class="muted zwait">${L(`${esc(pname(S.names[seat]))}'s card. You are watching.`, `${esc(pname(S.names[seat]))}的牌。你正在旁觀。`)}</p>` : `<p class="muted zwait">${seat === S.cur ? L("You can play it once the table is ready.", "桌面準備好後就能打出。") : L("Not your turn: study it while you wait.", "還沒輪到你：等待時可以先研究。")}</p>`;
   z.innerHTML = `<div class="zoombox">
     ${cardHTML(cid, { cls: "big", resonant: res })}
     <div class="zside">${cardGloss(cid)}${modes}<button type="button" class="ghost" data-close>${L("Back to the hand", "放回手牌")}</button></div></div>`;
   z.classList.remove("hidden");
-  z.querySelectorAll("[data-play]").forEach(b => b.onclick = () => playSelected(cid, b.dataset.play));
+  z.querySelectorAll("[data-play]").forEach(b => b.onclick = () => (b.dataset.play === "burn" && S.n > 1 ? startBurn(cid) : playSelected(cid, b.dataset.play)));
+  z.querySelector("[data-join]")?.addEventListener("click", () => joinBurnNow(cid));
   (z.querySelector("[data-play]") || z.querySelector("[data-close]"))?.focus();
   $("hand")?.querySelectorAll(".card").forEach(c => c.classList.toggle("sel", +c.dataset.cid === cid));
   if (mode === "online" && net?.role === "guest") net.api?.send({ t: "look", cid });
@@ -1605,7 +1686,7 @@ const TOKS = {
 function tokenLegend() {
   const row = (a, arg, en, zhT) => `<span>${tokIcon(a, arg)}${L(en, zhT)}</span>`;
   return `<h3>${L("Turn tray (web table)", "回合托盤（網頁版）")}</h3><p>${L("On this screen, each action this turn is also marked on the tray under the river. These marks are only a record: at a real table the played cards show it.", "在這個畫面上，本回合的每個行動也會標在河流下方的托盤上。這些只是紀錄：在真實的桌面上，打出的牌就說明了一切。")}</p>
-    <div class="aidicons tokenlegend">${row("card", 0, "Card face up (its thread)", "正面打出（其絲線）")}${row("down", 0, "Face down", "背面打出")}${row("burn", 0, "Burn", "焚燒")}${row("seek", 0, "Seek", "尋覓")}
+    <div class="aidicons tokenlegend">${row("card", 0, "Card face up (its thread)", "正面打出（其絲線）")}${row("down", 0, "Face down", "背面打出")}${row("burn", 0, "Burn", "焚燒")}
     ${row("recall", 0, "Recall · 3 Light", "喚回 · 3點光")}${row("summon", "bringer", "Summon · Light", "召喚 · 光")}${row("push", 0, "Push Through", "奮力駛過")}</div>`;
 }
 function tokIcon(a, arg) {
@@ -1667,8 +1748,8 @@ function drawPiles() {
   el.innerHTML = `
     <div class="pile deck" id="pile-deck" title="${L("The deck, face down", "牌庫（背面朝上）")}">
       <span class="pst ${pv.deck ? "" : "none"}" style="${stack(pv.deck)}">${pv.deck ? miniBack() : ""}</span><span class="plbl">${L("Deck", "牌庫")} <b>${pv.deck}</b></span></div>
-    <div class="pile disc" id="pile-disc" title="${L("The discard pile, face down: nobody looks through it", "棄牌堆（背面朝上）：任何人都不能翻看")}">
-      <span class="pst ${pv.disc ? "" : "none"}" style="${stack(pv.disc)}">${pv.disc ? miniBack() : ""}</span><span class="plbl">${L("Discard", "棄牌堆")} <b>${pv.disc}</b></span></div>
+    <div class="pile disc" id="pile-disc" title="${L("The discard pile, face up", "棄牌堆（正面朝上）")}">
+      <span class="pst ${pv.disc ? "" : "none"}" style="${stack(pv.disc)}">${pv.disc ? miniFace(pv.top) : ""}</span><span class="plbl">${L("Discard", "棄牌堆")} <b>${pv.disc}</b></span></div>
     <button type="button" class="pile forg" id="pile-forg" data-list="forg" title="${L("Forgotten memories: click to look through them", "被遺忘的記憶：點擊查看")}">
       <span class="pst ${pv.f ? "" : "none"}" style="${stack(pv.f)}">${pv.f ? miniFace(pv.ft) : ""}</span><span class="plbl">${L("Forgotten", "遺忘")} <b>${pv.f}</b>/${S.cfg.forgottenLimit}</span></button>`;
   el.querySelectorAll("[data-list]").forEach(b => b.onclick = () => pileDialog(b.dataset.list));
@@ -1690,7 +1771,7 @@ function drawDockInfo() {
     </div>`;
   el.querySelector("[data-list]").onclick = () => pileDialog();
 }
-// The forgotten pile is face up, so anyone may look through it, and hold any card up close (the discard pile is face down and stays closed).
+// The forgotten pile is face up, so anyone may look through it, and hold any card up close.
 function pileDialog() {
   const cards = [...S.forgotten].reverse();
   const title = L("Forgotten memories", "被遺忘的記憶");
@@ -1784,7 +1865,7 @@ function flyCard(cid, how = "up") {
 const GUIDE = [
   ["summon", "Summon", "optional · before your Answer", "召喚", "可選 · 在回應之前"],
   ["card1", "Answer", "first action · a card matching the Echo Resonates, or Recall with 3 Light", "回應", "第一個行動 · 與迴響相同的牌產生共鳴，或花3點光喚回"],
-  ["card2", "Steer", "second action · a card, Seek, or Push Through", "掌舵", "第二個行動 · 打出一張牌、尋覓或奮力駛過"],
+  ["card2", "Steer", "second action · a card or Push Through; Burn once a turn", "掌舵", "第二個行動 · 打出一張牌或奮力駛過；每回合焚燒一次"],
   ["bringer", "Bloom-Bringer", "free Bloom", "引花人", "免費綻放"],
   ["soul", "Soul Step", "move if the next space is Lit", "亡魂步驟", "下一格被照亮就前進"],
   ["mist", "The Mist", "one card from this Reach", "迷霧", "翻開本河段的一張牌"],
@@ -1817,7 +1898,7 @@ function guideHint() {
   if (anim && guideStep === "soul") return L("The soul tries to step onto the next Lit space. In the dark, it Lingers. Shades on both banks ahead also make it Linger, unless a player spent an action to Push Through.", "亡魂試著踏上下一個被照亮的格子。若前方黑暗，它便會徘徊。前方兩岸都被怨念佔據時也會徘徊，除非有玩家花了行動奮力駛過。");
   if (anim && guideStep === "mist") return L("The Mist turns a card for this Reach.", "迷霧為本河段翻開一張牌。");
   if (anim && guideStep === "draw") return L("The river settles and hands are refilled.", "河面平靜下來，玩家補滿手牌。");
-  const who = esc(pname(S.names[S.cur]));
+  const who = esc(pname(S.names[E.actor(S)]));
   if (!canAct()) return mode === "local" ? L(`Pass the device to <b>${who}</b>.`, `請把裝置交給<b>${who}</b>。`) : L(`Waiting for <b>${who}</b>…`, `等待<b>${who}</b>…`);
   if (pending?.type === "root") return L(`Click a <b>glowing bank</b> on the river to place Root ${pending.i} of ${pending.n}.`, `點擊河上<b>發光的河岸</b>，放置第${pending.i}個根（共${pending.n}個）。`);
   if (pending?.type === "bloom") return L("Click one of your <b>Roots</b> to open it into a Bloom.", "點擊一個<b>根</b>，讓它綻放成花。");
@@ -1828,7 +1909,10 @@ function guideHint() {
   const wounds = E.pushCost(S);
   const push = E.canPush(S) ? `<span class="pushwarn">${L(`Shades hold both banks ahead, so the soul will Linger. You may spend an action to <b>Push Through</b>: both Shades scatter and the soul steps forward now, at ${wounds} Fracture${wounds > 1 ? "s" : ""} and 1 forgotten card. Each Ferryman may do this only once in the whole game.`, `前方兩岸都被怨念佔據，亡魂將會徘徊。你可以花1個行動<b>奮力駛過</b>：兩個怨念四散，亡魂立刻前進一格，代價是${wounds}道裂痕並遺忘1張牌。每位擺渡人整局只能這麼做一次。`)}</span>`
     : E.blockedByGrievances(S) && E.hasPushed(S) ? `<span class="pushwarn">${L("Shades hold both banks ahead. You have already used your one Push Through this game: clear a bank with your cards.", "前方兩岸都被怨念佔據。你本局的奮力駛過已經用過了：請用手牌清出一側河岸。")}</span>` : "";
-  return L(`Click a card in your hand to hold it up close, then choose <b>Face up</b>, <b>Face down</b>, <b>Burn</b> or <b>Seek</b> (discard it and draw).${echo}`, `點擊手牌中的一張牌把它拿近細看，再選擇<b>正面打出</b>、<b>背面打出</b>、<b>焚燒</b>或<b>尋覓</b>（棄掉並抽1張）。${echo}`) + push;
+  if (S.phase === "burn" && S.burn) return S.burn.pcid === null ? L(`Choose a card of the <b>${tagName(S.burn.tag)}</b> thread to add to the Burn.`, `從手牌選一張<b>${tagName(S.burn.tag)}</b>牌加入焚燒。`)
+    : L("Choose which of the two revealed cards happens <b>twice</b>.", "選擇兩張翻開的牌中，哪一張執行<b>兩次</b>。");
+  if (pending?.type === "thread") return L("The fullest threads are tied: choose which one the card works on.", "最滿的絲線平手：選擇這張牌作用在哪一條。");
+  return L(`Click a card in your hand to hold it up close, then choose <b>Face up</b>, <b>Face down</b> or <b>Burn</b>${S.n > 1 ? " (with a player who holds its thread)" : ""}.${echo}`, `點擊手牌中的一張牌把它拿近細看，再選擇<b>正面打出</b>、<b>背面打出</b>或<b>焚燒</b>${S.n > 1 ? "（與握有其絲線的玩家一起）" : ""}。${echo}`) + push;
 }
 
 // The turn reminder beside the piles: the seven steps of a turn as a row of beads, the current one named.
@@ -2274,7 +2358,7 @@ function startOpening() {
   });
   openStep(() => {
     endOpening(false);
-    return callout(L("The silence begins", "靜默開始"), L("Then the first turn.", "接著是第一個回合。"));
+    return callout(L("The memories are veiled", "記憶已被隱藏"), L("Talk freely, but never name your cards. Then the first turn.", "盡情討論，但絕不說出你的牌。接著是第一個回合。"));
   });
 }
 // The table as it really is: the opening's steps still waiting are dropped (Skip), or it simply ends.
@@ -2490,10 +2574,10 @@ function stepEvent(ev) {
     }
     case "discard": {
       const done = holdPile(["disc"], prev);
-      // Every card lands face down. A card that was played face up turns over on its way; one from a hand never shows.
-      const shown = ev.from === "play" && ev.cid >= 0;
-      fly(ev.from === "hand" ? handPoint() : boardPoint(), pilePoint("disc"), { cid: ev.cid, up0: shown, up1: false, ms: 650, onland: done });
-      caption(shown ? L(`${cardName(ev.cid)} goes face down onto the discard pile.`, `「${cardName(ev.cid)}」背面朝上放入棄牌堆。`) : L("A card goes face down onto the discard pile.", "一張牌背面朝上放入棄牌堆。"));
+      // The discard pile is face up: every card lands showing its face.
+      const shown = ev.cid >= 0;
+      fly(ev.from === "hand" ? handPoint() : boardPoint(), pilePoint("disc"), { cid: ev.cid, up0: shown && ev.from === "play", up1: shown, ms: 650, onland: done });
+      caption(shown ? L(`${cardName(ev.cid)} goes face up onto the discard pile.`, `「${cardName(ev.cid)}」正面朝上放入棄牌堆。`) : L("A card goes onto the discard pile.", "一張牌放入棄牌堆。"));
       A.sfx("card");
       return 750;
     }

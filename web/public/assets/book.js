@@ -95,7 +95,7 @@ function rightPage(i) {
       <ol>${[0, 1, 2].map(r => `<li data-go="${r + 1}"><span class="n">${ROMAN[r]}</span><span class="t">${titles()[r]}</span><span class="dots"></span>
         <span class="c">${filled(r)}/4${S.blessed[r] ? use("nb-seal") : ""}</span></li>`).join("")}
         ${S.result ? `<li data-go="4"><span class="n">·</span><span class="t">${L("Epilogue", "尾聲")}</span><span class="dots"></span><span class="c"></span></li>` : ""}</ol>
-      <p class="bk-note">${L(`Memories are written here when a card Resonates with the Echo, or when a Key Memory is played. ${S.cfg.blessingAt} memories on a page bring a Chapter Blessing.`, `當一張牌與迴響產生共鳴，或打出關鍵記憶時，記憶就會被寫在這裡。一頁寫滿${S.cfg.blessingAt}段記憶，便會帶來章節祝福。`)}</p>
+      <p class="bk-note">${L(`Memories are written here when a card Resonates with the Echo, or when a Key Memory is played. Each pair of neighbouring memories on a page gives a small reward; ${S.cfg.chapterAt ?? 4} memories on a page bring a Chapter Blessing.`, `當一張牌與迴響產生共鳴，或打出關鍵記憶時，記憶就會被寫在這裡。一頁中每兩段相鄰的記憶會帶來一個小獎勵；一頁寫滿${S.cfg.chapterAt ?? 4}段記憶，便會帶來章節祝福。`)}</p>
       ${vignette()}
     </div>`;
   }

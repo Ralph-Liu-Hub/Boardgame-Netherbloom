@@ -1,11 +1,11 @@
 // Rules engine for Netherbloom. A port of simulator/netherbloom/engine.py with the tuned defaults.
 // The state is plain JSON (including the RNG), so it can be copied, saved and sent to other players.
 // Player choices go through an async chooser: { rootTarget(s, stonyOk, targets), bloomTarget(s, targets), wantInscribe(s, cid),
-// vigilOrder(s, top) }.
+// vigilOrder(s, top), pickThread(s, tied) (optional: which of the tied fullest threads) }.
 
 import {
   CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, MIST, HARSH, TILES, LANTERN, STANDARD_LANTERN, MIST_EXTRA, GHOST, MANTLES,
-  OBS, ACC, OBL, FERTILE, STONY, MEMORY, GRAVE, TILE_NAMES, TAG_NAMES, REACH_NAMES,
+  OBS, ACC, OBL, FERTILE, STONY, MEMORY, GRAVE, TILE_NAMES, TAG_NAMES, REACH_NAMES, PAIR_SLOTS, PAIR_REWARDS, CHAPTER_AT,
 } from "./cards.js";
 
 export const FAR = 12, NSLOT = 24, NONE = 0, ROOT = 1, BLOOM = 2;
@@ -22,13 +22,13 @@ export function makeConfig({ players = 3, soul = "open", lantern = STANDARD_LANT
     players, soul, lantern, useBook: true,
     bwSupply: bw, forgottenLimit: limit, harshPerReach: harsh, fractureLimit: 3,
     karmaCap: { 1: 5, 2: 4, 3: 4, 4: 5 }[players], ashAt: 6, adriftAt: 9, mantleCost: 3,
-    hand: { 1: 4, 2: 3, 3: 3, 4: 3 }[players], cardsPerTurn: 2, blessingAt: 3, startLight: 0,
+    hand: { 1: 4, 2: 3, 3: 3, 4: 3 }[players], cardsPerTurn: 2, chapterAt: CHAPTER_AT, startLight: 0,
     burnForget: 2, extraMist: 2,
     recallCost: 3,                       // Light spent, as the Answer, to bring one forgotten card back
     resummon: players === 1, maxSummons: 3,   // solo: a new Mantle may replace the one held; each Mantle once, 3 summons a game
   };
   if (soul === "king") cfg.mantleCost = 2;
-  if (soul === "garland") cfg.blessingAt = 2;
+  if (soul === "garland") cfg.chapterAt = CHAPTER_AT - 1;
   if (soul === "child") { cfg.startLight = 3; cfg.adriftAt = 99; cfg.harshPerReach = 0; cfg.forgottenLimit += 1; }
   if (soul === "bride") cfg.startLight = 1;
   return cfg;
@@ -372,7 +372,7 @@ async function doOp(s, op, ch) {
     if (s.fract > 0) note(s, "mend", "A Fracture is mended.", { m: ["mend"] });
     s.fract = Math.max(0, s.fract - op[1]);
   } else if (kind === "release") {
-    const col = fullest(s);
+    const col = await fullest(s, ch);
     s.karma[col] = Math.max(0, s.karma[col] - op[1]);
     note(s, "release", `Knots untied on ${TAG_NAMES[col]}.`, { tag: col, m: ["release", col] });
   } else if (kind === "guide") {
@@ -415,7 +415,7 @@ async function doOp(s, op, ch) {
     }
     note(s, "reveal", "The fog lifts across the whole Reach.", { m: ["revealAll"] });
   } else if (kind === "unmake") {
-    const col = fullest(s);
+    const col = await fullest(s, ch);
     s.karma[col] = 0;
     note(s, "release", `The ${TAG_NAMES[col]} thread is unmade.`, { tag: col, m: ["unmade", col] });
   } else if (kind === "wash") {
@@ -424,16 +424,27 @@ async function doOp(s, op, ch) {
     const [lo, hi] = [[1, 4], [5, 8], [9, 11]][s.reach];
     for (let sp = lo; sp <= hi; sp++) drain(s, sp);
   } else if (kind === "extra_karma") tieKnot(s, op[1]);
+  else if (kind === "recall_free") {
+    if (s.forgotten.length) {
+      const cid = s.forgotten.pop();
+      s.discard.push(cid);
+      note(s, "recall", `“${CARDS[cid].name}” returns from the forgotten pile to the discard pile.`, { cid, m: ["returnMem", cid] });
+    }
+  }
 }
 
 function banish(s, k) {
   s.griev[k] = false;
   note(s, "banish", `The Shade at ${slotName(k)} is banished.`, { k, m: ["banish", k] });
 }
-function fullest(s) {
-  let col = 0;
-  for (let i = 1; i < 3; i++) if (s.karma[i] > s.karma[col]) col = i;
-  return col;
+// The fullest thread; if threads are tied, the player chooses (the chooser's pickThread), else the first.
+async function fullest(s, ch) {
+  const top = Math.max(...s.karma), tied = [0, 1, 2].filter(i => s.karma[i] === top);
+  if (tied.length > 1 && ch?.pickThread) {
+    const t = await ch.pickThread(s, tied);
+    if (tied.includes(t)) return t;
+  }
+  return tied[0];
 }
 function urgentGrievance(s) {
   let best = null, bu = -1;
@@ -466,32 +477,12 @@ export function beginTurn(s) {
   if (s.mantles.warden === p) s.wardenReady = true;
   s.phase = "play";
   s.played = 0;
-  s.sought = false;
+  s.burned = false;
+  s.burn = null;
   s.pushed = false;
   s.acts = [];
   s.lastMist = null;
   note(s, "turn", `Turn ${s.turn}: ${s.names[p]}.`, { p, m: ["turn", s.turn, s.names[p]] });
-}
-
-// Seek: one of your two actions may be to discard a card and draw one. Only your first action can
-// Resonate, so a Seek made first lets the Echo pass.
-export const canSeek = s => s.phase === "play" && !s.sought && s.played < s.cfg.cardsPerTurn
-  && s.hands[s.cur].length > 0 && s.deck.length + s.discard.length > 0;
-export function seek(s, cid) {
-  const hand = s.hands[s.cur];
-  hand.splice(hand.indexOf(cid), 1);
-  s.played += 1;
-  s.sought = true;
-  s.stats.seeks = (s.stats.seeks || 0) + 1;
-  (s.acts ||= []).push({ a: "seek" });
-  if (!s.deck.length) reshuffle(s);     // the new card is drawn before the old one lands, so it cannot come straight back
-  const got = s.deck.length ? s.deck.pop() : -1;
-  note(s, "seek", `${s.names[s.cur]} Seeks: discards a card and draws one.`, { p: s.cur, cid, m: ["seek", s.names[s.cur]] });
-  toDiscard(s, cid, "hand");
-  if (got >= 0) {
-    hand.push(got);
-    note(s, "draw", "", { p: s.cur, n: 1, cids: [got] });
-  }
 }
 
 // A Mantle's holder: -1 while it is free, the player's seat while held, -2 once laid down for good (solo re-summon).
@@ -547,10 +538,11 @@ export async function playCard(s, cid, mode, ch) {
     note(s, "play", `${s.names[s.cur]} plays a card face down: 1 Root.`, { cid: -1, mode, p: s.cur, m: ["playDown", s.names[s.cur]] });
     await doOp(s, ["root", 1, false], ch);
     s.discard.push(cid);
-    note(s, "discard", "", { cid: -1, from: "play" });   // still face down: nobody learns which card it was
+    note(s, "discard", "", { cid, from: "play" });   // the discard pile is face up
     return false;
   }
   const resonated = first && s.echo === card.tag;
+  if (mode === "burn") s.burned = true;
   (s.acts ||= []).push({ a: mode === "burn" ? "burn" : "card", tag: card.tag, res: resonated });
   note(s, "play", `${s.names[s.cur]} plays ${card.name}${mode === "burn" ? " and Burns it" : ""}${resonated ? ". It Resonates with the Echo!" : "."}`,
     { cid, mode, p: s.cur, res: resonated, m: ["play", s.names[s.cur], cid, mode === "burn", resonated] });
@@ -583,15 +575,61 @@ export async function playCard(s, cid, mode, ch) {
     trail(s, { k: "i", at: s.soul, r: s.reach, cid });
     s.stats.inscribed += 1;
     note(s, "inscribe", `Inscribed in the Book (${card.slot}): “${card.band}”`, { cid, reach: s.reach, slot: card.slot, m: ["inscribe", cid] });
-    const filled = Object.keys(s.book[s.reach]).length;
-    if (!s.blessed[s.reach] && filled >= s.cfg.blessingAt) {
-      s.blessed[s.reach] = true;
-      s.stats.blessings += 1;
-      blessing(s);
-    }
+    await pageRewards(s, s.reach, card.slot, ch);
     return resonated;
   }
   toDiscard(s, cid);
+  return resonated;
+}
+
+// ---------------------------------------------------------------- Burn (at most once per turn)
+// Solo: one card, its effect twice, then it and the top card of the deck are forgotten (playCard with mode "burn").
+// With 2-4 players a Burn is joint: another player who holds a card of the same thread adds one; both are revealed and
+// the active player chooses which one's effect happens twice. Both cards are forgotten and the helper draws 1.
+export const burnPartners = (s, cid) => (s.n === 1 ? [] : Array.from({ length: s.n }, (_, p) => p)
+  .filter(p => p !== s.cur && s.hands[p].some(c => CARDS[c].tag === CARDS[cid].tag)));
+export const canBurn = (s, cid) => s.phase === "play" && !s.burned && s.played < s.cfg.cardsPerTurn
+  && (s.n === 1 || burnPartners(s, cid).length > 0);
+// The seat that must act now: the helper while a joint Burn waits for their card, otherwise the active player.
+export const actor = s => (s.burn && s.burn.pcid === null ? s.burn.partner : s.cur);
+export function askBurn(s, cid, partner) {
+  s.burn = { by: s.cur, cid, tag: CARDS[cid].tag, partner, pcid: null };
+  s.phase = "burn";
+  note(s, "burnAsk", `${s.names[s.cur]} asks ${s.names[partner]} to Burn with them (${TAG_NAMES[CARDS[cid].tag]}).`,
+    { p: s.cur, partner, tag: CARDS[cid].tag, m: ["burnAsk", s.names[s.cur], s.names[partner], CARDS[cid].tag] });
+}
+export function joinBurn(s, pcid) {
+  if (!s.burn || s.burn.pcid !== null || CARDS[pcid].tag !== s.burn.tag || !s.hands[s.burn.partner].includes(pcid)) return false;
+  s.burn.pcid = pcid;
+  note(s, "burnJoin", `${s.names[s.burn.partner]} adds a card. Both are revealed.`, { p: s.burn.partner, m: ["burnJoin", s.names[s.burn.partner]] });
+  return true;
+}
+// which: "own" or "partner", the card whose effect happens twice. Returns true if it Resonated.
+export async function resolveBurn(s, which, ch) {
+  const { cid, pcid, partner } = s.burn;
+  const first = s.played === 0, chosen = which === "partner" ? pcid : cid, card = CARDS[chosen];
+  s.burn = null;
+  s.phase = "play";
+  s.hands[s.cur].splice(s.hands[s.cur].indexOf(cid), 1);
+  s.hands[partner].splice(s.hands[partner].indexOf(pcid), 1);
+  s.played += 1;
+  s.burned = true;
+  const resonated = first && s.echo === card.tag;
+  (s.acts ||= []).push({ a: "burn", tag: card.tag, res: resonated });
+  note(s, "play", `${s.names[s.cur]} and ${s.names[partner]} Burn together: ${card.name} twice${resonated ? ". It Resonates with the Echo!" : "."}`,
+    { cid: chosen, other: chosen === cid ? pcid : cid, mode: "burn", p: s.cur, res: resonated, m: ["burnJoint", s.names[s.cur], s.names[partner], chosen, resonated] });
+  for (let i = 0; i < 2; i++) await doOps(s, resonated && card.rr ? card.res : card.eff, ch);
+  if (resonated) {
+    s.stats.resonances += 1;
+    if (!card.rr) await doOps(s, card.res, ch);
+  }
+  tieKnot(s, card.tag);
+  s.echo = card.tag;
+  note(s, "echo", `The Echo shuttle moves to the ${TAG_NAMES[card.tag]} thread.`, { tag: card.tag, m: ["echoOn", card.tag] });
+  s.stats.burns += 1;
+  forgetCard(s, cid);
+  forgetCard(s, pcid);
+  drawUp(s, partner);
   return resonated;
 }
 
@@ -599,6 +637,24 @@ export const canInscribe = (s, cid, resonated) => {
   const c = CARDS[cid];
   return (resonated || c.key) && c.slot && !(c.slot in s.book[s.reach]);
 };
+
+// Page rewards: each pair of neighbouring slots pays its reward when an inscription fills its second slot; a full page
+// (the Garland Girl: one short of full) also gives the Chapter Blessing, once per page.
+async function pageRewards(s, r, slot, ch) {
+  const page = s.book[r];
+  for (const [i, [a, b]] of PAIR_SLOTS.entries()) {
+    if ((slot === a || slot === b) && a in page && b in page) {
+      s.stats.pairRewards = (s.stats.pairRewards || 0) + 1;
+      note(s, "blessing", `Page reward (${a} + ${b}).`, { m: ["pairReward", a, b] });
+      await doOps(s, PAIR_REWARDS[r][i], ch);
+    }
+  }
+  if (!s.blessed[r] && Object.keys(page).length >= s.cfg.chapterAt) {
+    s.blessed[r] = true;
+    s.stats.blessings += 1;
+    blessing(s);
+  }
+}
 
 function blessing(s) {
   if (s.fract > 0) {
