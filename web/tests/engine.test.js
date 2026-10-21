@@ -1,6 +1,6 @@
 // Plays many games with a simple greedy chooser to check the engine never crashes and games end.
 import assert from "node:assert/strict";
-import { makeConfig, newGame, beginTurn, playCard, endTurn, GameOver, copy, lit, NONE, ROOT, canSummon, summon, bringerPending, bringerBloom, bloomTargets, canSeek, seek, canPush, pushCost, pushAction, hasPushed, canRecall, recall, heldMantle, mistSeverity } from "../public/assets/engine.js";
+import { makeConfig, newGame, beginTurn, playCard, endTurn, GameOver, copy, lit, NONE, ROOT, canSummon, summon, bringerPending, bringerBloom, bloomTargets, canBurn, burnPartners, askBurn, joinBurn, resolveBurn, actor, canPush, pushCost, pushAction, hasPushed, canRecall, recall, heldMantle, mistSeverity } from "../public/assets/engine.js";
 import { CARDS, MANTLES, MIST, HARSH, SOULS } from "../public/assets/cards.js";
 import { setLang, say, cardName, cardBand, mistName, mistText, soulInfo, mantleInfo } from "../public/assets/i18n.js";
 
@@ -42,11 +42,22 @@ async function play(players, soul, lantern, seed) {
       }
     }
     try {
-      // Now and then Seek as the first action, which uses it up and lets the Echo pass.
-      if (s.turn % 5 === 0 && canSeek(s)) {
-        seek(s, s.hands[s.cur][0]);
+      // Now and then Burn as the first action: solo with one card, otherwise jointly with a player who holds its thread.
+      const bc = s.turn % 4 === 0 ? s.hands[s.cur].find(c => canBurn(s, c)) : undefined;
+      if (bc !== undefined) {
+        if (s.n === 1) await playCard(s, bc, "burn", greedy);
+        else {
+          const q = burnPartners(s, bc)[0];
+          askBurn(s, bc, q);
+          assert.equal(actor(s), q, "the helper acts while the Burn waits for their card");
+          assert.ok(joinBurn(s, s.hands[q].find(c => CARDS[c].tag === CARDS[bc].tag)));
+          assert.equal(actor(s), s.cur);
+          const before = s.hands[q].length;
+          await resolveBurn(s, s.turn % 8 === 0 ? "partner" : "own", greedy);
+          assert.ok(s.hands[q].length >= Math.min(before, s.cfg.hand), "the helper draws back");
+        }
         assert.equal(s.played, 1);
-        assert.ok(!canSeek(s), "only one Seek per turn");
+        assert.ok(!s.hands[s.cur].some(c => canBurn(s, c)), "only one Burn per turn");
       }
       if (hasPushed(s)) assert.ok(!canPush(s), "each Ferryman may Push Through only once per game");
       // Push Through whenever the way is shut and the soul can take the Fractures.
@@ -114,7 +125,7 @@ for (const soul of ["open", "bride", "child"]) for (let seed = 1; seed <= 25; se
 const a = await play(3, "open", 3, 42), b = await play(3, "open", 3, 42);
 assert.equal(JSON.stringify(a), JSON.stringify(b), "same seed gives the same game");
 assert.deepEqual(copy(a), a);
-assert.ok(seenKeys.has("seek") && seenKeys.has("push"), "Seek and push-through both happened and read in Chinese");
+assert.ok(seenKeys.has("burnJoint") && seenKeys.has("push") && seenKeys.has("pairReward"), "joint Burn, push-through and page rewards happened and read in Chinese");
 
 // Recall: as the Answer, 3 Light brings back one forgotten card; it uses the turn's first action.
 {
