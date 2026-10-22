@@ -131,7 +131,12 @@ export const ghostId = i => `GH${String(i + 1).padStart(2, "0")}`;
 // artImg(name, pos) draws a painting filling its positioned parent (the factory embeds the masters; the web its WebP copies).
 export function cardKit(artImg) {
   const card = (cls, inner, extra = "") => `<div class="nbcard ${cls}"><div class="tex"></div>${extra}<div class="frame"></div><div class="in">${inner}</div></div>`;
-  const artBox = (name, seal = false, pos = "50% 50%") => `<div class="art">${artImg(name, pos)}${seal ? `<svg class="seal"><use href="#nb-seal"/></svg>` : ""}</div>`;
+  // Card faces carry no paintings (playtest request): the picture window shows the card's symbol on a plain panel.
+  // sym is [icon id, colour]; an old painting name (a string) gets the Netherbloom.
+  const artBox = (sym, seal = false) => {
+    const [id, col] = Array.isArray(sym) ? sym : ["nb-bloom", C.gilt];
+    return `<div class="art plain"><svg class="emb" style="color:${col}" aria-hidden="true"><use href="#${id}"/></svg>${seal ? `<svg class="seal"><use href="#nb-seal"/></svg>` : ""}</div>`;
+  };
 
   function memoryFace(L, cid, pack, artName) {
     const c = typeof cid === "object" ? cid : CARDS[cid];
@@ -142,7 +147,7 @@ export function cardKit(artImg) {
     return card(`t${c.tag}${c.key ? " key" : ""}`, `
     <div class="top">${icon(TAG_ICON[c.tag], TAG_COL[c.tag])}<div class="nm">${esc(L.name(c.name))}<small>${L.tag[c.tag]}${c.key ? ` · <span style="color:${C.crimson}">${L.key}</span>` : ""}</small></div><span class="id">${c.id}</span></div>
     <div class="rules">${L.kw(L.ops(c.eff))}${res}</div>
-    ${artBox(artName, c.key)}
+    ${artBox([TAG_ICON[c.tag], TAG_COL[c.tag]], c.key)}
     ${band}
     <div class="foot"><span>${esc(pack)}</span><span>${c.id}</span></div>`);
   }
@@ -154,7 +159,7 @@ export function cardKit(artImg) {
     return card(harsh ? "mist harsh" : "mist", `
     <div class="top">${icon("nb-fog", harsh ? C.crimson : C.cyan)}<div class="nm">${esc(nm)}<small>${L.mistKick(harsh)}${harsh ? "" : ` · ${L.reach(r)}`}</small></div><span class="id">${id}</span></div>
     <div class="rules">${L.kw(L.mistJoin(ops))}</div>
-    ${artBox(harsh ? "card-harsh" : `card-mist-${r + 1}`)}
+    ${artBox(["nb-fog", harsh ? C.crimson : C.cyan])}
     <div class="band ${harsh ? "red" : "cyan"}"><span>${esc(flav)}</span></div>
     <div class="foot"><span>${harsh ? L.harsh : L.reach(r)}</span><span>${id}</span></div>`);
   }
@@ -162,7 +167,7 @@ export function cardKit(artImg) {
   const ghostFace = (L, t, a, id) => card("ghost", `
       <div class="top">${icon(TAG_ICON[t], TAG_COL[t])}<div class="nm">${esc(L.ghostName(t))}<small>${L.ghostKick}</small></div><span class="id">${id}</span></div>
       <div class="rules">${L.kw(L.ghostAct(a))}</div>
-      ${artBox("card-ghost")}
+      ${artBox([TAG_ICON[t], TAG_COL[t]])}
       <div class="band cyan"><span>${esc(L.ghostNote(t))}</span></div>
       <div class="foot"><span>${L.ghostKick}</span><span>${id}</span></div>`);
 
@@ -170,7 +175,7 @@ export function cardKit(artImg) {
     const t = MANTLES[m].tag, info = L.mantle(m);
     return card(`t${t}`, `
       <div class="top">${icon(TAG_ICON[t], TAG_COL[t])}<div class="nm">${esc(info.name)}<small>${L.mantleKick} · ${L.tag[t]}</small></div><span class="id">${m.toUpperCase()}</span></div>
-      ${artBox(`card-mantle-${m}`)}
+      ${artBox([TAG_ICON[t], TAG_COL[t]])}
       <div class="rules">${L.kw(info.text)}</div>
       <div class="band none"><span>${esc(L.mantleNote(t))}</span></div>
       <div class="foot"><span>${L.mantleKick}</span><span>${m}</span></div>`);
@@ -184,10 +189,10 @@ export function cardKit(artImg) {
       <div class="flav">${esc(s.blurb)}</div>
       <div class="rules"><b style="color:${C.bone};font-weight:500">${L.twist}</b> ${L.kw(s.twist)}</div>
       <div class="note">${L.soulNote(k)}</div>
-      <div class="foot"><span>${L.backWord.soul}</span><span>${k}</span></div>`, `<div class="full">${artImg(`soul-${SOUL_ART[k]}`, "50% 12%")}</div>`);
+      <div class="foot"><span>${L.backWord.soul}</span><span>${k}</span></div>`, `<div class="full plain"><svg class="emb" style="color:${C.bone}" aria-hidden="true"><use href="#nb-soul"/></svg></div>`);
   }
 
-  const bankCard = (art, ic, name, text, foot) => `<div class="nbcard bank"><div class="full">${artImg(art)}</div><div class="frame"></div>
+  const bankCard = (art, ic, name, text, foot) => `<div class="nbcard bank"><div class="full plain"><span class="bemb">${ic}</span></div><div class="frame"></div>
       <div class="lab">${ic}<b>${esc(name)}</b><small>${esc(text)}</small><em>${esc(foot)}</em></div></div>`;
   const BANK = { icons: ["nb-fertile", "nb-stony", "nb-memorysite", "nb-grave"], names: ["fertile", "stony", "memory", "grave"] };
   const bankFace = (L, t, r) => bankCard(`card-bank-${BANK.names[t]}`, icon(BANK.icons[t], ["#c9c1b2", C.mist, C.bone, C.cyan][t]), L.tile(t), L.tileText[t], `${L.reach(r)} · ${L.reachName(r)}`);
@@ -226,6 +231,12 @@ export function cardCSS(B = 0) {
 [lang="zh-Hant-TW"] .nbcard .rules { font-size: 7.4pt; line-height: 1.45; }
 .nbcard .art { position: relative; flex: 1; min-height: 18mm; border-radius: 1.6mm; overflow: hidden; }
 .nbcard .art::after { content: ""; position: absolute; inset: 0; border-radius: 1.6mm; box-shadow: inset 0 0 0 .25mm rgba(138,109,72,.7), inset 0 0 4mm rgba(0,0,0,.6); }
+.nbcard .art.plain { display: flex; align-items: center; justify-content: center; background: radial-gradient(ellipse at 50% 45%, rgba(230,211,163,.07), rgba(14,12,17,0) 70%), ${C.ink2}; }
+.nbcard .art.plain .emb { width: 46%; max-height: 80%; aspect-ratio: 1; opacity: .3; }
+.nbcard .full.plain { background: radial-gradient(ellipse at 50% 32%, rgba(230,211,163,.08), rgba(14,12,17,0) 60%), ${C.ink}; display: flex; justify-content: center; }
+.nbcard .full.plain .emb { position: absolute; left: 33%; top: 13%; width: 34%; height: auto; aspect-ratio: 1; opacity: .25; }
+.nbcard .full.plain .bemb { width: 42%; margin-top: 22%; opacity: .22; }
+.nbcard .full.plain .bemb .ic { width: 100%; height: auto; aspect-ratio: 1; display: block; }
 .nbcard .art .seal { z-index: 1; position: absolute; right: 1.2mm; bottom: 1.2mm; width: 7mm; height: 7mm; color: ${C.crimson}; filter: drop-shadow(0 0 1mm rgba(0,0,0,.8)); }
 .nbcard .band { display: flex; gap: 1.5mm; align-items: flex-start; background: ${C.bone}; color: ${C.ink}; border-radius: 1.2mm; padding: 1.3mm 1.6mm; min-height: 10.5mm; }
 .nbcard .band .ic { width: 4.2mm; height: 4.2mm; color: #5c4a3a; margin-top: .3mm; }
