@@ -379,52 +379,104 @@ export const RULEBOOK = BOOK.map(s => ({ ...s, body: iconize(s.body, "en") }));
 export const rulebook = () => (zh() ? RULEBOOK_ZH : RULEBOOK);
 export function playerAid(cfg) {
   if (zh()) return playerAidZh(cfg);
-  const lim = cfg ? cfg.forgottenLimit : limitRange(), cap = cfg ? cfg.karmaCap : "4–5", ash = cfg ? cfg.ashAt : 6, adrift = cfg ? (cfg.adriftAt < 99 ? cfg.adriftAt : "never") : 9;
+  const lim = cfg ? cfg.forgottenLimit : limitRange(), cap = cfg ? cfg.karmaCap : "4 (2–3 players) or 5 (solo, 4 players)",
+    ash = cfg ? cfg.ashAt : 6, adrift = cfg ? (cfg.adriftAt < 99 ? cfg.adriftAt : "never") : 9, hand = cfg ? cfg.hand : "3 (4 in solo)";
+  const pages = ["I", "II", "III"];
   return `
   <section class="aid">
-    <div class="rsuggest rlose"><b>You lose at once if:</b> <b>Faded</b>: the forgotten pile reaches your Lantern's ✕ (${lim}) · <b>Shattered</b>: the 3rd Fracture well is filled · <b>Deluge</b>: Black Water must be placed and its well is empty. <b>You win</b> when the soul reaches the Far Shore.</div>
+    <p>Everything needed to play, in the order you need it. The Rulebook explains the same rules in full.</p>
+    <h3>Win and lose</h3>
+    <p><b>You win</b> when the soul reaches the Far Shore (space 12). Everyone wins or loses together.</p>
+    <p><b>You lose at once if:</b></p>
+    <ul>
+      <li><b>Faded</b>: the forgotten pile reaches your Lantern's limit (${lim} cards; the ✕ on the Ledger).</li>
+      <li><b>Shattered</b>: the soul takes its 3rd Fracture.</li>
+      <li><b>Deluge</b>: you must place Black Water and the Ledger's Black Water well is empty.</li>
+    </ul>
+    <h3>Talking: the Veiled Memories</h3>
+    <p>Talk freely about plans and the table, and say which threads you hold ("2 Obsession, 1 Oblivion"). Never show your hand or say a card's name, effect, Resonance or memory.</p>
+    <h3>Setup</h3>
+    <ol class="steps">
+      <li><b>River</b>: join the 3 panels (Reach I left, III right). Shuffle each Reach's bank cards separately and lay them fog side up on its banks (spaces 2–4, 5–8, 9–11). A Bloom on both banks of space 1; the soul token on space 0.</li>
+      <li><b>Soul and Lantern</b>: choose both. The Soul card's special rule applies all game. Starting Light: the Child 3, the Bride 1, others 0.</li>
+      <li><b>Lantern</b>: ${Object.entries(LANTERN).map(([l, [bw, fl, h]]) => `${LANTERN_NAMES[l]}: ${bw} Black Water, Faded at ${fl}, ${h} harsh Mist per Reach`).join("; ")}.</li>
+      <li><b>Memory deck</b>: the 32 core cards plus the Soul's 8 (the 8 Echo cards for the Open Crossing), shuffled face down. Leave room for a face-up discard pile.</li>
+      <li><b>Mist decks</b>: one per Reach: its ${MIST[0].length} basic cards, plus Rising Water and Shade Drawn Near, plus the Lantern's number of random harsh cards. Shuffle each.</li>
+      <li><b>Loom</b>: knots beside it; the Echo token beside it (it goes on a thread at the first card played face up or Burned).</li>
+      <li><b>Ledger</b>: the Lantern's Black Water tokens in its well (the rest back in the box); Fractures beside it. Forgotten cards will go on its numbered track.</li>
+      <li><b>Mantles</b> face up; the Soul's <b>Book</b> open at page I; the rest of the tokens in a supply.</li>
+      <li><b>Players</b>: deal each a hand of ${hand}; each takes a Push Through token face up; the first player takes the Oar. Solo: shuffle the Ghost cards into a deck.</li>
+    </ol>
     <h3>On your turn</h3>
     <ol class="steps">
-      <li><b>Summon</b> <span>optional · pay Light, discard a matching card${!cfg || cfg.resummon ? ". Solo: you may trade your Mantle for a new one (the old is laid down for good), 3 summons a game" : ""}</span></li>
-      <li><b>Answer</b> <span>your first action: a card played face up or Burned on the Echo's thread Resonates</span></li>
-      <li><b>Steer</b> <span>your second action. Either may be a Push Through (once a game for each Ferryman); Burn at most once a turn</span></li>
-      <li><b>End of turn</b> <span>1 Bloom-Bringer · 2 Soul Step: next space Lit and no Black Water, move; otherwise Linger · 3 Mist: flip the top card of this Reach's deck · 4 Cleanup · 5 Draw up · 6 Solo: Ghost · 7 Pass the Oar</span></li>
-      <li><b>Cleanup</b> <span>remove Black Water where both banks have a disc; remove a Shade with a Bloom on the same bank before and after it</span></li>
+      <li><b>Summon a Mantle</b> (optional, before your Answer): pay 3 Light (2 with the King) and discard a card of the Mantle's thread; take the Mantle. One Mantle per player for the game${!cfg || cfg.resummon ? " (solo: you may swap it for another, the old one is gone for good; at most 3 summons)" : ""}.</li>
+      <li><b>Answer</b> (first action), one of:
+        <ul><li>play a card: <b>face up</b>, <b>face down</b> or <b>Burn</b> (below);</li>
+          <li><b>Recall</b>: pay 3 Light and move any card from the forgotten pile to the discard pile;</li>
+          <li><b>Push Through</b> (below).</li></ul>
+        Only the Answer can <b>Resonate</b>: a card played face up or Burned as your Answer on the thread the Echo sits on also does its Resonance effect ("Instead" replaces the normal effect).</li>
+      <li><b>Steer</b> (second action): play a card or Push Through. The Steer never Resonates.</li>
+      <li><b>End of turn</b>: do the end-of-turn steps (below).</li>
     </ol>
-    <h3>Play a card</h3>
-    <div class="aidgrid">
-      <div><b>Face up</b><span>effect + knot + new Echo</span></div>
-      <div><b>Face down</b><span>place 1 Root; no knot, Echo stays</span></div>
-      <div><b>Burn</b><span>once a turn, with a player holding the same thread: both reveal a card, you pick one; effect ×2 + knot + new Echo; forget both, they draw 1. Solo: one card, then forget it and the top card</span></div>
-      <div><b>Recall</b><span>your Answer only; 3 Light: a forgotten card of your choice returns to the discard pile</span></div>
-      <div><b>Push Through</b><span>Shades on both banks of the next space (no Black Water): remove both and move the soul there; 1 Fracture (+1 per face-down Push Through token), forget 1; once a game for each player</span></div>
-    </div>
-    <h3>Threads (${cap} knots)</h3>
-    <div class="aidgrid">
-      <div class="c-obs">${ico(TAG_ICONS[0], TAGCOL[0])}<b>Obsession</b><span>Full: Shade on the soul's space</span></div>
-      <div class="c-acc">${ico(TAG_ICONS[1], TAGCOL[1])}<b>Acceptance</b><span>Full: the soul does not move in the next Soul Step</span></div>
-      <div class="c-obl">${ico(TAG_ICONS[2], TAGCOL[2])}<b>Oblivion</b><span>Full: Black Water on the next space. Played cards go to the forgotten pile</span></div>
-    </div>
-    <h3>Roots must touch</h3>
-    <p>The soul's space or the next one, the opposite bank, or the same bank next door.</p>
-    <h3>Forgetting</h3>
-    <div class="aidgrid">
-      <div><b>${ash}</b><span>Light as Ash: +1 move onto a Lit space</span></div>
-      <div><b>${adrift}</b><span>Adrift: +1 move; onto a dark space it takes 1 Fracture</span></div>
-      <div><b>${lim}</b><span>Faded: the game is lost</span></div>
-    </div>
-    <h3>Icons</h3>
-    <div class="aidicons">
-      <span>${ico("nb-bloom", "#D7263D")}Bloom</span><span>${ico("nb-root", "#E6D3A3")}Root</span><span>${ico("nb-grievance", "#8FD6E1")}Shade</span>
-      <span>${ico("nb-blackwater", "#9A948C")}Black Water</span><span>${ico("nb-fog", "#9A948C")}Fog</span><span>${ico("nb-stony", "#9A948C")}Stony</span>
-      <span>${ico("nb-memorysite", "#E6D3A3")}Memory Site</span><span>${ico("nb-grave", "#8FD6E1")}Grave</span><span>${ico("nb-fracture", "#D7263D")}Fracture</span>
-      <span>${ico("nb-light", "#E6D3A3")}Light</span><span>${ico("nb-echo", "#8FD6E1")}Echo</span><span>${ico("nb-seal", "#E6D3A3")}Blessing</span>
-    </div>
-    <h3>Tokens</h3>
-    <div class="aidicons">
-      <span>${ico("nb-tok-oar", "#E6D3A3")}Oar: whose turn</span><span>${ico("nb-tok-push", "#D7263D")}Push Through: 1 each</span><span>${ico("nb-tok-hold", "#8FD6E1")}Hold Fast</span>
-      <span>${ico("nb-tok-shield", "#E6D3A3")}Shield</span><span>${ico("nb-tok-resign", "#E6D3A3")}Resignation</span>
-    </div>
-    <p>Discard pile and forgotten pile are both face up; the forgotten pile lies on the Ledger.</p>
+    <h3>Ways to play a card</h3>
+    <ul>
+      <li><b>Face up</b>: do its effect (and its Resonance if it Resonates). Tie 1 knot on its thread and move the Echo to that thread. Then: Obsession or Acceptance card → discard pile face up, or inscribe it in the Book if it Resonated and its slot is empty on the current Reach's page (a Key Memory may be inscribed whenever played face up); Oblivion card → forgotten.</li>
+      <li><b>Face down</b>: place 1 Root and ignore the card's text. No knot, the Echo stays. The card goes face up on the discard pile.</li>
+      <li><b>Burn</b> (at most once per turn): another player who holds a card of the same thread joins you. You each put a card of that thread face down, then flip both; you choose one and do its effect <b>twice</b>. Tie 1 knot on that thread and move the Echo there. Forget both cards; the other player draws 1 card. Nobody else has the thread → you cannot Burn. <b>Solo</b>: Burn one card: effect twice, 1 knot, move the Echo, then forget it and the top card of the deck.</li>
+      <li><b>Push Through</b> (once per game for each player): only if Shades hold both banks of the next space and it has no Black Water. Remove both Shades, move the soul there (gain its Light), flip your Push Through token. The soul takes 1 Fracture plus 1 for each Push Through token already face down, and you forget the top card of the deck.</li>
+    </ul>
+    <h3>Roots and Blooms</h3>
+    <ul>
+      <li><b>Place a Root</b>: a disc Root side up on an empty bank (no disc, no Shade) on the soul's space or ahead. It must touch: the soul's space or the next space, or the other bank of its space has a disc, or the same bank one space before or after has a disc.</li>
+      <li><b>Fog</b>: placing on a fog bank flips its bank card. <b>Fertile</b>: the Root stays. <b>Stony</b>: only with "even on Stony ground" or the Root-Weaver, otherwise the Root is lost. <b>Memory Site</b>: the Root stays and you take a keepsake (Open Crossing: +2 Light). <b>Grave</b>: no Root; a Shade goes there.</li>
+      <li><b>Bloom</b>: flip a Root on the soul's space or ahead to its Bloom side. A space with a Bloom is <b>Lit</b>; the soul only moves onto Lit spaces. <b>Wither</b>: flip a Bloom back to its Root side.</li>
+    </ul>
+    <h3>End of turn (after every player's turn, in order)</h3>
+    <ol class="steps">
+      <li><b>Bloom-Bringer</b>: if you hold it, Bloom 1 Root for free.</li>
+      <li><b>Soul Step</b>:
+        <ol type="a">
+          <li>If the Resignation token is beside the soul: it does not move; forget the top card of the deck; remove the token. Go to <i>d</i>.</li>
+          <li>Otherwise, if the next space is Lit and without Black Water: the soul moves there. Gain 1 Light per Bloom on the space it left, then clear that space (discs and Shades back to the supply). Entering a new Reach clears all knots from the Loom. Then check one <b>extra move</b>: with ${adrift}+ forgotten (Adrift) it moves one more space even if that space is dark or flooded, and takes 1 Fracture if it was (unless the Spirit Warden stops it); otherwise with ${ash}+ forgotten (Light as Ash) it moves one more space only if that space is Lit and without Black Water.</li>
+          <li>Otherwise the soul cannot move: it <b>Lingers</b>. Nothing is forgotten if the Hold Fast token is out, the Spirit Warden is used, or the soul's own space is Lit (the Bride may step back once instead). Otherwise forget the top card of the deck.</li>
+          <li>Always, last: a Shade on either bank of the soul's space gives it 1 Fracture.</li>
+        </ol></li>
+      <li><b>Mist</b>: flip the top card of the current Reach's Mist deck and do it. Empty deck: shuffle that Reach's basic Mist cards.</li>
+      <li><b>Cleanup</b>: Black Water with a disc on both banks of its space goes back in the box. A Shade with a Bloom on the same bank one space before and one after goes back to the supply.</li>
+      <li><b>Draw</b> back up to ${hand} (empty deck: shuffle the discard pile).</li>
+      <li><b>Solo</b>: flip a Ghost card and do it; tie its knot and move the Echo; Cleanup again.</li>
+      <li><b>Pass the Oar</b> left. Next turn: remove the Hold Fast token; the Spirit Warden straightens at its holder's turn; an unused Shield goes at the end of its owner's next turn.</li>
+    </ol>
+    <h3>The Loom (a thread is full at ${cap} knots)</h3>
+    <p>A full thread causes its Backlash at once, then all its knots come off:</p>
+    <ul>
+      <li><b>Obsession, Grasping</b>: a Shade on the soul's space (left bank, else right; both taken: the next space).</li>
+      <li><b>Acceptance, Resignation</b>: the Resignation token beside the soul (next Soul Step it stays and forgets 1).</li>
+      <li><b>Oblivion, the Tide Rises</b>: Black Water on the next space.</li>
+    </ul>
+    <h3>Threats</h3>
+    <ul>
+      <li><b>Black Water</b>: taken from the Ledger's well. If the space already has some, use the next space ahead without it. Blooms on that space wither. The soul cannot enter it. Removed Black Water goes in the box.</li>
+      <li><b>Shades</b>: on the bank named; taken: the other bank; both taken: the next space. A disc there goes back to the supply. No Root on a Shade's bank.</li>
+      <li><b>Fractures</b>: each on the next Ledger well; 3rd = Shattered. The Shield token cancels the next one.</li>
+      <li><b>Forgetting</b>: forgotten cards go face up on the Ledger's track. ${ash}: Light as Ash · ${adrift}: Adrift · ${lim}: Faded (you lose).</li>
+    </ul>
+    <h3>Light and Mantles</h3>
+    <p>Gain 1 Light per Bloom on each space the soul leaves. Spend 3 to Recall (as your Answer) or to summon a Mantle.</p>
+    <ul>${Object.values(MANTLES).map(m => `<li><b>${esc(m.name)}</b> (${TAG_NAMES[m.tag]}): ${esc(m.text)}</li>`).join("")}</ul>
+    <h3>The Book of Remembrance</h3>
+    <ul>
+      <li>Each pair of neighbouring slots on a page gives its reward once, when the second of the two is inscribed:</li>
+      ${PAIR_REWARDS.map((row, r) => `<li>Page ${pages[r]}: ${PAIR_SLOTS.map(([a, b], i) => `${a} + ${b}: ${esc(opsText(row[i]))}`).join(" · ")}</li>`).join("")}
+      <li>A full page (${CHAPTER_AT} cards; the Garland Girl ${CHAPTER_AT - 1}) also gives a <b>Chapter Blessing</b>: remove 1 Fracture; if none, remove the nearest Black Water ahead; if none, return the newest forgotten card to the discard pile.</li>
+    </ul>
+    <h3>Card words</h3>
+    <ul>
+      <li><b>Banish</b> a Shade / <b>Wash away</b> Shades: return them to the supply. <b>Drain</b> Black Water: remove it to the box.</li>
+      <li><b>Mend</b>: remove a Fracture. <b>Untie</b> / <b>Empty</b> the fullest thread: remove its knots, no Backlash (tied: you choose). <b>Tie</b>: add knots (full → Backlash).</li>
+      <li><b>Forget</b>: put the card face up on the Ledger's track. <b>Linger</b>: the soul does not move. <b>Lift the fog</b>: flip a Reach's bank cards without placing Roots; Graves turn Fertile.</li>
+    </ul>
+    <h3>The ending</h3>
+    <p>When the game ends, check the Soul's Key Memory: inscribed, forgotten or never played. Then read the Book aloud, page by page; an empty slot reads "…but this, the river has taken".</p>
   </section>`;
 }
