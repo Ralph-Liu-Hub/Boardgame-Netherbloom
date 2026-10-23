@@ -56,12 +56,12 @@ export function ghostArt(name) {
 export const HEADS = {
   "child-road": [.12, .25], "child-fields": [.18, .33], "child-lethe": [.15, .28],
   "garland-brook": [.13, .27], "garland-wade": [.13, .27], "garland-lethe": [.13, .24],
-  "king-field": [.03, .20], "king-barge": [.17, .32], "king-lake": [.13, .30],
+  "king-field": [.035, .233], "king-barge": [.17, .32], "king-lake": [.13, .30],
   "bride-wedding": [.05, .17], "bride-stair": [.08, .30], "bride-shore": [.08, .22],
-  "nameless-road": [.13, .28], "nameless-mourners": [.12, .30], "nameless-lethe": [.12, .30],
-  "soul-child": [.10, .42], "soul-garland": [.05, .28], "soul-king": [.04, .34], "soul-bride": [.03, .25], "soul-nameless": [.02, .25],
-  "life-widow": [.09, .24], "life-physician": [.06, .30], "life-apprentice": [.08, .25], "life-lantern": [.22, .42],
-  "life-soldier": [.12, .32], "life-player": [.11, .28], "life-merchant": [.10, .30], "life-gardener": [.27, .44],
+  "nameless-road": [.13, .28], "nameless-mourners": [.140, .349], "nameless-lethe": [.12, .30],
+  "soul-child": [.10, .42], "soul-garland": [.05, .28], "soul-king": [.047, .395], "soul-bride": [.035, .291], "soul-nameless": [.02, .25],
+  "life-widow": [.09, .24], "life-physician": [.070, .349], "life-apprentice": [.08, .25], "life-lantern": [.256, .488],
+  "life-soldier": [.12, .32], "life-player": [.128, .326], "life-merchant": [.116, .349], "life-gardener": [.27, .44],
 };
 
 // Runs in the page before printing. Plates (.plate) never get wider than 3:2, so a portrait painting is not sliced into a strip;

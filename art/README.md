@@ -4,7 +4,7 @@ Painted illustrations for Netherbloom (《彼岸花渡》): the box, the card ba
 
 ## `masters/`
 
-Lossless PNG exports of every painting at full resolution, which is the size Canva generates at. These are the originals: nothing larger exists. They are also in the Canva design "Blank Netherbloom artwork canvas" (`DAHYIgWAxNo`), one painting per page.
+Every painting at full resolution, as lossless PNG. The paintings were generated in Canva and then reworked by hand-written image processing in `tools/` (no generative AI) to read less like generated images; see "The ink-and-wash rework" below. The untouched Canva exports are in this repository's history (before the rework commit) and in the Canva design "Blank Netherbloom artwork canvas" (`DAHYIgWAxNo`), one painting per page.
 
 | File | Size (px) | Canva page | Used for |
 |---|---|---|---|
@@ -65,3 +65,14 @@ The factory files for every component are built from these masters by `print/fac
 ## Web copies
 
 The web game uses WebP copies of these paintings in `web/public/assets/art/`, sized for the screen (about 2.7 MB in all). After changing a master, rebuild them with `python3 web/tools/build_art.py`. Which painting goes where in the game, and the head positions that keep figures uncropped, are in `web/public/assets/art.js`.
+
+## The ink-and-wash rework (`tools/`)
+
+To take the paintings away from the glossy, generated look, every painting except the four card backs (kept as designed) and the `scene-*` animation art was reworked with ordinary image processing. `python3 art/tools/run_all.py <masters> <out>` repeats it, in this order:
+
+1. **Faces** (`faces.py`, positions in `faces.json`): the female figures' faces lose their airbrushed perfection. The Child gets soot smudges, the Garland Girl mud, water runs and wet hair across her face, the Bride below ash, and the Widow and the wedding day light weathering. All of them get uneven skin.
+2. **Composition** (`recompose.py`, choices in `plan.json`): centred figures move off-centre. Where the edge is plain background (sky, fog, water, grass), the canvas is widened on one side from the painting's own edge (mirrored, nudged and rescaled so it doesn't read as a reflection, the join hidden with Frequency Selective Reconstruction inpainting) and cropped back from the other side. Where the figure fills the frame, the frame is cropped in off-centre instead, so no content is invented. Heads always stay whole. The head positions of cropped paintings were rescaled in `print/factory/lib.mjs` and `web/public/assets/art.js`.
+3. **Ink and wash** (`inkwash.py`): less saturation, with the lily reds pulled to a dull madder and the cyan glow greyed; glows and blown highlights compressed; smooth gradients flattened into watercolour washes with pigment pooled at their edges; a pen line whose pressure varies across the sheet; and toned paper grain. The `print/` copies were treated the same way at their full size.
+
+This makes the art read as a restrained ink-and-wash print. It does not change what is drawn, so it does not make the paintings human-made.
+
