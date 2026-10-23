@@ -57,13 +57,7 @@ const W = {
 
 // ---------------------------------------------------------------- drawing helpers (mm, trim coordinates)
 let clipN = 0;
-// Face-up cards carry no paintings: a Soul or Mantle card shows its symbol on a plain face.
-const FACE = { "soul-child": ["nb-soul", C.bone], "card-mantle-weaver": ["nb-obsession", C.crimson], "card-mantle-warden": ["nb-obsession", C.crimson],
-  "card-mantle-bringer": ["nb-acceptance", C.bone], "card-mantle-breaker": ["nb-oblivion", C.cyan] };
-const img = (name, x, y, w, h, extra = "") => {
-  if (FACE[name]) { const sz = Math.min(w, h) * .55; return `<use href="#${FACE[name][0]}" x="${x + w / 2 - sz / 2}" y="${y + h / 2 - sz / 2}" width="${sz}" height="${sz}" style="color:${FACE[name][1]}" opacity=".55"/>`; }
-  const u = art(name); return u ? `<image href="${u}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" ${extra}/>` : "";
-};
+const img = (name, x, y, w, h, extra = "") => { const u = art(name); return u ? `<image href="${u}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" ${extra}/>` : ""; };
 const card = (name, x, y, w, h, rot = 0, stroke = C.gilt) => {
   const id = `sc${clipN++}`;
   return `<g transform="rotate(${rot} ${x + w / 2} ${y + h / 2})"><rect x="${x - .5}" y="${y - .5}" width="${w + 1}" height="${h + 1}" rx="1.6" fill="${C.ink}" stroke="${stroke}" stroke-width=".35"/>

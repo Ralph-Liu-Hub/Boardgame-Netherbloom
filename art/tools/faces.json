@@ -1,0 +1,110 @@
+{
+ "soul-child": {
+  "face": [
+   0.43,
+   0.304,
+   0.11,
+   0.11
+  ],
+  "mode": "soot"
+ },
+ "soul-garland": {
+  "face": [
+   0.31,
+   0.2,
+   0.11,
+   0.1
+  ],
+  "mode": "mud"
+ },
+ "soul-bride": {
+  "face": [
+   0.539,
+   0.158,
+   0.07,
+   0.07
+  ],
+  "mode": "ash"
+ },
+ "child-road": {
+  "face": [
+   0.495,
+   0.24,
+   0.06,
+   0.05
+  ],
+  "mode": "soot"
+ },
+ "child-fields": {
+  "face": [
+   0.409,
+   0.362,
+   0.07,
+   0.06
+  ],
+  "mode": "soot"
+ },
+ "garland-brook": {
+  "face": [
+   0.37,
+   0.2,
+   0.07,
+   0.06
+  ],
+  "mode": "mud"
+ },
+ "garland-wade": {
+  "face": [
+   0.487,
+   0.185,
+   0.07,
+   0.06
+  ],
+  "mode": "mud"
+ },
+ "garland-lethe": {
+  "face": [
+   0.335,
+   0.17,
+   0.045,
+   0.05
+  ],
+  "mode": "mud"
+ },
+ "bride-wedding": {
+  "face": [
+   0.53,
+   0.12,
+   0.07,
+   0.06
+  ],
+  "mode": "weather"
+ },
+ "bride-stair": {
+  "face": [
+   0.4625,
+   0.2385,
+   0.06,
+   0.05
+  ],
+  "mode": "ash"
+ },
+ "bride-shore": {
+  "face": [
+   0.49,
+   0.17,
+   0.05,
+   0.05
+  ],
+  "mode": "ash"
+ },
+ "life-widow": {
+  "face": [
+   0.58,
+   0.15,
+   0.06,
+   0.055
+  ],
+  "mode": "weather"
+ }
+}

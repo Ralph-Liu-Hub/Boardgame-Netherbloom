@@ -1,0 +1,7 @@
+{
+ "extend": {"soul-nameless": 0.12, "child-road": 0.12, "child-fields": 0.12, "garland-wade": -0.12, "bride-wedding": -0.12, "bride-shore": 0.12,
+            "nameless-road": 0.12, "nameless-lethe": -0.12, "card-mantle-weaver": 0.12, "life-widow": -0.12},
+ "crop":   {"soul-king": [0.86, 0.0, 0.0], "king-field": [0.86, 0.14, 0.0], "soul-bride": [0.86, 0.14, 0.0], "nameless-mourners": [0.86, 0.0, 0.0],
+            "card-oblivion": [0.88, 0.10, 0.06], "life-physician": [0.86, 0.0, 0.0], "life-lantern": [0.86, 0.14, 0.0], "life-player": [0.86, 0.0, 0.0],
+            "life-merchant": [0.86, 0.0, 0.0]}
+}

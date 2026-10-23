@@ -69,8 +69,8 @@ const FIGS = {
 
   card: (t, L, kit) => {
     const cid = CARDS.findIndex(c => c.id === "C14"), n = (k, top, left) => `<span class="rf-num" style="top:${top}%;left:${left}%">${k}</span>`;
-    const parts = t(["Its thread (the icon), its name and ID", "What it does when played face up", "Its Resonance: what it also does when it matches the Echo", "Its thread symbol, large", "The memory it carries, and which line of the Book it fills (Place, Person, Deed or Feeling)"],
-      ["絲線（圖示）、牌名與編號", "正面打出時的效果", "共鳴：與迴響相符時額外執行的效果", "放大的絲線符號", "它承載的記憶，以及它填入憶念之書的哪一格（地點、人物、事蹟或感受）"]);
+    const parts = t(["Its thread (the icon), its name and ID", "What it does when played face up", "Its Resonance: what it also does when it matches the Echo", "The painting", "The memory it carries, and which line of the Book it fills (Place, Person, Deed or Feeling)"],
+      ["絲線（圖示）、牌名與編號", "正面打出時的效果", "共鳴：與迴響相符時額外執行的效果", "插畫", "它承載的記憶，以及它填入憶念之書的哪一格（地點、人物、事蹟或感受）"]);
     return figure(`<div class="rf-anat"><div class="rf-card big"><div class="nbface">${kit.memoryCard(L, cid)}</div>${n(1, 6, -9)}${n(2, 13.5, -9)}${n(3, 20, -9)}${n(4, 48, -9)}${n(5, 82, -9)}</div>
       <ol class="rf-legend">${parts.map(p => `<li>${p}</li>`).join("")}</ol></div>`,
       t("A Memory card. Oblivion cards have no Book slot: after use they go on the forgotten pile.", "一張記憶牌。忘卻牌沒有憶念之書的欄位：使用後放入遺忘堆。"));

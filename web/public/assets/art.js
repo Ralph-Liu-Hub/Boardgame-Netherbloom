@@ -8,10 +8,10 @@ export const artSrc = name => `assets/art/${name}.webp`;
 export const HEADS = {
   "child-road": [.12, .25], "child-fields": [.18, .33], "child-lethe": [.15, .28],
   "garland-brook": [.13, .27], "garland-wade": [.13, .27], "garland-lethe": [.13, .24],
-  "king-field": [.03, .20], "king-barge": [.17, .32], "king-lake": [.13, .30],
+  "king-field": [.035, .233], "king-barge": [.17, .32], "king-lake": [.13, .30],
   "bride-wedding": [.05, .17], "bride-stair": [.08, .30], "bride-shore": [.08, .22],
-  "nameless-road": [.13, .28], "nameless-mourners": [.12, .30], "nameless-lethe": [.12, .30],
-  "soul-child": [.10, .42], "soul-garland": [.05, .28], "soul-king": [.04, .34], "soul-bride": [.03, .25], "soul-nameless": [.02, .25],
+  "nameless-road": [.13, .28], "nameless-mourners": [.140, .349], "nameless-lethe": [.12, .30],
+  "soul-child": [.10, .42], "soul-garland": [.05, .28], "soul-king": [.047, .395], "soul-bride": [.035, .291], "soul-nameless": [.02, .25],
 };
 
 const SOUL_ART = { open: "nameless", child: "child", garland: "garland", king: "king", bride: "bride" };
