@@ -7,11 +7,7 @@ const chip = (id, x, y, col, r = 15) => `<g><circle cx="${x}" cy="${y}" r="${r}"
 
 export function setupFigure(src, zh = false) {
   const T = (en, z) => (zh ? z : en);
-  // Face-up cards carry no paintings: a Soul or Mantle card shows its symbol on a plain face.
-  const FACE = { "soul-child": ["nb-soul", "#E6D3A3"], "card-mantle-weaver": ["nb-obsession", "#D7263D"], "card-mantle-warden": ["nb-obsession", "#D7263D"],
-    "card-mantle-bringer": ["nb-acceptance", "#E6D3A3"], "card-mantle-breaker": ["nb-oblivion", "#8FD6E1"] };
-  const img = (name, x, y, w, h, extra = "") => FACE[name] ? use(FACE[name][0], x + w / 2, y + h / 2, Math.min(w, h) * .55, FACE[name][1], .55)
-    : `<image href="${src(name)}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" ${extra}/>`;
+  const img = (name, x, y, w, h, extra = "") => `<image href="${src(name)}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" ${extra}/>`;
   const card = (name, x, y, w, h, rot = 0, stroke = "#8a6d48") =>
     `<g transform="rotate(${rot} ${x + w / 2} ${y + h / 2})"><rect x="${x - 1.5}" y="${y - 1.5}" width="${w + 3}" height="${h + 3}" rx="5" fill="#0e0c11" stroke="${stroke}" stroke-width="1.2"/>
       <clipPath id="sfc${x}${y}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4"/></clipPath>${img(name, x, y, w, h, `clip-path="url(#sfc${x}${y})"`)}</g>`;

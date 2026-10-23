@@ -4,7 +4,7 @@ import * as E from "./engine.js";
 import { CARDS, CORE_IDS, ECHO_IDS, SOUL_PACKS, TAG_ICONS, SOULS, FIRST_SOUL, MANTLES, LANTERN, STANDARD_LANTERN, lanternIcon, HARSH, MIST, GHOST, TILES, STONY, MEMORY, GRAVE, FERTILE } from "./cards.js";
 import * as A from "./audio.js";
 import { setupFigure } from "./setupfig.js";
-import { artSrc, artImg, soulPortrait, reachPainting, preloadArt } from "./art.js";
+import { artSrc, artImg, mantleArt, soulPortrait, reachPainting, BANK_ART, preloadArt } from "./art.js";
 import * as N from "./net.js";
 import { passage, passageLeft, preloadScenes } from "./passage.js";
 import { rulebook, playerAid } from "./rules.js";
@@ -361,7 +361,8 @@ function beginGame(s, opening = false) {
   else setTable(s, opening);
 }
 function setTable(s, opening) {
-  preloadArt(["tex-bank", "tex-water", "card-fog", "back-memory", "back-mist", soulPortrait(s.cfg.soul), ...[0, 1, 2].map(r => reachPainting(s.cfg.soul, r))]);
+  preloadArt(["tex-bank", "tex-water", "card-fog", ...BANK_ART, "back-memory", "card-obsession", "card-acceptance", "card-oblivion", "card-mist-1", "card-mist-2", "card-mist-3", "card-harsh",
+    soulPortrait(s.cfg.soul), ...[0, 1, 2].map(r => reachPainting(s.cfg.soul, r)), ...(s.n === 1 ? ["card-ghost"] : [])]);
   S = s;
   screen = ["game"];
   uncovered = -1;
@@ -1259,12 +1260,12 @@ function drawBoard() {
     const [cx, cy] = slotXY(k);
     const sp = k >> 1;
     const behind = sp < s.soul;
-    // The bank card in its well: the fog side until the bank is revealed, then its plain face with the ground's symbol.
+    // The bank card in its well: the fog side until the bank is revealed, then the painted ground.
     const dealt = !stage || stage.banks.has(k) || (k < 4 && stage.blooms);
     const base = !dealt ? ""
       : !s.revealed[k]
       ? `<g class="fogpuff${stage?.fresh.has(k) ? " dealin" : ""}"><image href="${artSrc("card-fog")}" x="${cx - 27}" y="${cy - 36}" width="54" height="72" preserveAspectRatio="xMidYMid slice"/></g>`
-      : `<g class="${p.revealed[k] ? "" : "revealin"}"><rect x="${cx - 27}" y="${cy - 36}" width="54" height="72" rx="4" fill="#17141b" stroke="#8a6d48" stroke-opacity=".6"/>
+      : `<g class="${p.revealed[k] ? "" : "revealin"}"><image href="${artSrc(BANK_ART[s.tile[k]])}" x="${cx - 27}" y="${cy - 36}" width="54" height="72" preserveAspectRatio="xMidYMid slice" opacity="${s.tile[k] === FERTILE ? 0.62 : 0.85}"/>
           ${tileMark(s.tile[k], cx, cy, !!s.griev[k] || s.tok[k] !== E.NONE)}</g>`;
     let inner = "";
     if (s.griev[k]) {
@@ -2644,7 +2645,7 @@ function stepEvent(ev) {
     case "summon": {
       A.sfx("summon"); cap("good");
       if ($("tray")) motes(centre($("tray")), S.cfg.mantleCost);
-      const mi = mantleInfo(ev.mantle); return banner(text, mi.text, ["obs", "acc", "obl"][mi.tag]);
+      const mi = mantleInfo(ev.mantle); return banner(text, mi.text, ["obs", "acc", "obl"][mi.tag], mantleArt(ev.mantle));
     }
     case "mist": setGuide("mist"); cap("bad"); return mistCard(ev.name, ev.ops) + 300;
     case "backlash": A.sfx("backlash"); shake(); cap("bad"); return banner(L(`Backlash · ${tagName(ev.tag)}`, `反噬 · ${tagName(ev.tag)}`), backlashText(ev.tag), ["obs", "acc", "obl"][ev.tag]);
