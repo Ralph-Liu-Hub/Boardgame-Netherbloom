@@ -39,9 +39,9 @@ Every number in the game is a `Config` option (`netherbloom/engine.py`), so a ru
 
 ## The AI players
 
-The players are silent, as in the real game:
+The players follow the Veiled Memories: they may share which threads they hold, never a card's name or text.
 - Each player sees only its own hand and the public board.
-- Each turn it tries every card in each way it can be played (face up, face down, Burn), Seek, a Recall when Light allows, and Push Through when the way is shut. In solo it may trade its Mantle, but only when nothing is waiting to be Recalled.
+- Each turn it tries every card in each way it can be played (face up, face down, Burn with a partner who holds the same thread), a Recall when Light allows, and Push Through when the way is shut. In solo it may trade its Mantle, but only when nothing is waiting to be Recalled.
 - It plays out the result up to the Soul Step and keeps the best pair of plays (a beam search over the first card).
 - It favours answering the Echo, and leaves an Echo the next player can safely follow.
 - It cannot see under the fog while planning.
@@ -53,26 +53,28 @@ GDD v0.4 as written was **unbalanced**:
 - Faded caused 82–91% of all losses, and Deluge never happened.
 - Games lasted only 10–12 turns.
 
-These changes bring every player count to **56–62% wins** with the Open Crossing at the Standard Lantern (the four Souls other than the Child average 52%), with all three loss conditions sharing the losses:
+These changes bring the Open Crossing at the Standard Lantern to about **60% wins** at every player count (averaged over player counts: Gentle 70%, Hard 45%, Heroic 31%; by Soul at Standard: Open 60%, Child 76%, Garland Girl 52%, King 46%, Bride 43%), with all three loss conditions sharing the losses:
 
 | Rule | GDD v0.4 | Tuned |
 |---|---|---|
 | Lingering | Always forget 1 | Forget 1 only if the soul's own space is **not Lit** (a soul waiting beside its own light does not fade) |
-| Drained Black Water | Returns to the supply | **Leaves the game.** The supply (6 at the Standard Lantern) becomes a slow flood clock, so Deluge is a real threat. |
-| Burn | Forget the card | Forget the card **and 1 more** |
+| Drained Black Water | Returns to the supply | **Leaves the game.** The supply (5 at the Standard Lantern) becomes a slow flood clock, so Deluge is a real threat. |
+| Burn | Forget the card | **Joint Burn**, at most once a turn, as the Answer or the Steer: another player who holds the same thread adds a card; both are flipped, the active player picks one to do twice; both cards are forgotten and the partner draws 1. Solo: one card, effect twice, forget it **and 1 more** |
 | Light as Ash / Adrift | 4 / 8 forgotten | **6 / 9** |
-| Mist decks | 10 cards per Reach | **12**: +1 Rising Water, +1 Grievance Drawn Near |
+| Mist decks | 10 cards per Reach | **12**: +1 Rising Water, +1 Shade Drawn Near |
 | Hand size | 5 / 5 / 4 / 3 (solo / 2 / 3 / 4 players) | **4 / 3 / 3 / 3** |
 | Knots per thread | 5 | **4 at 2–3 players, 5 in solo and at 4 players** |
-| Chapter Blessing | Page full (4 slots) | **3 of 4 slots** (Garland twist: 2) |
+| Book of Remembrance | Chapter Blessing when a page is full | **Pair rewards**: each pair of neighbouring slots (Place+Person, Person+Deed, Deed+Feeling) gives a reward once, different on each page; the **Chapter Blessing** still comes with a full page (4 slots; Garland twist: 3) |
 | Key Memory | Inscribed only on Resonance | May be inscribed **whenever played face up** |
 | Solo Ghost | Its Oblivion card forgets 1 | **Does not forget** |
-| Bride twist | Pulled back once per Reach, still forgets | Pulled back **once per game**, forgets nothing |
+| Bride twist | Pulled back once per Reach, still forgets | Pulled back **once per game**, forgets nothing, and **starts with 1 Light** |
 | Bride pack | B02 Shield, B06 Mend | **B02 Stubborn Root, B06 Full Bloom** |
-| Actions | Play 2 cards | **2 actions**: play a card, Seek (discard 1, draw 1; once a turn), or Push Through (see below); only the first action (the **Answer**) can Resonate; the second is the **Steer** |
-| Grievances on both banks ahead | The soul Lingers | The soul still Lingers, but a player may spend an action to **Push Through** (once per game for each player): both scatter, the soul steps on, 1 Fracture and forget 1; each later push in the game costs 1 more Fracture |
+| Actions | Play 2 cards | **2 actions**: play a card, Recall or Push Through (see below); only the first action (the **Answer**) can Resonate; the second is the **Steer**. Seek and Share were tried and dropped (`seek_mode`) |
+| Shades on both banks ahead | The soul Lingers | The soul still Lingers, but a player may spend an action to **Push Through** (once per game for each player): both scatter, the soul steps on, 1 Fracture and forget 1; each later push in the game costs 1 more Fracture |
 | Light | Only for Mantles; piles up once they are taken | Also **Recall**: as the Answer, 3 Light returns a forgotten card of your choice to the discard pile. **Solo**: the player may summon a new Mantle while holding one; the old one is laid down for good, each Mantle once, 3 summons a game. Idle Light falls from 37% of turns to 2% (`experiments/light_sinks.py`) |
-| Lanterns | 1–5 | **Gentle 6/14/0, Standard 6/11/2, Hard 4/10/3, Heroic 3/9/3** (Black Water / Faded at / harsh Mist per Reach) |
+| Lanterns | 1–5 | **Gentle 6/11/0, Standard 5/10/2, Hard 4/9/3, Heroic 3/8/3** (Black Water / Faded at / harsh Mist per Reach) |
+| Talking | Rule of Silence | **The Veiled Memories**: talk freely and say which threads you hold, never a card's name, effect, Resonance or memory |
+| Discard pile | Face down | **Face up** |
 | Child twist | 3 Light, first Fracture each Reach ignored, never Adrift, no harsh Mist | Also **forgets 1 more card before she Fades** |
 
 ## Not modelled yet

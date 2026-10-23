@@ -1747,8 +1747,8 @@ function drawPiles() {
   el.innerHTML = `
     <div class="pile deck" id="pile-deck" title="${L("The deck, face down", "牌庫（背面朝上）")}">
       <span class="pst ${pv.deck ? "" : "none"}" style="${stack(pv.deck)}">${pv.deck ? miniBack() : ""}</span><span class="plbl">${L("Deck", "牌庫")} <b>${pv.deck}</b></span></div>
-    <div class="pile disc" id="pile-disc" title="${L("The discard pile, face up", "棄牌堆（正面朝上）")}">
-      <span class="pst ${pv.disc ? "" : "none"}" style="${stack(pv.disc)}">${pv.disc ? miniFace(pv.top) : ""}</span><span class="plbl">${L("Discard", "棄牌堆")} <b>${pv.disc}</b></span></div>
+    <button type="button" class="pile disc" id="pile-disc" data-list="disc" title="${L("The discard pile, face up: click to look through it", "棄牌堆（正面朝上）：點擊查看")}">
+      <span class="pst ${pv.disc ? "" : "none"}" style="${stack(pv.disc)}">${pv.disc ? miniFace(pv.top) : ""}</span><span class="plbl">${L("Discard", "棄牌堆")} <b>${pv.disc}</b></span></button>
     <button type="button" class="pile forg" id="pile-forg" data-list="forg" title="${L("Forgotten memories: click to look through them", "被遺忘的記憶：點擊查看")}">
       <span class="pst ${pv.f ? "" : "none"}" style="${stack(pv.f)}">${pv.f ? miniFace(pv.ft) : ""}</span><span class="plbl">${L("Forgotten", "遺忘")} <b>${pv.f}</b>/${S.cfg.forgottenLimit}</span></button>`;
   el.querySelectorAll("[data-list]").forEach(b => b.onclick = () => pileDialog(b.dataset.list));
@@ -1771,10 +1771,11 @@ function drawDockInfo() {
   el.querySelector("[data-list]").onclick = () => pileDialog();
 }
 // The forgotten pile is face up, so anyone may look through it, and hold any card up close.
-function pileDialog() {
-  const cards = [...S.forgotten].reverse();
-  const title = L("Forgotten memories", "被遺忘的記憶");
-  const note = L(`Most recent first. ${S.cfg.forgottenLimit} forgotten and the soul Fades. Spend ${S.cfg.recallCost} Light as your Answer to Recall one.`, `最近遺忘的排在最前。遺忘達到${S.cfg.forgottenLimit}張，亡魂就會消散。以回應花費${S.cfg.recallCost}點光可以喚回一張。`);
+function pileDialog(which = "forg") {
+  const disc = which === "disc";
+  const cards = [...(disc ? S.discard : S.forgotten)].reverse();
+  const title = disc ? L("The discard pile", "棄牌堆") : L("Forgotten memories", "被遺忘的記憶");
+  const note = disc ? L("Most recent first. When the deck runs out, these are shuffled into a new deck.", "最近棄掉的排在最前。牌庫用完時，這些牌會洗成新的牌庫。") : L(`Most recent first. ${S.cfg.forgottenLimit} forgotten and the soul Fades. Spend ${S.cfg.recallCost} Light as your Answer to Recall one.`, `最近遺忘的排在最前。遺忘達到${S.cfg.forgottenLimit}張，亡魂就會消散。以回應花費${S.cfg.recallCost}點光可以喚回一張。`);
   veil(`<div class="dialog wide"><h2>${title} · ${cards.length}</h2><p class="muted">${note}</p>
     <div class="pilelist">${cards.length ? cards.map(cid => `<button type="button" class="mcbtn" data-cid="${cid}" title="${esc(cardName(cid))}">${miniFace(cid)}</button>`).join("") : `<span class="muted">${L("Empty.", "空的。")}</span>`}</div>
     <div class="row"><button type="button" id="cancel">${L("Close", "關閉")}</button></div></div>`, "pile");
