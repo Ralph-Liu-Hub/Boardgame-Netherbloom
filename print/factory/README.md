@@ -1,6 +1,6 @@
 # Factory files (prototype manufacturing)
 
-Print-ready files for every component of Netherbloom, in English and Traditional Chinese (《彼岸花渡》). Card faces are text and icons only (no paintings); the paintings are on the backs, the box, the river board, the Books and the rulebook. The card text, Book frames and rules come from the same data as the web game (`web/public/assets/cards.js`, `zh.js`, `rules.js`, `rules_zh.js`), so the printed game always matches the shipped rules. The art comes from `art/masters/`, or from the 4× upscaled copy in `art/print/` where one exists (the box and river board paintings). The Souls' longer tales for the Books are in `stories.mjs`.
+Print-ready files for every component of Netherbloom, in English and Traditional Chinese (《彼岸花渡》). The card text, Book frames and rules come from the same data as the web game (`web/public/assets/cards.js`, `zh.js`, `rules.js`, `rules_zh.js`), so the printed game always matches the shipped rules. The art comes from `art/masters/`, or from the 4× upscaled copy in `art/print/` where one exists (the box and river board paintings). The Souls' longer tales for the Books are in `stories.mjs`.
 
 ```bash
 # needs playwright-core and Chromium; ImageMagick (convert) is optional and shrinks the PDFs about 5x
