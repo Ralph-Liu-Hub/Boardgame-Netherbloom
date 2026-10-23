@@ -54,7 +54,7 @@ tr { break-inside: avoid; }
 .aidgrid, .aidicons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5mm; break-inside: avoid; margin-bottom: 2mm; }
 .aidgrid div { border: .25mm solid #c9b48a; border-radius: 1.5mm; padding: 1.2mm 1.6mm; } .aidgrid span, ol.steps li span { display: block; font-size: .85em; color: #6b5a44; }
 .aid h3 { margin-top: 2.5mm; }
-.notes { break-before: page; height: ${h - 2 * m - 6}mm; background: repeating-linear-gradient(180deg, transparent 0 9mm, #c9b48a 9mm 9.25mm); }
+.notes { break-before: page; height: ${h - 2 * m - 20}mm; background: repeating-linear-gradient(180deg, transparent 0 9mm, #c9b48a 9mm 9.25mm); }
 .notes h2 { background: #efe5cf; }
 `;
 
@@ -81,7 +81,7 @@ export async function build(lang, dir, { png }) {
   const css = CSS(lang, PW, PH, M) + SPREAD_CSS(lang) + webCardCSS() + RULEFIG_CSS + FIG_PRINT;
   const file = join(dir, "rulebook");
   let notes = 0;
-  for (let pass = 0; pass < 2; pass++) {
+  for (let pass = 0; pass < 4; pass++) {
     const pad = Array.from({ length: notes }, () => `<div class="notes"><h2>${w.notes}</h2></div>`).join("");
     await render(file, flowDoc(lang, w.title, css, cover + setupSpread(lang) + fillFigures(forPaper(sections + aid), lang, { artImg }) + pad), { w: PW, h: PH, png });
     const n = pageCount(file + ".pdf");

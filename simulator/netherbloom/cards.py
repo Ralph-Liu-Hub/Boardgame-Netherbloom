@@ -165,22 +165,22 @@ SOULS = {
 #   ("dark_wind",)            -2 Light, or +1 Fracture if you cannot pay
 MIST = {
     0: [("Rising Water", [("bw", 2)]), ("Rising Water", [("bw", 3)]),
-        ("Grievance", [("grv", 1, 0)]), ("Grievance", [("grv", 2, 1)]),
-        ("Grievance Drawn Near", [("grv_near",)]), ("Withering", [("wither", 2)]),
+        ("Shade", [("grv", 1, 0)]), ("Shade", [("grv", 2, 1)]),
+        ("Shade Drawn Near", [("grv_near",)]), ("Withering", [("wither", 2)]),
         ("Fog Returns", [("fog", 1)]), ("Cold Wind", [("forget", 1)]),
         ("The Mist Parts", []), ("The Mist Parts", [])],
     1: [("Rising Water", [("bw", 1)]), ("Rising Water", [("bw", 2)]),
-        ("Grievance", [("grv", 1, 0)]), ("Grievance", [("grv", 2, 1)]),
-        ("Grievance Drawn Near", [("grv_near",)]), ("Withering", [("wither", 2)]),
+        ("Shade", [("grv", 1, 0)]), ("Shade", [("grv", 2, 1)]),
+        ("Shade Drawn Near", [("grv_near",)]), ("Withering", [("wither", 2)]),
         ("Withering", [("wither", 2)]), ("Fog Returns", [("fog", 2)]),
         ("Cold Wind", [("forget", 1)]), ("Echo Severed", [("sever",)])],
     2: [("Rising Water", [("bw", 1)]), ("Rising Water", [("bw", 2)]),
-        ("Undertow", [("bw", 2), ("wither_at", 1)]), ("Grievance Drawn Near", [("grv_near",)]),
-        ("Twin Grievances", [("grv", 2, 0), ("grv", 2, 1)]), ("Withering", [("wither", 2)]),
+        ("Undertow", [("bw", 2), ("wither_at", 1)]), ("Shade Drawn Near", [("grv_near",)]),
+        ("Twin Shades", [("grv", 2, 0), ("grv", 2, 1)]), ("Withering", [("wither", 2)]),
         ("Great Withering", [("wither", 3)]), ("Cold Wind", [("forget", 1)]),
         ("Bitter Wind", [("forget", 2)]), ("Echo Severed", [("sever",)])],
 }
-HARSH = [("Flood Surge", [("bw", 1), ("bw", 3)]), ("Grievance Host", [("grv", 1, 0), ("grv", 1, 1)]),
+HARSH = [("Flood Surge", [("bw", 1), ("bw", 3)]), ("Shade Host", [("grv", 1, 0), ("grv", 1, 1)]),
          ("Wither Storm", [("wither_far", 2)]), ("Deep Cold", [("forget", 2)]),
          ("Karma Surge", [("karma_all",)]), ("Dark Wind", [("dark_wind",)])]
 

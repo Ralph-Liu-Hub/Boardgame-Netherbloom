@@ -167,7 +167,7 @@ class State:
                 if harsh:
                     d.append(C.HARSH[harsh.pop()])
             for i in range(cfg.extra_mist):
-                d.append(("Rising Water", [("bw", 2)]) if i % 2 == 0 else ("Grievance Drawn Near", [("grv_near",)]))
+                d.append(("Rising Water", [("bw", 2)]) if i % 2 == 0 else ("Shade Drawn Near", [("grv_near",)]))
             s.rng.shuffle(d)
             s.mist.append(d)
         s.reach = 0
@@ -299,7 +299,7 @@ class State:
             self.note(f"  reveal {C.TILE_NAMES[t]} at {k // 2}{'ul'[k % 2]}")
             if t == GRAVE:
                 self.griev[k] = True
-                self.note("  a Grievance rises from the Grave")
+                self.note("  a Shade rises from the Grave")
                 return False
             if t == STONY and not stony_ok:
                 return False
@@ -400,7 +400,7 @@ class State:
             if not self.griev[k]:
                 self.griev[k] = True
                 self.tok[k] = NONE
-                self.note(f"  Grievance at {x}{'ul'[b]}")
+                self.note(f"  Shade at {x}{'ul'[b]}")
                 return
 
     def tie_knot(self, tag):
@@ -783,7 +783,7 @@ class State:
         self.feed()
 
     def blocked_by_grievances(self):
-        """The next space is dark only because Grievances hold both of its banks."""
+        """The next space is dark only because Shades hold both of its banks."""
         sp = self.soul + 1
         return (self.cfg.push_through != "off" and 1 <= sp <= 11 and not self.flooded[sp]
                 and self.griev[sp * 2] and self.griev[sp * 2 + 1])
@@ -806,7 +806,7 @@ class State:
         self.stats[f"pushes_r{self.reach}"] = self.stats.get(f"pushes_r{self.reach}", 0) + 1
         if before:
             self.stats["repushes"] = self.stats.get("repushes", 0) + 1
-        self.note("  the soul pushes through the Grievances")
+        self.note("  the soul pushes through the Shades")
         self.move_soul(1)
         for _ in range(1 + before):   # each push already made in this scope adds another Fracture
             self.add_fracture()
@@ -838,7 +838,7 @@ class State:
 
     def feed(self):
         if 1 <= self.soul <= 11 and (self.griev[self.soul * 2] or self.griev[self.soul * 2 + 1]):
-            self.note("  a Grievance feeds on the soul")
+            self.note("  a Shade feeds on the soul")
             self.add_fracture()
 
     # ------------------------------------------------------------- Mist
@@ -913,7 +913,7 @@ class State:
                 sp, b = k // 2, k % 2
                 if 2 <= sp <= 10 and self.tok[(sp - 1) * 2 + b] == BLOOM and self.tok[(sp + 1) * 2 + b] == BLOOM:
                     self.griev[k] = False
-                    self.note(f"  a Grievance dissolves in the light at {sp}")
+                    self.note(f"  a Shade dissolves in the light at {sp}")
 
     def draw_up(self, p):
         while len(self.hands[p]) < self.cfg.hand:

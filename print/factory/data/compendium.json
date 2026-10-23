@@ -878,7 +878,7 @@
     "zh": "怯懦"
    },
    "text": {
-    "en": "Whenever a Grievance rises, the soul steps back 1 space (if able). It does not Linger for this.",
+    "en": "Whenever a Shade rises, the soul steps back 1 space (if able). It does not Linger for this.",
     "zh": "每當一個怨念升起，亡魂便後退1格（若可行）。亡魂不會因此徘徊。"
    }
   },
@@ -974,7 +974,7 @@
     "zh": "得到原諒"
    },
    "text": {
-    "en": "Fulfilled if, once, a Grievance fed the soul and was not removed during that turn.",
+    "en": "Fulfilled if, once, a Shade fed the soul and was not removed during that turn.",
     "zh": "若曾有一次，怨念啃噬了亡魂，且在該回合中沒有被移除，即達成。"
    },
    "endings": [

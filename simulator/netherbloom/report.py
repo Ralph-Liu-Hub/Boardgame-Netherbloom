@@ -14,7 +14,7 @@ from .stats import run_batch
 # GDD v0.4 exactly as written, for comparison with the tuned defaults.
 RULES_AS_WRITTEN = dict(linger_rule="always", bw_returns=True, burn_forget=1, ash_at=4, adrift_at=8,
                         extra_mist=0, ghost_forgets=True, karma_cap=5, blessing_at=4, key_any=False,
-                        bride_once=False, bride_forgets=True)
+                        bride_once=False, bride_forgets=True, burn_mode="solo", book_mode="blessing")
 HAND_AS_WRITTEN = {1: 5, 2: 5, 3: 4, 4: 3}
 
 

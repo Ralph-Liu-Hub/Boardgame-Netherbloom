@@ -1,61 +1,61 @@
 # Netherbloom Simulator — Balance Report
 
-1000 games per main configuration (half that for variants). Echo-following AI players. Run time 103 s.
+1000 games per main configuration (half that for variants). Echo-following AI players. Run time 112 s.
 
 ## 1. Player counts (Standard Lantern, Open Crossing)
 
 | Players | Win rate | Loss split Faded / Shattered / Deluge | Turns (mean) | Turns per Reach I/II/III | Tracks half-full (of 3) | Near-miss wins | Backlash per Reach |
 |---|---|---|---|---|---|---|---|
-| 1 | **58%** | 20% / 46% / 35% | 15.8 | 6.6 / 6.6 / 2.6 | 1.82 | 24% | 1.24 / 1.39 / 0.37 |
-| 2 | **61%** | 17% / 58% / 24% | 15.9 | 7.3 / 6.2 / 2.4 | 1.96 | 37% | 0.53 / 0.36 / 0.08 |
-| 3 | **58%** | 16% / 49% / 35% | 16.7 | 7.5 / 6.7 / 2.5 | 2.08 | 38% | 0.6 / 0.41 / 0.09 |
-| 4 | **61%** | 21% / 49% / 31% | 17.2 | 7.4 / 7.0 / 2.8 | 2.08 | 35% | 0.27 / 0.26 / 0.05 |
+| 1 | **59%** | 13% / 30% / 57% | 15.1 | 6.6 / 6.1 / 2.5 | 1.75 | 34% | 1.22 / 1.22 / 0.33 |
+| 2 | **57%** | 19% / 43% / 38% | 15.1 | 6.9 / 5.7 / 2.5 | 1.94 | 40% | 0.57 / 0.3 / 0.11 |
+| 3 | **60%** | 32% / 27% / 40% | 15.0 | 6.5 / 6.0 / 2.5 | 1.92 | 37% | 0.57 / 0.31 / 0.12 |
+| 4 | **61%** | 44% / 16% / 40% | 14.6 | 6.0 / 6.2 / 2.5 | 1.86 | 44% | 0.28 / 0.17 / 0.05 |
 
 ## 2. Before and after tuning (GDD v0.4 as written)
 
 | Players | As written: win | As written: loss split F/S/D | As written: turns | Tuned: win | Tuned: loss split | Tuned: turns |
 |---|---|---|---|---|---|---|
-| 1 | 48% | 82% / 18% / 0% | 11.9 | 58% | 20% / 46% / 35% | 15.8 |
-| 2 | 81% | 85% / 15% / 0% | 11.3 | 61% | 17% / 58% / 24% | 15.9 |
-| 3 | 69% | 85% / 15% / 0% | 12.7 | 58% | 16% / 49% / 35% | 16.7 |
-| 4 | 53% | 75% / 25% / 0% | 14.1 | 61% | 21% / 49% / 31% | 17.2 |
+| 1 | 43% | 87% / 13% / 0% | 11.9 | 59% | 13% / 30% / 57% | 15.1 |
+| 2 | 78% | 87% / 13% / 0% | 11.6 | 57% | 19% / 43% / 38% | 15.1 |
+| 3 | 66% | 87% / 13% / 0% | 13.0 | 60% | 32% / 27% / 40% | 15.0 |
+| 4 | 48% | 77% / 23% / 0% | 14.0 | 61% | 44% / 16% / 40% | 14.6 |
 
 ## 3. Souls (3 players, Standard Lantern)
 
 | Soul | Win rate | Loss split F/S/D | Turns | Endings reached (among wins) |
 |---|---|---|---|---|
-| king | 45% | 37% / 36% / 27% | 16.5 | inscribed/low 28%, inscribed/high 27%, unspoken/high 14%, unspoken/low 13%, forgotten/high 11%, forgotten/low 8% |
-| garland | 51% | 31% / 46% / 23% | 16.6 | inscribed/high 28%, inscribed/low 26%, forgotten/high 14%, unspoken/low 13%, unspoken/high 12%, forgotten/low 6% |
-| bride | 37% | 31% / 32% / 36% | 18.7 | inscribed/high 29%, unspoken/high 22%, inscribed/low 20%, unspoken/low 18%, forgotten/high 8%, forgotten/low 3% |
-| child | 81% | 34% / 44% / 22% | 15.2 | unspoken/low 24%, inscribed/low 23%, unspoken/high 22%, inscribed/high 21%, forgotten/high 7%, forgotten/low 3% |
+| king | 40% | 49% / 22% / 29% | 15.0 | inscribed/high 24%, inscribed/low 23%, forgotten/high 17%, unspoken/low 13%, unspoken/high 13%, forgotten/low 11% |
+| garland | 46% | 49% / 26% / 24% | 14.4 | inscribed/high 28%, unspoken/high 23%, inscribed/low 20%, unspoken/low 13%, forgotten/high 11%, forgotten/low 6% |
+| bride | 37% | 46% / 17% / 37% | 15.8 | inscribed/high 23%, unspoken/high 22%, inscribed/low 20%, forgotten/high 14%, unspoken/low 13%, forgotten/low 7% |
+| child | 73% | 41% / 20% / 38% | 14.1 | unspoken/high 23%, inscribed/high 20%, unspoken/low 20%, inscribed/low 17%, forgotten/high 14%, forgotten/low 7% |
 
-Same Souls at the **Gentle Lantern**: king 60%, garland 69%, bride 52%
+Same Souls at the **Gentle Lantern**: king 55%, garland 57%, bride 48%
 
 
 ## 4. Lantern difficulty (3 players)
 
 | Lantern | Win rate | Loss split F/S/D | Turns |
 |---|---|---|---|
-| Gentle | 68% | 9% / 66% / 26% | 16.4 |
-| Standard | 59% | 16% / 46% / 38% | 16.7 |
-| Hard | 38% | 10% / 21% / 70% | 14.4 |
-| Heroic | 23% | 5% / 13% / 82% | 12.5 |
+| Gentle | 77% | 36% / 36% / 28% | 15.1 |
+| Standard | 58% | 31% / 27% / 41% | 15.0 |
+| Hard | 47% | 25% / 18% / 58% | 13.8 |
+| Heroic | 30% | 14% / 10% / 76% | 12.7 |
 
 ## 5. The Book of Remembrance (3 players)
 
 | | Win rate | Inscriptions | Full pages | Turns |
 |---|---|---|---|---|
-| Book used | 58% | 4.1 | 0.09 | 16.7 |
-| Book ignored | 54% | 0 | 0 | 17.1 |
+| Book used | 60% | 3.5 | 0.08 | 15.0 |
+| Book ignored | 51% | 0 | 0 | 15.3 |
 
-Book impact: **+4 points** (target +5 to +10).
+Book impact: **+8 points** (target +5 to +10).
 
 ## 6. Other signals (3 players)
 
-- **resonance rate**: 0.33
-- **burns**: 1.92
-- **lingers**: 6.99
+- **resonance rate**: 0.32
+- **burns**: 2.84
+- **lingers**: 5.57
 - **summons**: 2.99
-- **oblivion played**: 3.17
-- **keepsakes**: 5.52
-- **final forgotten**: 7.01
+- **oblivion played**: 2.73
+- **keepsakes**: 5.50
+- **final forgotten**: 7.46

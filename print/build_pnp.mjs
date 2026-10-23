@@ -129,6 +129,20 @@ function tileSheet() {
     <div class="kgrid">${tok("nb-tok-oar", "船槳", 1)}${tok("nb-tok-push", "破浪", 4)}${tok("nb-tok-hold", "堅守", 1)}${tok("nb-tok-shield", "護盾", 1)}${tok("nb-tok-resign", "認命", 1)}</div></section>`;
 }
 
+// The Ledger: the forgotten track (each Lantern's limit marked ✕), the Fracture wells and the Black Water well.
+function ledgerSheet() {
+  const limits = Object.entries(LANTERN).map(([l, [, lim]]) => [lim, ZH_LANTERNS[l]]);
+  const cells = Array.from({ length: Math.max(...limits.map(x => x[0])) }, (_, i) => {
+    const n = i + 1, at = limits.filter(x => x[0] === n).map(x => x[1]);
+    return `<div class="lcell${at.length ? " lose" : ""}"><b>${n}</b>${at.length ? `<small>✕ ${at.join("・")}消散</small>` : ""}</div>`;
+  }).join("");
+  return `<section class="sheet ledger"><h2>渡帳</h2>
+    <p class="lead">被遺忘的牌依序正面朝上放在編號軌上；最新那張上方的數字就是被遺忘的張數。到達你燈籠的✕即消散（落敗）。</p>
+    <div class="ltrack">${cells}</div>
+    <div class="lwells"><div><h3>裂痕</h3>${[1, 2, 3].map(n => `<span class="well">${icon("nb-fracture")}<small>${n === 3 ? "第3道：破碎" : n}</small></span>`).join("")}</div>
+    <div><h3>黑水供應區</h3><span class="well big">${icon("nb-blackwater")}<small>放入燈籠規定數量的黑水；空了又必須放置黑水即滅頂</small></span></div></div></section>`;
+}
+
 function lanternCard() {
   return `<section class="sheet aidsheet"><h2>燈籠（難度）</h2><table class="lt"><thead><tr><th>燈籠</th><th>黑水供應</th><th>消散門檻</th><th>每河段凶霧數</th></tr></thead><tbody>${
     Object.entries(LANTERN).map(([l, [bw, lim, h]]) => `<tr><td>${lanternIcon(l)} ${ZH_LANTERNS[l]}</td><td>${bw}</td><td>遺忘${lim}張</td><td>${h}</td></tr>`).join("")}</tbody></table>
@@ -139,7 +153,7 @@ function lanternCard() {
 function contents() {
   const n = { memory: CORE_IDS.length + ECHO_IDS.length + Object.values(SOUL_PACKS).flat().length, mist: MIST.flat().length + MIST_EXTRA.length * MIST.length + HARSH.length };
   return `<section class="sheet cover"><svg class="ic hero" aria-hidden="true"><use href="#nb-bloom"/></svg>
-    <h1>Netherbloom<span>《彼岸花渡》</span></h1><p class="tag">無聲合作遊戲 · 1–4人 · 正體中文 印刷試玩版（Print &amp; Play）</p>
+    <h1>Netherbloom<span>《彼岸花渡》</span></h1><p class="tag">合作遊戲 · 1–4人 · 正體中文 印刷試玩版（Print &amp; Play）</p>
     <table class="lt"><thead><tr><th>配件</th><th>數量</th><th>頁</th></tr></thead><tbody>
       <tr><td>記憶牌（基本牌庫32、迴響牌8、亡魂專屬牌4×8）</td><td>${n.memory}</td><td>卡牌</td></tr>
       <tr><td>迷霧牌（每河段${MIST[0].length + MIST_EXTRA.length}張）＋凶霧牌</td><td>${MIST.flat().length + MIST_EXTRA.length * MIST.length}＋${HARSH.length}</td><td>卡牌</td></tr>
@@ -149,6 +163,7 @@ function contents() {
       <tr><td>河岸板塊（沃土、石地、記憶之地、墳墓）與霧</td><td>${TILES.reduce((a, [, l]) => a + l.length, 0)}</td><td>板塊</td></tr>
       <tr><td>標記：根、花、怨念、黑水、裂痕、光、結、迴響、亡魂</td><td>—</td><td>標記</td></tr>
       <tr><td>行動標記：船槳1、破浪4、堅守1、護盾1、認命1</td><td>8</td><td>標記</td></tr>
+      <tr><td>渡帳（遺忘軌、裂痕、黑水供應區）</td><td>1</td><td>渡帳</td></tr>
       <tr><td>燈籠表與玩家輔助卡</td><td>1</td><td>輔助</td></tr>
       <tr><td>憶念之書・記錄表</td><td>每局1張</td><td>記錄表</td></tr>
     </tbody></table>
@@ -226,6 +241,8 @@ h2 { font-size: 12pt; border-bottom: .3mm solid #b9a27a; padding-bottom: 1mm; } 
 .aid-print ol.steps { margin: 0; padding-left: 5mm; } .aid-print ol.steps li span { display: block; color: #6b5a44; font-size: 7.5pt; }
 .aid-print .aidgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5mm; break-inside: avoid; } .aid-print .aidgrid div { border: .25mm solid #c9b48a; border-radius: 1.5mm; padding: 1.2mm; }
 .aid-print .aidgrid span { display: block; font-size: 7.5pt; color: #6b5a44; } .aid-print .c-obs { color: #a32a30; } .aid-print .c-acc { color: #9a7a3a; } .aid-print .c-obl { color: #2f7f8e; }
+.ledger .ltrack { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; margin: 4mm 0; } .ledger .lcell { height: 40mm; border: .3mm dashed #8a7a62; border-radius: 2mm; padding: 1.5mm; } .ledger .lcell b { font-size: 14pt; } .ledger .lcell.lose { border: .5mm solid #a32a30; } .ledger .lcell small { display: block; color: #a32a30; font-size: 7pt; }
+.ledger .lwells { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; } .ledger .well { display: inline-flex; flex-direction: column; align-items: center; width: 22mm; margin-right: 3mm; border: .3mm solid #8a7a62; border-radius: 50%; padding: 4mm 1mm; } .ledger .well.big { width: 60mm; border-radius: 4mm; } .ledger .well small { font-size: 7pt; text-align: center; } .ledger .well .ic { width: 8mm; height: 8mm; }
 .aid-print .aidicons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1mm; } .aid-print p { margin: 0 0 2mm; }
 </style></head><body>${symbols}
 ${contents()}
@@ -234,6 +251,7 @@ ${sheets("迷霧牌", mist, "mist")}
 ${sheets("幽靈牌（單人模式）", GHOST.map(ghostCard), "ghost")}
 ${sheets("稱號牌與亡魂牌", [...Object.keys(MANTLES).map(mantleCard), ...Object.keys(ZH_SOULS).map(soulCard)], "mantle")}
 ${tileSheet()}
+${ledgerSheet()}
 ${lanternCard()}
 ${bookSheet()}
 </body></html>`;

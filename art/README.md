@@ -9,7 +9,7 @@ Lossless PNG exports of every painting at full resolution, which is the size Can
 | File | Size (px) | Canva page | Used for |
 |---|---|---|---|
 | `cover-f.png` | 1264 × 1264 | 2 | Box lid (Cover F · The Crossing); box sides A and C |
-| `soul-child.png`, `soul-garland.png`, `soul-king.png`, `soul-bride.png`, `soul-nameless.png` | 1088 × 1456 | 3–7 | Soul cards; Book covers; box side B and bottom |
+| `soul-child.png`, `soul-garland.png`, `soul-king.png`, `soul-bride.png`, `soul-nameless.png` | 1088 × 1456 | 3–7 | Book covers; box side B and bottom (Soul card faces are text only since 2026-10) |
 | `back-memory.png` | 1024 × 1536 | 8 | Memory card back (official) |
 | `back-mist.png`, `back-ghost.png`, `back-soul.png` | 1024 × 1536 | 9–11 | Mist, Ghost and Soul card backs |
 | `tex-water.png`, `tex-bank.png` | 1776 × 896 | 12–13 | River board water and banks (seen from above); box side B and D; inside the lid and the base |
@@ -18,11 +18,11 @@ Lossless PNG exports of every painting at full resolution, which is the size Can
 | `king-field.png`, `king-barge.png`, `king-lake.png` | 1088 × 1456 | 20–22 | The King's Book, Reach I–III |
 | `bride-wedding.png`, `bride-stair.png`, `bride-shore.png` | 1088 × 1456 | 23–25 | The Bride's Book, Reach I–III |
 | `nameless-road.png`, `nameless-mourners.png`, `nameless-lethe.png` | 1088 × 1456 | 26–28 | Open Crossing's Book, Reach I–III |
-| `card-obsession.png`, `card-acceptance.png`, `card-oblivion.png` | 1456 × 1092 | 29–31 | Art window of the core and Echo Memory cards, by thread (Soul-pack cards use their Soul's Book paintings) |
-| `card-mist-1.png`, `card-mist-2.png`, `card-mist-3.png`, `card-harsh.png` | 1456 × 1092 | 32–35 | Mist cards of Reach I, II, III and the Harsh Mist |
-| `card-ghost.png` | 1456 × 1092 | 36 | Ghost cards (solo) |
-| `card-mantle-weaver.png`, `card-mantle-warden.png`, `card-mantle-bringer.png`, `card-mantle-breaker.png` | 1456 × 1092 | 37–40 | The four Mantle cards |
-| `card-bank-fertile.png`, `card-bank-stony.png`, `card-bank-memory.png`, `card-bank-grave.png` | 1088 × 1456 | 41–44 | Bank cards (seen from above) |
+| `card-obsession.png`, `card-acceptance.png`, `card-oblivion.png` | 1456 × 1092 | 29–31 | Not printed: card faces have no paintings since 2026-10 (playtest feedback). Kept as masters |
+| `card-mist-1.png`, `card-mist-2.png`, `card-mist-3.png`, `card-harsh.png` | 1456 × 1092 | 32–35 | Not printed: card faces have no paintings since 2026-10. Kept as masters |
+| `card-ghost.png` | 1456 × 1092 | 36 | Not printed: card faces have no paintings since 2026-10. Kept as masters |
+| `card-mantle-weaver.png`, `card-mantle-warden.png`, `card-mantle-bringer.png`, `card-mantle-breaker.png` | 1456 × 1092 | 37–40 | Not printed: card faces have no paintings since 2026-10. Kept as masters |
+| `card-bank-fertile.png`, `card-bank-stony.png`, `card-bank-memory.png`, `card-bank-grave.png` | 1088 × 1456 | 41–44 | Not printed: card faces have no paintings since 2026-10. Kept as masters |
 | `card-fog.png` | 1088 × 1456 | 45 | Bank card back, the fog side |
 | `life-widow.png`, `life-physician.png`, `life-apprentice.png`, `life-lantern.png`, `life-soldier.png`, `life-player.png`, `life-merchant.png`, `life-gardener.png` | 1088 × 1456 | 46–53 | Parked: the eight Lives of the Nameless Souls module (Life cards and their Key Memories) |
 | `card-keepsake.png`, `card-wound.png` | 1456 × 1092 | 54–55 | Parked: Keepsake cards; Wound cards |
