@@ -9,7 +9,7 @@ import { T } from "../../web/public/assets/cardface.js";
 
 const SW = 297, SH = 210;
 export const TILE = 40;
-const PITCH = 46, COLS = 5, CUT_BLEED = 1.5, FS = 3.8;
+const PITCH = 46, COLS = 5, CUT_BLEED = 2, FS = 3.8;
 const X0 = (SW - (COLS - 1) * PITCH - TILE) / 2, Y0 = (SH - 3 * PITCH - TILE) / 2;
 const ART = ["card-bank-fertile", "card-bank-stony", "card-bank-memory", "card-bank-grave"];
 const ICON = ["nb-fertile", "nb-stony", "nb-memorysite", "nb-grave"], ICOL = ["#c9c1b2", C.mist, C.bone, C.cyan];
