@@ -29,7 +29,7 @@ body { margin: 0; font-family: ${FACE[lang].serif}; color: ${C.ink}; font-size: 
 .cover .ai { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 50%; }
 .cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(7,6,10,.82) 0%, rgba(7,6,10,0) 34%, rgba(7,6,10,0) 70%, rgba(7,6,10,.85) 100%); }
 .cover .t { position: absolute; z-index: 1; left: 0; right: 0; top: 20mm; text-align: center; color: ${C.paper}; }
-.cover .t b { display: block; font-family: ${lang === "zh" ? `"Noto Serif TC", serif` : `"IM Fell English SC", Georgia, serif`}; font-weight: ${lang === "zh" ? 600 : 400}; font-size: ${lang === "zh" ? 40 : 48}pt; line-height: 1.05; text-shadow: 0 0 8mm rgba(215,38,61,.55); }
+.cover .t b { display: block; font-family: ${lang === "zh" ? `"Noto Serif TC", serif` : `"IM Fell English SC", Georgia, serif`}; font-weight: ${lang === "zh" ? 600 : 400}; font-size: ${lang === "zh" ? 40 : 48}pt; line-height: 1.05; color: ${C.paper}; }
 .cover .t span { display: block; font-family: "IM Fell English SC", Georgia, serif; font-size: 12pt; letter-spacing: .4em; color: ${C.bone}; margin-top: 3mm; }
 .cover .t i { display: block; font-style: normal; font-family: ${FACE[lang].display}; font-size: 20pt; letter-spacing: .3em; margin-top: 8mm; color: ${C.bone}; }
 .cover .f { position: absolute; z-index: 1; bottom: 14mm; left: 0; right: 0; text-align: center; font-family: "Alegreya Sans", "Noto Serif TC", sans-serif; font-size: 8pt; letter-spacing: .3em; text-transform: uppercase; color: #b9b1a4; }
@@ -67,7 +67,7 @@ const forPaper = html => html.replace(/#E6D3A3/gi, "#8a6a3e").replace(/#8FD6E1/g
 // The pictures keep their dark plates on paper; a figure is not split across pages.
 const FIG_PRINT = `.rfig { break-inside: avoid; margin: 3mm 0 4mm; } .rfig-in figcaption, .rf-panel > span { color: #5c4a3a; font-size: 8.6pt; }
 .nbface img.ai { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-.rf-card .nbface { box-shadow: none; } .rf-cards { gap: 2.5mm; } .rf-panels { gap: 3mm; }`;
+.rf-card .nbface { box-shadow: none; } .rf-anat { padding-left: 9mm; } .rf-cards { gap: 2.5mm; } .rf-panels { gap: 3mm; }`;
 
 const pageCount = file => (readFileSync(file).toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
 
