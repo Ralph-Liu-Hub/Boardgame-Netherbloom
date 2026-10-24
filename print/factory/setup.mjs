@@ -19,7 +19,7 @@ const W = {
     l: {
       1: ["River board", `Three panels, joined edge to edge: Reach I on the left (the near shore, space 0) to Reach III on the right (the Far Shore, space 12).`],
       2: ["Bank tiles", `${TILES.map(t => t[1].length).join(" / ")} tiles for Reaches I / II / III. Shuffle each Reach's tiles apart and lay them fog side up in the square wells of spaces 2–4, 5–8 and 9–11.`],
-      3: ["First Blooms and the soul", "A Bloom on both banks of space 1, so the first step is Lit. The chosen Soul\u2019s standee starts on the near shore, space 0."],
+      3: ["First Blooms and the soul", "A Bloom on both banks of space 1, so the first step is Lit. The soul token starts on the near shore, space 0."],
       4: ["Soul card and Lantern", "The chosen Soul card, face up. Fractures go on the Ledger: the third shatters the soul. The Child starts with 3 Light, the Bride with 1. The Lantern is the difficulty you choose (section 10); it has no piece."],
       5: ["Memory deck", `${CORE_IDS.length} core cards and the Soul's own 8 (the 8 Echo cards for the Open Crossing), shuffled, face down. Discard pile face up; the forgotten pile goes on the Ledger.`],
       6: ["Mist decks", `One per Reach, face down in the Mist well where that Reach begins: its ${MIST[0].length} Mist cards, Rising Water and Shade Drawn Near, and harsh Mist cards by Lantern (${harsh}).`],
@@ -39,7 +39,7 @@ const W = {
     l: {
       1: ["河流圖板", "三塊圖板邊對邊拼接：第一河段在左（此岸，第0格），第三河段在右（彼岸，第12格）。"],
       2: ["河岸板塊", `第一／二／三河段各${TILES.map(t => t[1].length).join("／")}塊。將各河段的板塊分開洗混，霧面朝上放置到第2–4、5–8、9–11格的方槽中。`],
-      3: ["最初的花與亡魂", "在第1格的兩個河岸各放置1朵花，讓第一步就是照亮的。將所選亡魂的立牌放置到此岸（第0格）。"],
+      3: ["最初的花與亡魂", "在第1格的兩個河岸各放置1朵花，讓第一步就是照亮的。將亡魂標記放置到此岸（第0格）。"],
       4: ["亡魂牌與燈籠", "所選亡魂牌面朝上。裂痕放在渡帳上：第三道裂痕會讓亡魂破碎。孩子起始擁有3點光，新娘起始擁有1點光。燈籠是你們選擇的難度（第10節），沒有配件。"],
       5: ["記憶牌庫", `${CORE_IDS.length}張基本記憶牌加上亡魂的8張專屬牌（無名渡河用8張迴響牌），洗混後面朝下。棄牌堆面朝上；遺忘堆放在渡帳上。`],
       6: ["迷霧牌庫", `每個河段一副，面朝下放置到該河段起點的迷霧牌槽：該河段的${MIST[0].length}張迷霧牌、「${ZH_MIST["Rising Water"][0]}」與「${ZH_MIST["Shade Drawn Near"][0]}」，以及依燈籠加入的凶霧（${harsh}）。`],
@@ -98,7 +98,7 @@ function spread(lang) {
     <clipPath id="ss-book"><rect x="298" y="31" width="48" height="42"/></clipPath>${img("child-road", 298, 31, 48, 42, 'clip-path="url(#ss-book)" opacity=".85"')}
     ${[0, 1].map(r => [0, 1].map(k => `<rect x="${356 + k * 24}" y="${31 + r * 22}" width="18" height="19" rx=".8" fill="none" stroke="#8a6a3e" stroke-dasharray="1 .8" stroke-width=".3"/>`).join("")).join("")}</g>`;
   // 1-3, 6 the river board, drawn to scale from its own geometry: three panels, each with its Mist deck in its well, square
-  // bank wells holding fog-side tiles (Blooms on space 1), and the Soul standee on the near shore
+  // bank wells holding fog-side tiles (Blooms on space 1), and the soul token on the near shore
   const BX = 14, BY = 97, BWd = 392, bk = BWd / (3 * BPW), BHt = BPH * bk, X = sp => BX + G.spaceX(sp) * bk, RY = BY + G.RY * bk, TS = G.SW * bk;
   s += `<rect x="${BX - 1}" y="${BY - 1}" width="${BWd + 2}" height="${BHt + 2}" rx="1.5" fill="#0b0a0d"/>
     <clipPath id="ss-board"><rect x="${BX}" y="${BY}" width="${BWd}" height="${BHt}" rx="1"/></clipPath>
@@ -117,9 +117,7 @@ function spread(lang) {
     else { const id = `sw${sp}${y0}`; s += `<clipPath id="${id}"><rect x="${x + .5}" y="${y + .5}" width="${TS - 1}" height="${TS - 1}" rx="1"/></clipPath>${img("card-fog", x + .5, y + .5, TS - 1, TS - 1, `clip-path="url(#${id})" opacity=".85"`)}`; }
   }
   for (let sp = 1; sp <= 11; sp++) s += `<text x="${X(sp)}" y="${RY + 1.6}" text-anchor="middle" class="ssp">${sp}</text>`;
-  s += `<path d="M${X(0) - 4.6} ${RY + 6} L${X(0)} ${RY + 8.4} L${X(0) + 4.6} ${RY + 6}" fill="none" stroke="#000" stroke-width=".8" opacity=".5"/>
-    <clipPath id="ss-soul"><rect x="${X(0) - 4}" y="${RY - 8}" width="8" height="13" rx=".6"/></clipPath>${img("soul-child", X(0) - 4, RY - 8, 8, 13, 'clip-path="url(#ss-soul)"')}
-    <rect x="${X(0) - 4}" y="${RY - 8}" width="8" height="13" rx=".6" fill="none" stroke="${C.bone}" stroke-width=".35"/>
+  s += `<circle cx="${X(0)}" cy="${RY}" r="6" fill="${C.ink}" stroke="${C.bone}" stroke-width=".5"/>${use("nb-soul", X(0), RY, 8, "#EFE7D6")}
     ${use("nb-light", X(12), RY, 9, C.bone)}${cap(X(0), BY + 8, c.near)}${cap(X(12), BY + 8, c.far)}
     ${[0, 1, 2].map(r => cap(BX + BWd * r / 3 + 4, BY - 2.5, c.reach(r), "start")).join("")}`;
   // 7 the Loom of the Fates board (scaled), a few knots, the Echo token beside it
@@ -156,6 +154,7 @@ export const SPREAD_CSS = lang => `
 @page spread { margin: 0; @bottom-center { content: none; } }
 .spread { page: spread; position: relative; width: ${GUT + 2 * B}mm; height: ${SH + 2 * B}mm; overflow: hidden; break-after: page; background: ${C.ink}; }
 .spread svg.ss { position: absolute; inset: 0; width: 100%; height: 100%; }
+.spread .spn { position: absolute; left: 0; right: 0; bottom: ${B + 8}mm; text-align: center; font-family: ${lang === "zh" ? `"Noto Serif TC", serif` : `"IM Fell English", Georgia, serif`}; font-size: 10.5pt; color: #cfc4b0; }
 .ss .sc { font-family: ${lang === "zh" ? `"Noto Serif TC", serif` : `"IBM Plex Mono", monospace`}; font-size: ${lang === "zh" ? 2.5 : 2.1}px; letter-spacing: ${lang === "zh" ? .05 : .12}px; fill: #cfc4b0; text-transform: uppercase; }
 .ss .sq { font-family: "IBM Plex Mono", monospace; font-size: 2.6px; fill: ${C.bone}; }
 .ss .sn { font-family: "IBM Plex Mono", monospace; font-weight: 500; font-size: 3.6px; fill: #fff; }
@@ -180,6 +179,8 @@ export function setupSpread(lang) {
     const [name, text] = L.l[n];
     return `<div class="lb" style="left:${x - x0 + B}mm;top:${y + B}mm;width:${w}mm"><i>${n}</i><b>${esc(name)}</b>${esc(text)}</div>`;
   }).join("");
-  return `<section class="spread">${svg(0)}<div class="hd"><b>${L.title}</b><span>${esc(L.sub)}</span></div>${labels(0)}</section>
-    <section class="spread">${svg(GUT)}${labels(GUT)}</section>`;
+  // the spread is pages 2 and 3 of the rulebook: they carry their page numbers like every other page
+  const pn = n => `<div class="spn">${n}</div>`;
+  return `<section class="spread">${svg(0)}<div class="hd"><b>${L.title}</b><span>${esc(L.sub)}</span></div>${labels(0)}${pn(2)}</section>
+    <section class="spread">${svg(GUT)}${labels(GUT)}${pn(3)}</section>`;
 }

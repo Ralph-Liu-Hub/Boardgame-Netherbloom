@@ -8,7 +8,7 @@ const TERMS = {
   en: [
     [/\bPush Through tokens?\b/, "nb-tok-push", CRIMSON], [/\bHold Fast token\b/, "nb-tok-hold", CYAN],
     [/\bShield token\b/, "nb-tok-shield", BONE], [/\bResignation token\b/, "nb-tok-resign", BONE],
-    [/\b[Ss]oul's standee\b|\bSoul standee\b/, "nb-soul", "#EFE7D6"], [/\bOar\b/, "nb-tok-oar", BONE],
+    [/\bsoul token\b/, "nb-soul", "#EFE7D6"], [/\bOar\b/, "nb-tok-oar", BONE],
     [/\bBook of Remembrance\b/, "nb-seal", BONE], [/\bKey Memory\b/, "nb-seal", CRIMSON],
     [/\bBlack Water\b/, "nb-blackwater", MIST], [/\bShades?\b/, "nb-grievance", CYAN],
     [/\bFractures?\b/, "nb-fracture", CRIMSON], [/\bBlooms?\b(?!-)/, "nb-bloom", CRIMSON],
@@ -20,7 +20,7 @@ const TERMS = {
   ],
   zh: [
     [/破浪標記/, "nb-tok-push", CRIMSON], [/堅守標記/, "nb-tok-hold", CYAN], [/護盾標記/, "nb-tok-shield", BONE],
-    [/認命標記/, "nb-tok-resign", BONE], [/亡魂立牌/, "nb-soul", "#EFE7D6"], [/船槳/, "nb-tok-oar", BONE],
+    [/認命標記/, "nb-tok-resign", BONE], [/亡魂標記/, "nb-soul", "#EFE7D6"], [/船槳/, "nb-tok-oar", BONE],
     [/憶念之書/, "nb-seal", BONE], [/關鍵記憶/, "nb-seal", CRIMSON],
     [/黑水/, "nb-blackwater", MIST], [/怨念/, "nb-grievance", CYAN], [/裂痕/, "nb-fracture", CRIMSON],
     [/(?<![彼引])花(?![面環費葉瓣莖])/, "nb-bloom", CRIMSON], [/(?<![織扎])根(?![網面據])/, "nb-root", BONE],

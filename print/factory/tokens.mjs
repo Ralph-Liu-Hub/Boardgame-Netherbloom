@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { BLEED, C, doc, render } from "./lib.mjs";
 
 const SW = 297, SH = 210;
-export const BIG = 25, SMALL = 18, CUT_BLEED = 1.5;   // disc diameters; art runs 1.5 mm past the cut
+export const BIG = 25, SMALL = 18, CUT_BLEED = 2;   // disc diameters; art runs 2 mm past the cut (printers ask for at least 1.5 mm)
 // [front icon, front colour, back icon, back colour, count, diameter]. Root and Bloom are one double-sided disc:
 // a Bloom withers to a Root and a Root blooms by flipping it, and the river never holds more than 24 (two banks x 12 spaces).
 export const TOKENS = [
@@ -13,6 +13,7 @@ export const TOKENS = [
   ["nb-tok-hold", C.cyan, "nb-tok-hold", C.cyan, 1, BIG],
   ["nb-tok-shield", C.bone, "nb-tok-shield", C.bone, 1, BIG],
   ["nb-tok-resign", C.bone, "nb-tok-resign", C.bone, 1, BIG],
+  ["nb-soul", "#EFE7D6", "nb-soul", C.cyan, 1, BIG],              // back: the Ghost, for solo play
   ["nb-root", C.bone, "nb-bloom", C.crimson, 24, SMALL],
   ["nb-grievance", C.cyan, "nb-grievance", C.cyan, 8, SMALL],
   ["nb-blackwater", C.mist, "nb-blackwater", C.mist, 6, SMALL],
@@ -60,7 +61,7 @@ function sheet(side) {
     else if (side === "back") o += disc(x, cy, d, t[2], t[3], t[0] === "nb-tok-push");
     else o += `<circle cx="${x}" cy="${cy}" r="${d / 2}" fill="none" stroke="#ec008c" stroke-width=".25"/>`;
   }
-  if (side === "die") o += `<text x="4" y="${SH - 4}" font-family="IBM Plex Mono, monospace" font-size="3" fill="#ec008c">DIE LINE · cut circles · ${BIG} mm and ${SMALL} mm discs · trim (blue) 297 × 210 mm · art bleeds 1.5 mm past every cut</text>`;
+  if (side === "die") o += `<text x="4" y="${SH - 4}" font-family="IBM Plex Mono, monospace" font-size="3" fill="#ec008c">DIE LINE · cut circles · ${BIG} mm and ${SMALL} mm discs · trim (blue) 297 × 210 mm · art bleeds ${CUT_BLEED} mm past every cut</text>`;
   return o + "</svg>";
 }
 

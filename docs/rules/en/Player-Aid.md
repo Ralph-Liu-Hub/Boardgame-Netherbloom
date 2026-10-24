@@ -18,7 +18,7 @@ Talk freely about plans and the table, and say which threads you hold ("2 Obsess
 
 ### Setup
 
-1.  **River**: join the 3 panels (Reach I left, III right). Shuffle each Reach's bank tiles separately and lay them fog side up in its square wells (spaces 2–4, 5–8, 9–11). A Bloom on both banks of space 1; the Soul's standee on space 0.
+1.  **River**: join the 3 panels (Reach I left, III right). Shuffle each Reach's bank tiles separately and lay them fog side up in its square wells (spaces 2–4, 5–8, 9–11). A Bloom on both banks of space 1; the soul token on space 0.
 2.  **Soul and Lantern**: choose both. The Soul card's special rule applies all game. Starting Light: the Child 3, the Bride 1, others 0.
 3.  **Lantern**: Gentle: 6 Black Water, Faded at 11, 0 harsh Mist per Reach; Standard: 5 Black Water, Faded at 10, 2 harsh Mist per Reach; Hard: 4 Black Water, Faded at 9, 3 harsh Mist per Reach; Heroic: 3 Black Water, Faded at 8, 3 harsh Mist per Reach.
 4.  **Memory deck**: the 32 core cards plus the Soul's 8 (the 8 Echo cards for the Open Crossing), shuffled face down. Leave room for a face-up discard pile.
