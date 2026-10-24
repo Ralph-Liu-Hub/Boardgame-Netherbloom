@@ -1,7 +1,7 @@
 // The river board: three panels of 266 x 182 mm (about JIS B5, smaller than A4; 3 mm bleed), one per Reach, joined edge to edge.
 // Painted banks and still water seen from above. Every bank of spaces 1-11 has a 42 mm square well for a 40 mm bank tile, and
 // each panel has a 66 x 91 mm well for its Reach's Mist deck where the Reach begins. Each river space is a ring of ripples with
-// a halo where the Soul standee stands. All printed words are at least 3.7 mm (10.5 pt) high.
+// a halo where the soul token stands. All printed words are at least 3.7 mm (10.5 pt) high.
 import { join } from "node:path";
 import { BLEED, C, doc, art, render } from "./lib.mjs";
 import { ZH_REACHES } from "../../web/public/assets/zh.js";

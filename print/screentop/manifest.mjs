@@ -40,7 +40,7 @@ const discs = [];
   }
 }
 const TOKEN_NAMES = { "nb-tok-oar": "Oar", "nb-tok-push": "Push Through", "nb-tok-hold": "Hold Fast", "nb-tok-shield": "Shield", "nb-tok-resign": "Resignation",
-  "nb-root": "Root / Bloom", "nb-grievance": "Shade", "nb-blackwater": "Black Water", "nb-fracture": "Fracture", "nb-light": "Light", "nb-knot": "Knot", "nb-echo": "Echo" };
+  "nb-soul": "Soul / Ghost", "nb-root": "Root / Bloom", "nb-grievance": "Shade", "nb-blackwater": "Black Water", "nb-fracture": "Fracture", "nb-light": "Light", "nb-knot": "Knot", "nb-echo": "Echo" };
 const seen = new Set(), tokenTypes = [];
 for (const disc of discs) if (!seen.has(disc.t[0])) { seen.add(disc.t[0]); tokenTypes.push({ id: disc.t[0], name: TOKEN_NAMES[disc.t[0]], count: disc.t[4], d: disc.d, cx: disc.cx, cy: disc.cy, twoSided: disc.t[0] !== disc.t[2] || disc.t[1] !== disc.t[3] }); }
 

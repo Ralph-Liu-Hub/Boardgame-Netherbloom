@@ -13,6 +13,7 @@ export const TOKENS = [
   ["nb-tok-hold", C.cyan, "nb-tok-hold", C.cyan, 1, BIG],
   ["nb-tok-shield", C.bone, "nb-tok-shield", C.bone, 1, BIG],
   ["nb-tok-resign", C.bone, "nb-tok-resign", C.bone, 1, BIG],
+  ["nb-soul", "#EFE7D6", "nb-soul", C.cyan, 1, BIG],              // back: the Ghost, for solo play
   ["nb-root", C.bone, "nb-bloom", C.crimson, 24, SMALL],
   ["nb-grievance", C.cyan, "nb-grievance", C.cyan, 8, SMALL],
   ["nb-blackwater", C.mist, "nb-blackwater", C.mist, 6, SMALL],

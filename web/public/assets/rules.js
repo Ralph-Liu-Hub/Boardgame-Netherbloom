@@ -95,7 +95,7 @@ const BOOK = [
     <p class="story">One more thing: a soul's memories are not yours to tell. The Ferrymen may speak with one another on the water, but never of the memories they carry: only of the river, and of which threads of a life they hold in their hands.</p>
     <h4>The goal</h4>
     <p>Netherbloom is a co-operative game for 1 to 4 players and lasts about 15 turns. One soul starts on the near shore (space 0). All players win or lose together.</p>
-    <p><b>You win</b> when the soul's standee reaches the Far Shore (space 12). The soul only moves onto spaces with a Bloom, so you place Roots ahead of it and turn them into Blooms. Along the way, some cards can be inscribed in the Book of Remembrance (section 9); the Book does not decide whether you win, but it decides how the story ends.</p>
+    <p><b>You win</b> when the soul token reaches the Far Shore (space 12). The soul only moves onto spaces with a Bloom, so you place Roots ahead of it and turn them into Blooms. Along the way, some cards can be inscribed in the Book of Remembrance (section 9); the Book does not decide whether you win, but it decides how the story ends.</p>
     <p><b>You lose</b> at once if any of these happens:</p>
     <ul>
       <li><b>Faded</b>: the forgotten pile reaches the Lantern's limit (section 10).</li>
@@ -113,7 +113,7 @@ const BOOK = [
     <ol class="steps setuplist">
       <li><b>The river board.</b> Join the three panels in order: Reach I on the left (with the near shore) and Reach III on the right (ending at the Far Shore). Each panel has a Mist deck well where its Reach begins and a square well on each bank for a bank tile.</li>
       <li><b>Bank tiles.</b> Sort the bank tiles by the Reach number on their fog side: ${TILES.map(t => t[1].length).join(", ")} tiles for Reaches I, II and III. Shuffle each Reach's tiles separately and place them fog side up in the square wells of spaces 2–4, 5–8 and 9–11. Do not look at the other side.</li>
-      <li><b>The first Blooms and the soul.</b> Space 1 has no bank tiles: put a disc Bloom side up on both of its banks. Fold the chosen Soul's standee (the first time only) and stand it on the near shore (space 0).</li>
+      <li><b>The first Blooms and the soul.</b> Space 1 has no bank tiles: put a disc Bloom side up on both of its banks. Put the soul token on the near shore (space 0).</li>
       <li><b>The Soul and the Lantern.</b> Choose a Soul and a Lantern (section 10). Put the Soul card face up next to the board. The Child of the Last Flame starts with <b>3 Light</b> and the Bride Who Stayed Below with <b>1 Light</b>; every other Soul starts with 0.</li>
       <li><b>The Memory deck.</b> Shuffle the 32 core Memory cards with the Soul's 8-card pack (the 8 Echo cards for the Open Crossing) and put the deck face down. Leave room next to it for the <b>discard pile</b> (face up).</li>
       <li><b>The Mist decks.</b> Build one deck for each Reach: its ${MIST[0].length} basic Mist cards, plus one <i>Rising Water</i> and one <i>Shade Drawn Near</i>, plus the Lantern's number of harsh Mist cards chosen at random (none at Gentle). Shuffle each deck and put it face down in the Mist well where its Reach begins.</li>
@@ -288,7 +288,7 @@ const BOOK = [
   { id: "pieces", title: "Appendix A. Components and symbols", keys: "components pieces symbols icons meaning legend board tokens what is", body: `
     <p>Each component, what it represents in the story, and what it does in the game.</p>
     <table class="rtable rpieces"><thead><tr><th>Component</th><th>In the story</th><th>In the game</th></tr></thead><tbody>
-      ${piece("nb-soul", "#EFE7D6", "Soul standee", "A coinless dead person, waking on the near shore with a whole life still inside them.", "Moves from space 0 to space 12, only onto Lit spaces without Black Water.")}
+      ${piece("nb-soul", "#EFE7D6", "Soul token", "A coinless dead person, waking on the near shore with a whole life still inside them.", "Moves from space 0 to space 12, only onto Lit spaces without Black Water.")}
       ${piece("nb-light", "#E6D3A3", "The Far Shore", "Where the veiled Keeper waits with the cup of forgetting.", "Space 12. When the soul reaches it, you win.")}
       ${piece("nb-fog", "#9A948C", "Bank tile, fog side", "The mist that hides the bank.", "Covers a bank until a Root is placed there (section 5).")}
       ${piece("nb-fertile", "#6d665e", "Fertile", "Soft riverbank earth.", "A Root is placed.")}
@@ -331,8 +331,7 @@ const BOOK = [
       <tr><td>Root/Bloom discs</td><td>24</td></tr>
       <tr><td>Shades / Black Water / Fractures</td><td>8 / 6 / 3</td></tr>
       <tr><td>Light / knots</td><td>12 / 15</td></tr>
-      <tr><td>Soul standees (fold-up)</td><td>5, one for each Soul</td></tr>
-      <tr><td>Echo / Oar</td><td>1 each</td></tr>
+      <tr><td>Echo, Oar, soul (Ghost on the back)</td><td>1 each</td></tr>
       <tr><td>Push Through / Hold Fast / Shield / Resignation tokens</td><td>4 / 1 / 1 / 1</td></tr>
     </tbody></table>
     <p><b>Cards that track their own use.</b> Turn the Spirit Warden card sideways when it is used, and straighten it at the start of its holder's turn. Turn a Soul card sideways when its once-only rule has been used. In solo play, flip a Mantle you give up face down.</p>` },
@@ -398,7 +397,7 @@ export function playerAid(cfg) {
     <p>Talk freely about plans and the table, and say which threads you hold ("2 Obsession, 1 Oblivion"). Never show your hand or say a card's name, effect, Resonance or memory.</p>
     <h3>Setup</h3>
     <ol class="steps">
-      <li><b>River</b>: join the 3 panels (Reach I left, III right). Shuffle each Reach's bank tiles separately and lay them fog side up in its square wells (spaces 2–4, 5–8, 9–11). A Bloom on both banks of space 1; the Soul's standee on space 0.</li>
+      <li><b>River</b>: join the 3 panels (Reach I left, III right). Shuffle each Reach's bank tiles separately and lay them fog side up in its square wells (spaces 2–4, 5–8, 9–11). A Bloom on both banks of space 1; the soul token on space 0.</li>
       <li><b>Soul and Lantern</b>: choose both. The Soul card's special rule applies all game. Starting Light: the Child 3, the Bride 1, others 0.</li>
       <li><b>Lantern</b>: ${Object.entries(LANTERN).map(([l, [bw, fl, h]]) => `${LANTERN_NAMES[l]}: ${bw} Black Water, Faded at ${fl}, ${h} harsh Mist per Reach`).join("; ")}.</li>
       <li><b>Memory deck</b>: the 32 core cards plus the Soul's 8 (the 8 Echo cards for the Open Crossing), shuffled face down. Leave room for a face-up discard pile.</li>

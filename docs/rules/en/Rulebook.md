@@ -32,7 +32,7 @@ One more thing: a soul's memories are not yours to tell. The Ferrymen may speak 
 
 Netherbloom is a co-operative game for 1 to 4 players and lasts about 15 turns. One soul starts on the near shore (space 0). All players win or lose together.
 
-**You win** when the soul's standee reaches the Far Shore (space 12). The soul only moves onto spaces with a Bloom, so you place Roots ahead of it and turn them into Blooms. Along the way, some cards can be inscribed in the Book of Remembrance (section 9); the Book does not decide whether you win, but it decides how the story ends.
+**You win** when the soul token reaches the Far Shore (space 12). The soul only moves onto spaces with a Bloom, so you place Roots ahead of it and turn them into Blooms. Along the way, some cards can be inscribed in the Book of Remembrance (section 9); the Book does not decide whether you win, but it decides how the story ends.
 
 **You lose** at once if any of these happens:
 
@@ -58,7 +58,7 @@ The picture shows the table set up for the Child of the Last Flame. Its numbers 
 
 1.  **The river board.** Join the three panels in order: Reach I on the left (with the near shore) and Reach III on the right (ending at the Far Shore). Each panel has a Mist deck well where its Reach begins and a square well on each bank for a bank tile.
 2.  **Bank tiles.** Sort the bank tiles by the Reach number on their fog side: 6, 8, 6 tiles for Reaches I, II and III. Shuffle each Reach's tiles separately and place them fog side up in the square wells of spaces 2–4, 5–8 and 9–11. Do not look at the other side.
-3.  **The first Blooms and the soul.** Space 1 has no bank tiles: put a disc Bloom side up on both of its banks. Fold the chosen Soul's standee (the first time only) and stand it on the near shore (space 0).
+3.  **The first Blooms and the soul.** Space 1 has no bank tiles: put a disc Bloom side up on both of its banks. Put the soul token on the near shore (space 0).
 4.  **The Soul and the Lantern.** Choose a Soul and a Lantern (section 10). Put the Soul card face up next to the board. The Child of the Last Flame starts with **3 Light** and the Bride Who Stayed Below with **1 Light**; every other Soul starts with 0.
 5.  **The Memory deck.** Shuffle the 32 core Memory cards with the Soul's 8-card pack (the 8 Echo cards for the Open Crossing) and put the deck face down. Leave room next to it for the **discard pile** (face up).
 6.  **The Mist decks.** Build one deck for each Reach: its 10 basic Mist cards, plus one *Rising Water* and one *Shade Drawn Near*, plus the Lantern's number of harsh Mist cards chosen at random (none at Gentle). Shuffle each deck and put it face down in the Mist well where its Reach begins.
@@ -343,7 +343,7 @@ Each component, what it represents in the story, and what it does in the game.
 
 | Component               | In the story                                                                          | In the game                                                                                                     |
 |-------------------------|---------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| **Soul standee**        | A coinless dead person, waking on the near shore with a whole life still inside them. | Moves from space 0 to space 12, only onto Lit spaces without Black Water.                                       |
+| **Soul token**          | A coinless dead person, waking on the near shore with a whole life still inside them. | Moves from space 0 to space 12, only onto Lit spaces without Black Water.                                       |
 | **The Far Shore**       | Where the veiled Keeper waits with the cup of forgetting.                             | Space 12. When the soul reaches it, you win.                                                                    |
 | **Bank tile, fog side** | The mist that hides the bank.                                                         | Covers a bank until a Root is placed there (section 5).                                                         |
 | **Fertile**             | Soft riverbank earth.                                                                 | A Root is placed.                                                                                               |
@@ -388,8 +388,7 @@ Each component, what it represents in the story, and what it does in the game.
 | Root/Bloom discs                                       | 24                                                                                            |
 | Shades / Black Water / Fractures                       | 8 / 6 / 3                                                                                     |
 | Light / knots                                          | 12 / 15                                                                                       |
-| Soul standees (fold-up)                                | 5, one for each Soul                                                                          |
-| Echo / Oar                                             | 1 each                                                                                        |
+| Echo, Oar, soul (Ghost on the back)                    | 1 each                                                                                        |
 | Push Through / Hold Fast / Shield / Resignation tokens | 4 / 1 / 1 / 1                                                                                 |
 
 **Cards that track their own use.** Turn the Spirit Warden card sideways when it is used, and straighten it at the start of its holder's turn. Turn a Soul card sideways when its once-only rule has been used. In solo play, flip a Mantle you give up face down.

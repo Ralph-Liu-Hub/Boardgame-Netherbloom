@@ -20,12 +20,11 @@ Output goes to `print/out/factory/<en|zh-TW>/`. **Send the factory `MANUAL.pdf`*
 | Mantle cards | 4 | 63 × 88 mm | `cards/cards-mantle.pdf`, back `back-mantle` |
 | Soul cards | 5 | 63 × 88 mm | `cards/cards-soul.pdf`, back `back-soul` |
 | Bank tiles (6 / 8 / 6 for Reaches I / II / III), 2 mm greyboard | 20 | 40 × 40 mm | `tiles/bank-tiles.pdf`: front, back (the fog side, marked with its Reach; mirrored for duplex), die line |
-| Soul standees, fold-up, one per Soul | 5 | strip 32 × 136 mm, stands about 50 mm tall | `standees/soul-standees.pdf`: print (one side), die line with folds |
 | Card backs | 8 | 63 × 88 mm | `cards/card-backs.pdf` |
 | River board panels (one per Reach, joined edge to edge; a Mist deck well and 42 mm tile wells on each) | 3 | 266 × 182 mm (smaller than A4) | `board/river-board.pdf` |
 | Loom of the Fates board: three threads with five 22 mm knot circles each (a thread snaps at 4 knots with 2–3 players, 5 solo or with 4), an Echo ring and its Backlash | 1 | A4 landscape, 297 × 210 mm | `loom/loom-of-the-fates.pdf` (page 2 is the trim line) |
 | The Ledger board: the forgotten track (numbered, with each Lantern's ✕), three Fracture wells and the Black Water well | 1 | A4 landscape, 297 × 210 mm | `ledger/the-ledger.pdf` (page 2 is the trim line) |
-| Punchboard: 8 large discs (25 mm) and 69 small (18 mm) | 1 sheet | 297 × 210 mm | `tokens/punchboard.pdf`: front, back (mirrored for duplex), die line |
+| Punchboard: 9 large discs (25 mm) and 69 small (18 mm) | 1 sheet | 297 × 210 mm | `tokens/punchboard.pdf`: front, back (mirrored for duplex), die line |
 | Books of Remembrance, one per Soul, 8 pages saddle-stitched: cover, the Soul's tale, what the Ferrymen know and how to keep the Book, three Reach pages, the Far Shore, back | 5 | A4 | `books/book-of-remembrance-<soul>.pdf`; 48 clear self-adhesive photo corners per Book go on the printed corner marks of pages 4–6 |
 | Rulebook, saddle-stitched | 1 | A4 | `rulebook/rulebook.pdf`: pages 2–3 are the Setting up spread, the whole table with every component numbered and labelled; padded with Notes pages to a multiple of 4 |
 | Player Aid: the whole game in short, so a table can play from it alone (4 pages in English, 5 in Chinese) | 1 per player (4) | A5 | `rulebook/player-aid.pdf` |
@@ -38,10 +37,9 @@ Card PDFs have one card per page, fronts only, in deck order; each deck uses the
 ## Choices worth checking with the factory
 
 - **Box size.** 300 × 300 × 75 mm is assumed. If the factory's stock size differs, change `LID`, `BASE` and `TURN` at the top of `box.mjs` and rebuild; the art is laid out from those numbers. They will usually supply their own dieline: place the wrap art on it.
-- **Tokens.** The print-and-play counts are kept, but Root and Bloom are one double-sided disc (a Root blooms and a Bloom withers by flipping it; the river never holds more than 24). Push Through's back is its spent side. Wooden pieces can replace any of the small discs.
+- **Tokens.** The print-and-play counts are kept, but Root and Bloom are one double-sided disc (a Root blooms and a Bloom withers by flipping it; the river never holds more than 24). Push Through's back is its spent side, and the Soul's back is the Ghost for solo play. Wooden pieces can replace any of the small discs.
 - **Photo corners.** The Book's card wells hold an inscribed card by four clear self-adhesive photo corners per well, stuck on the printed corner marks. Die-cut slits are not used: in the saddle stitch page 4 is printed on the back of page 3, so slits for its wells would cut through page 3.
 - **Bank tiles** are 40 mm squares in 42 mm wells on the river board, fog side up, turned over when a Root is placed. Each panel also holds its Reach's Mist deck in a 66 × 91 mm well where the Reach begins.
-- **The soul is a fold-up standee**, not a disc: cut, fold three times and glue the tab inside the front face.
 - **All card and board text is at least 10.5 pt** (14 px).
 
 ## Art rules the build enforces
