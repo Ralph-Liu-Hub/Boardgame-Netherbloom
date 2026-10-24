@@ -20,7 +20,7 @@ const M = BLEED + 18;   // text margin from the bleed edge
 
 const CSS = (lang, w, h, m) => `
 @page { size: ${w}mm ${h}mm; background: #efe5cf; margin: ${m}mm ${m}mm ${m + 4}mm;
-  @bottom-center { content: counter(page); font-family: "IBM Plex Mono", monospace; font-size: 7pt; color: #8a6a3e; } }
+  @bottom-center { content: counter(page); font-family: ${FACE[lang].serif}; font-size: 10.5pt; color: #5c4a3a; } }
 @page :first { margin: 0; @bottom-center { content: none; } }
 html { background: #efe5cf; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 body { margin: 0; font-family: ${FACE[lang].serif}; color: ${C.ink}; font-size: ${lang === "zh" ? 10 : 10.5}pt; line-height: ${lang === "zh" ? 1.75 : 1.5}; }

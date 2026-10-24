@@ -154,6 +154,7 @@ export const SPREAD_CSS = lang => `
 @page spread { margin: 0; @bottom-center { content: none; } }
 .spread { page: spread; position: relative; width: ${GUT + 2 * B}mm; height: ${SH + 2 * B}mm; overflow: hidden; break-after: page; background: ${C.ink}; }
 .spread svg.ss { position: absolute; inset: 0; width: 100%; height: 100%; }
+.spread .spn { position: absolute; left: 0; right: 0; bottom: ${B + 8}mm; text-align: center; font-family: ${lang === "zh" ? `"Noto Serif TC", serif` : `"IM Fell English", Georgia, serif`}; font-size: 10.5pt; color: #cfc4b0; }
 .ss .sc { font-family: ${lang === "zh" ? `"Noto Serif TC", serif` : `"IBM Plex Mono", monospace`}; font-size: ${lang === "zh" ? 2.5 : 2.1}px; letter-spacing: ${lang === "zh" ? .05 : .12}px; fill: #cfc4b0; text-transform: uppercase; }
 .ss .sq { font-family: "IBM Plex Mono", monospace; font-size: 2.6px; fill: ${C.bone}; }
 .ss .sn { font-family: "IBM Plex Mono", monospace; font-weight: 500; font-size: 3.6px; fill: #fff; }
@@ -178,6 +179,8 @@ export function setupSpread(lang) {
     const [name, text] = L.l[n];
     return `<div class="lb" style="left:${x - x0 + B}mm;top:${y + B}mm;width:${w}mm"><i>${n}</i><b>${esc(name)}</b>${esc(text)}</div>`;
   }).join("");
-  return `<section class="spread">${svg(0)}<div class="hd"><b>${L.title}</b><span>${esc(L.sub)}</span></div>${labels(0)}</section>
-    <section class="spread">${svg(GUT)}${labels(GUT)}</section>`;
+  // the spread is pages 2 and 3 of the rulebook: they carry their page numbers like every other page
+  const pn = n => `<div class="spn">${n}</div>`;
+  return `<section class="spread">${svg(0)}<div class="hd"><b>${L.title}</b><span>${esc(L.sub)}</span></div>${labels(0)}${pn(2)}</section>
+    <section class="spread">${svg(GUT)}${labels(GUT)}${pn(3)}</section>`;
 }

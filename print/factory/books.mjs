@@ -65,6 +65,7 @@ p { font-family: var(--f-serif); font-size: 11pt; line-height: 1.55; margin: 0 0
 .well b { font-family: var(--f-mono); font-weight: 400; font-size: 9pt; letter-spacing: .3em; text-transform: uppercase; }
 .well i { font-family: var(--f-hand); font-size: 10.5pt; color: #9a8466; }
 .corner { position: absolute; width: 9mm; height: 9mm; background: linear-gradient(135deg, #8a6a3e 50%, transparent 50%); opacity: .85; }
+.pnum { position: absolute; left: 0; right: 0; bottom: ${BLEED + 11.5}mm; text-align: center; font-family: var(--f-serif); font-size: 10.5pt; color: #5c4a3a; }
 .foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-family: var(--f-mono); font-size: 8pt; color: #8a6a3e; letter-spacing: .1em; }
 .pairs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5mm; margin-top: 4mm; font-size: 10.5pt; line-height: 1.25; color: #3c2f22; }
 .pairs > div { display: grid; grid-template-columns: 5.5mm 1fr; align-items: start; }
@@ -93,7 +94,7 @@ svg.die { position: absolute; inset: 0; width: 100%; height: 100%; }
 `;
 
 const page = (inner, ghost = null, pos = "50% 40%") => `<div class="paper">${ghost && ghostArt(ghost) ? `<div class="ghost"><img src="${ghostArt(ghost)}" style="object-position:${pos}" alt=""></div>` : ""}<div class="gilt"></div><div class="body">${inner}</div></div>`;
-const folio = (n, w, k) => `<div class="foot"><span>${esc(w.soul(k).name)}</span><span>${n}</span></div>`;
+const folio = (n, w, k) => `<div class="foot"><span>${esc(w.soul(k).name)}</span></div>`;
 
 // Split a frame sentence into its four lead-ins, each ending where its slot begins.
 function leads(frame) {
@@ -134,7 +135,7 @@ function soulBook(lang, k) {
     const pairs = PAIR_SLOTS.map(([a, b], i) => `<div><span class="box"></span><b>${w.slot(a)}${w.plus}${w.slot(b)}</b><span>${esc(w.ops(PAIR_REWARDS[r][i]))}</span></div>`).join("");
     pages.push(page(`<div class="eyebrow">${w.reach(r)}</div><h2>${esc(title)}</h2><div class="wells">${wells}</div>
       <div class="pairs">${pairs}</div>
-      <div class="foot" style="margin-top:4mm"><span><span class="box"></span>${w.blessing}</span><span>${w.keepsakes} <span class="box"></span><span class="box"></span><span class="box"></span></span><span>${4 + r}</span></div>`, PAINT[k][r]));
+      <div class="foot" style="margin-top:4mm"><span><span class="box"></span>${w.blessing}</span><span>${w.keepsakes} <span class="box"></span><span class="box"></span><span class="box"></span></span></div>`, PAINT[k][r]));
   });
   const end = paras(bookPart(w.book, 1));
   pages.push(page(`<div class="eyebrow">${w.far}</div><h2>${w.far}</h2><p class="lore">${esc(w.endLore)}</p>
@@ -142,7 +143,8 @@ function soulBook(lang, k) {
     <p style="margin-top:6mm">${end[end.length - 1]}</p>
     <div class="sign">${w.sign.map(t => `<span>${t}</span>`).join("")}</div>${folio(7, w, k)}`, PAINT[k][2], "50% 60%"));
   pages.push(`<div class="dark">${icon("nb-bloom", C.crimson)}<div class="t">NETHERBLOOM</div>${lang === "zh" ? `<div style="font-family:'Noto Serif TC',serif;letter-spacing:.3em">《彼岸花渡》</div>` : ""}<small>RALPH LAUXIE</small></div>`);
-  return pages.map((html, i) => ({ name: `book-${k}-${String(i + 1).padStart(2, "0")}`, html }));
+  // page numbers, bottom centre, on every page but the two covers
+  return pages.map((html, i) => ({ name: `book-${k}-${String(i + 1).padStart(2, "0")}`, html: i > 0 && i < pages.length - 1 ? html + `<div class="pnum">${i + 1}</div>` : html }));
 }
 
 export async function build(lang, dir, { png }) {
