@@ -80,12 +80,12 @@ const CSS = `
 .sf > .ai { z-index: 0; }
 .sf::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 8cqw rgba(0,0,0,.7); }
 .sf > :where(:not(.ai)) { position: relative; z-index: 1; }
-.ttl { color: ${C.paper}; text-shadow: 0 0 3cqw rgba(215,38,61,.6), 0 .4mm 0 #000; line-height: 1.05; }
-.by { font-family: "IM Fell English SC", Georgia, serif; color: ${C.bone}; letter-spacing: .32em; text-shadow: 0 .3mm 2mm #000; }
+.ttl { color: ${C.paper}; line-height: 1.05; }
+.by { font-family: "IM Fell English SC", Georgia, serif; color: ${C.bone}; letter-spacing: .32em; }
 .ic.s7 { width: 7cqw; height: 7cqw; } .ic.s44 { width: 4.4cqw; height: 4.4cqw; }
-.top::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(7,6,10,.7) 0%, rgba(7,6,10,0) 28%, rgba(7,6,10,0) 80%, rgba(7,6,10,.55) 100%); }
+.top::before { content: none; }
 .top .tblock { position: absolute; z-index: 2; top: 4%; left: 50%; transform: translateX(-50%); white-space: nowrap; }
-.top .tfoot { position: absolute; z-index: 2; bottom: 2.6%; right: 3.4%; font-family: var(--f-body); font-size: 1.7cqw; letter-spacing: .3em; text-transform: uppercase; color: #b9b1a4; text-shadow: 0 .3mm 1mm #000; }
+.top .tfoot { position: absolute; z-index: 2; bottom: 2.6%; right: 3.4%; font-family: var(--f-body); font-size: 1.7cqw; letter-spacing: .3em; text-transform: uppercase; color: #b9b1a4; }
 .sa { background: #000; } .sa > .ai { opacity: .55; }
 .sa .mid { height: 100%; display: flex; align-items: center; justify-content: center; gap: 4cqw; }
 .sb { background: #000; } .sb > .ai { opacity: .7; }
@@ -97,25 +97,25 @@ const CSS = `
 .sb .cam { position: relative; width: 8.6cqw; height: 11.6cqw; border-radius: 50%; overflow: hidden; border: .3cqw solid ${C.gilt}; box-shadow: 0 0 0 .25cqw #050407; }
 .sb figcaption { font-family: var(--f-serif); font-style: italic; font-size: 1.35cqw; color: ${C.bone}; white-space: nowrap; }
 .sc { background: #000; } .sc > .ai { opacity: .6; }
-.sc::before { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(90deg, rgba(7,6,10,.85) 0%, rgba(7,6,10,.5) 50%, rgba(7,6,10,0) 80%); }
+.sc::before { content: none; }
 .sc .zhb { position: absolute; left: 6cqw; top: 50%; transform: translateY(-50%); }
-.sc .zh { font-family: "Noto Serif TC", serif; font-weight: 600; font-size: 8cqw; letter-spacing: .18em; color: ${C.paper}; text-shadow: 0 0 3cqw rgba(215,38,61,.6), 0 .4mm 0 #000; }
+.sc .zh { font-family: "Noto Serif TC", serif; font-weight: 600; font-size: 8cqw; letter-spacing: .18em; color: ${C.paper}; }
 .sc .zhen { font-family: "IM Fell English SC", Georgia, serif; font-size: 1.8cqw; letter-spacing: .4em; color: ${C.bone}; margin-top: .6cqw; padding-left: .4cqw; }
 .sd { background: #000; } .sd > .ai { opacity: .42; }
 .sd { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 4cqw; gap: 3cqw; }
-.sd .lore { font-family: var(--f-serif); font-style: italic; font-size: 2.1cqw; color: ${C.bone}; line-height: 1.35; max-width: 22cqw; text-shadow: 0 .3mm 1mm #000; }
+.sd .lore { font-family: var(--f-serif); font-style: italic; font-size: 2.1cqw; color: ${C.bone}; line-height: 1.35; max-width: 22cqw; }
 .sd .facts { display: flex; gap: 3.4cqw; }
 .sd .facts span { display: grid; justify-items: center; gap: .5cqw; font-family: var(--f-mono); font-size: 1.15cqw; letter-spacing: .2em; text-transform: uppercase; color: ${C.mist}; }
 .sd .facts b { font-family: "IM Fell English SC", Georgia, serif; font-weight: 400; font-size: 3.2cqw; letter-spacing: 0; color: ${C.paper}; }
 .sd .ttl.sm { justify-self: end; text-align: right; font-size: 4.2cqw; }
-.sd .ttl small { display: block; font-size: 1.3cqw; letter-spacing: .32em; color: ${C.bone}; text-shadow: none; margin-top: .5cqw; }
+.sd .ttl small { display: block; font-size: 1.3cqw; letter-spacing: .32em; color: ${C.bone}; margin-top: .5cqw; }
 .ilid .rings { position: absolute; inset: 0; width: 100%; height: 100%; }
-.ilid .ilore { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; font-family: var(--f-serif); font-style: italic; font-size: 5.2cqw; color: ${C.bone}; line-height: 1.3; padding: 0 10cqw; text-shadow: 0 0 4cqw #000, 0 .3mm 1mm #000; }
+.ilid .ilore { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; font-family: var(--f-serif); font-style: italic; font-size: 5.2cqw; color: ${C.bone}; line-height: 1.3; padding: 0 10cqw; }
 .ilid .ilore small { display: block; margin-top: 3cqw; font-size: 3.4cqw; color: ${C.mist}; }
 .ibase { background: #000; } .ibase > .ai { opacity: .55; }
-.ibase .glow { position: absolute; inset: 0; background: radial-gradient(circle at 50% 46%, rgba(215,38,61,.38), rgba(215,38,61,0) 32%); }
-.ibase .bloom { position: absolute; left: 42cqw; top: 36cqw; width: 16cqw; height: 16cqw; filter: drop-shadow(0 0 2cqw rgba(215,38,61,.8)); }
-.ibase .taken { position: absolute; bottom: 14cqw; left: 0; right: 0; text-align: center; font-family: var(--f-hand); font-style: italic; font-size: 4.4cqw; color: ${C.bone}; text-shadow: 0 .3mm 1mm #000; }
+.ibase .glow { display: none; }
+.ibase .bloom { position: absolute; left: 42cqw; top: 36cqw; width: 16cqw; height: 16cqw;  }
+.ibase .taken { position: absolute; bottom: 14cqw; left: 0; right: 0; text-align: center; font-family: var(--f-hand); font-style: italic; font-size: 4.4cqw; color: ${C.bone}; }
 .base-side { position: absolute; background: ${C.ink}; display: flex; align-items: center; justify-content: center; gap: 6mm; color: ${C.gilt}; font-family: "IM Fell English SC", Georgia, serif; font-size: 9pt; letter-spacing: .5em; }
 .base-side .ic { width: 7mm; height: 7mm; }
 /* the box back, at its 820 px design size */
@@ -123,7 +123,7 @@ const CSS = `
   background: radial-gradient(ellipse at 55% 55%, #2a1e17, #120d0b 70%); display: grid; grid-template-rows: auto auto 1fr auto; padding: 40px 44px 28px; gap: 14px; box-sizing: border-box; }
 .bb .table { position: absolute; inset: 0; z-index: 0; perspective: 1400px; perspective-origin: 50% 0%; overflow: hidden;
   background: repeating-linear-gradient(92deg, rgba(0,0,0,.18) 0 2px, transparent 2px 9px), radial-gradient(ellipse at 55% 60%, #3a281c, #160f0b 75%); }
-.bb .plane { position: absolute; left: 50%; top: 45%; width: 1140px; height: 640px; transform: translate(-50%, -50%) scale(.74) rotateX(46deg) rotateZ(-5deg); transform-style: preserve-3d; }
+.bb .plane { position: absolute; left: 50%; top: 49%; width: 1140px; height: 640px; transform: translate(-50%, -50%) scale(.64) rotateX(46deg) rotateZ(-5deg); transform-style: preserve-3d; }
 .bb .board { position: absolute; left: 60px; top: 250px; width: 1020px; display: grid; grid-template-columns: repeat(3, 1fr); box-shadow: 0 40px 60px rgba(0,0,0,.7); }
 .bb .board svg { width: 100%; height: auto; display: block; }
 .bb .deck { position: absolute; left: 90px; top: 40px; width: 110px; height: 154px; }
@@ -137,11 +137,11 @@ const CSS = `
 .bb .chips { position: absolute; left: 420px; top: 110px; display: flex; gap: 14px; }
 .bb .chip { width: 46px; height: 46px; border-radius: 50%; background: ${C.ink2}; border: 2px solid ${C.gilt}; display: grid; place-items: center; box-shadow: 0 6px 10px rgba(0,0,0,.6); }
 .bb .chip .ic { width: 28px; height: 28px; }
-.bb .shade { position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, rgba(12,9,8,.92) 0%, rgba(12,9,8,.6) 24%, rgba(12,9,8,0) 38%, rgba(12,9,8,0) 60%, rgba(12,9,8,.88) 76%); }
+.bb .shade { display: none; }
 .bb > *:not(.table):not(.shade) { position: relative; z-index: 1; }
 .bb .lede { font-family: var(--f-serif); font-style: italic; font-size: 30px; line-height: 1.25; color: ${C.bone}; }
-.bb .copy { font-size: 18.5px; line-height: 1.55; color: ${C.paper}; max-width: 40em; text-shadow: 0 1px 8px #000; }
-[lang="en"] .bb .copy { max-width: 40ch; }
+.bb .copy { font-size: 18.5px; line-height: 1.55; color: ${C.paper}; max-width: 40em; }
+[lang="en"] .bb .copy { max-width: 50ch; }
 .bb .souls { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; align-self: end; }
 .bb .sp { display: grid; gap: 5px; text-align: center; }
 .bb .pi { position: relative; width: 100%; aspect-ratio: 1; border: 1.5px solid ${C.bone}; border-radius: 6px; overflow: hidden; }
