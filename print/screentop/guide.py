@@ -73,7 +73,7 @@ Upload each file from the `assets` folder in **Assets → New asset**, with exac
 | Memory Cards | memory-cards.jpg | 8 | 10 | 72 Memory cards (1–72), card back (73) |
 | Mist Cards | mist-cards.jpg | 7 | 7 | 42 Mist cards (1–42), back (43) |
 | Ghost Cards | ghost-cards.jpg | 3 | 5 | 12 Ghost cards (1–12), back (13) |
-| Bank Cards | bank-cards.jpg | 4 | 6 | 20 bank cards (1–20), fog backs for Reach I, II, III (21–23) |
+| Bank Tiles | bank-tiles.jpg | 4 | 6 | 20 bank tiles (1–20), fog backs for Reach I, II, III (21–23) |
 | Soul and Mantle Cards | soul-mantle-cards.jpg | 3 | 4 | 5 Souls (1–5), Soul back (6), 4 Mantles (7–10), Mantle back (11) |
 | Tokens | tokens.png | 4 | 4 | {len(CELLS)} token faces (transparent corners) |
 | River Panel 1 | river-panel-1.jpg | 1 | 1 | Reach I |
@@ -108,7 +108,7 @@ One component, so harsh Mist cards can be shuffled into a Reach's deck.
 
 {names_fn([c["name"] for c in M["ghost"]], "Ghost Cards", "Ghost Cards", 13)}
 
-### 2d. Bank Card — 20 variants
+### 2d. Bank Tile — 20 variants
 Each card's back is its Reach's fog side.
 
 {fn(f'''const NAMES = {js_list([c["name"] for c in M["bank"]])};
@@ -117,9 +117,9 @@ const BACKS = {json.dumps(bank_backs)};
 export default function(variant, index) {{
   return {{
     name: NAMES[index - 1],
-    frontAsset: "Bank Cards",
+    frontAsset: "Bank Tiles",
     frontAssetIndex: index,
-    backAsset: "Bank Cards",
+    backAsset: "Bank Tiles",
     backAssetIndex: BACKS[index - 1],
   }};
 }}''')}
@@ -241,7 +241,7 @@ Now put everything out once, in its starting place. Screentop saves where object
 from this layout.
 
 1. In the main view, open the **Chest** (top right). For each component in turn (Memory Card, Mist Card,
-   Ghost Card, Bank Card, Soul Card, Mantle Card, Large Token, Small Token, River Panel, Loom, Ledger), pick it,
+   Ghost Card, Bank Tile, Soul Card, Mantle Card, Large Token, Small Token, River Panel, Loom, Ledger), pick it,
    click **Select All**, then **Create**. (The Hands already exist from step 6. Leave the Book Pages for step 7c.)
 2. Drag things into place. A simple layout that works:
 
@@ -257,7 +257,7 @@ from this layout.
    - **River panels**: side by side, I on the left, III on the right, so the river runs 1 to 12.
    - **Mist cards**: sort them into piles by the start of their name (`Reach I`, `Reach II`, `Reach III`,
      `Harsh`). Hover a card, or hold **Space** to inspect it, to see its name.
-   - **Bank cards**: sort into three piles by Reach the same way (fog side up: select and press **F** to flip).
+   - **Bank tiles**: sort into three piles by Reach the same way (fog side up: select and press **F** to flip).
    - **Tokens**: drag them into small piles by kind. Holding **right-click** while dragging stacks objects neatly.
 3. Select each board (River Panel, Loom, Ledger) and press **L** to lock it, so cards slide over it without
    moving it.
@@ -298,7 +298,7 @@ Follow section 2 of the Rulebook. On Screentop:
    turn it face down.
 2. **Mist decks**: each Reach pile gets the Lantern's number of Harsh cards, picked at random; then shuffle each
    pile with **Z**.
-3. **Bank cards**: shuffle each Reach's pile (**Z**) and deal them fog side up onto that Reach's banks.
+3. **Bank tiles**: shuffle each Reach's pile (**Z**) and deal them fog side up onto that Reach's banks.
 4. **Black Water**: put only the Lantern's number into the Ledger's Black Water well; move the rest to Surface 2.
 5. **Hands**: deal 3 cards into each player's Hand (4 in solo).
 

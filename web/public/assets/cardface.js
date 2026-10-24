@@ -49,13 +49,13 @@ function mistOpEn(op) {
 }
 function mistOpZh(op) {
   switch (op[0]) {
-    case "bw": return `在亡魂前方第${op[1]}格放置1個黑水（該格已淹沒則放在下一格）`;
+    case "bw": return `在亡魂前方第${op[1]}格放置1個黑水（若該格已有黑水，改放在下一格）`;
     case "grv": return `在亡魂前方第${op[1]}格的${op[2] ? "右岸" : "左岸"}放置1個怨念`;
-    case "grv_near": return "在亡魂所在格放置1個怨念（左岸優先；兩岸都有時，放在下一格的左岸）";
-    case "wither": return `亡魂前方最遠的${op[1]}朵花凋零為根`;
+    case "grv_near": return "在亡魂所在格放置1個怨念（優先放左岸；兩岸都已有怨念時，改放在下一格的左岸）";
+    case "wither": return `亡魂前方最遠的${op[1]}朵花凋零，翻回根面`;
     case "wither_far": return `亡魂前方第${op[1]}格以外的所有花凋零為根`;
     case "wither_at": return `亡魂前方第${op[1]}格的花凋零為根`;
-    case "fog": return `前方最遠的${op[1]}個已掀開且空著的河岸重新蓋上霧`;
+    case "fog": return `將亡魂前方最遠的${op[1]}塊已翻開的空河岸板塊翻回霧面`;
     case "forget": return `遺忘牌庫頂的${op[1]}張牌`;
     case "sever": return "將迴響從織機上移除";
     case "karma_all": return "每條絲線各打1個結";
@@ -66,7 +66,7 @@ function mistOpZh(op) {
 const GHOST_ACT = {
   en: { root_far: "Roots on the furthest open bank.", root_near: "Roots on the nearest open bank.", bloom_near: "Blooms the nearest Root.",
     bloom_far: "Blooms the furthest Root.", banish_forget: "Banishes the nearest Shade, or drains Black Water.", none: "Does nothing." },
-  zh: { root_far: "在最遠的空河岸扎根。", root_near: "在最近的空河岸扎根。", bloom_near: "使最近的根綻放。",
+  zh: { root_far: "在最遠的空河岸放置1個根。", root_near: "在最近的空河岸放置1個根。", bloom_near: "使最近的根綻放。",
     bloom_far: "使最遠的根綻放。", banish_forget: "驅散最近的怨念，或排乾黑水。", none: "不採取行動。" },
 };
 export const SOUL_ART = { open: "nameless", child: "child", garland: "garland", king: "king", bride: "bride" };

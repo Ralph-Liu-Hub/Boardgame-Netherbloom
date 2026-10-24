@@ -1746,9 +1746,9 @@ function drawPiles() {
   const pv = { ...now, f, ...pilesHeld, ...(stage ? { deck: stage.deck } : {}) };
   const stack = n => `--layers:${Math.min(6, Math.ceil(n / 4))}`;
   el.innerHTML = `
-    <div class="pile deck" id="pile-deck" title="${L("The deck, face down", "牌庫（背面朝上）")}">
+    <div class="pile deck" id="pile-deck" title="${L("The deck, face down", "牌庫（面朝下）")}">
       <span class="pst ${pv.deck ? "" : "none"}" style="${stack(pv.deck)}">${pv.deck ? miniBack() : ""}</span><span class="plbl">${L("Deck", "牌庫")} <b>${pv.deck}</b></span></div>
-    <button type="button" class="pile disc" id="pile-disc" data-list="disc" title="${L("The discard pile, face up: click to look through it", "棄牌堆（正面朝上）：點擊查看")}">
+    <button type="button" class="pile disc" id="pile-disc" data-list="disc" title="${L("The discard pile, face up: click to look through it", "棄牌堆（面朝上）：點擊查看")}">
       <span class="pst ${pv.disc ? "" : "none"}" style="${stack(pv.disc)}">${pv.disc ? miniFace(pv.top) : ""}</span><span class="plbl">${L("Discard", "棄牌堆")} <b>${pv.disc}</b></span></button>
     <button type="button" class="pile forg" id="pile-forg" data-list="forg" title="${L("Forgotten memories: click to look through them", "被遺忘的記憶：點擊查看")}">
       <span class="pst ${pv.f ? "" : "none"}" style="${stack(pv.f)}">${pv.f ? miniFace(pv.ft) : ""}</span><span class="plbl">${L("Forgotten", "遺忘")} <b>${pv.f}</b>/${S.cfg.forgottenLimit}</span></button>`;
@@ -2300,7 +2300,7 @@ function startOpening() {
   openStep(() => {
     const at = pilePoint("deck");
     setupCap(5, `The Memory deck: ${total} cards shuffled and laid face down. The discard and forgotten piles start empty.`,
-      `記憶牌庫：${total}張洗勻，背面朝上放好。棄牌堆與遺忘堆一開始是空的。`);
+      `記憶牌庫：${total}張洗混，面朝下放好。棄牌堆與遺忘堆一開始是空的。`);
     const ms = shuffleAt(at, "back-memory", { w: 46, h: 64 });
     setTimeout(() => { if (!stage) return; stage.deck = total; drawPiles(); shine($("pile-deck"), 1000); }, ms * fxSpeed);
     return ms + 700;
@@ -2311,7 +2311,7 @@ function startOpening() {
     let ms = 0;
     SETUP_SPACES.forEach(([a, b], r) => { ms = shuffleAt(boardPt((X(a) + X(b)) / 2, Y((a + b) / 2)), "back-mist", { n: 6, w: 44 * sc, h: 62 * sc, stay: 500 }); });
     const n = S.mist.map(d => d.length);
-    setupCap(6, `The Mist decks: one for each Reach (${n.join(", ")} cards), shuffled and laid beside it.`, `迷霧牌庫：每個河段一副（${n.join("、")}張），洗勻後放在河段旁。`);
+    setupCap(6, `The Mist decks: one for each Reach (${n.join(", ")} cards), shuffled and laid beside it.`, `迷霧牌庫：每個河段一副（${n.join("、")}張），洗混後放在河段旁。`);
     return ms + 900;
   });
   // 7–10. The Loom, the Mantles, the Book, the supply
@@ -2322,7 +2322,7 @@ function startOpening() {
   });
   openStep(() => {
     shine($("sb-mantles"), 1600);
-    setupCap(8, "The four Mantles, face up where everyone can reach them.", "四張稱號牌正面朝上，放在每個人都拿得到的地方。");
+    setupCap(8, "The four Mantles, face up where everyone can reach them.", "四張稱號牌面朝上，放在每個人都拿得到的地方。");
     return 1400;
   });
   openStep(() => {
@@ -2354,7 +2354,7 @@ function startOpening() {
   openStep(() => {
     shine($("tokstrip"), 1400);
     shine($("tray")?.querySelector(".oar"), 1400);
-    setupCap(11, players > 1 ? "A Push Through token for each Ferryman, face up." : "Your Push Through token, face up.", players > 1 ? "每位擺渡人一個破浪標記，正面朝上。" : "你的破浪標記，正面朝上。");
+    setupCap(11, players > 1 ? "A Push Through token for each Ferryman, face up." : "Your Push Through token, face up.", players > 1 ? "每位擺渡人一個破浪標記，面朝上。" : "你的破浪標記，面朝上。");
     return 1300;
   });
   openStep(() => {
@@ -2578,7 +2578,7 @@ function stepEvent(ev) {
       // The discard pile is face up: every card lands showing its face.
       const shown = ev.cid >= 0;
       fly(ev.from === "hand" ? handPoint() : boardPoint(), pilePoint("disc"), { cid: ev.cid, up0: shown && ev.from === "play", up1: shown, ms: 650, onland: done });
-      caption(shown ? L(`${cardName(ev.cid)} goes face up onto the discard pile.`, `「${cardName(ev.cid)}」正面朝上放入棄牌堆。`) : L("A card goes onto the discard pile.", "一張牌放入棄牌堆。"));
+      caption(shown ? L(`${cardName(ev.cid)} goes face up onto the discard pile.`, `「${cardName(ev.cid)}」面朝上放入棄牌堆。`) : L("A card goes onto the discard pile.", "一張牌放入棄牌堆。"));
       A.sfx("card");
       return 750;
     }

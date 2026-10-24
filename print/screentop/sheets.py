@@ -14,20 +14,20 @@ BLEED = 3.0
 CARD = (400, 560)  # 63 x 88 mm
 
 
-def trim(path, w_mm, h_mm):
+def trim(path, w_mm, h_mm, bleed=BLEED):
     """Cut the printer's bleed off a factory PNG."""
     im = Image.open(path).convert("RGB")
-    ppm = im.width / (w_mm + 2 * BLEED)
-    b = round(BLEED * ppm)
+    ppm = im.width / (w_mm + 2 * bleed)
+    b = round(bleed * ppm)
     return im.crop((b, b, im.width - b, im.height - b))
 
 
-def sheet(name, files, cols, rows, size=CARD, w_mm=63, h_mm=88):
+def sheet(name, files, cols, rows, size=CARD, w_mm=63, h_mm=88, bleed=BLEED):
     """A Screentop asset: cells of equal size, filled left to right, top to bottom (asset index 1, 2, ...)."""
     assert len(files) <= cols * rows, (name, len(files))
     out = Image.new("RGB", (cols * size[0], rows * size[1]), (14, 12, 17))
     for i, f in enumerate(files):
-        im = trim(SRC / f, w_mm, h_mm).resize(size, Image.LANCZOS)
+        im = trim(SRC / f, w_mm, h_mm, bleed).resize(size, Image.LANCZOS)
         out.paste(im, ((i % cols) * size[0], (i // cols) * size[1]))
     out.save(OUT / f"{name}.jpg", quality=86, optimize=True)
     print(f"{name}.jpg  {cols}x{rows}  {len(files)} images  {out.size}")
@@ -37,12 +37,13 @@ backs = "cards/card-backs_png/"
 sheet("memory-cards", [c["file"] for c in M["memory"]] + [backs + "back-memory.png"], 10, 8)
 sheet("mist-cards", [c["file"] for c in M["mist"]] + [backs + "back-mist.png"], 7, 7)
 sheet("ghost-cards", [c["file"] for c in M["ghost"]] + [backs + "back-ghost.png"], 5, 3)
-sheet("bank-cards", [c["file"] for c in M["bank"]] + [backs + f"back-bank-{r}.png" for r in (1, 2, 3)], 6, 4)
+# Bank tiles: 40 mm squares, already trimmed (one per page, no bleed).
+sheet("bank-tiles", [c["file"] for c in M["bank"]] + [f"tiles/bank-tile-singles_png/tile-back-{r}.png" for r in (1, 2, 3)], 6, 4, size=(320, 320), w_mm=40, h_mm=40, bleed=0)
 sheet("soul-mantle-cards", [c["file"] for c in M["souls"]] + [backs + "back-soul.png"] + [c["file"] for c in M["mantles"]] + [backs + "back-mantle.png"], 4, 3)
 
 # Boards: one image each, 4 pixels per millimetre.
-for name, f, w, h in [("river-panel-1", "board/river-board_png/river-panel-1.png", 420, 297), ("river-panel-2", "board/river-board_png/river-panel-2.png", 420, 297),
-                      ("river-panel-3", "board/river-board_png/river-panel-3.png", 420, 297), ("loom-of-the-fates", "loom/loom-of-the-fates_png/loom-of-the-fates.png", 297, 210),
+for name, f, w, h in [("river-panel-1", "board/river-board_png/river-panel-1.png", 266, 182), ("river-panel-2", "board/river-board_png/river-panel-2.png", 266, 182),
+                      ("river-panel-3", "board/river-board_png/river-panel-3.png", 266, 182), ("loom-of-the-fates", "loom/loom-of-the-fates_png/loom-of-the-fates.png", 297, 210),
                       ("the-ledger", "ledger/the-ledger_png/the-ledger.png", 297, 210)]:
     im = trim(SRC / f, w, h).resize((w * 4, h * 4), Image.LANCZOS)
     im.save(OUT / f"{name}.jpg", quality=86, optimize=True)

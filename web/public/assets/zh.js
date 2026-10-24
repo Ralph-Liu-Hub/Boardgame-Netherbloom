@@ -106,22 +106,22 @@ export function zhOpText(op) {
   switch (op[0]) {
     case "root": return `放置${op[1]}個根${op[2] ? "，即使在石地上也可以" : ""}`;
     case "bloom": return `使${op[1]}個根綻放`;
-    case "hold": return "本回合亡魂停留時不會遺忘";
+    case "hold": return "本回合若亡魂徘徊，不會遺忘任何牌";
     case "shield": return "在你的下個回合之前，防止下一道裂痕";
     case "mend": return `修補${op[1]}道裂痕`;
     case "release": return `在最滿的絲線上解開${op[1]}個結（若平手，由你選擇）`;
     case "guide": return "若下一格已被照亮，亡魂立即前進一格";
     case "vigil": return "查看迷霧牌庫頂的3張牌，再以任意順序放回牌庫頂";
-    case "banish_or_drain": return "移除1個（由你選擇）：最近的怨念，或最近的黑水";
+    case "banish_or_drain": return "選擇一項：驅散最近的怨念，或排乾最近的黑水";
     case "banish": return "驅散最近的怨念";
     case "drain": return "排乾最近的黑水";
     case "light": return `獲得${op[1]}點光`;
     case "reveal_reach": return "掀開本河段的所有霧氣；墳墓變為沃土";
-    case "unmake": return "清空最滿的絲線，且不觸發反噬（若平手，由你選擇）";
+    case "unmake": return "清空最滿的絲線上所有的結，且不引發反噬（若平手，由你選擇）";
     case "wash": return "沖走亡魂身旁的怨念";
     case "lowtide": return "排乾本河段的所有黑水";
     case "extra_karma": return "額外在執念絲線上打1個結";
-    case "recall_free": return "把最新被遺忘的那張牌放回棄牌堆";
+    case "recall_free": return "將最新被遺忘的那張牌放回棄牌堆";
   }
   return op[0];
 }
