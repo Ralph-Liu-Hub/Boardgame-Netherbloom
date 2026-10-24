@@ -64,8 +64,8 @@ const FIGS = {
     t("The soul is on space 1, which its Blooms Light. The glowing banks are the only places a new Root may go: the lower banks of spaces 2 and 3 face a Root across the water, and the upper bank of space 4 follows the Root on space 3 along the same bank. The crossed-out banks touch nothing, so no Root can grow there.",
       "亡魂在第1格，那裡的花照亮了這一格。發光的河岸是新的根唯一能放的地方：第2格與第3格下方的河岸隔水對著一個根，第4格上方的河岸沿著同一側接在第3格的根之後。打叉的河岸什麼都沒有碰到，根無法生長在那裡。")),
 
-  tiles: (t, L, kit) => figure(cardRow([0, 1, 2, 3].map(k => [kit.bankFace(L, k, 0), ""]).concat([[kit.fogBack(L, 0), t("The fog side", "霧面")]]), "five"),
-    t("The four kinds of bank card, and the fog side they are placed with. When a Root is placed on a fog card, flip the card face up.", "四種河岸牌，以及擺放時朝上的霧面。在霧面的河岸牌上放置根時，把這張牌翻到正面。")),
+  tiles: (t, L, kit) => figure(cardRow([0, 1, 2, 3].map(k => [kit.tileFace(L, k, 0), ""]).concat([[kit.tileBack(L, 0), t("The fog side", "霧面")]]), "five"),
+    t("The four kinds of bank tile, and the fog side they are placed with. When a Root is placed on a fog tile, flip the tile face up.", "四種河岸板塊，以及擺放時朝上的霧面。在霧面朝上的河岸板塊上放置根時，將這塊板塊翻到正面。")),
 
   card: (t, L, kit) => {
     const cid = CARDS.findIndex(c => c.id === "C14"), n = (k, top, left) => `<span class="rf-num" style="top:${top}%;left:${left}%">${k}</span>`;

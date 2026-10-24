@@ -87,8 +87,8 @@ function board(lang) {
     <div class="mk" style="left:${colX(9) + STEP / 2 - 15}mm;top:${TRACK_Y - 19}mm">${esc(L.adrift)} ▼</div>
     <div class="note" style="left:${colX(SLOTS) + CARD_W + 4}mm;top:${TRACK_Y}mm;width:${BW - 14 - (colX(SLOTS) + CARD_W + 4)}mm">${esc(L.trackNote(lanKey))}</div>
     <div class="cap" style="left:21mm;top:145mm">${esc(L.fractures)}</div>
-    <div class="shat" style="left:${32 + 54 - 14}mm;top:181mm">${esc(L.shattered)}</div>
-    <div class="note" style="left:21mm;top:186mm;width:86mm">${esc(L.fracNote)}</div>
+    <div class="shat" style="left:${32 + 54 - 17}mm;top:180.5mm">${esc(L.shattered)}</div>
+    <div class="note" style="left:21mm;top:186.5mm;width:88mm">${esc(L.fracNote)}</div>
     <div class="cap" style="left:112mm;top:145mm">${esc(L.water)}</div>
     <div class="note big" style="left:190mm;top:151mm;width:${BW - 14 - 190}mm">${esc(L.waterNote(lan))}</div>`;
 }
@@ -106,21 +106,21 @@ const CSS = `
 .lsvg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .lsvg .num { font-family: var(--f-mono); font-size: 4.2px; }
 .lsvg .x { font-family: var(--f-mono); font-size: 4px; fill: ${C.crimson}; }
-.lsvg .dia { font-size: 2.2px; fill: ${C.crimson}; letter-spacing: -.1px; }
+.lsvg .dia { font-size: 3.4px; fill: ${C.crimson}; letter-spacing: -.1px; }
 .ttl { position: absolute; left: ${P(14)}; top: ${P(12)}; right: ${P(14)}; display: flex; align-items: baseline; gap: 6mm; }
 .ttl b { font-family: var(--f-display); font-weight: 400; font-size: 22pt; color: ${C.bone}; }
 [lang="zh-Hant-TW"] .ttl b { font-weight: 600; }
-.ttl span { font-family: var(--f-hand); font-style: italic; font-size: 10pt; color: #cfc4b0; }
+.ttl span { font-family: var(--f-hand); font-style: italic; font-size: 11pt; color: #cfc4b0; }
 [lang="zh-Hant-TW"] .ttl span { font-style: normal; }
 .cap, .mk, .shat, .note { position: absolute; margin-left: ${BLEED}mm; margin-top: ${BLEED}mm; }
-.cap { font-family: var(--f-mono); font-size: 6.4pt; letter-spacing: .2em; text-transform: uppercase; color: ${C.bone}; }
-[lang="zh-Hant-TW"] .cap { font-family: var(--f-body); font-size: 8pt; letter-spacing: .12em; }
-.mk { width: 30mm; text-align: center; font-family: var(--f-mono); font-size: 5.4pt; color: ${C.cyan}; white-space: nowrap; }
-[lang="zh-Hant-TW"] .mk { font-family: var(--f-body); font-size: 6.6pt; }
-.shat { width: 28mm; text-align: center; font-family: var(--f-mono); font-size: 5.6pt; color: ${C.crimson}; }
-[lang="zh-Hant-TW"] .shat { font-family: var(--f-body); font-size: 7pt; }
-.note { font-size: 7pt; line-height: 1.32; color: #d8ccb8; }
-.note.big { font-size: 7.8pt; }
+.cap { font-family: var(--f-mono); font-size: 10.5pt; letter-spacing: .06em; text-transform: uppercase; color: ${C.bone}; }
+[lang="zh-Hant-TW"] .cap { font-family: var(--f-body); font-size: 11pt; letter-spacing: .1em; }
+.mk { width: 30mm; text-align: center; font-family: var(--f-mono); font-size: 10pt; color: ${C.cyan}; white-space: nowrap; }
+[lang="zh-Hant-TW"] .mk { font-family: var(--f-body); font-size: 10.5pt; }
+.shat { width: 34mm; text-align: center; font-family: var(--f-mono); font-size: 10pt; color: ${C.crimson}; }
+[lang="zh-Hant-TW"] .shat { font-family: var(--f-body); font-size: 10.5pt; }
+.note { font-size: 10.5pt; line-height: 1.25; color: #d8ccb8; }
+.note.big { font-size: 10.5pt; }
 `;
 
 export async function build(lang, dir, { png }) {

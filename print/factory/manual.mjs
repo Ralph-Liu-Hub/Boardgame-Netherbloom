@@ -8,6 +8,10 @@ import { decks, cardBacks } from "./cards.mjs";
 import { TOKENS, BIG, SMALL } from "./tokens.mjs";
 import { LID, BASE, TURN } from "./box.mjs";
 import { TILES } from "../../web/public/assets/cards.js";
+import { PW as BPW, PH as BPH } from "./board.mjs";
+import { TILE, TILE_COUNT } from "./tiles.mjs";
+import { SD } from "./standees.mjs";
+const SDLEN = SD.tab + SD.base + 2 * SD.face;
 
 const PW = 210, PH = 297;
 const today = new Date().toISOString().slice(0, 10);
@@ -82,18 +86,19 @@ const W = {
     cards: [
       "Each card PDF has <b>one card front per page</b>, in deck order. Print every page once. Every card in a deck has the same back, taken from <code>cards/card-backs.pdf</code> (table below).",
       "Print the back <b>head to head</b> with the front: the top of the back is behind the top of the front (diagram). Round the corners (3 mm radius).",
-      "<b>Bank cards</b> are the only cards with three different backs: print each bank card with the back for its Reach. The file names say which: <code>bank-1-…</code> takes back page 6, <code>bank-2-…</code> page 7, <code>bank-3-…</code> page 8.",
     ],
     backHead: ["Back page", "Back", "Used by"], cardHead: ["Deck", "Cards", "Front file", "Back page"],
     s4: "4. River board (3 panels)",
     board: [
-      "<code>board/river-board.pdf</code> has three A3 landscape pages, one panel each (4/0). Mount each on 2 mm greyboard, matte laminate, trim. The panels are separate pieces laid edge to edge on the table, I | II | III, left to right; the river runs straight across the joins.",
+      `<code>board/river-board.pdf</code> has three pages, one panel each (4/0), <b>${BPW} × ${BPH} mm</b> (smaller than A4). Mount each on 2 mm greyboard, matte laminate, trim. Each panel has a Mist deck well (66 × 91 mm) at the start of its Reach and 42 mm square wells for the ${TILE} mm bank tiles. The panels are separate pieces laid edge to edge on the table, I | II | III, left to right; the river runs straight across the joins.`,
       "<b>Loom of the Fates board.</b> <code>loom/loom-of-the-fates.pdf</code>, page 1 (4/0); page 2 is its trim line (not printed). Mount on 2 mm greyboard, matte laminate, trim to 297 × 210 mm with 3 mm round corners. Its 22 mm knot circles take the 18 mm knot discs from the punchboard.",
       "<b>The Ledger board.</b> <code>ledger/the-ledger.pdf</code>, page 1 (4/0); page 2 is its trim line (not printed). Mount, laminate and trim like the Loom board (297 × 210 mm, 3 mm round corners). It holds the forgotten pile (a card-width numbered track), the 3 Fracture discs and the Black Water discs.",
     ],
     s5: "5. Punchboard (tokens)",
     punch: [
       `<code>tokens/punchboard.pdf</code>: page 1 is the front, page 2 the back, page 3 the die line (not printed). The back is already mirrored: turn the sheet over <b>left to right</b>, round its vertical centre line, so every back lands behind its front. Die-cut ${BIG} mm and ${SMALL} mm discs; the art runs 1.5 mm past every cut.`,
+      `<b>Bank tiles.</b> <code>tiles/bank-tiles.pdf</code>: ${TILE_COUNT} square tiles, ${TILE} × ${TILE} mm, on one A4 landscape sheet of 2 mm greyboard, laminated, 4/4. Page 1 front, page 2 back (already mirrored, turn over left to right like the punchboard), page 3 die line. The back is the fog side, marked with its Reach's numeral. <code>tiles/bank-tile-singles.pdf</code> is the same tiles one per page, for the digital table only (not printed).`,
+      `<b>Soul standees.</b> <code>standees/soul-standees.pdf</code>: five fold-up standees on one A4 sheet of 350 g/m² card, printed one side (4/0), matte laminated. Page 1 print, page 2 die line: cut the ${SD.w} × ${SDLEN} mm strips (magenta) and score the three folds (cyan, dashed). Ship them flat; players fold and glue them as the sheet shows, so each stands as a ${SD.w} × ${SD.base} mm triangle about ${SD.face - 2} mm tall.`,
     ],
     tokHead: ["Token", "Front", "Back", "Qty", "Size"],
     tokenNames: { "nb-tok-oar": "The Oar", "nb-tok-push": "Push Through", "nb-tok-hold": "Hold Fast", "nb-tok-shield": "Shield", "nb-tok-resign": "Resignation", "nb-soul": "The soul / the Ghost",
@@ -115,16 +120,16 @@ const W = {
     pack: [
       "Base on the table. In this order, bottom to top:",
       "The three river board panels, stacked I, II, III, face up, then the Loom of the Fates board and the Ledger board on top.",
-      "The punchboard, face up (unpunched).",
+      "The punchboard and the bank-tile board, face up (unpunched), and the Soul standee sheet, flat.",
       "The five Books of Remembrance, each with its photo corners applied.",
-      "The cards, each deck shrink-wrapped or banded separately: Memory 72, Mist 42, Ghost 12, bank 20, then Soul 5 and Mantle 4 together.",
+      "The cards, each deck shrink-wrapped or banded separately: Memory 72, Mist 42, Ghost 12, then Soul 5 and Mantle 4 together.",
       "Four Player Aids, then the rulebook on top, cover up.",
       "Lid on, side A to the front (the cover reads upright). Shrink-wrap the box.",
     ],
     s9: "9. Before you print: checklist",
     check: [
       "Colour proof approved, especially the dark river and box art.",
-      "Card backs line up with their fronts (head to head) and every bank card has its own Reach's back.",
+      "Card backs line up with their fronts (head to head); every bank tile's fog side shows its own Reach.",
       "Punchboard back registers with the front; die cuts stay inside the art's 1.5 mm overrun.",
       "Box wrap: sides read upright when folded; cover title at the top; turn-ins neat on the inside.",
       "Book pages 4–6: 48 photo corners each, on the printed marks; cards slide in and out.",
@@ -143,11 +148,12 @@ const W = {
       ["Ghost cards", n.ghost, "63 × 88 mm", "4/4", "as above", "cards/cards-ghost.pdf"],
       ["Soul cards", n.soul, "63 × 88 mm", "4/4", "as above", "cards/cards-soul.pdf"],
       ["Mantle cards", n.mantle, "63 × 88 mm", "4/4", "as above", "cards/cards-mantle.pdf"],
-      ["Bank cards", n.bank, "63 × 88 mm", "4/4", "as above", "cards/cards-bank.pdf"],
-      ["River board panels", 3, "420 × 297 mm", "4/0", "mounted on 2 mm greyboard, matte laminated", "board/river-board.pdf"],
+      ["River board panels", 3, `${BPW} × ${BPH} mm`, "4/0", "mounted on 2 mm greyboard, matte laminated", "board/river-board.pdf"],
       ["Loom of the Fates board", 1, "297 × 210 mm", "4/0", "mounted on 2 mm greyboard, matte laminated", "loom/loom-of-the-fates.pdf"],
       ["The Ledger board", 1, "297 × 210 mm", "4/0", "mounted on 2 mm greyboard, matte laminated", "ledger/the-ledger.pdf"],
       ["Punchboard", `1 (${n.tokens} tokens)`, "297 × 210 mm", "4/4", "2 mm greyboard, laminated, die-cut", "tokens/punchboard.pdf"],
+      ["Bank tiles", n.tiles, `${TILE} × ${TILE} mm`, "4/4", "2 mm greyboard, laminated, die-cut (one A4 sheet)", "tiles/bank-tiles.pdf"],
+      ["Soul standees", 5, `${SD.w} × ${SDLEN} mm, folded`, "4/0", "350 g/m² card, matte laminated, die-cut and scored (one A4 sheet)", "standees/soul-standees.pdf"],
       ["Books of Remembrance", 5, "A4, 8 pages", "4/4", "cover 250 g/m², inside 157 g/m² matte; saddle stitch", "books/…"],
       ["Clear photo corners", 240, "≈12 mm", "—", "self-adhesive, 48 per Book", "—"],
       ["Rulebook", 1, "A4, RBPAGES pages", "4/4", "157 g/m² matte; saddle stitch", "rulebook/rulebook.pdf"],
@@ -156,9 +162,9 @@ const W = {
       ["Box base", 1, `${BASE.L} × ${BASE.L} × ${BASE.D} mm`, "4/0 wrap", "as above", "box/box-base-wrap.pdf"],
       ["Box liners", 2, "inside lid, base floor", "4/0", "157 g/m², glued in", "box/box-*-liner.pdf"],
     ],
-    backUse: ["Memory cards", "Mist cards", "Ghost cards", "Soul cards", "Mantle cards", "Bank cards, Reach I", "Bank cards, Reach II", "Bank cards, Reach III"],
-    backName: ["Memory", "Mist", "Ghost", "Soul", "Mantle", "Fog · I", "Fog · II", "Fog · III"],
-    deckName: { "cards-memory": "Memory", "cards-mist": "Mist", "cards-ghost": "Ghost", "cards-mantle": "Mantle", "cards-soul": "Soul", "cards-bank": "Bank" },
+    backUse: ["Memory cards", "Mist cards", "Ghost cards", "Soul cards", "Mantle cards"],
+    backName: ["Memory", "Mist", "Ghost", "Soul", "Mantle"],
+    deckName: { "cards-memory": "Memory", "cards-mist": "Mist", "cards-ghost": "Ghost", "cards-mantle": "Mantle", "cards-soul": "Soul" },
     byReach: "6, 7 or 8 by Reach",
   },
   zh: {
@@ -176,18 +182,19 @@ const W = {
     cards: [
       "每個卡牌 PDF <b>每頁一張牌的正面</b>，依牌組順序排列。每一頁各印一張。同一牌組的所有卡牌使用相同的背面，取自 <code>cards/card-backs.pdf</code>（見下表）。",
       "背面與正面<b>頭對頭</b>印刷：背面的上緣位於正面上緣的背後（見圖）。圓角半徑 3 mm。",
-      "<b>河岸牌</b>是唯一有三種背面的卡牌：每張河岸牌請搭配其河段的背面印刷。檔名即說明：<code>bank-1-…</code> 用背面第 6 頁、<code>bank-2-…</code> 用第 7 頁、<code>bank-3-…</code> 用第 8 頁。",
     ],
     backHead: ["背面頁", "背面", "使用於"], cardHead: ["牌組", "張數", "正面檔案", "背面頁"],
     s4: "4. 河流圖板（3 塊）",
     board: [
-      "<code>board/river-board.pdf</code> 有三頁 A3 橫式，每頁一塊（4/0）。各自裱於 2 mm 灰紙板，上霧膜後裁切。三塊為獨立配件，於桌上依 I | II | III 由左至右邊對邊排列；河流會直接跨過接縫。",
+      `<code>board/river-board.pdf</code> 有三頁，每頁一塊（4/0），<b>${BPW} × ${BPH} mm</b>（小於 A4）。各自裱於 2 mm 灰紙板，上霧膜後裁切。每塊在其河段起點有一個迷霧牌庫槽（66 × 91 mm），並有 42 mm 方槽用來放 ${TILE} mm 的河岸板塊。三塊為獨立配件，於桌上依 I | II | III 由左至右邊對邊排列；河流會直接跨過接縫。`,
       "<b>命運織機圖板。</b><code>loom/loom-of-the-fates.pdf</code> 第 1 頁（4/0）；第 2 頁為裁切線（不印）。裱於 2 mm 灰紙板，上霧膜，裁切為 297 × 210 mm，圓角 3 mm。其 22 mm 的結圓圈用來放標記板上 18 mm 的結圓片。",
       "<b>渡帳圖板。</b><code>ledger/the-ledger.pdf</code> 第 1 頁（4/0）；第 2 頁為裁切線（不印）。裱板、上膜與裁切方式同命運織機圖板（297 × 210 mm，圓角 3 mm）。板上放遺忘堆（一條與牌同寬的編號軌）、3 個裂痕圓片與黑水圓片。",
     ],
     s5: "5. 標記板（模切標記）",
     punch: [
       `<code>tokens/punchboard.pdf</code>：第 1 頁為正面、第 2 頁為背面、第 3 頁為刀模（不印）。背面已鏡像處理：請將紙張沿垂直中線<b>左右翻面</b>，每個背面便會落在其正面的背後。模切 ${BIG} mm 與 ${SMALL} mm 圓形標記；圖案超出每條裁切線 1.5 mm。`,
+      `<b>河岸板塊。</b><code>tiles/bank-tiles.pdf</code>：${TILE_COUNT} 塊 ${TILE} × ${TILE} mm 方形板塊，排在一張 A4 橫式 2 mm 灰紙板上，上膜，4/4。第 1 頁正面、第 2 頁背面（已鏡像，與標記板一樣左右翻面）、第 3 頁刀模。背面為霧面，印有所屬河段的羅馬數字。<code>tiles/bank-tile-singles.pdf</code> 為每頁一塊的版本，僅供線上桌遊使用（不印）。`,
+      `<b>亡魂立牌。</b><code>standees/soul-standees.pdf</code>：五個摺疊式立牌排在一張 A4 的 350 g/m² 卡紙上，單面印刷（4/0），上霧膜。第 1 頁為印刷面、第 2 頁為刀模：裁切 ${SD.w} × ${SDLEN} mm 長條（洋紅色），並壓出三條摺線（青色虛線）。平放出貨；玩家依紙上說明自行摺起黏合，完成後是底座 ${SD.w} × ${SD.base} mm、高約 ${SD.face - 2} mm 的三角立牌。`,
     ],
     tokHead: ["標記", "正面", "背面", "數量", "尺寸"],
     tokenNames: { "nb-tok-oar": "船槳", "nb-tok-push": "破浪", "nb-tok-hold": "堅守", "nb-tok-shield": "護盾", "nb-tok-resign": "認命", "nb-soul": "亡魂／幽靈",
@@ -209,16 +216,16 @@ const W = {
     pack: [
       "盒底放在桌上，由下而上依序放入：",
       "三塊河流圖板，依 I、II、III 疊放，正面朝上；最上面放命運織機圖板與渡帳圖板。",
-      "標記板，正面朝上（未壓出）。",
+      "標記板與河岸板塊板，正面朝上（未壓出），以及平放的亡魂立牌紙。",
       "五本憶念之書，各自貼好相角。",
-      "卡牌，各牌組分別收縮膜或以束帶綁好：記憶牌 72、迷霧牌 42、幽靈牌 12、河岸牌 20，亡魂牌 5 與稱號牌 4 合為一疊。",
+      "卡牌，各牌組分別收縮膜或以束帶綁好：記憶牌 72、迷霧牌 42、幽靈牌 12，亡魂牌 5 與稱號牌 4 合為一疊。",
       "四張玩家輔助卡，最上面放規則書，封面朝上。",
       "蓋上盒蓋，A 面朝前（封面為正向）。整盒收縮膜。",
     ],
     s9: "9. 印刷前檢查清單",
     check: [
       "印刷色樣已確認，尤其是深色的河流與盒子美術。",
-      "卡牌背面與正面對齊（頭對頭），且每張河岸牌都配上其河段的背面。",
+      "卡牌背面與正面對齊（頭對頭）；每塊河岸板塊的霧面印有其所屬河段。",
       "標記板背面與正面套準；模切位置不超出圖案的 1.5 mm 延伸範圍。",
       "盒子裱紙：側面摺下後為正向；封面標題在上；內折邊平整。",
       "憶念之書第 4–6 頁：每頁 48 個相角貼在角標上；卡牌能順利插入與取出。",
@@ -236,11 +243,12 @@ const W = {
       ["幽靈牌", n.ghost, "63 × 88 mm", "4/4", "同上", "cards/cards-ghost.pdf"],
       ["亡魂牌", n.soul, "63 × 88 mm", "4/4", "同上", "cards/cards-soul.pdf"],
       ["稱號牌", n.mantle, "63 × 88 mm", "4/4", "同上", "cards/cards-mantle.pdf"],
-      ["河岸牌", n.bank, "63 × 88 mm", "4/4", "同上", "cards/cards-bank.pdf"],
-      ["河流圖板", 3, "420 × 297 mm", "4/0", "裱 2 mm 灰紙板，上霧膜", "board/river-board.pdf"],
+      ["河流圖板", 3, `${BPW} × ${BPH} mm`, "4/0", "裱 2 mm 灰紙板，上霧膜", "board/river-board.pdf"],
       ["命運織機圖板", 1, "297 × 210 mm", "4/0", "裱 2 mm 灰紙板，上霧膜", "loom/loom-of-the-fates.pdf"],
       ["渡帳圖板", 1, "297 × 210 mm", "4/0", "裱 2 mm 灰紙板，上霧膜", "ledger/the-ledger.pdf"],
       ["標記板", `1（${n.tokens} 個標記）`, "297 × 210 mm", "4/4", "2 mm 灰紙板，上膜，模切", "tokens/punchboard.pdf"],
+      ["河岸板塊", n.tiles, `${TILE} × ${TILE} mm`, "4/4", "2 mm 灰紙板，上膜，模切（一張 A4）", "tiles/bank-tiles.pdf"],
+      ["亡魂立牌", 5, `${SD.w} × ${SDLEN} mm，摺疊`, "4/0", "350 g/m² 卡紙，上霧膜，模切與壓線（一張 A4）", "standees/soul-standees.pdf"],
       ["憶念之書", 5, "A4，8 頁", "4/4", "封面 250 g/m²，內頁 157 g/m² 霧面；騎馬釘", "books/…"],
       ["透明相角", 240, "約 12 mm", "—", "自黏，每本 48 個", "—"],
       ["規則書", 1, "A4，RBPAGES 頁", "4/4", "157 g/m² 霧面；騎馬釘", "rulebook/rulebook.pdf"],
@@ -249,16 +257,16 @@ const W = {
       ["盒底", 1, `${BASE.L} × ${BASE.L} × ${BASE.D} mm`, "4/0 裱紙", "同上", "box/box-base-wrap.pdf"],
       ["盒內襯紙", 2, "盒蓋內側、盒底內面", "4/0", "157 g/m²，黏貼", "box/box-*-liner.pdf"],
     ],
-    backUse: ["記憶牌", "迷霧牌", "幽靈牌", "亡魂牌", "稱號牌", "河岸牌，第一河段", "河岸牌，第二河段", "河岸牌，第三河段"],
-    backName: ["記憶", "迷霧", "幽靈", "亡魂", "稱號", "霧 · I", "霧 · II", "霧 · III"],
-    deckName: { "cards-memory": "記憶牌", "cards-mist": "迷霧牌", "cards-ghost": "幽靈牌", "cards-mantle": "稱號牌", "cards-soul": "亡魂牌", "cards-bank": "河岸牌" },
+    backUse: ["記憶牌", "迷霧牌", "幽靈牌", "亡魂牌", "稱號牌"],
+    backName: ["記憶", "迷霧", "幽靈", "亡魂", "稱號"],
+    deckName: { "cards-memory": "記憶牌", "cards-mist": "迷霧牌", "cards-ghost": "幽靈牌", "cards-mantle": "稱號牌", "cards-soul": "亡魂牌" },
     byReach: "依河段用 6、7 或 8",
   },
 };
 
 const FILES = [
-  "MANUAL.pdf", "cards/cards-memory.pdf", "cards/cards-mist.pdf", "cards/cards-ghost.pdf", "cards/cards-mantle.pdf", "cards/cards-soul.pdf", "cards/cards-bank.pdf", "cards/card-backs.pdf",
-  "board/river-board.pdf", "loom/loom-of-the-fates.pdf", "ledger/the-ledger.pdf", "tokens/punchboard.pdf",
+  "MANUAL.pdf", "cards/cards-memory.pdf", "cards/cards-mist.pdf", "cards/cards-ghost.pdf", "cards/cards-mantle.pdf", "cards/cards-soul.pdf", "cards/card-backs.pdf",
+  "board/river-board.pdf", "loom/loom-of-the-fates.pdf", "ledger/the-ledger.pdf", "tokens/punchboard.pdf", "tiles/bank-tiles.pdf", "tiles/bank-tile-singles.pdf", "standees/soul-standees.pdf",
   "books/book-of-remembrance-child.pdf", "books/book-of-remembrance-garland.pdf", "books/book-of-remembrance-king.pdf", "books/book-of-remembrance-bride.pdf", "books/book-of-remembrance-open.pdf",
   "rulebook/rulebook.pdf", "rulebook/player-aid.pdf",
   "box/box-lid-wrap.pdf", "box/box-lid-dieline.pdf", "box/box-base-wrap.pdf", "box/box-base-dieline.pdf", "box/box-lid-liner.pdf", "box/box-base-liner.pdf",
@@ -270,7 +278,7 @@ const icon = (id, col) => `<svg class="ti" style="color:${col}"><use href="#${id
 function body(lang) {
   const L = W[lang], dk = decks(lang), backs = cardBacks(lang);
   const count = name => dk.find(d => d[0] === name)[1].length;
-  const n = { memory: count("cards-memory"), mist: count("cards-mist"), ghost: count("cards-ghost"), soul: count("cards-soul"), mantle: count("cards-mantle"), bank: count("cards-bank"),
+  const n = { memory: count("cards-memory"), mist: count("cards-mist"), ghost: count("cards-ghost"), soul: count("cards-soul"), mantle: count("cards-mantle"), tiles: TILE_COUNT,
     tokens: TOKENS.reduce((a, t) => a + t[4], 0) };
   const backPage = { "cards-memory": 1, "cards-mist": 2, "cards-ghost": 3, "cards-soul": 4, "cards-mantle": 5 };
   const reachCounts = TILES.map(([, l]) => l.length).join(" / ");
@@ -285,7 +293,7 @@ function body(lang) {
   <h2>${L.s3}</h2>${L.cards.map(p => `<p>${p}</p>`).join("")}<div class="fig">${dgCard(L)}</div>
   <div class="two">${table(L.cardHead, dk.map(([file, cards]) => [L.deckName[file], cards.length, `<code>cards/${file}.pdf</code>`, backPage[file] ?? L.byReach]))}
   ${table(L.backHead, backs.map((b, i) => [i + 1, L.backName[i], L.backUse[i]]))}</div>
-  <p class="small">${lang === "zh" ? "河岸牌每河段張數" : "Bank cards per Reach"}: ${reachCounts}</p>
+  <p class="small">${lang === "zh" ? "河岸板塊每河段塊數" : "Bank tiles per Reach"}: ${reachCounts}</p>
   <h2>${L.s4}</h2>${L.board.map(p => `<p>${p}</p>`).join("")}<div class="fig">${dgBoard(L)}</div>
   <h2>${L.s5}</h2>${L.punch.map(p => `<p>${p}</p>`).join("")}<div class="fig">${dgPunch(L)}</div>
   ${table(L.tokHead, TOKENS.map(([f, fc, b, bc, q, d]) => [L.tokenNames[f], icon(f, fc === C.bone || fc === "#EFE7D6" ? "#8a6a3e" : fc === C.cyan ? "#2f7f8e" : fc === C.mist ? "#6b655d" : fc),

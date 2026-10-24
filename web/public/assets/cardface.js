@@ -88,7 +88,7 @@ export const T = {
     ghostNote: t => `Tie a knot on the ${["Obsession", "Acceptance", "Oblivion"][t]} thread; the Echo moves there.`,
     mantle: m => MANTLES[m], mantleKick: "Mantle", mantleNote: t => `Summon: pay 3 Light (2 with the King) and discard one ${["Obsession", "Acceptance", "Oblivion"][t]} card.`,
     tile: t => TILE_NAMES[t], tileText: ["The Root takes.", "An ordinary Root will not take, and the Root is lost. Stubborn Roots and the Root-Weaver can grow here.", "The Root takes and you find a keepsake. In the Open Crossing it also gives +2 Light.", "No Root grows, and a Shade rises on that bank."],
-    reachName: r => REACH_NAMES[r], fog: "Fog", bank: "Bank card", pack: { core: "Core", echo: "Echo · Open Crossing" },
+    reachName: r => REACH_NAMES[r], fog: "Fog", bank: "Bank tile", pack: { core: "Core", echo: "Echo · Open Crossing" },
     backWord: { mist: "Mist", ghost: "Ghost", soul: "Soul", mantle: "Mantle" },
   },
   zh: {
@@ -101,8 +101,8 @@ export const T = {
     ghostKick: "幽靈 · 單人模式", ghostName: t => ["幽靈扎根", "幽靈綻放", "幽靈遺忘"][t], ghostAct: a => GHOST_ACT.zh[a],
     ghostNote: t => `在${ZH_TAGS[t]}絲線上打一個結，並將迴響設為${ZH_TAGS[t]}。`,
     mantle: m => ZH_MANTLES[m], mantleKick: "稱號", mantleNote: t => `召喚：支付3點光（國王為2點），並棄掉一張${ZH_TAGS[t]}牌。`,
-    tile: t => ZH_TILES[t], tileText: ["根順利生長。", "一般的根無法生長，該根就此失去。頑根與織根者則能在此生長。", "根順利生長，並且你們找到一件信物。在無名渡河中，它還會給予+2點光。", "根無法生長，且該河岸會升起一個怨念。"],
-    reachName: r => ZH_REACHES[r], fog: "霧", bank: "河岸牌", pack: { core: "基本", echo: "迴響 · 無名渡河" },
+    tile: t => ZH_TILES[t], tileText: ["根順利生長。", "一般的根無法在此生長，該根就此失去；頑根與織根者的根則可以。", "根順利生長，並獲得1件信物。在無名渡河中，另外獲得2點光。", "根無法生長，改在這個河岸升起1個怨念。"],
+    reachName: r => ZH_REACHES[r], fog: "霧", bank: "河岸板塊", pack: { core: "基本", echo: "迴響 · 無名渡河" },
     backWord: { mist: "迷霧", ghost: "幽靈", soul: "亡魂", mantle: "稱號" },
   },
 };
@@ -135,7 +135,7 @@ export function cardKit(artImg) {
 
   function memoryFace(L, cid, pack, artName) {
     const c = typeof cid === "object" ? cid : CARDS[cid];
-    const res = `<span class="res"><b>${L.res}</b> ${c.rr ? L.resInstead : ""}${L.kw(c.rr ? L.lc(L.ops(c.res)) : L.ops(c.res))}</span>`;
+    const res = `<span class="res"><b>${L.res}</b>${L.res.endsWith("：") ? "" : " "}${c.rr ? L.resInstead : ""}${L.kw(c.rr ? L.lc(L.ops(c.res)) : L.ops(c.res))}</span>`;
     const band = c.slot
       ? `<div class="band">${icon(SLOT_ICON[c.slot], "#5c4a3a")}<span><i>${L.slot(c.slot)}</i>${esc(L.band(c))}</span></div>`
       : `<div class="band none"><span>${L.oblNote}</span></div>`;
@@ -192,12 +192,18 @@ export function cardKit(artImg) {
   const BANK = { icons: ["nb-fertile", "nb-stony", "nb-memorysite", "nb-grave"], names: ["fertile", "stony", "memory", "grave"] };
   const bankFace = (L, t, r) => bankCard(`card-bank-${BANK.names[t]}`, icon(BANK.icons[t], ["#c9c1b2", C.mist, C.bone, C.cyan][t]), L.tile(t), L.tileText[t], `${L.reach(r)} · ${L.reachName(r)}`);
 
-  // Backs. Memory, Mist, Ghost and Soul use their painted backs; Mantles share the Soul back; bank cards are fog, one per Reach.
+  // Bank tiles: 40 mm squares, the painting under the name and what happens there; the fog side shows the Reach.
+  const tileFace = (L, t, r) => `<div class="nbtile"><div class="full">${artImg(`card-bank-${BANK.names[t]}`)}</div><div class="shade"></div><div class="frame"></div>
+      <div class="hd">${icon(BANK.icons[t], ["#c9c1b2", C.mist, C.bone, C.cyan][t])}<b>${esc(L.tile(t))}</b><i>${NUM[r]}</i></div><small>${esc(L.tileText[t])}</small></div>`;
+  const tileBack = (L, r) => `<div class="nbtile fog"><div class="full">${artImg("card-fog")}</div><div class="frame"></div>
+      <div class="reach"><b>${NUM[r]}</b><span>${L.fog} · ${esc(L.reachName(r))}</span></div></div>`;
+
+  // Backs. Memory, Mist, Ghost and Soul use their painted backs; Mantles share the Soul back.
   const paintedBack = file => `<div class="nbback"><div class="bart">${artImg(file)}</div></div>`;
   const fogBack = (L, r) => `<div class="nbback"><div class="fogart">${artImg("card-fog")}</div><div class="fogframe"></div>
       <div class="reach"><b>${NUM[r]}</b><span>${L.fog} · ${esc(L.reachName(r))}</span></div></div>`;
 
-  return { card, artBox, memoryFace, memoryCard, mistFace, ghostFace, mantleFace, soulFace, bankCard, bankFace, paintedBack, fogBack };
+  return { card, artBox, memoryFace, memoryCard, mistFace, ghostFace, mantleFace, soulFace, bankCard, bankFace, tileFace, tileBack, paintedBack, fogBack };
 }
 
 // ---------------------------------------------------------------- the stylesheet
@@ -211,58 +217,73 @@ export function cardCSS(B = 0) {
 .nbcard .tex { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 35%, rgba(230,211,163,.06), transparent 60%), repeating-linear-gradient(170deg, rgba(255,255,255,.012) 0 .6mm, transparent .6mm 1.2mm); }
 .nbcard .frame { position: absolute; inset: ${at(2)}; border: .35mm solid ${C.gilt}; border-radius: 2.6mm; }
 .nbcard .frame::after { content: ""; position: absolute; inset: .8mm; border: .15mm solid rgba(138,109,72,.55); border-radius: 2mm; }
-.nbcard .in { position: absolute; left: ${at(3.6)}; right: ${at(3.6)}; top: ${at(3.4)}; bottom: ${at(3.2)}; display: flex; flex-direction: column; gap: 1.6mm; }
+.nbcard .in { position: absolute; left: ${at(3.4)}; right: ${at(3.4)}; top: ${at(3.2)}; bottom: ${at(3)}; display: flex; flex-direction: column; gap: 1.2mm; }
 .nbcard .top { display: flex; align-items: center; gap: 1.8mm; }
-.nbcard .top .ic { width: 6.2mm; height: 6.2mm; }
-.nbcard .top .nm { flex: 1; font-family: var(--f-serif); font-size: 11.5pt; line-height: 1.05; color: ${C.paper}; }
-.nbcard .top .nm small { display: block; font-family: var(--f-mono); font-size: 5.4pt; letter-spacing: .14em; text-transform: uppercase; color: ${C.mist}; margin-top: .5mm; }
-.nbcard .top .id { font-family: var(--f-mono); font-size: 5.4pt; color: ${C.mist}; align-self: flex-start; }
-.nbcard .rules { font-size: 7.6pt; line-height: 1.32; color: ${C.paper}; }
-.nbcard .rules .res { display: block; margin-top: 1mm; padding: .9mm 1.3mm; border-radius: 1.2mm; background: rgba(230,211,163,.08); color: #ddd2bf; font-size: 7.1pt; }
+.nbcard .top .ic { width: 6mm; height: 6mm; }
+.nbcard .top .nm { flex: 1; font-family: var(--f-serif); font-size: 12pt; line-height: 1.05; color: ${C.paper}; }
+.nbcard .top .nm small { display: block; font-family: var(--f-mono); font-size: 7.5pt; letter-spacing: .06em; text-transform: uppercase; color: ${C.mist}; margin-top: .5mm; }
+.nbcard .top .id { font-family: var(--f-mono); font-size: 7pt; color: ${C.mist}; align-self: flex-start; }
+.nbcard .rules { font-size: 10.5pt; line-height: 1.28; color: ${C.paper}; }
+.nbcard .rules .res { display: block; margin-top: 1mm; padding: .7mm 1.2mm; border-radius: 1.2mm; background: rgba(230,211,163,.08); color: #ddd2bf; font-size: 10.5pt; }
 .nbcard .rules .res b { color: ${C.bone}; font-weight: 500; }
 .nbcard .kw { color: ${C.cyan}; font-variant: small-caps; letter-spacing: .02em; font-weight: 500; }
 .nbcard .kw::before { content: "◆"; font-size: .55em; vertical-align: .25em; margin-right: .2em; opacity: .8; }
 [lang="zh-Hant-TW"] .nbcard .kw, .nbcard:lang(zh) .kw { font-variant: normal; letter-spacing: 0; }
-[lang="zh-Hant-TW"] .nbcard .rules { font-size: 7.4pt; line-height: 1.45; }
-.nbcard .art { position: relative; flex: 1; min-height: 18mm; border-radius: 1.6mm; overflow: hidden; }
+[lang="zh-Hant-TW"] .nbcard .rules { font-size: 10.5pt; line-height: 1.38; }
+.nbcard .art { position: relative; flex: 1; min-height: 8mm; border-radius: 1.6mm; overflow: hidden; }
 .nbcard .art::after { content: ""; position: absolute; inset: 0; border-radius: 1.6mm; box-shadow: inset 0 0 0 .25mm rgba(138,109,72,.7), inset 0 0 4mm rgba(0,0,0,.6); }
 .nbcard .art .seal { z-index: 1; position: absolute; right: 1.2mm; bottom: 1.2mm; width: 7mm; height: 7mm; color: ${C.crimson}; filter: drop-shadow(0 0 1mm rgba(0,0,0,.8)); }
-.nbcard .band { display: flex; gap: 1.5mm; align-items: flex-start; background: ${C.bone}; color: ${C.ink}; border-radius: 1.2mm; padding: 1.3mm 1.6mm; min-height: 10.5mm; }
+.nbcard .band { display: flex; gap: 1.5mm; align-items: flex-start; background: ${C.bone}; color: ${C.ink}; border-radius: 1.2mm; padding: 1mm 1.4mm; min-height: 0; }
 .nbcard .band .ic { width: 4.2mm; height: 4.2mm; color: #5c4a3a; margin-top: .3mm; }
-.nbcard .band span { font-family: var(--f-hand); font-style: italic; font-size: 7.6pt; line-height: 1.25; }
-.nbcard .band span i { display: block; font-style: normal; font-family: var(--f-mono); font-size: 5pt; letter-spacing: .2em; text-transform: uppercase; color: #7a6450; margin-bottom: .3mm; }
-[lang="zh-Hant-TW"] .nbcard .band span { font-style: normal; font-size: 7.8pt; }
+.nbcard .band span { font-family: var(--f-hand); font-style: italic; font-size: 10.5pt; line-height: 1.2; }
+.nbcard .band span i { display: block; font-style: normal; font-family: var(--f-mono); font-size: 7pt; letter-spacing: .08em; text-transform: uppercase; color: #6a5440; margin-bottom: .2mm; }
+[lang="zh-Hant-TW"] .nbcard .band span { font-style: normal; font-size: 10.5pt; line-height: 1.3; }
 .nbcard .band.none { background: transparent; color: ${C.mist}; border: .2mm dashed rgba(154,148,140,.5); min-height: 0; }
-.nbcard .band.none span { font-family: var(--f-body); font-style: normal; font-size: 6.6pt; }
+.nbcard .band.none span { font-family: var(--f-body); font-style: normal; font-size: 10.5pt; }
 .nbcard .band.cyan { background: ${C.cyan}; }
 .nbcard .band.red { background: #e9b8bf; }
-.nbcard .foot { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 4.8pt; letter-spacing: .12em; text-transform: uppercase; color: ${C.mist}; }
+.nbcard .foot { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 6.5pt; letter-spacing: .06em; text-transform: uppercase; color: ${C.mist}; }
 .nbcard.mist .frame { border-color: #4f7d86; } .nbcard.harsh .frame { border-color: #8a2e3a; }
 .nbcard.ghost .frame { border: .35mm dashed ${C.cyan}; }
 .nbcard.key .frame { border-color: #b08a4e; box-shadow: 0 0 0 .3mm rgba(215,38,61,.35); }
-.nbcard .kick { font-family: var(--f-mono); font-size: 5.4pt; letter-spacing: .3em; text-transform: uppercase; text-align: center; color: ${C.mist}; }
+.nbcard .kick { font-family: var(--f-mono); font-size: 7.5pt; letter-spacing: .14em; text-transform: uppercase; text-align: center; color: ${C.mist}; }
 .nbcard .c { text-align: center; }
 .nbcard .big { font-family: var(--f-display); font-size: 14pt; color: ${C.bone}; text-align: center; line-height: 1.1; }
-.nbcard .flav { font-family: var(--f-hand); font-style: italic; font-size: 8pt; color: #d8cdb8; text-align: center; line-height: 1.3; }
-.nbcard .note { font-size: 6.6pt; color: ${C.mist}; line-height: 1.35; }
+.nbcard .flav { font-family: var(--f-hand); font-style: italic; font-size: 10.5pt; color: #d8cdb8; text-align: center; line-height: 1.3; }
+.nbcard .note { font-size: 10.5pt; color: ${C.mist}; line-height: 1.35; }
 /* full-art cards: Soul and bank */
 .nbcard .full { position: absolute; inset: 0; }
 .nbcard .full::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,12,17,0) 30%, rgba(14,12,17,.88) 66%, ${C.ink} 100%); }
 .nbcard.soulc .in { justify-content: flex-end; }
 .nbcard.soulc .in > * { position: relative; z-index: 1; }
+.nbcard.soulc .in { text-shadow: 0 .3mm 1.2mm #000, 0 0 2.5mm #000; }
+.nbcard.soulc .kick, .nbcard.soulc .note { color: #cfc6b8; }
 .nbcard.bank .lab { position: absolute; left: 0; right: 0; bottom: ${at(6)}; text-align: center; z-index: 1; }
 .nbcard.bank .lab .ic { width: 9mm; height: 9mm; display: block; margin: 0 auto 1mm; filter: drop-shadow(0 0 1.2mm #000); }
 .nbcard.bank .lab b { display: block; font-family: var(--f-display); font-weight: 400; font-size: 14pt; color: ${C.paper}; text-shadow: 0 .3mm 1mm #000; }
-.nbcard.bank .lab small { display: block; font-size: 6.8pt; padding: 0 9mm; line-height: 1.3; color: ${C.bone}; margin-top: .6mm; text-shadow: 0 .3mm 1mm #000; }
-.nbcard.bank .lab em { display: block; font-family: var(--f-mono); font-style: normal; font-size: 5pt; letter-spacing: .2em; text-transform: uppercase; color: ${C.mist}; margin-top: 1mm; }
+.nbcard.bank .lab small { display: block; font-size: 10.5pt; padding: 0 5mm; line-height: 1.3; color: ${C.bone}; margin-top: .6mm; text-shadow: 0 .3mm 1mm #000; }
+.nbcard.bank .lab em { display: block; font-family: var(--f-mono); font-style: normal; font-size: 7pt; letter-spacing: .1em; text-transform: uppercase; color: ${C.mist}; margin-top: 1mm; }
 /* backs */
+.nbtile { position: absolute; inset: 0; background: ${C.ink}; color: ${C.paper}; overflow: hidden; }
+.nbtile .full { position: absolute; inset: 0; }
+.nbtile .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,12,17,.75), rgba(14,12,17,.05) 22%, rgba(14,12,17,.3) 35%, rgba(14,12,17,.85) 60%, rgba(14,12,17,.95)); }
+.nbtile .frame { position: absolute; inset: 1.2mm; border: .35mm solid ${C.gilt}; border-radius: 1.6mm; }
+.nbtile.fog .frame { border-color: rgba(143,214,225,.55); }
+.nbtile .hd { position: absolute; left: 2.6mm; right: 2.4mm; top: 2.4mm; display: flex; align-items: flex-start; gap: 1mm; }
+.nbtile .hd .ic { width: 7mm; height: 7mm; flex: none; }
+.nbtile .hd b { flex: 1; font-family: var(--f-display); font-weight: 600; font-size: 13.5pt; line-height: 1.1; padding-top: .3mm; text-shadow: 0 .3mm 1mm #000; }
+.nbtile .hd i { font-family: "IM Fell English SC", serif; font-style: normal; font-size: 12pt; color: ${C.bone}; opacity: .85; }
+.nbtile small { position: absolute; left: 2.4mm; right: 2.4mm; bottom: 2.4mm; font-family: var(--f-serif); font-size: 10.8pt; line-height: 1.16; text-align: center; text-shadow: 0 .3mm 1mm #000, 0 0 2mm #000; }
+.nbtile .reach { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; }
+.nbtile .reach b { display: block; font-family: "IM Fell English SC", serif; font-weight: 400; font-size: 36pt; line-height: 1; color: ${C.bone}; text-shadow: 0 0 2mm #000; }
+.nbtile .reach span { display: block; font-family: var(--f-display); font-size: 10.8pt; margin-top: 1mm; text-shadow: 0 0 2mm #000; }
 .nbback { position: absolute; inset: 0; background: ${C.ink}; }
 .nbback .bart { position: absolute; top: ${at(2)}; left: ${at(3.5)}; width: 56mm; height: 84mm; }
 .nbback .fogart { position: absolute; inset: 0; }
 .nbback .fogframe { position: absolute; inset: ${at(2)}; border: .35mm solid rgba(143,214,225,.45); border-radius: 2.6mm; }
 .nbback .reach { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; }
 .nbback .reach b { display: block; font-family: "IM Fell English SC", serif; font-weight: 400; font-size: 30pt; color: ${C.bone}; text-shadow: 0 0 3mm #000; }
-.nbback .reach span { display: block; font-family: var(--f-display); font-size: 9pt; letter-spacing: .3em; color: ${C.paper}; text-shadow: 0 0 2mm #000; }
+.nbback .reach span { display: block; font-family: var(--f-display); font-size: 10.5pt; letter-spacing: .3em; color: ${C.paper}; text-shadow: 0 0 2mm #000; }
 `;
 }
 
@@ -275,6 +296,9 @@ export function webCardCSS() {
 .nbface { position: relative; aspect-ratio: 63 / 88; container-type: inline-size; border-radius: 4.76% / 3.41%; overflow: hidden; }
 .nbface > .nbcard, .nbface > .nbback { --mm: calc(100cqw / 63); line-height: normal; ${f("en")} }
 html:lang(zh-Hant-TW) .nbface > .nbcard, html:lang(zh-Hant-TW) .nbface > .nbback { ${f("zh")} }
+.nbface:has(> .nbtile) { aspect-ratio: 1; border-radius: 3.75%; }
+.nbface > .nbtile { --mm: calc(100cqw / 40); line-height: normal; ${f("en")} }
+html:lang(zh-Hant-TW) .nbface > .nbtile { ${f("zh")} }
 .nbface img.pa { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 ${scaled}`;
 }

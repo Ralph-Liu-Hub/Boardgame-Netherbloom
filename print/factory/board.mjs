@@ -1,23 +1,34 @@
-// The river board: three A3 panels (420 x 297 mm, 3 mm bleed), one per Reach, joined edge to edge.
-// Painted banks and still water seen from above; every bank of spaces 1-11 has a 66 x 91 mm well for a 63 x 88 mm bank card;
-// each river space is a ring of ripples with a halo where the Soul token stands.
+// The river board: three panels of 266 x 182 mm (about JIS B5, smaller than A4; 3 mm bleed), one per Reach, joined edge to edge.
+// Painted banks and still water seen from above. Every bank of spaces 1-11 has a 42 mm square well for a 40 mm bank tile, and
+// each panel has a 66 x 91 mm well for its Reach's Mist deck where the Reach begins. Each river space is a ring of ripples with
+// a halo where the Soul standee stands. All printed words are at least 3.7 mm (10.5 pt) high.
 import { join } from "node:path";
 import { BLEED, C, doc, art, render } from "./lib.mjs";
 import { ZH_REACHES } from "../../web/public/assets/zh.js";
 import { REACH_NAMES } from "../../web/public/assets/cards.js";
 
-const PW = 420, PH = 297, SW = 66, SH = 91, PITCH = 74, RY = 148.5;
+export const PW = 266, PH = 182, TILE = 40;
+const SW = 42, PITCH = 44, RY = 91, TOP = 14, BOT = RY + 35, MW = 66, MH = 91;
 const BONE = C.bone, GILT = C.gilt, MIST = C.mist;
 const RANGE = [[1, 4], [5, 8], [9, 11]], NUM = ["I", "II", "III"];
 const f = x => (+x.toFixed(1)).toString();
+const FS = 3.8;   // the smallest printed text, in mm (about 10.8 pt)
+// Where things sit on the three panels laid edge to edge (mm from the left of panel I), for the rulebook's setup picture.
+const NEAR = 20, X0 = r => r * PW + (r === 0 ? NEAR : 0) + 1 + MW + 2 + SW / 2;
+export const GEO = { SW, MW, MH, RY, TOP, BOT,
+  mistX: r => r * PW + (r === 0 ? NEAR : 0) + 1,
+  spaceX: sp => sp === 0 ? NEAR / 2 + .5 : sp === 12 ? (() => { const l = X0(2) - 2 * PW + 2 * PITCH; return 2 * PW + l + SW / 2 + (PW - l - SW / 2) / 2; })()
+    : (r => X0(r) + (sp - RANGE[r][0]) * PITCH)(sp <= 4 ? 0 : sp <= 8 ? 1 : 2) };
 
 const W = {
-  en: { reach: r => `Reach ${NUM[r]} · ${REACH_NAMES[r]}`, left: "Left bank", right: "Right bank", open: "open bank · starts with a Bloom", fog: "bank card, fog side up",
-    near: "The Near Shore · the soul wakes here", far: "The Far Shore", keeper: "the Keeper and the cup", joins: r => `joins Reach ${NUM[r]}`,
-    foot: i => `NETHERBLOOM · RIVER BOARD · PANEL ${i + 1} OF 3 · A3 · 420 × 297 mm`, disp: "IM Fell English SC, Georgia, serif", serif: "IM Fell English, Georgia, serif" },
-  zh: { reach: r => `第${["一", "二", "三"][r]}河段 · ${ZH_REACHES[r]}`, left: "左岸", right: "右岸", open: "開放河岸 · 開局即有一朵花", fog: "河岸牌，霧面朝上",
+  en: { reach: r => `Reach ${NUM[r]} · ${REACH_NAMES[r]}`, left: "Left bank", right: "Right bank", open: "starts with a Bloom", fog: "bank tile, fog side up",
+    mist: r => `Mist deck · Reach ${NUM[r]}`, mistNote: "face down; flip the top card at each end of turn",
+    near: "Near Shore · the soul wakes here", far: "The Far Shore", keeper: "the Keeper and the cup", joins: r => `joins Reach ${NUM[r]}`,
+    foot: i => `NETHERBLOOM · RIVER BOARD ${i + 1}/3 · 266 × 182 mm`, disp: "IM Fell English SC, Georgia, serif", serif: "IM Fell English, Georgia, serif" },
+  zh: { reach: r => `第${["一", "二", "三"][r]}河段 · ${ZH_REACHES[r]}`, left: "左岸", right: "右岸", open: "開局即有一朵花", fog: "河岸板塊，霧面朝上",
+    mist: r => `迷霧牌庫 · 第${["一", "二", "三"][r]}河段`, mistNote: "面朝下放置；每次回合結束時翻開最上面的1張",
     near: "此岸 · 亡魂在此醒來", far: "彼岸", keeper: "守岸人與那杯河水", joins: r => `接第${["一", "二", "三"][r]}河段`,
-    foot: i => `《彼岸花渡》 · 河流圖板 · 第${i + 1}／3塊 · A3 · 420 × 297 mm`, disp: "Noto Serif TC, serif", serif: "Noto Serif TC, serif" },
+    foot: i => `《彼岸花渡》 · 河流圖板 ${i + 1}/3 · 266 × 182 mm`, disp: "Noto Serif TC, serif", serif: "Noto Serif TC, serif" },
 };
 
 // A small seeded random, so every build draws the same ripples.
@@ -38,9 +49,9 @@ function ring(cx, cy, rx, ry, r) {
   }
   return "M" + pts.join(" L") + " Z";
 }
-function ripple(x, y, num, seed, size = 10) {
+function ripple(x, y, num, seed, size = 10, k0 = .74) {
   const r = rng(seed * 7 + 3);
-  let o = `<ellipse cx="${f(x)}" cy="${f(y)}" rx="25" ry="18" fill="url(#pd-halo)"/>`;
+  let o = `<g transform="translate(${f(x)} ${f(y)}) scale(${k0}) translate(${f(-x)} ${f(-y)})"><ellipse cx="${f(x)}" cy="${f(y)}" rx="25" ry="18" fill="url(#pd-halo)"/>`;
   for (const side of [-1, 1]) {
     o += sketch(`M${f(x - 19)} ${f(y + side * 9)} C${f(x - 26)} ${f(y + side * 11)} ${f(x - 34)} ${f(y + side * 14)} ${f(x - 46)} ${f(y + side * 16)}`, BONE, { w: .3, op: .26, seed: seed + side + 50 });
     for (let j = 0; j < 3; j++) {
@@ -55,7 +66,7 @@ function ripple(x, y, num, seed, size = 10) {
     o += `<path d="${d}" fill="none" stroke="${BONE}" stroke-width="${(.5 - k * .07).toFixed(2)}" stroke-dasharray="${dash}" stroke-dashoffset="${uni(r, 0, 20).toFixed(1)}" opacity="${op.toFixed(2)}" stroke-linecap="round"/>`;
     if (k < 3) o += `<path d="${d}" transform="translate(.5 .5)" fill="none" stroke="${C.cyan}" stroke-width=".22" stroke-dasharray="${dash}" opacity="${(op * .4).toFixed(2)}"/>`;
   }
-  return o + `<text x="${f(x)}" y="${f(y + size * .34)}" text-anchor="middle" font-family="IM Fell English, Georgia, serif" font-size="${size}" fill="${BONE}" stroke="#050407" stroke-opacity=".8" stroke-width=".8" stroke-linejoin="round" paint-order="stroke" filter="url(#pd-numglow)">${num}</text>`;
+  return o + `</g><text x="${f(x)}" y="${f(y + size * .34)}" text-anchor="middle" font-family="IM Fell English, Georgia, serif" font-size="${size}" fill="${BONE}" stroke="#050407" stroke-opacity=".8" stroke-width=".8" stroke-linejoin="round" paint-order="stroke" filter="url(#pd-numglow)">${num}</text>`;
 }
 
 const DEFS = `<defs>
@@ -68,64 +79,72 @@ const DEFS = `<defs>
 <filter id="pd-numglow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.6" result="b"/><feFlood flood-color="#F3E6C0" flood-opacity=".55"/><feComposite in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 <radialGradient id="pd-red" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#D7263D" stop-opacity=".45"/><stop offset="1" stop-color="#D7263D" stop-opacity="0"/></radialGradient>
 <radialGradient id="pd-vig" cx=".5" cy=".5" r=".7"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient>
-<mask id="pd-band" maskUnits="userSpaceOnUse" x="-10" y="0" width="440" height="297"><path d="M-20 120 C100 112 210 128 320 118 S420 121 440 120 L440 177 C320 184 210 168 100 180 S0 176 -20 177 Z" fill="#fff" filter="url(#pd-feather)"/></mask>
+<mask id="pd-band" maskUnits="userSpaceOnUse" x="-10" y="0" width="${PW + 20}" height="${PH}"><path d="M-20 ${RY - 31} C70 ${RY - 37} 140 ${RY - 25} 200 ${RY - 33} S${PW} ${RY - 30} ${PW + 20} ${RY - 31} L${PW + 20} ${RY + 31} C200 ${RY + 37} 140 ${RY + 25} 70 ${RY + 35} S0 ${RY + 31} -20 ${RY + 31} Z" fill="#fff" filter="url(#pd-feather)"/></mask>
 </defs>`;
 
 // pieces: optional {"space,bank": "bloom" | "root" | "card"} drawn in the wells, for pictures of a game in play (the box back).
 export function panel(ri, lang, pieces = {}) {
   const w = W[lang], [a, b] = RANGE[ri], spaces = Array.from({ length: b - a + 1 }, (_, i) => a + i);
-  const xFirst = (PW - (spaces.length - 1) * PITCH) / 2 + (ri === 2 ? -24 : 0);
+  // left to right: (Reach I) the near shore, the Mist deck well, the spaces, (Reach III) the far shore
+  const nearW = ri === 0 ? 20 : 0, mistX = nearW + 1, x0 = mistX + MW + 2 + SW / 2;
+  const xs = spaces.map((_, j) => x0 + j * PITCH), lastX = xs[xs.length - 1];
   const B = BLEED, bank = art("tex-bank"), water = art("tex-water");
   let o = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${-B} ${-B} ${PW + 2 * B} ${PH + 2 * B}" width="${PW + 2 * B}mm" height="${PH + 2 * B}mm">${DEFS}
     <rect x="${-B}" y="${-B}" width="${PW + 2 * B}" height="${PH + 2 * B}" fill="#0f0d11"/>
-    ${bank ? `<image href="${bank}" x="${-ri * 84 - B}" y="${-B}" width="${((PH + 2 * B) * 1.98).toFixed(0)}" height="${PH + 2 * B}" preserveAspectRatio="none" opacity=".92"/>` : ""}
-    <rect x="${-B}" y="${-B}" width="${PW + 2 * B}" height="${PH + 2 * B}" fill="#0f0d11" opacity=".28"/>`;
+    ${bank ? `<image href="${bank}" x="${-ri * 60 - B}" y="${-B}" width="${((PH + 2 * B) * 1.98).toFixed(0)}" height="${PH + 2 * B}" preserveAspectRatio="none" opacity=".92"/>` : ""}
+    <rect x="${-B}" y="${-B}" width="${PW + 2 * B}" height="${PH + 2 * B}" fill="#0f0d11" opacity=".3"/>`;
   const r = rng(ri * 7 + 3);
   let refl = "";
-  for (let i = 0; i < 9; i++) refl += `<ellipse cx="${f(uni(r, 10, PW - 10))}" cy="${f(RY + (r() < .5 ? -1 : 1) * uni(r, 16, 24))}" rx="${f(uni(r, 3, 7))}" ry="${f(uni(r, 1, 2))}" fill="${C.crimson}" opacity="${uni(r, .14, .3).toFixed(2)}"/>`;
-  o += `<g mask="url(#pd-band)"><rect x="${-B}" y="100" width="${PW + 2 * B}" height="100" fill="#071319"/>
-    ${water ? `<image href="${water}" x="${-ri * 140}" y="98" width="${(208 * 1.98).toFixed(0)}" height="104" preserveAspectRatio="none" transform="scale(1.4 1)" opacity=".9"/>` : ""}
-    <rect x="${-B}" y="100" width="${PW + 2 * B}" height="100" fill="url(#pd-edge)"/><rect x="${-B}" y="100" width="${PW + 2 * B}" height="100" fill="url(#pd-deep)"/>
+  for (let i = 0; i < 7; i++) refl += `<ellipse cx="${f(uni(r, 10, PW - 10))}" cy="${f(RY + (r() < .5 ? -1 : 1) * uni(r, 12, 20))}" rx="${f(uni(r, 3, 6))}" ry="${f(uni(r, 1, 2))}" fill="${C.crimson}" opacity="${uni(r, .14, .3).toFixed(2)}"/>`;
+  o += `<g mask="url(#pd-band)"><rect x="${-B}" y="${RY - 40}" width="${PW + 2 * B}" height="80" fill="#071319"/>
+    ${water ? `<image href="${water}" x="${-ri * 90}" y="${RY - 40}" width="${(170 * 1.98).toFixed(0)}" height="80" preserveAspectRatio="none" transform="scale(1.4 1)" opacity=".9"/>` : ""}
+    <rect x="${-B}" y="${RY - 40}" width="${PW + 2 * B}" height="80" fill="url(#pd-edge)"/><rect x="${-B}" y="${RY - 40}" width="${PW + 2 * B}" height="80" fill="url(#pd-deep)"/>
     <g filter="url(#pd-soft)">${refl}</g></g>`;
-  o += sketch(`M${-B} ${RY - 27} C100 ${RY - 35} 210 ${RY - 19} 320 ${RY - 29} S${PW} ${RY - 27} ${PW + B} ${RY - 28}`, BONE, { w: .35, op: .35, seed: ri + 1 });
-  o += sketch(`M${-B} ${RY + 28} C100 ${RY + 31} 210 ${RY + 19} 320 ${RY + 33} S${PW} ${RY + 27} ${PW + B} ${RY + 28}`, BONE, { w: .35, op: .35, seed: ri + 4 });
-  [[70, 150], [240, 180], [380, 120]].forEach(([cx, wd], k) => { o += `<ellipse cx="${cx - ri * 20}" cy="${RY + (k - 1) * 6}" rx="${wd / 2}" ry="9" fill="${MIST}" opacity=".2" filter="url(#pd-mist)"/>`; });
-  o += `<text x="${PW / 2}" y="16" text-anchor="middle" font-family="${w.disp}" font-size="9" fill="${BONE}" style="paint-order:stroke" stroke="#0f0d11" stroke-width="1.6">${w.reach(ri)}</text>`;
-  o += sketch(`M${PW / 2 - 46} 19.5 C${PW / 2 - 15} 18 ${PW / 2 + 15} 21 ${PW / 2 + 46} 19.5`, GILT, { w: .35, op: .9, seed: ri + 9 });
+  o += sketch(`M${-B} ${RY - 31} C70 ${RY - 37} 140 ${RY - 25} 200 ${RY - 33} S${PW} ${RY - 30} ${PW + B} ${RY - 31}`, BONE, { w: .35, op: .35, seed: ri + 1 });
+  o += sketch(`M${-B} ${RY + 31} C70 ${RY + 35} 140 ${RY + 25} 200 ${RY + 37} S${PW} ${RY + 31} ${PW + B} ${RY + 31}`, BONE, { w: .35, op: .35, seed: ri + 4 });
+  [[50, 110], [150, 120], [240, 90]].forEach(([cx, wd], k) => { o += `<ellipse cx="${cx - ri * 14}" cy="${RY + (k - 1) * 5}" rx="${wd / 2}" ry="7" fill="${MIST}" opacity=".2" filter="url(#pd-mist)"/>`; });
+  // the Reach's name across the top
+  const titleX = (x0 - SW / 2 + lastX + SW / 2) / 2;
+  o += `<text x="${f(titleX)}" y="10" text-anchor="middle" font-family="${w.disp}" font-size="4.6" fill="${BONE}" style="paint-order:stroke" stroke="#0f0d11" stroke-width="1.4">${w.reach(ri)}</text>`;
   if (ri === 0) {
-    o += `<path d="M${-B} ${-B} H22 C30 80 14 200 26 ${PH + B} H${-B} Z" fill="#0a090c" opacity=".85"/>` + sketch(`M22 ${-B} C30 80 14 200 26 ${PH + B}`, BONE, { w: .4, op: .45, seed: 21 });
-    o += `<text x="12" y="${PH - 20}" font-family="${w.disp}" font-size="6" fill="${MIST}" transform="rotate(-90 12 ${PH - 20})">${w.near}</text>`;
+    o += `<path d="M${-B} ${-B} H${nearW} C${nearW + 4} 60 ${nearW - 4} 120 ${nearW + 2} ${PH + B} H${-B} Z" fill="#0a090c" opacity=".85"/>` + sketch(`M${nearW} ${-B} C${nearW + 4} 60 ${nearW - 4} 120 ${nearW + 2} ${PH + B}`, BONE, { w: .4, op: .45, seed: 21 });
+    o += ripple(nearW / 2 + .5, RY, 0, 30, 7, .5);
+    o += `<text x="${f(nearW / 2 - 2)}" y="${PH - 12}" font-family="${w.disp}" font-size="${FS}" fill="${BONE}" transform="rotate(-90 ${f(nearW / 2 - 2)} ${PH - 12})">${w.near}</text>`;
   }
+  // the Mist deck well, over the water where the Reach begins
+  const my = RY - MH / 2;
+  o += `<rect x="${f(mistX)}" y="${f(my)}" width="${MW}" height="${MH}" rx="4" fill="#0b0f12" fill-opacity=".78" stroke="#4f7d86" stroke-width=".7"/>
+    <rect x="${f(mistX + 2.2)}" y="${f(my + 2.2)}" width="${MW - 4.4}" height="${MH - 4.4}" rx="2.6" fill="none" stroke="#4f7d86" stroke-width=".25" stroke-dasharray="1.2 1.2"/>
+    <use href="#nb-fog" x="${f(mistX + MW / 2 - 11)}" y="${f(RY - 20)}" width="22" height="22" style="color:${C.cyan}" opacity=".6"/>`;
+  o += `<foreignObject x="${f(mistX + 4)}" y="${f(RY + 5)}" width="${MW - 8}" height="38"><div xmlns="http://www.w3.org/1999/xhtml" style="font-family:${w.serif};font-size:${FS}px;line-height:1.2;color:${BONE};text-align:center"><b style="font-weight:600">${w.mist(ri)}</b><br/><span style="color:${MIST}">${w.mistNote}</span></div></foreignObject>`;
   if (ri === 2) {
-    o += `<path d="M${PW + B} ${-B} H${PW - 64} C${PW - 76} 80 ${PW - 56} 200 ${PW - 70} ${PH + B} H${PW + B} Z" fill="#1a0b10" opacity=".92"/>` + sketch(`M${PW - 64} ${-B} C${PW - 76} 80 ${PW - 56} 200 ${PW - 70} ${PH + B}`, "#d9a441", { w: .45, op: .6, seed: 22 });
-    o += `<circle cx="${PW - 30}" cy="${RY + 40}" r="34" fill="url(#pd-red)"/><use href="#nb-bloom" x="${PW - 44}" y="${RY + 26}" width="28" height="28" style="color:${C.crimson}"/>`;
-    o += ripple(PW - 30, RY, 12, 12, 9.5);
-    o += `<text x="${PW - 30}" y="${RY - 40}" text-anchor="middle" font-family="${w.disp}" font-size="7.5" fill="${BONE}">${w.far}</text>`;
-    o += `<text x="${PW - 30}" y="${RY - 32}" text-anchor="middle" font-family="${w.serif}" font-style="italic" font-size="4.6" fill="${MIST}">${w.keeper}</text>`;
+    const fx = lastX + SW / 2 + (PW - lastX - SW / 2) / 2;
+    o += `<path d="M${PW + B} ${-B} H${f(fx - 22)} C${f(fx - 28)} 60 ${f(fx - 18)} 120 ${f(fx - 24)} ${PH + B} H${PW + B} Z" fill="#1a0b10" opacity=".92"/>` + sketch(`M${f(fx - 22)} ${-B} C${f(fx - 28)} 60 ${f(fx - 18)} 120 ${f(fx - 24)} ${PH + B}`, "#d9a441", { w: .45, op: .6, seed: 22 });
+    o += `<circle cx="${f(fx)}" cy="${RY + 30}" r="20" fill="url(#pd-red)"/><use href="#nb-bloom" x="${f(fx - 10)}" y="${RY + 20}" width="20" height="20" style="color:${C.crimson}"/>`;
+    o += ripple(fx, RY, 12, 12, 8, .6);
+    o += `<text x="${f(fx)}" y="${RY - 26}" text-anchor="middle" font-family="${w.disp}" font-size="5.2" fill="${BONE}">${w.far}</text>`;
+    o += `<foreignObject x="${f(fx - 19)}" y="${RY - 23}" width="38" height="12"><div xmlns="http://www.w3.org/1999/xhtml" style="font-family:${w.serif};font-style:italic;font-size:${FS}px;line-height:1.15;color:${MIST};text-align:center">${w.keeper}</div></foreignObject>`;
   }
-  if (ri > 0) o += `<text x="4" y="${RY + 40}" font-family="IBM Plex Mono, ${w.serif}" font-size="3.2" fill="${MIST}">◀ ${w.joins(ri - 1)}</text>`;
-  if (ri < 2) o += `<text x="${PW - 4}" y="${RY + 40}" text-anchor="end" font-family="IBM Plex Mono, ${w.serif}" font-size="3.2" fill="${MIST}">${w.joins(ri + 1)} ▶</text>`;
+  if (ri > 0) o += `<text x="2" y="${PH - 4}" font-family="IBM Plex Mono, ${w.serif}" font-size="${FS}" fill="${MIST}">◀ ${w.joins(ri - 1)}</text>`;
+  if (ri < 2) o += `<text x="${PW - 2}" y="${PH - 4}" text-anchor="end" font-family="IBM Plex Mono, ${w.serif}" font-size="${FS}" fill="${MIST}">${w.joins(ri + 1)} ▶</text>`;
   spaces.forEach((sp, j) => {
-    const x = xFirst + j * PITCH;
-    for (const [bk, y0, label] of [[0, 26, w.left], [1, RY + 34, w.right]]) {
+    const x = xs[j];
+    for (const [bk, y0, label] of [[0, TOP, w.left], [1, BOT, w.right]]) {
       const piece = pieces[`${sp},${bk}`];
-      o += `<rect x="${f(x - SW / 2)}" y="${f(y0)}" width="${SW}" height="${SH}" rx="4" fill="#0b0a0d" fill-opacity=".72" stroke="${GILT}" stroke-width=".7"/>`;
-      o += `<rect x="${f(x - SW / 2 + 2.2)}" y="${f(y0 + 2.2)}" width="${SW - 4.4}" height="${SH - 4.4}" rx="2.6" fill="none" stroke="${GILT}" stroke-width=".25" stroke-dasharray="1.2 1.2" opacity=".8"/>`;
-      for (const [cx, cy, rot] of [[x - SW / 2 + 5, y0 + 5, -45], [x + SW / 2 - 5, y0 + 5, 45], [x - SW / 2 + 5, y0 + SH - 5, -135], [x + SW / 2 - 5, y0 + SH - 5, 135]])
-        o += `<use href="#nb-bloom" x="${f(cx - 2.6)}" y="${f(cy - 2.6)}" width="5.2" height="5.2" transform="rotate(${rot} ${f(cx)} ${f(cy)})" style="color:${GILT}"/>`;
-      const mid = y0 + SH / 2, open = sp === 1;
-      if (piece === "card") o += `<rect x="${f(x - 31.5)}" y="${f(y0 + 1.5)}" width="63" height="88" rx="3.5" fill="#1e2a30" stroke="#5f8d95" stroke-width=".6"/><use href="#nb-fog" x="${f(x - 12)}" y="${f(mid - 12)}" width="24" height="24" style="color:${C.cyan}" opacity=".75"/>`;
+      o += `<rect x="${f(x - SW / 2)}" y="${f(y0)}" width="${SW}" height="${SW}" rx="3" fill="#0b0a0d" fill-opacity=".72" stroke="${GILT}" stroke-width=".6"/>`;
+      o += `<rect x="${f(x - SW / 2 + 1.6)}" y="${f(y0 + 1.6)}" width="${SW - 3.2}" height="${SW - 3.2}" rx="2" fill="none" stroke="${GILT}" stroke-width=".22" stroke-dasharray="1.1 1.1" opacity=".8"/>`;
+      const mid = y0 + SW / 2, open = sp === 1;
+      if (piece === "card") o += `<rect x="${f(x - TILE / 2)}" y="${f(y0 + 1)}" width="${TILE}" height="${TILE}" rx="2" fill="#1e2a30" stroke="#5f8d95" stroke-width=".6"/><use href="#nb-fog" x="${f(x - 9)}" y="${f(mid - 9)}" width="18" height="18" style="color:${C.cyan}" opacity=".75"/>`;
       else {
-        o += `<use href="#${open ? "nb-bloom" : "nb-fog"}" x="${f(x - 9)}" y="${f(mid - 14)}" width="18" height="18" style="color:${open ? C.crimson : MIST}" opacity="${open ? 1 : .7}"/>`;
-        o += `<text x="${f(x)}" y="${f(mid + 11)}" text-anchor="middle" font-family="${w.serif}" font-style="italic" font-size="4.4" fill="${MIST}">${open ? w.open : w.fog}</text>`;
+        o += `<use href="#${open ? "nb-bloom" : "nb-fog"}" x="${f(x - 7)}" y="${f(y0 + 4)}" width="14" height="14" style="color:${open ? C.crimson : MIST}" opacity="${open ? 1 : .7}"/>`;
+        o += `<foreignObject x="${f(x - SW / 2 + 2)}" y="${f(y0 + 18.5)}" width="${SW - 4}" height="${SW - 20}"><div xmlns="http://www.w3.org/1999/xhtml" style="font-family:${w.serif};font-size:${FS}px;line-height:1.12;color:${MIST};text-align:center">${open ? w.open : w.fog}<br/><span style="color:${BONE}">${label} · ${sp}</span></div></foreignObject>`;
       }
-      if (piece === "bloom" || piece === "root") o += `<circle cx="${f(x)}" cy="${f(mid)}" r="16" fill="url(#pd-red)"/><use href="#nb-${piece}" x="${f(x - 11)}" y="${f(mid - 11)}" width="22" height="22" style="color:${piece === "bloom" ? C.crimson : BONE}"/>`;
-      o += `<text x="${f(x)}" y="${f(y0 + SH - 7)}" text-anchor="middle" font-family="IBM Plex Mono, ${w.serif}" font-size="3.1" letter-spacing=".4" fill="${MIST}">${lang === "en" ? label.toUpperCase() : label} · ${sp}</text>`;
+      if (piece === "bloom" || piece === "root") o += `<circle cx="${f(x)}" cy="${f(mid)}" r="12" fill="url(#pd-red)"/><use href="#nb-${piece}" x="${f(x - 9)}" y="${f(mid - 9)}" width="18" height="18" style="color:${piece === "bloom" ? C.crimson : BONE}"/>`;
     }
-    o += ripple(x, RY, sp, sp);
+    o += ripple(x, RY, sp, sp, 8);
   });
   o += `<rect x="${-B}" y="${-B}" width="${PW + 2 * B}" height="${PH + 2 * B}" fill="url(#pd-vig)"/>`;
-  o += `<text x="${PW - 6}" y="${PH - 5}" text-anchor="end" font-family="IBM Plex Mono, ${w.serif}" font-size="3" fill="${MIST}">${w.foot(ri)}</text>`;
+  o += `<text x="${f(titleX)}" y="${PH - 4}" text-anchor="middle" font-family="IBM Plex Mono, ${w.serif}" font-size="3" fill="${MIST}" opacity=".8">${w.foot(ri)}</text>`;
   return o + "</svg>";
 }
 

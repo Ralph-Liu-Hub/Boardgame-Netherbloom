@@ -48,7 +48,7 @@ const CSS = `
 .gilt { position: absolute; inset: ${BLEED + 9}mm; border: .5mm solid #8a6a3e; }
 .gilt::after { content: ""; position: absolute; inset: 1.4mm; border: .2mm solid #8a6a3e; }
 .body { position: absolute; left: ${BLEED + 18}mm; right: ${BLEED + 18}mm; top: ${BLEED + 20}mm; bottom: ${BLEED + 18}mm; display: flex; flex-direction: column; }
-.eyebrow { font-family: var(--f-mono); font-size: 7pt; letter-spacing: .3em; text-transform: uppercase; color: #9b1f2f; text-align: center; }
+.eyebrow { font-family: var(--f-mono); font-size: 9pt; letter-spacing: .3em; text-transform: uppercase; color: #9b1f2f; text-align: center; }
 h1, h2 { font-family: var(--f-display); font-weight: 400; color: ${C.ink}; text-align: center; margin: 2mm 0 4mm; }
 h1 { font-size: 30pt; line-height: 1.1; } h2 { font-size: 20pt; }
 p { font-family: var(--f-serif); font-size: 11pt; line-height: 1.55; margin: 0 0 3.5mm; }
@@ -62,14 +62,14 @@ p { font-family: var(--f-serif); font-size: 11pt; line-height: 1.55; margin: 0 0
 .well { position: relative; width: ${WELL_W}mm; height: ${WELL_H}mm; border: .3mm dashed #8a6a3e; border-radius: 3mm; background: rgba(244,236,216,.55);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2mm; color: #8a6a3e; text-align: center; padding: 6mm; }
 .well .ic { width: 10mm; height: 10mm; }
-.well b { font-family: var(--f-mono); font-weight: 400; font-size: 7pt; letter-spacing: .3em; text-transform: uppercase; }
-.well i { font-family: var(--f-hand); font-size: 9pt; color: #9a8466; }
+.well b { font-family: var(--f-mono); font-weight: 400; font-size: 9pt; letter-spacing: .3em; text-transform: uppercase; }
+.well i { font-family: var(--f-hand); font-size: 10.5pt; color: #9a8466; }
 .corner { position: absolute; width: 9mm; height: 9mm; background: linear-gradient(135deg, #8a6a3e 50%, transparent 50%); opacity: .85; }
-.foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-family: var(--f-mono); font-size: 7pt; color: #8a6a3e; letter-spacing: .15em; }
-.pairs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5mm; margin-top: 4mm; font-size: 7.6pt; line-height: 1.3; color: #3c2f22; }
+.foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-family: var(--f-mono); font-size: 8pt; color: #8a6a3e; letter-spacing: .1em; }
+.pairs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5mm; margin-top: 4mm; font-size: 10.5pt; line-height: 1.25; color: #3c2f22; }
 .pairs > div { display: grid; grid-template-columns: 5.5mm 1fr; align-items: start; }
 .pairs .box { grid-row: span 2; margin-top: .4mm; }
-.pairs b { font-family: var(--f-mono); font-weight: 400; font-size: 6pt; letter-spacing: .12em; text-transform: uppercase; color: #8a6a3e; }
+.pairs b { font-family: var(--f-mono); font-weight: 400; font-size: 8.5pt; letter-spacing: .12em; text-transform: uppercase; color: #8a6a3e; }
 .box { display: inline-block; width: 4mm; height: 4mm; border: .3mm solid #8a6a3e; vertical-align: -.6mm; margin-right: 1.5mm; }
 .rules p { font-size: 10pt; }
 .epi { margin: -1mm 10mm 5mm; font-size: 12pt; }
@@ -83,12 +83,12 @@ p { font-family: var(--f-serif); font-size: 11pt; line-height: 1.55; margin: 0 0
 
 h3 { font-family: var(--f-display); font-weight: 400; font-size: 14pt; text-align: center; margin: 1mm 0 3mm; color: #3c2f22; } .rules b { color: #6b1520; font-weight: 600; }
 .note { border: .3mm solid #c9b48a; border-radius: 2mm; padding: 4mm 5mm; background: rgba(244,236,216,.6); }
-.sign { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6mm; margin-top: 8mm; font-family: var(--f-mono); font-size: 7pt; letter-spacing: .2em; text-transform: uppercase; color: #8a6a3e; }
+.sign { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6mm; margin-top: 8mm; font-family: var(--f-mono); font-size: 9pt; letter-spacing: .12em; text-transform: uppercase; color: #8a6a3e; }
 .sign span { border-top: .3mm solid #8a6a3e; padding-top: 1.5mm; }
 .dark { position: absolute; inset: 0; background: ${C.ink}; color: ${C.bone}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6mm; }
 .dark .ic { width: 22mm; height: 22mm; }
 .dark .t { font-family: "IM Fell English SC", Georgia, serif; font-size: 16pt; letter-spacing: .2em; }
-.dark small { font-family: var(--f-mono); font-size: 7pt; letter-spacing: .3em; color: ${C.mist}; }
+.dark small { font-family: var(--f-mono); font-size: 9pt; letter-spacing: .3em; color: ${C.mist}; }
 svg.die { position: absolute; inset: 0; width: 100%; height: 100%; }
 `;
 

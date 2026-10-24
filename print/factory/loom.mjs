@@ -35,7 +35,7 @@ const W = {
   },
 };
 
-const ROW0 = 52, ROWH = 50, KX = k => 96 + k * 26, ECHO_X = 232, BOX_X = 248;
+const ROW0 = 54, ROWH = 50, KX = k => 84 + k * 24, ECHO_X = 200, BOX_X = 216;
 
 function board(lang) {
   const L = W[lang], B = BLEED;
@@ -64,7 +64,7 @@ function board(lang) {
       <div class="snap" style="left:${KX(3) - 13}mm;top:${y + 12.5}mm">${esc(L.snap4)}</div>
       <div class="snap" style="left:${KX(4) - 13}mm;top:${y + 12.5}mm">${esc(L.snap5)}</div>
       <div class="echo" style="left:${ECHO_X - 12}mm;top:${y + 12}mm">${L.echo}</div>
-      <div class="bl" style="top:${y - 17}mm;border-color:${col}"><i>${L.backlash}</i><b style="color:${col}">${esc(bl)}</b><span>${esc(blText)}</span></div>`;
+      <div class="bl" style="top:${y - 22}mm;border-color:${col}"><i>${L.backlash}</i><b style="color:${col}">${esc(bl)}</b><span>${esc(blText)}</span></div>`;
   }).join("");
   return `<div class="bg">${artImg("tex-water")}</div><div class="shade"></div>${svg}
     <div class="ttl"><b>${L.title}</b><span>${esc(L.sub)}</span></div>${rows}<div class="foot">${esc(L.foot)}</div>`;
@@ -80,28 +80,28 @@ const CSS = `
 .bg { position: absolute; inset: 0; opacity: .32; } .bg .ai { width: 100%; height: 100%; object-fit: cover; }
 .shade { position: absolute; inset: 0; background: radial-gradient(ellipse at 40% 50%, rgba(14,12,17,.15), rgba(14,12,17,.85)); }
 .lsvg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.lsvg .kn { font-family: var(--f-mono); font-size: 2.6px; fill: ${C.mist}; }
+.lsvg .kn { font-family: var(--f-mono); font-size: 3.6px; fill: ${C.mist}; }
 .ttl { position: absolute; left: ${BLEED + 14}mm; top: ${BLEED + 12}mm; right: ${BLEED + 14}mm; display: flex; align-items: baseline; gap: 6mm; }
 .ttl b { font-family: var(--f-display); font-weight: 400; font-size: 22pt; color: ${C.bone}; }
 [lang="zh-Hant-TW"] .ttl b { font-weight: 600; }
-.ttl span { font-family: var(--f-hand); font-style: italic; font-size: 10pt; color: #cfc4b0; }
+.ttl span { font-family: var(--f-hand); font-style: italic; font-size: 11pt; color: #cfc4b0; }
 [lang="zh-Hant-TW"] .ttl span { font-style: normal; }
-.th { position: absolute; margin-top: ${BLEED}mm; left: ${BLEED + 14}mm; width: 58mm; display: grid; grid-template-columns: 11mm 1fr; column-gap: 2.5mm; align-items: center; }
+.th { position: absolute; margin-top: ${BLEED}mm; left: ${BLEED + 14}mm; width: 60mm; display: grid; grid-template-columns: 11mm 1fr; column-gap: 2.5mm; align-items: center; }
 .th .ti { width: 11mm; height: 11mm; grid-row: span 2; }
 .th b { font-family: var(--f-display); font-weight: 400; font-size: 15pt; line-height: 1.1; }
 [lang="zh-Hant-TW"] .th b { font-weight: 600; }
-.th span { font-size: 8pt; line-height: 1.3; color: #cfc4b0; }
-.snap { position: absolute; width: 26mm; margin-left: ${BLEED}mm; margin-top: ${BLEED}mm; text-align: center; font-family: var(--f-mono); font-size: 5.6pt; line-height: 1.25; letter-spacing: .04em; color: ${C.bone}; }
-[lang="zh-Hant-TW"] .snap { font-family: var(--f-body); font-size: 6.6pt; }
-.echo { position: absolute; width: 24mm; margin-left: ${BLEED}mm; margin-top: ${BLEED}mm; text-align: center; font-family: var(--f-mono); font-size: 5.6pt; letter-spacing: .2em; text-transform: uppercase; color: ${C.cyan}; }
-[lang="zh-Hant-TW"] .echo { font-family: var(--f-body); font-size: 6.8pt; letter-spacing: .1em; }
-.bl { position: absolute; margin-top: ${BLEED}mm; left: ${BLEED + BOX_X}mm; width: ${BW - BOX_X - 12}mm; height: 34mm; box-sizing: border-box; border: .3mm solid; border-radius: 2mm; padding: 2mm 2.4mm; background: rgba(14,12,17,.7); display: flex; flex-direction: column; gap: .6mm; }
-.bl i { font-style: normal; font-family: var(--f-mono); font-size: 5.2pt; letter-spacing: .2em; text-transform: uppercase; color: ${C.mist}; }
-[lang="zh-Hant-TW"] .bl i { font-family: var(--f-body); font-size: 6.4pt; }
-.bl b { font-family: var(--f-display); font-weight: 400; font-size: 11pt; line-height: 1.1; }
+.th span { font-size: 10.5pt; line-height: 1.25; color: #cfc4b0; }
+.snap { position: absolute; width: 24mm; margin-left: ${BLEED}mm; margin-top: ${BLEED}mm; text-align: center; font-family: var(--f-body); font-size: 9.5pt; line-height: 1.15; color: ${C.bone}; }
+[lang="zh-Hant-TW"] .snap { font-size: 10.5pt; }
+.echo { position: absolute; width: 24mm; margin-left: ${BLEED}mm; margin-top: ${BLEED}mm; text-align: center; font-family: var(--f-mono); font-size: 10.5pt; letter-spacing: .08em; text-transform: uppercase; color: ${C.cyan}; }
+[lang="zh-Hant-TW"] .echo { font-family: var(--f-body); font-size: 10.5pt; letter-spacing: .1em; }
+.bl { position: absolute; margin-top: ${BLEED}mm; left: ${BLEED + BOX_X}mm; width: ${BW - BOX_X - 11}mm; height: 44mm; box-sizing: border-box; border: .3mm solid; border-radius: 2mm; padding: 2mm 2.4mm; background: rgba(14,12,17,.7); display: flex; flex-direction: column; gap: .6mm; }
+.bl i { font-style: normal; font-family: var(--f-mono); font-size: 8pt; letter-spacing: .1em; text-transform: uppercase; color: ${C.mist}; }
+[lang="zh-Hant-TW"] .bl i { font-family: var(--f-body); font-size: 9pt; }
+.bl b { font-family: var(--f-display); font-weight: 400; font-size: 13pt; line-height: 1.1; }
 [lang="zh-Hant-TW"] .bl b { font-weight: 600; }
-.bl span { font-size: 7.2pt; line-height: 1.3; color: ${C.paper}; }
-.foot { position: absolute; left: ${BLEED + 14}mm; right: ${BLEED + 14}mm; bottom: ${BLEED + 12}mm; text-align: center; font-size: 8pt; line-height: 1.35; color: #cfc4b0; border-top: .2mm solid rgba(138,109,72,.6); padding-top: 2mm; }
+.bl span { font-size: 10.5pt; line-height: 1.25; color: ${C.paper}; }
+.foot { position: absolute; left: ${BLEED + 14}mm; right: ${BLEED + 14}mm; bottom: ${BLEED + 12}mm; text-align: center; font-size: 10.5pt; line-height: 1.3; color: #cfc4b0; border-top: .2mm solid rgba(138,109,72,.6); padding-top: 2mm; }
 `;
 
 export async function build(lang, dir, { png }) {

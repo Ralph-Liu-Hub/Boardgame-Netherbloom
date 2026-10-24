@@ -1150,7 +1150,7 @@ function riverRipple(x, y, num, seed) {
   return o + `<text class="rpnum" x="${rf(x)}" y="${rf(y + 5.5)}" text-anchor="middle">${num}</text>`;
 }
 
-// A revealed bank card's symbol: full size in the middle while the bank is empty, tucked small into the
+// A revealed bank tile's symbol: full size in the middle while the bank is empty, tucked small into the
 // bottom-right corner once a Root, Bloom or Shade sits on it.
 function tileMark(t, cx, cy, covered) {
   const icon = { [STONY]: "nb-stony", [MEMORY]: "nb-memorysite", [GRAVE]: "nb-grave", [FERTILE]: "nb-fertile" }[t];
@@ -1260,7 +1260,7 @@ function drawBoard() {
     const [cx, cy] = slotXY(k);
     const sp = k >> 1;
     const behind = sp < s.soul;
-    // The bank card in its well: the fog side until the bank is revealed, then the painted ground.
+    // The bank tile in its well: the fog side until the bank is revealed, then the painted ground.
     const dealt = !stage || stage.banks.has(k) || (k < 4 && stage.blooms);
     const base = !dealt ? ""
       : !s.revealed[k]
@@ -2118,14 +2118,14 @@ function cardsBook() {
   sec("table", "mantles", L("Mantles", "稱號"),
     intro("Summon one by discarding a card of its thread and spending 3 Light (2 with the King on the Barge).", "棄掉一張同絲線的牌並花費3點光（渡船上的國王為2點光）即可召喚。") +
       ggrid(Object.keys(MANTLES).map(m => gitem(kit.mantleFace(W, m), 1, `${MANTLES[m].name} Mantle`))));
-  sec("table", "banks", L("Bank cards", "河岸牌"),
-    intro("Laid fog side up in the wells on the banks of each Reach, and turned over when a Root is placed there.", "霧面朝上放進各河段河岸的牌槽，放置根時翻開。") +
+  sec("table", "banks", L("Bank tiles", "河岸板塊"),
+    intro("Laid fog side up in the wells on the banks of each Reach, and turned over when a Root is placed there.", "霧面朝上放置到各河段河岸的方槽中；在上面放置根時翻開。") +
       ggrid(TILES.flatMap(([, tiles], r) => [FERTILE, STONY, MEMORY, GRAVE].filter(t => tiles.includes(t))
-        .map(t => gitem(kit.bankFace(W, t, r), tiles.filter(x => x === t).length, "bank tile")))));
+        .map(t => gitem(kit.tileFace(W, t, r), tiles.filter(x => x === t).length, "bank tile")))));
   sec("table", "backs", L("Card backs", "牌背"),
-    intro("One back per deck. The bank cards' backs are the fog, one for each Reach.", "每副牌一種牌背。河岸牌的背面是霧，每個河段一種。") +
+    intro("One back per deck. The bank tiles' backs are the fog, one for each Reach.", "每副牌一種牌背。河岸板塊的背面是霧面，每個河段一種。") +
       ggrid([["back-memory", "Memory", "記憶牌"], ["back-mist", "Mist", "迷霧牌"], ["back-ghost", "Ghost", "幽靈牌"], ["back-soul", "Soul and Mantle", "亡魂與稱號"]]
-        .map(([file, en, zhText]) => gitem(kit.paintedBack(file), 1, `${en} ${zhText} back`)).concat([0, 1, 2].map(r => gitem(kit.fogBack(W, r), 1, "fog bank back")))));
+        .map(([file, en, zhText]) => gitem(kit.paintedBack(file), 1, `${en} ${zhText} back`)).concat([0, 1, 2].map(r => gitem(kit.tileBack(W, r), 1, "fog bank tile back")))));
   return out;
 }
 // The groups as chips above the cards, and which sections the current group shows.
@@ -2152,7 +2152,7 @@ function peekCard(html) {
 
 // ---------------------------------------------------------------- the opening: the table is set up before the eyes
 // A new crossing opens with the Setup steps of the Rulebook carried out on screen, in the same order and with the same
-// numbers: the bank cards are shuffled and dealt into the wells, the decks are shuffled and laid down, and the hands
+// numbers: the bank tiles are shuffled and dealt into the wells, the decks are shuffled and laid down, and the hands
 // are dealt. It plays on the effects queue, so nothing can be played until it ends; Skip sets the table at once.
 const SETUP_SPACES = [[2, 4], [5, 8], [9, 11]];
 function boardPt(x, y) {
@@ -2170,7 +2170,7 @@ function followBoard(x) {
   sc.scrollLeft = x <= 0 ? 0 : x * boardScale() - sc.clientWidth / 2;
 }
 const boardScale = () => $("board")?.getScreenCTM()?.a || 1;
-// A painted card travelling across the table (a bank card to its well, a Mist card to its Reach).
+// A painted card travelling across the table (a bank tile to its well, a Mist card to its Reach).
 function artFly(src, from, to, { ms = 460, delay = 0, w = 54, h = 72, onland } = {}) {
   ms *= fxSpeed; delay *= fxSpeed;
   setTimeout(() => {
@@ -2247,14 +2247,14 @@ function startOpening() {
     setupCap(1, "The river board: three panels, Reach I to Reach III.", "河流圖板：三塊圖板，第一到第三河段。");
     return 1500;
   });
-  // 2. Bank cards: each Reach's cards shuffled on their own, then dealt fog side up, space by space, left bank then right
+  // 2. Bank tiles: each Reach's cards shuffled on their own, then dealt fog side up, space by space, left bank then right
   SETUP_SPACES.forEach(([a, b], r) => openStep(() => {
     followBoard((X(a) + X(b)) / 2);
     const mid = boardPt((X(a) + X(b)) / 2, Y((a + b) / 2));
     const sc = boardScale(), w = 54 * sc, h = 72 * sc;
     const n = (b - a + 1) * 2;
-    setupCap(2, `Bank cards for Reach ${ROMAN[r]}: ${n} shuffled, dealt fog side up into spaces ${a}–${b}.`,
-      `第${ZHNUM[r]}河段的河岸牌：${n}張洗勻，霧面朝上放進第${a}–${b}格。`);
+    setupCap(2, `Bank tiles for Reach ${ROMAN[r]}: ${n} shuffled, dealt fog side up into spaces ${a}–${b}.`,
+      `第${ZHNUM[r]}河段的河岸板塊：${n}塊洗混，霧面朝上放置到第${a}–${b}格。`);
     const shuf = shuffleAt(mid, "card-fog", { n: Math.min(n, 8), w, h, stay: n * 170 + 300 });
     let i = 0;
     for (let sp = a; sp <= b; sp++) for (const k of [sp * 2, sp * 2 + 1]) {
@@ -2271,7 +2271,7 @@ function startOpening() {
     stage.blooms = true; stage.fresh.add(2); stage.fresh.add(3);
     drawBoard(); stage.fresh.delete(2); stage.fresh.delete(3);
     A.sfx("bloom");
-    setupCap(3, "Space 1 has no bank cards: a Bloom on both banks, so the first step is always Lit.", "第1格沒有河岸牌：兩岸各放1朵花，讓第一步永遠是照亮的。");
+    setupCap(3, "Space 1 has no bank tiles: a Bloom on both banks, so the first step is always Lit.", "第1格沒有河岸板塊：兩岸各放1朵花，讓第一步永遠是照亮的。");
     return 1500;
   });
   openStep(() => {
