@@ -79,7 +79,7 @@ const W = {
     pfIntro: "Every file below is listed with everything needed to print it. Pages labelled DIE LINE or TRIM LINE are cutting guides: register them to the printed page with the crop marks and never print them. Files not listed here (MANUAL.pdf, tiles/bank-tile-singles.pdf) are not printed.",
     pfKeys: ["Contents", "Finished size (trim)", "PDF page", "Colours", "Pages, front and back", "Turning the sheet", "Stock", "Finishing", "Quantity per game"],
     pfPage: (w, h, b, s) => `${w + 2 * b} × ${h + 2 * b} mm with bleed; ${w + 2 * b + 2 * s} × ${h + 2 * b + 2 * s} mm with the slug and marks`,
-    pfReg: "Front and back registration was checked on every two-sided file. Cards, Player Aid, rulebook and Books: every front and back page has the same page size, bleed box and trim box. Punchboard and bank tiles: rendered at 300 dpi with the back turned over left to right, every token and tile back sits within 0.06 mm of its front and of its cut on the die line.",
+    pfReg: "Front and back registration was checked on every two-sided file. Cards, Player Aid, rulebook and Books: every front and back page has the same page size, bleed box and trim box. Punchboard and bank tiles: with the back turned over left to right, every token and tile back is centred exactly on its front and on its cut on the die line, and the art covers the whole band 1.5 mm past every cut on both sides (it runs 2 mm past). The check is <code>print/factory/checkpress.py</code>; it also confirms every page is CMYK and the art fills the bleed.",
     general: [
       "Every page has <b>3 mm bleed</b> on all four sides (more than the 1.5 mm minimum), and the die-cut sheets carry <b>2 mm</b> of art past every cut. Trim to the finished size; keep the cut within ±0.5 mm. Nothing important sits within 3 mm of the trim.",
       "Files are <b>CMYK</b>, converted with the profile <b>Coated FOGRA39</b> (ISO Coated v2 condition, total ink 330%, relative colorimetric with black point compensation). If you print to another standard, convert from these files with your own profile. Send a printed <b>colour proof</b> before the run: the art is dark, so protect shadow detail and do not let blacks fill in.",
@@ -179,7 +179,7 @@ const W = {
     pfIntro: "以下每個檔案都列出印刷所需的全部資訊。標示 DIE LINE 或 TRIM LINE 的頁面為裁切依據：請以裁切標記與印刷頁套準，且絕不印出。未列於此的檔案（MANUAL.pdf、tiles/bank-tile-singles.pdf）不需印刷。",
     pfKeys: ["內容", "成品尺寸（裁切）", "PDF 頁面", "色數", "頁面與正背面", "翻面方式", "用紙", "加工", "每套數量"],
     pfPage: (w, h, b, s) => `含出血 ${w + 2 * b} × ${h + 2 * b} mm；含版邊與標記 ${w + 2 * b + 2 * s} × ${h + 2 * b + 2 * s} mm`,
-    pfReg: "所有雙面印刷的檔案都已檢查正背面套準。卡牌、玩家輔助卡、規則書與憶念之書：每個正面與背面頁的頁面尺寸、BleedBox 與 TrimBox 完全相同。標記板與河岸板塊：以 300 dpi 輸出並將背面左右翻面後，每個標記與板塊的背面與其正面、以及刀模上的裁切線，誤差皆在 0.06 mm 以內。",
+    pfReg: "所有雙面印刷的檔案都已檢查正背面套準。卡牌、玩家輔助卡、規則書與憶念之書：每個正面與背面頁的頁面尺寸、BleedBox 與 TrimBox 完全相同。標記板與河岸板塊：將背面左右翻面後，每個標記與板塊的背面都正好對準其正面與刀模上的裁切線，且正、背兩面的圖案都完整覆蓋裁切線外 1.5 mm 的範圍（實際超出 2 mm）。檢查程式為 <code>print/factory/checkpress.py</code>，並確認每頁皆為 CMYK、圖案填滿出血。",
     general: [
       "每個頁面四邊皆有 <b>3 mm 出血</b>（大於 1.5 mm 的最低要求），模切紙張上的圖案超出每條裁切線 <b>2 mm</b>。裁切至成品尺寸，誤差在 ±0.5 mm 以內。距裁切線 3 mm 內沒有重要內容。",
       "檔案為 <b>CMYK</b>，以 <b>Coated FOGRA39</b> 描述檔（ISO Coated v2 印刷條件，總墨量 330%，相對色度並使用黑點補償）轉換。如貴廠採用其他印刷標準，請由這些檔案以貴廠描述檔轉換。量產前請提供<b>印刷色樣</b>：美術風格偏暗，請保留暗部細節，避免黑色糊掉。",

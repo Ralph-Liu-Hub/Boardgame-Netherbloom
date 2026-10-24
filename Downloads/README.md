@@ -14,7 +14,9 @@ Click a file, then **Download** (or "View raw"). Each zip opens on its own.
 What changed in V3.1:
 - River board panels are 266 × 182 mm (was A3), each with a Mist deck well and 42 mm square wells.
 - The 20 bank cards are now 40 × 40 mm bank tiles (`tiles/`), fog on the back.
-- Token and bank-tile backs are checked to register with their fronts within 0.1 mm when the sheet is turned over left to right.
+- Factory PDFs are press-ready: **CMYK** (Coated FOGRA39), **3 mm bleed** on every page (die-cut tokens and tiles carry 2 mm of art past every cut), and a 10 mm slug with crop marks, bleed marks, registration targets, a colour bar and a page label; each page has its TrimBox and BleedBox.
+- Every two-sided piece is checked: each token and tile back, turned over left to right, sits exactly on its front and its cut; card fronts and backs share one page geometry. `MANUAL.pdf` section 3 says how to print each file.
+- Page numbers on every page of the rulebook, Player Aid and Books of Remembrance (covers excepted).
 - All card and board text is at least 10.5 pt; the Player Aid is now 3 double-sided A5 cards.
 - 正體中文 wording revised (面朝上／面朝下、洗混、河岸板塊).
 

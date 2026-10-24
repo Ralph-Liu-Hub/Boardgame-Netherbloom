@@ -67,3 +67,13 @@ The words are in `data/compendium.json`, parsed from the two docs in both langua
 node print/factory/parked.mjs --lang en      # → print/out/factory/en/parked/
 ```
 
+## Press-ready output
+
+After the parts are built, `build.mjs` writes `press-plan.json` (from `pressplan.mjs`) and runs `press.py`, which turns every
+printable PDF into a press file in place: CMYK through Ghostscript with `icc/FOGRA39-argyll.icc` (Coated FOGRA39, built with
+ArgyllCMS from the FOGRA39 characterization data, total ink 330%), a 10 mm slug with crop marks, bleed marks, registration
+targets, a CMYK colour bar and a page label, and the TrimBox/BleedBox. `--no-press` skips it for quick RGB proofs.
+`python3 print/factory/checkpress.py print/out/factory/en` checks the result: CMYK only, identical page geometry front to back,
+art filling the bleed, and every token and tile back centred on its front and its cut. The manual's section 3 is generated
+from the same plan, one block per file.
+

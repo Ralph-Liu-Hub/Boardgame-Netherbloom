@@ -25,7 +25,7 @@ def raster(page, dpi):
     return np.frombuffer(pix.samples, np.uint8).reshape(pix.height, pix.width, pix.n)[..., :3].astype(int)
 
 
-def sheet_registration(doc, cut_bleed):
+def sheet_registration(doc, circle):
     """Pages 1 front, 2 back (mirrored), 3 die. Returns the largest offset (mm) of any piece's art from its cut."""
     dpi = 300
     tb = doc[0].trimbox
@@ -52,18 +52,51 @@ def sheet_registration(doc, cut_bleed):
         p = np.array(pts)
         if np.ptp(p[:, 0]) < 10 * px: continue          # the caption text
         shapes.append((p[:, 0].min(), p[:, 0].max(), p[:, 1].min(), p[:, 1].max()))
-    worst, bleed_min = 0.0, 99.0
+    # For every cut shape: (1) the art must cover the whole band from the cut out to 1.5 mm past it, on the front
+    # and on the turned-over back; (2) the art centre, measured inside the cut only (so neighbouring pieces cannot
+    # pull it), must sit on the cut centre.
+    worst, cover_min = 0.0, 1.0
+    yy, xx = np.mgrid[0:H, 0:W]
     for img in (front, back):
-        bg = img[int(px), int(px)]                       # sheet background, inside the bleed
+        bg = img[int(px), int(px)]
+        art = np.abs(img - bg).sum(-1) > 3
         for (y0, y1, x0, x1) in shapes:
-            pad = int((cut_bleed + .6) * px)
-            a, b, c, e = max(0, y0 - pad), min(H, y1 + pad + 1), max(0, x0 - pad), min(W, x1 + pad + 1)
-            m = np.abs(img[a:b, c:e] - bg).sum(-1) > 3
-            yy, xx = np.nonzero(m)
-            ay, ax = a + (yy.min() + yy.max()) / 2, c + (xx.min() + xx.max()) / 2
-            worst = max(worst, np.hypot(ay - (y0 + y1) / 2, ax - (x0 + x1) / 2) / px)
-            bleed_min = min(bleed_min, ((yy.max() - yy.min()) - (y1 - y0)) / 2 / px, ((xx.max() - xx.min()) - (x1 - x0)) / 2 / px)
-    return len(shapes), worst, bleed_min
+            cy, cx, ry, rx = (y0 + y1) / 2, (x0 + x1) / 2, (y1 - y0) / 2, (x1 - x0) / 2
+            pad = int(2.5 * px)
+            a0, a1, b0, b1 = max(0, y0 - pad), min(H, y1 + pad + 1), max(0, x0 - pad), min(W, x1 + pad + 1)
+            Y, X, A = yy[a0:a1, b0:b1], xx[a0:a1, b0:b1], art[a0:a1, b0:b1]
+            if circle:
+                d = np.hypot(Y - cy, X - cx); r = (ry + rx) / 2
+                band = (d >= r) & (d <= r + 1.5 * px)
+                inside = d < r
+            else:
+                dy, dx = np.abs(Y - cy) - ry, np.abs(X - cx) - rx
+                out = np.maximum(dy, dx)
+                band = (out >= 0) & (out <= 1.5 * px)
+                inside = out < 0
+            cover_min = min(cover_min, A[band].mean())
+            iy, ix = Y[inside & A], X[inside & A]
+            worst = max(worst, np.hypot(iy.mean() - cy, ix.mean() - cx) / px if len(iy) else 99)
+    return len(shapes), worst, cover_min
+
+
+def tile_geometry(html, sheet_w):
+    """Bank tiles: their dark art cannot be told from the sheet by colour, so check the drawing itself. Every front art
+    rectangle and every back art rectangle (turned over left to right) must be centred on its die-line square and
+    reach past it on all four sides. Returns (pieces, largest centre offset mm, smallest art margin mm)."""
+    import re
+    num = r'([-\d.]+)'
+    rect = lambda pat: [tuple(map(float, m)) for m in re.findall(pat, html)]
+    fronts = rect(rf'<clipPath id="tc\d+"><rect x="{num}" y="{num}" width="{num}" height="{num}"')
+    backs = [(sheet_w - x - w, y, w, h) for x, y, w, h in rect(rf'<clipPath id="tb\d+"><rect x="{num}" y="{num}" width="{num}" height="{num}"')]
+    dies = rect(rf'<rect x="{num}" y="{num}" width="{num}" height="{num}" rx="[\d.]+" fill="none" stroke="#ec008c"')
+    worst, margin = 0.0, 99.0
+    for side in (fronts, backs):
+        for (x, y, w, h) in side:
+            dx, dy, dw, dh = min(dies, key=lambda d: abs(d[0] + d[2] / 2 - x - w / 2) + abs(d[1] + d[3] / 2 - y - h / 2))
+            worst = max(worst, abs(dx + dw / 2 - x - w / 2), abs(dy + dh / 2 - y - h / 2))
+            margin = min(margin, dx - x, dy - y, x + w - dx - dw, y + h - dy - dh)
+    return len(dies), len(fronts), len(backs), worst, margin
 
 
 card_boxes = {}
@@ -101,11 +134,17 @@ for f in plan["files"]:
         white = (img[ring] > 250).all(-1).mean() if ring.any() else 0
         if white > .02:
             fails.append(f"{f['path']} p.{i + 1}: {white * 100:.0f}% of the bleed is paper white")
-    if f["path"] in ("tokens/punchboard.pdf", "tiles/bank-tiles.pdf"):
-        n, worst, bmin = sheet_registration(doc, 2)
-        notes.append(f"{f['path']}: {n} pieces; front and back art within {worst:.3f} mm of every cut centre; art runs at least {bmin:.2f} mm past every cut")
-        if worst > .15: fails.append(f"{f['path']}: front/back offset {worst:.3f} mm")
-        if bmin < 1.5: fails.append(f"{f['path']}: art bleed past the cut only {bmin:.2f} mm")
+    if f["path"] == "tiles/bank-tiles.pdf":
+        n, nf, nb, worst, margin = tile_geometry(open(path[:-4] + ".html").read(), f["trim"][0])
+        notes.append(f"{f['path']}: {n} die squares, {nf} fronts, {nb} backs (turned over); every front and back centred on its cut within {worst:.3f} mm; art runs {margin:.2f} mm past every cut")
+        if not (n == nf == nb): fails.append(f"{f['path']}: {n} cuts but {nf} fronts and {nb} backs")
+        if worst > .01: fails.append(f"{f['path']}: a tile is {worst:.3f} mm off its cut")
+        if margin < 1.5: fails.append(f"{f['path']}: art bleed past the cut only {margin:.2f} mm")
+    if f["path"] == "tokens/punchboard.pdf":
+        n, worst, cover = sheet_registration(doc, f["path"].startswith("tokens"))
+        notes.append(f"{f['path']}: {n} pieces; art covers {cover * 100:.1f}% of the 1.5 mm band outside every cut, front and back; art centre within {worst:.3f} mm of every cut centre")
+        if cover < .995: fails.append(f"{f['path']}: art covers only {cover * 100:.1f}% of the 1.5 mm band past a cut")
+        if worst > .15: fails.append(f"{f['path']}: art centre {worst:.3f} mm off its cut")
     notes.append(f"{f['path']}: {len(doc)} p, trim {tw} x {th} mm, bleed {round(trim[0] - bleed[0], 2)} mm, slug {round(bleed[0] - media[0], 2)} mm, CMYK")
     doc.close()
 if len(set(card_boxes.values())) > 1:

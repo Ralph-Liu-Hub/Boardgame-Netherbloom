@@ -15,8 +15,8 @@ export const PROFILE = "Coated FOGRA39 (ISO 12647-2:2004, ISO Coated v2 conditio
 export const TURN_HOW = {
   card: { en: "Head to head: the top of the back sits behind the top of the front. Page sizes, bleed and trim of front and back are identical.",
     zh: "頭對頭：背面的上緣位於正面上緣的背後。正、背面的頁面尺寸、出血與裁切完全相同。" },
-  sheet: { en: "Page 2 is already mirrored: turn the sheet over left to right (work-and-turn, round its vertical centre line; for this landscape sheet that is a short-edge flip). Do not mirror it again. Each back then lands exactly behind its front: checked to 0.06 mm.",
-    zh: "第 2 頁已鏡像：請將紙張沿垂直中線左右翻面（自翻版 work-and-turn；本橫式紙張即短邊翻轉）。請勿再次鏡像。如此每個背面都會正好落在其正面的背後（已檢查，誤差 0.06 mm 以內）。" },
+  sheet: { en: "Page 2 is already mirrored: turn the sheet over left to right (work-and-turn, round its vertical centre line; for this landscape sheet that is a short-edge flip). Do not mirror it again. Each back then lands exactly behind its front (checked: every back is centred on its cut, with art 2 mm past it all round).",
+    zh: "第 2 頁已鏡像：請將紙張沿垂直中線左右翻面（自翻版 work-and-turn；本橫式紙張即短邊翻轉）。請勿再次鏡像。如此每個背面都會正好落在其正面的背後（已檢查：每個背面都正好對準其裁切線，圖案四周超出 2 mm）。" },
   aid: { en: "Pages 1–2, 3–4 and 5–6 are the front and back of one card. Portrait: turn left to right (long-edge flip), head to head.",
     zh: "第 1–2、3–4、5–6 頁分別為一張卡的正面與背面。直式：左右翻面（長邊翻轉），頭對頭。" },
   book: { en: "Pages are in reading order, one page per PDF page. Impose them yourselves for saddle stitching.",
