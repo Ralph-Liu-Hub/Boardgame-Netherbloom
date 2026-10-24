@@ -1,5 +1,5 @@
 // The rulebook as a printed A4 booklet (210 x 297 mm, 3 mm bleed), text from the in-game Rulebook (rules.js / rules_zh.js),
-// padded with Notes pages to a multiple of 4 for saddle stitching. Plus an A5 Player Aid sheet (print one per player).
+// padded with Notes pages to a multiple of 4 for saddle stitching. Plus the A5 Player Aid, a few double-sided cards (one set per player).
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { BLEED, C, FONTS, FACE, SYMBOLS, artImg, render } from "./lib.mjs";

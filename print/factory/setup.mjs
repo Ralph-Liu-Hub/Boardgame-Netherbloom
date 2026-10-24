@@ -99,19 +99,19 @@ function spread(lang) {
     ${[0, 1].map(r => [0, 1].map(k => `<rect x="${356 + k * 24}" y="${31 + r * 22}" width="18" height="19" rx=".8" fill="none" stroke="#8a6a3e" stroke-dasharray="1 .8" stroke-width=".3"/>`).join("")).join("")}</g>`;
   // 1-3, 6 the river board, drawn to scale from its own geometry: three panels, each with its Mist deck in its well, square
   // bank wells holding fog-side tiles (Blooms on space 1), and the Soul standee on the near shore
-  const BX = 14, BY = 97, BWd = 392, k = BWd / (3 * BPW), BHt = BPH * k, X = sp => BX + G.spaceX(sp) * k, RY = BY + G.RY * k, TS = G.SW * k;
+  const BX = 14, BY = 97, BWd = 392, bk = BWd / (3 * BPW), BHt = BPH * bk, X = sp => BX + G.spaceX(sp) * bk, RY = BY + G.RY * bk, TS = G.SW * bk;
   s += `<rect x="${BX - 1}" y="${BY - 1}" width="${BWd + 2}" height="${BHt + 2}" rx="1.5" fill="#0b0a0d"/>
     <clipPath id="ss-board"><rect x="${BX}" y="${BY}" width="${BWd}" height="${BHt}" rx="1"/></clipPath>
     <g clip-path="url(#ss-board)">${img("tex-bank", BX, BY, BWd, BHt, 'opacity=".9"')}<rect x="${BX}" y="${BY}" width="${BWd}" height="${BHt}" fill="#0f0d11" opacity=".3"/>
       ${img("tex-water", BX, RY - 16, BWd, 32)}<rect x="${BX}" y="${RY - 16}" width="${BWd}" height="32" fill="url(#ss-water)"/>
-      <rect x="${X(11) + TS / 2 + 4}" y="${BY}" width="${BWd}" height="${BHt}" fill="#1a0b10" opacity=".8"/><rect x="${BX}" y="${BY}" width="${20 * k}" height="${BHt}" fill="#0a090c" opacity=".75"/></g>
+      <rect x="${X(11) + TS / 2 + 4}" y="${BY}" width="${BWd}" height="${BHt}" fill="#1a0b10" opacity=".8"/><rect x="${BX}" y="${BY}" width="${20 * bk}" height="${BHt}" fill="#0a090c" opacity=".75"/></g>
     ${[1, 2].map(i => `<line x1="${BX + BWd * i / 3}" y1="${BY}" x2="${BX + BWd * i / 3}" y2="${BY + BHt}" stroke="#000" stroke-width=".6" opacity=".8"/>`).join("")}`;
   [0, 1, 2].forEach(r => {
-    const mx = BX + G.mistX(r) * k, my = RY - G.MH * k / 2, mw = G.MW * k, mh = G.MH * k;
+    const mx = BX + G.mistX(r) * bk, my = RY - G.MH * bk / 2, mw = G.MW * bk, mh = G.MH * bk;
     s += `<rect x="${mx}" y="${my}" width="${mw}" height="${mh}" rx="1.4" fill="#0b0f12" fill-opacity=".8" stroke="#4f7d86" stroke-width=".35"/>` + stack("back-mist", mx + 3.6, my + 4.6, mw - 8.8, mh - 8.8);
   });
   for (let sp = 1; sp <= 11; sp++) for (const y0 of [G.TOP, G.BOT]) {
-    const x = X(sp) - TS / 2, y = BY + y0 * k;
+    const x = X(sp) - TS / 2, y = BY + y0 * bk;
     s += `<rect x="${x}" y="${y}" width="${TS}" height="${TS}" rx="1.2" fill="#0b0a0d" fill-opacity=".7" stroke="${C.gilt}" stroke-width=".3"/>`;
     if (sp === 1) s += `<circle cx="${X(1)}" cy="${y + TS / 2}" r="6" fill="rgba(20,6,10,.9)" stroke="${C.bone}" stroke-width=".35"/>${use("nb-bloom", X(1), y + TS / 2, 9, C.crimson)}`;
     else { const id = `sw${sp}${y0}`; s += `<clipPath id="${id}"><rect x="${x + .5}" y="${y + .5}" width="${TS - 1}" height="${TS - 1}" rx="1"/></clipPath>${img("card-fog", x + .5, y + .5, TS - 1, TS - 1, `clip-path="url(#${id})" opacity=".85"`)}`; }
@@ -147,7 +147,7 @@ function spread(lang) {
     s += `<text x="${x}" y="${y + 9.6}" text-anchor="middle" class="sc">${esc(L.supply[id])}</text><text x="${x}" y="${y + 13.2}" text-anchor="middle" class="sq">× ${t[4]}</text>`;
   });
   // step numbers
-  const N = { 6: [BX + G.mistX(0) * k + 1.5, RY - G.MH * k / 2 + 1.5], 5: [112, 32], 4: [222, 26], 9: [294, 24], 1: [BX + 1, BY + 2], 2: [X(3) + TS / 2 + 3, BY + 3], 3: [X(0) + 6, RY - 9], 7: [LX + 1, LY + 1], 11: [106, 230], 8: [222, 207], 10: [314, 196] };
+  const N = { 6: [BX + G.mistX(0) * bk + 1.5, RY - G.MH * bk / 2 + 1.5], 5: [112, 32], 4: [222, 26], 9: [294, 24], 1: [BX + 1, BY + 2], 2: [X(3) + TS / 2 + 3, BY + 3], 3: [X(0) + 6, RY - 9], 7: [LX + 1, LY + 1], 11: [106, 230], 8: [222, 207], 10: [314, 196] };
   for (const [n, [x, y]] of Object.entries(N)) s += num(n, x, y);
   return s;
 }

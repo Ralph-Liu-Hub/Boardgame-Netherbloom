@@ -18,11 +18,11 @@ Talk freely about plans and the table, and say which threads you hold ("2 Obsess
 
 ### Setup
 
-1.  **River**: join the 3 panels (Reach I left, III right). Shuffle each Reach's bank cards separately and lay them fog side up on its banks (spaces 2–4, 5–8, 9–11). A Bloom on both banks of space 1; the soul token on space 0.
+1.  **River**: join the 3 panels (Reach I left, III right). Shuffle each Reach's bank tiles separately and lay them fog side up in its square wells (spaces 2–4, 5–8, 9–11). A Bloom on both banks of space 1; the Soul's standee on space 0.
 2.  **Soul and Lantern**: choose both. The Soul card's special rule applies all game. Starting Light: the Child 3, the Bride 1, others 0.
 3.  **Lantern**: Gentle: 6 Black Water, Faded at 11, 0 harsh Mist per Reach; Standard: 5 Black Water, Faded at 10, 2 harsh Mist per Reach; Hard: 4 Black Water, Faded at 9, 3 harsh Mist per Reach; Heroic: 3 Black Water, Faded at 8, 3 harsh Mist per Reach.
 4.  **Memory deck**: the 32 core cards plus the Soul's 8 (the 8 Echo cards for the Open Crossing), shuffled face down. Leave room for a face-up discard pile.
-5.  **Mist decks**: one per Reach: its 10 basic cards, plus Rising Water and Shade Drawn Near, plus the Lantern's number of random harsh cards. Shuffle each.
+5.  **Mist decks**: one per Reach: its 10 basic cards, plus Rising Water and Shade Drawn Near, plus the Lantern's number of random harsh cards. Shuffle each and put it face down in its Reach's Mist well.
 6.  **Loom**: knots beside it; the Echo token beside it (it goes on a thread at the first card played face up or Burned).
 7.  **Ledger**: the Lantern's Black Water tokens in its well (the rest back in the box); Fractures beside it. Forgotten cards will go on its numbered track.
 8.  **Mantles** face up; the Soul's **Book** open at page I; the rest of the tokens in a supply.
@@ -50,7 +50,7 @@ Talk freely about plans and the table, and say which threads you hold ("2 Obsess
 ### Roots and Blooms
 
 - **Place a Root**: a disc Root side up on an empty bank (no disc, no Shade) on the soul's space or ahead. It must touch: the soul's space or the next space, or the other bank of its space has a disc, or the same bank one space before or after has a disc.
-- **Fog**: placing on a fog bank flips its bank card. **Fertile**: the Root stays. **Stony**: only with "even on Stony ground" or the Root-Weaver, otherwise the Root is lost. **Memory Site**: the Root stays and you take a keepsake (Open Crossing: +2 Light). **Grave**: no Root; a Shade goes there.
+- **Fog**: placing on a fog bank flips its bank tile. **Fertile**: the Root stays. **Stony**: only with "even on Stony ground" or the Root-Weaver, otherwise the Root is lost. **Memory Site**: the Root stays and you take a keepsake (Open Crossing: +2 Light). **Grave**: no Root; a Shade goes there.
 - **Bloom**: flip a Root on the soul's space or ahead to its Bloom side. A space with a Bloom is **Lit**; the soul only moves onto Lit spaces. **Wither**: flip a Bloom back to its Root side.
 
 ### End of turn (after every player's turn, in order)
@@ -103,7 +103,7 @@ Gain 1 Light per Bloom on each space the soul leaves. Spend 3 to Recall (as your
 
 - **Banish** a Shade / **Wash away** Shades: return them to the supply. **Drain** Black Water: remove it to the box.
 - **Mend**: remove a Fracture. **Untie** / **Empty** the fullest thread: remove its knots, no Backlash (tied: you choose). **Tie**: add knots (full → Backlash).
-- **Forget**: put the card face up on the Ledger's track. **Linger**: the soul does not move. **Lift the fog**: flip a Reach's bank cards without placing Roots; Graves turn Fertile.
+- **Forget**: put the card face up on the Ledger's track. **Linger**: the soul does not move. **Lift the fog**: flip a Reach's bank tiles without placing Roots; Graves turn Fertile.
 
 ### The ending
 

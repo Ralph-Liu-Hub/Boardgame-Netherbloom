@@ -108,7 +108,7 @@ const W = {
     books: [
       "One Book per Soul: <code>books/book-of-remembrance-child, -garland, -king, -bride, -open.pdf</code>. Each is <b>8 A4 pages in reading order</b>; impose them yourselves for saddle stitching on two sheets (diagram). Cover sheet (pages 1, 2, 7, 8) on 250 g/m², inner sheet (pages 3–6) on 157 g/m² matte.",
       "<b>Photo corners.</b> Pages 4, 5 and 6 each have four card wells with a printed corner mark at every corner. Stick one clear self-adhesive photo corner (about 12 mm) on each mark: <b>48 per Book, 240 per game</b>. Do not die-cut slits: page 4 is printed on the back of page 3, so slits would cut through its text.",
-      "<code>rulebook/rulebook.pdf</code>: RBPAGES A4 pages in reading order, saddle-stitched (RBSHEETS sheets). <code>rulebook/player-aid.pdf</code>: one A5 card printed 4/4, page 1 front and page 2 back; 4 copies per game.",
+      "<code>rulebook/rulebook.pdf</code>: RBPAGES A4 pages in reading order, saddle-stitched (RBSHEETS sheets). <code>rulebook/player-aid.pdf</code>: AIDCARDS A5 cards printed 4/4, AIDPAGES pages in order (page 1 is the first card's front, page 2 its back, and so on). Round the corners and join each set at the top-left corner with a 6 mm rivet so it fans open. 4 sets per game.",
     ],
     s7: "7. The box",
     box: [
@@ -157,7 +157,7 @@ const W = {
       ["Books of Remembrance", 5, "A4, 8 pages", "4/4", "cover 250 g/m², inside 157 g/m² matte; saddle stitch", "books/…"],
       ["Clear photo corners", 240, "≈12 mm", "—", "self-adhesive, 48 per Book", "—"],
       ["Rulebook", 1, "A4, RBPAGES pages", "4/4", "157 g/m² matte; saddle stitch", "rulebook/rulebook.pdf"],
-      ["Player Aid", 4, "A5", "4/4", "300 g/m² card, matte", "rulebook/player-aid.pdf"],
+      ["Player Aid", "4 sets of AIDCARDS", "A5", "4/4", "300 g/m² card, matte; corner rivet", "rulebook/player-aid.pdf"],
       ["Box lid", 1, `${LID.L} × ${LID.L} × ${LID.D} mm`, "4/0 wrap", "2 mm greyboard, 157 g/m² wrap, matte laminated", "box/box-lid-wrap.pdf"],
       ["Box base", 1, `${BASE.L} × ${BASE.L} × ${BASE.D} mm`, "4/0 wrap", "as above", "box/box-base-wrap.pdf"],
       ["Box liners", 2, "inside lid, base floor", "4/0", "157 g/m², glued in", "box/box-*-liner.pdf"],
@@ -204,7 +204,7 @@ const W = {
     books: [
       "每個亡魂一本：<code>books/book-of-remembrance-child、-garland、-king、-bride、-open.pdf</code>。每本為<b>依閱讀順序排列的 8 頁 A4</b>；請自行拼版，以兩張紙騎馬釘裝訂（見圖）。封面紙（第 1、2、7、8 頁）用 250 g/m²，內頁紙（第 3–6 頁）用 157 g/m² 霧面紙。",
       "<b>相角。</b>第 4、5、6 頁各有四個牌槽，每個角都印有角標。請在每個角標上貼一個透明自黏相角（約 12 mm）：<b>每本 48 個，每套 240 個</b>。請勿模切切口：第 4 頁印在第 3 頁的背面，切口會切穿其文字。",
-      "<code>rulebook/rulebook.pdf</code>：依閱讀順序排列的 RBPAGES 頁 A4，騎馬釘（RBSHEETS 張紙）。<code>rulebook/player-aid.pdf</code>：一張 A5 卡，4/4 印刷，第 1 頁正面、第 2 頁背面；每套 4 張。",
+      "<code>rulebook/rulebook.pdf</code>：依閱讀順序排列的 RBPAGES 頁 A4，騎馬釘（RBSHEETS 張紙）。<code>rulebook/player-aid.pdf</code>：AIDCARDS 張 A5 卡，4/4 印刷，共 AIDPAGES 頁依序排列（第 1 頁為第一張卡的正面、第 2 頁為其背面，依此類推）。導圓角，並在左上角以 6 mm 鉚釘將每組串起，可扇形展開。每套 4 組。",
     ],
     s7: "7. 盒子",
     box: [
@@ -252,7 +252,7 @@ const W = {
       ["憶念之書", 5, "A4，8 頁", "4/4", "封面 250 g/m²，內頁 157 g/m² 霧面；騎馬釘", "books/…"],
       ["透明相角", 240, "約 12 mm", "—", "自黏，每本 48 個", "—"],
       ["規則書", 1, "A4，RBPAGES 頁", "4/4", "157 g/m² 霧面；騎馬釘", "rulebook/rulebook.pdf"],
-      ["玩家輔助卡", 4, "A5", "4/4", "300 g/m² 卡紙，霧面", "rulebook/player-aid.pdf"],
+      ["玩家輔助卡", "4 組，每組 AIDCARDS 張", "A5", "4/4", "300 g/m² 卡紙，霧面；角落鉚釘", "rulebook/player-aid.pdf"],
       ["盒蓋", 1, `${LID.L} × ${LID.L} × ${LID.D} mm`, "4/0 裱紙", "2 mm 灰紙板，裱 157 g/m²，上霧膜", "box/box-lid-wrap.pdf"],
       ["盒底", 1, `${BASE.L} × ${BASE.L} × ${BASE.D} mm`, "4/0 裱紙", "同上", "box/box-base-wrap.pdf"],
       ["盒內襯紙", 2, "盒蓋內側、盒底內面", "4/0", "157 g/m²，黏貼", "box/box-*-liner.pdf"],
@@ -344,6 +344,6 @@ table.tok td { vertical-align: middle; }
 export async function build(lang, dir, { png }) {
   const html = `<!doctype html><html lang="${lang === "zh" ? "zh-Hant-TW" : "en"}"><head><meta charset="utf-8"><title>Netherbloom ${W[lang].title}</title>${FONTS}<style>${CSS(lang)}</style></head>
 <body><div style="display:none">${SYMBOLS}</div>${body(lang)}${FIT_SCRIPT}</body></html>`;
-  const rb = pages(join(dir, "rulebook", "rulebook.pdf")) || 16;
-  await render(join(dir, "MANUAL"), html.replaceAll("RBPAGES", rb).replaceAll("RBSHEETS", rb / 4), { w: PW, h: PH, png });
+  const rb = pages(join(dir, "rulebook", "rulebook.pdf")) || 16, aid = pages(join(dir, "rulebook", "player-aid.pdf")) || 2;
+  await render(join(dir, "MANUAL"), html.replaceAll("RBPAGES", rb).replaceAll("RBSHEETS", rb / 4).replaceAll("AIDPAGES", aid).replaceAll("AIDCARDS", Math.ceil(aid / 2)), { w: PW, h: PH, png });
 }

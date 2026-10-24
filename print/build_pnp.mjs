@@ -121,7 +121,7 @@ function tileSheet() {
   const tiles = TILES.map(([spaces, list], r) => list.map(t => `<div class="tile">${icon(icons[t], "big")}<b>${ZH_TILES[t]}</b><small>第${NUM[r]}河段</small></div>`).join("")).join("");
   const fog = Array.from({ length: 20 }, () => `<div class="tile fog">${icon("nb-fog", "big")}<b>霧</b></div>`).join("");
   const tok = (id, name, n) => Array.from({ length: n }, () => `<div class="tok">${icon(id)}<small>${name}</small></div>`).join("");
-  return `<section class="sheet tiles"><h2>河岸板塊與標記</h2>
+  return `<section class="sheet tiles"><h2>河岸板塊</h2>
     <p class="lead">每塊 40 × 40 mm。將各河段的板塊分開洗混，霧面朝上放置到該河段的方槽中（第1格兩岸開局即各有1朵花）。霧面為板塊背面，可印在下一頁並對齊黏貼。</p>
     <div class="tgrid">${tiles}</div></section>
     <section class="sheet tiles"><h2>霧（板塊背面）</h2><div class="tgrid">${fog}</div></section>
