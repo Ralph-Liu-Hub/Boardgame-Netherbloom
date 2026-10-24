@@ -15,14 +15,14 @@ const W = {
     oneCrossing: "One crossing", five: "Five Souls", lore: "Whoever drinks from the River Lethe forgets.", lore2: "You plant, the soul walks, the river answers.",
     facts: [["1–4", "players"], ["45–60", "minutes"], ["14+", "ages"]], taken: "…but this, the river has taken",
     copy: "You are the Ferrymen, servants of the underworld. Plant Netherblooms along the banks to light one soul's way to the Far Shore, and write what it remembers into its Book of Remembrance. Plan together, but a soul's memories may never be spoken: say them with the flowers you plant and the cards you play.",
-    comp: [["72", "Memory cards"], ["42", "Mist cards"], ["12", "Ghost cards"], ["20", "bank cards"], ["5", "Soul cards"], ["4", "Mantle cards"], ["3", "river board panels"], ["1", "Loom of the Fates board"], ["1", "Ledger board"], ["78", "tokens"], ["5", "Books of Remembrance"]],
+    comp: [["72", "Memory cards"], ["42", "Mist cards"], ["12", "Ghost cards"], ["5", "Soul cards"], ["4", "Mantle cards"], ["3", "river board panels"], ["1", "Loom of the Fates board"], ["1", "Ledger board"], ["20", "bank tiles"], ["5", "Soul standees"], ["77", "tokens"], ["5", "Books of Remembrance"]],
   },
   zh: {
     souls: ["最後火光的孩子", "花環少女", "渡船上的國王", "留在冥府的新娘", "無名渡河"], players: "1–4人 · 45–60分鐘 · 14歲以上",
     oneCrossing: "一次渡河", five: "五個亡魂", lore: "凡飲下忘川之水者，終將遺忘。", lore2: "你們種花，亡魂前行，河流回應。",
     facts: [["1–4", "人"], ["45–60", "分鐘"], ["14+", "歲以上"]], taken: "……但這一段，已被河水帶走",
     copy: "你們是擺渡人，冥府的僕役。沿著河岸種下彼岸花，為一個亡魂照亮通往彼岸的路，並把它記起的一切寫進它的憶念之書。你們可以一起商量，但亡魂的記憶絕不能說出口：只能用你種下的花與打出的牌來訴說。",
-    comp: [["72", "記憶牌"], ["42", "迷霧牌"], ["12", "幽靈牌"], ["20", "河岸牌"], ["5", "亡魂牌"], ["4", "稱號牌"], ["3", "河流圖板"], ["1", "命運織機圖板"], ["1", "渡帳圖板"], ["78", "標記"], ["5", "憶念之書"]],
+    comp: [["72", "記憶牌"], ["42", "迷霧牌"], ["12", "幽靈牌"], ["5", "亡魂牌"], ["4", "稱號牌"], ["3", "河流圖板"], ["1", "命運織機圖板"], ["1", "渡帳圖板"], ["20", "河岸板塊"], ["5", "亡魂立牌"], ["77", "標記"], ["5", "憶念之書"]],
   },
 };
 

@@ -15,7 +15,7 @@ export function setupFigure(src, zh = false) {
   const slot = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="rgba(14,12,17,.35)" stroke="#8a6d48" stroke-dasharray="4 3" stroke-width="1.1"/>`;
   const cap = (x, y, text, anchor = "middle") => `<text class="sf-cap" x="${x}" y="${y}" text-anchor="${anchor}">${text}</text>`;
 
-  // The river board: three panels joined, banks and water, bank cards fog side up in the wells of spaces 2-11.
+  // The river board: three panels joined, banks and water, bank tiles fog side up in the wells of spaces 2-11.
   const BX = 40, BY = 196, BW = 920, BH = 236, X = sp => BX + 38 + sp * 70.3, RY = BY + BH / 2;
   let board = `<g class="sf-board"><rect x="${BX - 4}" y="${BY - 4}" width="${BW + 8}" height="${BH + 8}" rx="6" fill="#0b0a0d"/>
     <clipPath id="sfboard"><rect x="${BX}" y="${BY}" width="${BW}" height="${BH}" rx="4"/></clipPath>

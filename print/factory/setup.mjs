@@ -6,6 +6,7 @@ import { TILES, MIST, LANTERN, LANTERN_NAMES, GHOST, CORE_IDS, MANTLES } from ".
 import { ZH_LANTERNS, ZH_MIST } from "../../web/public/assets/zh.js";
 import { TOKENS } from "./tokens.mjs";
 import { LOOM } from "./loom.mjs";
+import { PW as BPW, PH as BPH, GEO as G } from "./board.mjs";
 
 const SW = 420, SH = 297, B = BLEED, GUT = SW / 2;
 const tok = id => TOKENS.find(t => t[0] === id);
@@ -17,11 +18,11 @@ const W = {
     lanterns: Object.values(LANTERN_NAMES).join(" / "),
     l: {
       1: ["River board", `Three panels, joined edge to edge: Reach I on the left (the near shore, space 0) to Reach III on the right (the Far Shore, space 12).`],
-      2: ["Bank cards", `${TILES.map(t => t[1].length).join(" / ")} cards for Reaches I / II / III. Shuffle each Reach's cards apart and lay them fog side up in the wells of spaces 2–4, 5–8 and 9–11.`],
-      3: ["First Blooms and the soul", "A Bloom on both banks of space 1, so the first step is Lit. The soul token starts on the near shore, space 0."],
+      2: ["Bank tiles", `${TILES.map(t => t[1].length).join(" / ")} tiles for Reaches I / II / III. Shuffle each Reach's tiles apart and lay them fog side up in the square wells of spaces 2–4, 5–8 and 9–11.`],
+      3: ["First Blooms and the soul", "A Bloom on both banks of space 1, so the first step is Lit. The chosen Soul\u2019s standee starts on the near shore, space 0."],
       4: ["Soul card and Lantern", "The chosen Soul card, face up. Fractures go on the Ledger: the third shatters the soul. The Child starts with 3 Light, the Bride with 1. The Lantern is the difficulty you choose (section 10); it has no piece."],
       5: ["Memory deck", `${CORE_IDS.length} core cards and the Soul's own 8 (the 8 Echo cards for the Open Crossing), shuffled, face down. Discard pile face up; the forgotten pile goes on the Ledger.`],
-      6: ["Mist decks", `One per Reach, face down beside it: its ${MIST[0].length} Mist cards, Rising Water and Shade Drawn Near, and harsh Mist cards by Lantern (${harsh}).`],
+      6: ["Mist decks", `One per Reach, face down in the Mist well where that Reach begins: its ${MIST[0].length} Mist cards, Rising Water and Shade Drawn Near, and harsh Mist cards by Lantern (${harsh}).`],
       7: ["Loom of the Fates", `The Loom board, knot discs beside it. Each knot goes on its thread's next circle: a thread snaps at 4 knots with 2–3 players, at 5 in solo or with 4. The Echo token waits beside the board.`],
       8: ["Mantles", `The ${Object.keys(MANTLES).length} Mantle cards, face up, where everyone can reach them.`],
       9: ["Book of Remembrance", "The chosen Soul's Book, open at Chapter I. Inscribed cards go in its wells, held by the photo corners."],
@@ -37,16 +38,16 @@ const W = {
     title: "遊戲準備", sub: "以「最後火光的孩子」與三位擺渡人擺好的桌面。圖中編號與第5節的步驟相對應。",
     l: {
       1: ["河流圖板", "三塊圖板邊對邊拼接：第一河段在左（此岸，第0格），第三河段在右（彼岸，第12格）。"],
-      2: ["河岸牌", `第一／二／三河段各${TILES.map(t => t[1].length).join("／")}張。各河段分開洗牌，霧面朝上放進第2–4、5–8、9–11格的牌槽。`],
-      3: ["最初的花與亡魂", "第1格的兩個河岸各放1朵花，讓第一步是照亮的。亡魂標記從此岸（第0格）出發。"],
-      4: ["亡魂牌與燈籠", "所選亡魂牌正面朝上。裂痕放在渡帳上：第三道裂痕會讓亡魂破碎。孩子起始擁有3點光，新娘起始擁有1點光。燈籠是你們選擇的難度（第10節），沒有配件。"],
-      5: ["記憶牌庫", `${CORE_IDS.length}張基本記憶牌加上亡魂的8張專屬牌（無名渡河用8張迴響牌），洗勻後背面朝上。棄牌堆正面朝上；遺忘堆放在渡帳上。`],
-      6: ["迷霧牌庫", `每個河段一副，背面朝上放在其旁：該河段的${MIST[0].length}張迷霧牌、「${ZH_MIST["Rising Water"][0]}」與「${ZH_MIST["Shade Drawn Near"][0]}」，以及依燈籠加入的凶霧（${harsh}）。`],
+      2: ["河岸板塊", `第一／二／三河段各${TILES.map(t => t[1].length).join("／")}塊。將各河段的板塊分開洗混，霧面朝上放置到第2–4、5–8、9–11格的方槽中。`],
+      3: ["最初的花與亡魂", "在第1格的兩個河岸各放置1朵花，讓第一步就是照亮的。將所選亡魂的立牌放置到此岸（第0格）。"],
+      4: ["亡魂牌與燈籠", "所選亡魂牌面朝上。裂痕放在渡帳上：第三道裂痕會讓亡魂破碎。孩子起始擁有3點光，新娘起始擁有1點光。燈籠是你們選擇的難度（第10節），沒有配件。"],
+      5: ["記憶牌庫", `${CORE_IDS.length}張基本記憶牌加上亡魂的8張專屬牌（無名渡河用8張迴響牌），洗混後面朝下。棄牌堆面朝上；遺忘堆放在渡帳上。`],
+      6: ["迷霧牌庫", `每個河段一副，面朝下放置到該河段起點的迷霧牌槽：該河段的${MIST[0].length}張迷霧牌、「${ZH_MIST["Rising Water"][0]}」與「${ZH_MIST["Shade Drawn Near"][0]}」，以及依燈籠加入的凶霧（${harsh}）。`],
       7: ["命運織機", "織機圖板，結圓片放在一旁。每個結放在其絲線的下一個圓圈上：2–3人時打滿4個結便斷裂，單人或4人時為5個。迴響標記放在圖板旁備用。"],
-      8: ["稱號", `${Object.keys(MANTLES).length}張稱號牌正面朝上，放在每個人都拿得到的地方。`],
+      8: ["稱號", `${Object.keys(MANTLES).length}張稱號牌面朝上，放在每個人都拿得到的地方。`],
       9: ["憶念之書", "所選亡魂的那本書，翻開到第一章。銘刻的牌放進牌槽，用相角固定。"],
       10: ["渡帳與供應區", `渡帳放在織機旁；所有標記放在伸手可及處。黑水只取燈籠規定的數量（${Object.entries(LANTERN).map(([l, v]) => `${ZH_LANTERNS[l]}${v[0]}`).join("／")}）放進渡帳的黑水供應區，其餘放回盒中。`],
-      11: ["擺渡人", `每人發3張牌（單人4張）。每人拿1個破浪標記（正面朝上）與1張玩家輔助卡。起始玩家拿起船槳。單人：${GHOST.length}張幽靈牌組成幽靈牌庫。`],
+      11: ["擺渡人", `每人發3張牌（單人4張）。每人拿1個破浪標記（面朝上）與1張玩家輔助卡。起始玩家拿起船槳。單人：${GHOST.length}張幽靈牌組成幽靈牌庫。`],
     },
     cap: { deck: "牌庫", discard: "棄牌堆", forgotten: "遺忘堆", hand: "手牌", push: "破浪", oar: "船槳", aid: "玩家輔助卡", ghost: "單人：幽靈牌庫",
       reach: r => `第${["一", "二", "三"][r]}河段`, near: "此岸", far: "彼岸", fracture: "裂痕", light: "3點光" },
@@ -73,7 +74,7 @@ const COLOR = { "nb-root": C.bone, "nb-grievance": C.cyan, "nb-blackwater": C.mi
   "nb-tok-hold": C.cyan, "nb-tok-shield": C.bone, "nb-tok-resign": C.bone, "nb-echo": C.cyan };
 
 // Label boxes: [step, x, y, width] in trim mm; drawn as HTML so the text wraps.
-const LABELS = { 6: [14, 78, 92], 5: [112, 78, 88], 4: [222, 78, 64], 9: [292, 82, 114], 1: [14, 188, 92], 3: [112, 188, 88], 2: [222, 188, 184],
+const LABELS = { 6: [14, 34, 92], 5: [112, 78, 88], 4: [222, 78, 64], 9: [292, 82, 114], 1: [14, 188, 92], 3: [112, 188, 88], 2: [222, 188, 184],
   7: [104, 207, 96], 11: [104, 262, 96], 8: [222, 241, 84], 10: [316, 273, 90] };
 
 function spread(lang) {
@@ -82,8 +83,7 @@ function spread(lang) {
   let s = "";
   // the table
   s += `<rect x="${-B}" y="${-B}" width="${SW + 2 * B}" height="${SH + 2 * B}" fill="url(#ss-wood)"/>`;
-  // 6 Mist decks · 5 Memory deck, discard, forgotten
-  [0, 1, 2].forEach(r => { s += stack("back-mist", 16 + r * 30, 36, 25, 35) + cap(28.5 + r * 30, 75, c.reach(r)); });
+  // 5 Memory deck, discard, forgotten (6, the Mist decks, sit in their wells on the river board)
   s += stack("back-memory", 114, 36, 25, 35) + slot(144, 34.5, 25, 35) + slot(174, 34.5, 25, 35) + use("nb-fog", 186.5, 52, 9, C.mist, .6);
   s += cap(126.5, 75, c.deck) + cap(156.5, 75, c.discard) + cap(186.5, 75, c.forgotten);
   // 4 Soul card, Fractures and the Child's 3 Light
@@ -97,22 +97,29 @@ function spread(lang) {
     <line x1="350" y1="27" x2="350" y2="77" stroke="#c9b48a" stroke-width=".8"/>
     <clipPath id="ss-book"><rect x="298" y="31" width="48" height="42"/></clipPath>${img("child-road", 298, 31, 48, 42, 'clip-path="url(#ss-book)" opacity=".85"')}
     ${[0, 1].map(r => [0, 1].map(k => `<rect x="${356 + k * 24}" y="${31 + r * 22}" width="18" height="19" rx=".8" fill="none" stroke="#8a6a3e" stroke-dasharray="1 .8" stroke-width=".3"/>`).join("")).join("")}</g>`;
-  // 1-3 the river board: three panels, banks, water, wells; Blooms on space 1, fog in 2-11, the soul at 0
-  const BX = 14, BY = 98, BWd = 392, BHt = 86, X = sp => BX + 10 + sp * 28.6, RY = BY + BHt / 2;
+  // 1-3, 6 the river board, drawn to scale from its own geometry: three panels, each with its Mist deck in its well, square
+  // bank wells holding fog-side tiles (Blooms on space 1), and the Soul standee on the near shore
+  const BX = 14, BY = 97, BWd = 392, bk = BWd / (3 * BPW), BHt = BPH * bk, X = sp => BX + G.spaceX(sp) * bk, RY = BY + G.RY * bk, TS = G.SW * bk;
   s += `<rect x="${BX - 1}" y="${BY - 1}" width="${BWd + 2}" height="${BHt + 2}" rx="1.5" fill="#0b0a0d"/>
     <clipPath id="ss-board"><rect x="${BX}" y="${BY}" width="${BWd}" height="${BHt}" rx="1"/></clipPath>
     <g clip-path="url(#ss-board)">${img("tex-bank", BX, BY, BWd, BHt, 'opacity=".9"')}<rect x="${BX}" y="${BY}" width="${BWd}" height="${BHt}" fill="#0f0d11" opacity=".3"/>
-      ${img("tex-water", BX, RY - 11, BWd, 22)}<rect x="${BX}" y="${RY - 11}" width="${BWd}" height="22" fill="url(#ss-water)"/>
-      <rect x="${X(11.55)}" y="${BY}" width="${BWd}" height="${BHt}" fill="#1a0b10" opacity=".8"/><rect x="${BX}" y="${BY}" width="${X(.5) - BX}" height="${BHt}" fill="#0a090c" opacity=".75"/></g>
+      ${img("tex-water", BX, RY - 16, BWd, 32)}<rect x="${BX}" y="${RY - 16}" width="${BWd}" height="32" fill="url(#ss-water)"/>
+      <rect x="${X(11) + TS / 2 + 4}" y="${BY}" width="${BWd}" height="${BHt}" fill="#1a0b10" opacity=".8"/><rect x="${BX}" y="${BY}" width="${20 * bk}" height="${BHt}" fill="#0a090c" opacity=".75"/></g>
     ${[1, 2].map(i => `<line x1="${BX + BWd * i / 3}" y1="${BY}" x2="${BX + BWd * i / 3}" y2="${BY + BHt}" stroke="#000" stroke-width=".6" opacity=".8"/>`).join("")}`;
-  for (let sp = 1; sp <= 11; sp++) for (const top of [true, false]) {
-    const w = 20, h = 28, x = X(sp) - w / 2, y = top ? BY + 2.5 : BY + BHt - 2.5 - h;
-    s += `<rect x="${x - .6}" y="${y - .6}" width="${w + 1.2}" height="${h + 1.2}" rx="1.2" fill="#0b0a0d" fill-opacity=".7" stroke="${C.gilt}" stroke-width=".3"/>`;
-    if (sp === 1) s += `<circle cx="${X(1)}" cy="${y + h / 2}" r="6" fill="rgba(20,6,10,.9)" stroke="${C.bone}" stroke-width=".35"/>${use("nb-bloom", X(1), y + h / 2, 9, C.crimson)}`;
-    else { const id = `sw${sp}${top}`; s += `<clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1"/></clipPath>${img("card-fog", x, y, w, h, `clip-path="url(#${id})" opacity=".85"`)}`; }
+  [0, 1, 2].forEach(r => {
+    const mx = BX + G.mistX(r) * bk, my = RY - G.MH * bk / 2, mw = G.MW * bk, mh = G.MH * bk;
+    s += `<rect x="${mx}" y="${my}" width="${mw}" height="${mh}" rx="1.4" fill="#0b0f12" fill-opacity=".8" stroke="#4f7d86" stroke-width=".35"/>` + stack("back-mist", mx + 3.6, my + 4.6, mw - 8.8, mh - 8.8);
+  });
+  for (let sp = 1; sp <= 11; sp++) for (const y0 of [G.TOP, G.BOT]) {
+    const x = X(sp) - TS / 2, y = BY + y0 * bk;
+    s += `<rect x="${x}" y="${y}" width="${TS}" height="${TS}" rx="1.2" fill="#0b0a0d" fill-opacity=".7" stroke="${C.gilt}" stroke-width=".3"/>`;
+    if (sp === 1) s += `<circle cx="${X(1)}" cy="${y + TS / 2}" r="6" fill="rgba(20,6,10,.9)" stroke="${C.bone}" stroke-width=".35"/>${use("nb-bloom", X(1), y + TS / 2, 9, C.crimson)}`;
+    else { const id = `sw${sp}${y0}`; s += `<clipPath id="${id}"><rect x="${x + .5}" y="${y + .5}" width="${TS - 1}" height="${TS - 1}" rx="1"/></clipPath>${img("card-fog", x + .5, y + .5, TS - 1, TS - 1, `clip-path="url(#${id})" opacity=".85"`)}`; }
   }
   for (let sp = 1; sp <= 11; sp++) s += `<text x="${X(sp)}" y="${RY + 1.6}" text-anchor="middle" class="ssp">${sp}</text>`;
-  s += `<circle cx="${X(0)}" cy="${RY}" r="6" fill="${C.ink}" stroke="${C.bone}" stroke-width=".5"/>${use("nb-soul", X(0), RY, 8, "#EFE7D6")}
+  s += `<path d="M${X(0) - 4.6} ${RY + 6} L${X(0)} ${RY + 8.4} L${X(0) + 4.6} ${RY + 6}" fill="none" stroke="#000" stroke-width=".8" opacity=".5"/>
+    <clipPath id="ss-soul"><rect x="${X(0) - 4}" y="${RY - 8}" width="8" height="13" rx=".6"/></clipPath>${img("soul-child", X(0) - 4, RY - 8, 8, 13, 'clip-path="url(#ss-soul)"')}
+    <rect x="${X(0) - 4}" y="${RY - 8}" width="8" height="13" rx=".6" fill="none" stroke="${C.bone}" stroke-width=".35"/>
     ${use("nb-light", X(12), RY, 9, C.bone)}${cap(X(0), BY + 8, c.near)}${cap(X(12), BY + 8, c.far)}
     ${[0, 1, 2].map(r => cap(BX + BWd * r / 3 + 4, BY - 2.5, c.reach(r), "start")).join("")}`;
   // 7 the Loom of the Fates board (scaled), a few knots, the Echo token beside it
@@ -140,7 +147,7 @@ function spread(lang) {
     s += `<text x="${x}" y="${y + 9.6}" text-anchor="middle" class="sc">${esc(L.supply[id])}</text><text x="${x}" y="${y + 13.2}" text-anchor="middle" class="sq">× ${t[4]}</text>`;
   });
   // step numbers
-  const N = { 6: [14, 32], 5: [112, 32], 4: [222, 26], 9: [294, 24], 1: [BX + 1, BY + 2], 2: [X(3) + 11, BY + 3], 3: [X(0) + 7, RY - 7], 7: [LX + 1, LY + 1], 11: [106, 230], 8: [222, 207], 10: [314, 196] };
+  const N = { 6: [BX + G.mistX(0) * bk + 1.5, RY - G.MH * bk / 2 + 1.5], 5: [112, 32], 4: [222, 26], 9: [294, 24], 1: [BX + 1, BY + 2], 2: [X(3) + TS / 2 + 3, BY + 3], 3: [X(0) + 6, RY - 9], 7: [LX + 1, LY + 1], 11: [106, 230], 8: [222, 207], 10: [314, 196] };
   for (const [n, [x, y]] of Object.entries(N)) s += num(n, x, y);
   return s;
 }

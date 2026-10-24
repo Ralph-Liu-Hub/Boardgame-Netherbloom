@@ -19,7 +19,8 @@ const mist = [0, 1, 2].flatMap(r => mistDeck(r).map(([n], j) => ({ file: `cards/
   .concat(HARSH.map(([n], j) => ({ file: `cards/cards-mist_png/${harshId(j)}.png`, name: `Harsh · ${n}`, reach: 3 })));
 const ghost = GHOST.map((g, j) => ({ file: `cards/cards-ghost_png/${ghostId(j)}.png`, name: `Ghost ${j + 1} · ${TAG_NAMES[g[0]]}` }));
 const KIND = ["fertile", "stony", "memory", "grave"];
-const bank = TILES.flatMap(([, kinds], r) => kinds.map((t, j) => ({ file: `cards/cards-bank_png/bank-${r + 1}-${String(j + 1).padStart(2, "0")}-${KIND[t]}.png`, name: `Reach ${["I", "II", "III"][r]} · ${TILE_NAMES[t]}`, reach: r })));
+let tileN = 0;
+const bank = TILES.flatMap(([, kinds], r) => kinds.map((t, j) => ({ file: `tiles/bank-tile-singles_png/tile-${r + 1}-${String(++tileN).padStart(2, "0")}-${KIND[t]}.png`, name: `Reach ${["I", "II", "III"][r]} · ${TILE_NAMES[t]}`, reach: r })));
 const souls = ["child", "garland", "king", "bride", "open"].map(k => ({ file: `cards/cards-soul_png/soul-${k}.png`, name: `Soul · ${SOULS[k].name}` }));
 const mantles = Object.keys(MANTLES).map(m => ({ file: `cards/cards-mantle_png/mantle-${m}.png`, name: `Mantle · ${MANTLES[m].name}` }));
 
@@ -39,7 +40,7 @@ const discs = [];
   }
 }
 const TOKEN_NAMES = { "nb-tok-oar": "Oar", "nb-tok-push": "Push Through", "nb-tok-hold": "Hold Fast", "nb-tok-shield": "Shield", "nb-tok-resign": "Resignation",
-  "nb-soul": "Soul / Ghost", "nb-root": "Root / Bloom", "nb-grievance": "Shade", "nb-blackwater": "Black Water", "nb-fracture": "Fracture", "nb-light": "Light", "nb-knot": "Knot", "nb-echo": "Echo" };
+  "nb-root": "Root / Bloom", "nb-grievance": "Shade", "nb-blackwater": "Black Water", "nb-fracture": "Fracture", "nb-light": "Light", "nb-knot": "Knot", "nb-echo": "Echo" };
 const seen = new Set(), tokenTypes = [];
 for (const disc of discs) if (!seen.has(disc.t[0])) { seen.add(disc.t[0]); tokenTypes.push({ id: disc.t[0], name: TOKEN_NAMES[disc.t[0]], count: disc.t[4], d: disc.d, cx: disc.cx, cy: disc.cy, twoSided: disc.t[0] !== disc.t[2] || disc.t[1] !== disc.t[3] }); }
 

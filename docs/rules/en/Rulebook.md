@@ -32,7 +32,7 @@ One more thing: a soul's memories are not yours to tell. The Ferrymen may speak 
 
 Netherbloom is a co-operative game for 1 to 4 players and lasts about 15 turns. One soul starts on the near shore (space 0). All players win or lose together.
 
-**You win** when the soul token reaches the Far Shore (space 12). The soul only moves onto spaces with a Bloom, so you place Roots ahead of it and turn them into Blooms. Along the way, some cards can be inscribed in the Book of Remembrance (section 9); the Book does not decide whether you win, but it decides how the story ends.
+**You win** when the soul's standee reaches the Far Shore (space 12). The soul only moves onto spaces with a Bloom, so you place Roots ahead of it and turn them into Blooms. Along the way, some cards can be inscribed in the Book of Remembrance (section 9); the Book does not decide whether you win, but it decides how the story ends.
 
 **You lose** at once if any of these happens:
 
@@ -56,12 +56,12 @@ The picture shows the table set up for the Child of the Last Flame. Its numbers 
 
 ![setup1](figures/en_setup1.jpg)
 
-1.  **The river board.** Join the three panels in order: Reach I on the left (with the near shore) and Reach III on the right (ending at the Far Shore).
-2.  **Bank cards.** Sort the bank cards by the Reach number on their fog side: 6, 8, 6 cards for Reaches I, II and III. Shuffle each Reach's cards separately and place them fog side up on the banks of spaces 2–4, 5–8 and 9–11. Do not look at the other side.
-3.  **The first Blooms and the soul.** Space 1 has no bank cards: put a disc Bloom side up on both of its banks. Put the soul token on the near shore (space 0).
+1.  **The river board.** Join the three panels in order: Reach I on the left (with the near shore) and Reach III on the right (ending at the Far Shore). Each panel has a Mist deck well where its Reach begins and a square well on each bank for a bank tile.
+2.  **Bank tiles.** Sort the bank tiles by the Reach number on their fog side: 6, 8, 6 tiles for Reaches I, II and III. Shuffle each Reach's tiles separately and place them fog side up in the square wells of spaces 2–4, 5–8 and 9–11. Do not look at the other side.
+3.  **The first Blooms and the soul.** Space 1 has no bank tiles: put a disc Bloom side up on both of its banks. Fold the chosen Soul's standee (the first time only) and stand it on the near shore (space 0).
 4.  **The Soul and the Lantern.** Choose a Soul and a Lantern (section 10). Put the Soul card face up next to the board. The Child of the Last Flame starts with **3 Light** and the Bride Who Stayed Below with **1 Light**; every other Soul starts with 0.
 5.  **The Memory deck.** Shuffle the 32 core Memory cards with the Soul's 8-card pack (the 8 Echo cards for the Open Crossing) and put the deck face down. Leave room next to it for the **discard pile** (face up).
-6.  **The Mist decks.** Build one deck for each Reach: its 10 basic Mist cards, plus one *Rising Water* and one *Shade Drawn Near*, plus the Lantern's number of harsh Mist cards chosen at random (none at Gentle). Shuffle each deck and put it face down next to its Reach.
+6.  **The Mist decks.** Build one deck for each Reach: its 10 basic Mist cards, plus one *Rising Water* and one *Shade Drawn Near*, plus the Lantern's number of harsh Mist cards chosen at random (none at Gentle). Shuffle each deck and put it face down in the Mist well where its Reach begins.
 7.  **The Loom of the Fates.** Put the Loom board out with its three threads, Obsession, Acceptance and Oblivion, and put the knots next to it. A thread is full at 4 knots with 2–3 players, and at 5 in solo play or with 4 players. Keep the Echo token next to the Loom: it goes onto a thread when the first card is played face up or Burned.
 8.  **The Mantles.** Put the four Mantle cards face up where everyone can reach them.
 9.  **The Book of Remembrance.** Open the chosen Soul's Book at page I, with the photo corners ready.
@@ -150,7 +150,7 @@ The end-of-turn steps happen after **every player's turn**, not once per round. 
 
 ### Effects that happen immediately
 
-A thread that becomes full causes its **Backlash** at once (section 6). A page reward and a Chapter Blessing happen at once, as soon as the inscription that earns them is made (section 9). A Memory Site gives its keepsake (and, in the Open Crossing, its Light) when its bank card is flipped. The game ends the moment the soul reaches the Far Shore (you win), the forgotten pile reaches the Lantern's limit (Faded), the soul takes its third Fracture (Shattered), or a Black Water token must be placed with none left in the supply (Deluge). A Fracture cancelled by a Shield token or by the Child's rule is not taken.
+A thread that becomes full causes its **Backlash** at once (section 6). A page reward and a Chapter Blessing happen at once, as soon as the inscription that earns them is made (section 9). A Memory Site gives its keepsake (and, in the Open Crossing, its Light) when its bank tile is flipped. The game ends the moment the soul reaches the Far Shore (you win), the forgotten pile reaches the Lantern's limit (Faded), the soul takes its third Fracture (Shattered), or a Black Water token must be placed with none left in the supply (Deluge). A Fracture cancelled by a Shield token or by the Child's rule is not taken.
 
 ![mist](figures/en_mist.jpg)
 
@@ -174,16 +174,16 @@ A **Root** is a disc Root side up; a **Bloom** is the same disc Bloom side up. A
 
 ![network](figures/en_network.jpg)
 
-### Bank cards
+### Bank tiles
 
-When you place a Root on a bank that is still covered by fog, flip its bank card face up. The card stays on the bank, and its type decides what happens:
+When you place a Root on a bank that is still covered by fog, flip its bank tile face up. The card stays on the bank, and its type decides what happens:
 
 - **Fertile**: place the Root.
 - **Stony**: place the Root only if the card's effect says "even on Stony ground" or you hold the Root-Weaver. Otherwise no Root is placed, and that Root is lost.
 - **Memory Site**: place the Root and take a keepsake. In the Open Crossing, also gain 2 Light.
 - **Grave**: no Root is placed. Put a Shade on this bank.
 
-A bank with no bank card (both banks of space 1, or a bank whose Grave card was removed) counts as Fertile. A face-up bank card follows the same rules: Roots can be placed on Fertile and Memory Site banks, on Stony banks only as described above, and never on a Grave. Reach I has 3 Fertile, 1 Stony and 2 Memory Site cards; Reach II has 3 Fertile, 2 Stony, 2 Memory Site and 1 Grave; Reach III has 2 Fertile, 1 Stony, 2 Memory Site and 1 Grave.
+A bank with no bank tile (both banks of space 1, or a bank whose Grave tile was removed) counts as Fertile. A face-up bank tile follows the same rules: Roots can be placed on Fertile and Memory Site banks, on Stony banks only as described above, and never on a Grave. Reach I has 3 Fertile, 1 Stony and 2 Memory Site tiles; Reach II has 3 Fertile, 2 Stony, 2 Memory Site and 1 Grave; Reach III has 2 Fertile, 1 Stony, 2 Memory Site and 1 Grave.
 
 ![tiles](figures/en_tiles.jpg)
 
@@ -209,7 +209,7 @@ When the soul moves onto the first space of a new Reach, remove all knots from a
 
 **Placing a Shade.** Put the Shade on the bank named. If that bank already has a Shade, use the other bank of the same space; if both are taken, continue with the next space ahead. A disc on that bank is returned to the supply. No Root can be placed on a bank with a Shade. Shades on both banks of the next space stop the soul unless a player Pushes Through (section 3).
 
-**Removing Shades.** In Cleanup, return a Shade to the supply if the same bank of the space directly before it and the space directly after it both have a Bloom. Cards that say "banish" or "wash away" also return Shades to the supply. The bank card under a removed Shade stays as it was.
+**Removing Shades.** In Cleanup, return a Shade to the supply if the same bank of the space directly before it and the space directly after it both have a Bloom. Cards that say "banish" or "wash away" also return Shades to the supply. The bank tile under a removed Shade stays as it was.
 
 **Fractures** come from Shade damage, Push Through, Adrift and the harsh Mist card *Dark Wind*. Put each one on the next Fracture well of the Ledger; a mended Fracture comes off the highest well. At 3 Fractures you lose (Shattered). The card *Hold the Line* gives the Shield token: it cancels the next Fracture, then is removed; if unused, it is removed at the end of its owner's next turn.
 
@@ -343,9 +343,9 @@ Each component, what it represents in the story, and what it does in the game.
 
 | Component               | In the story                                                                          | In the game                                                                                                     |
 |-------------------------|---------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| **Soul token**          | A coinless dead person, waking on the near shore with a whole life still inside them. | Moves from space 0 to space 12, only onto Lit spaces without Black Water.                                       |
+| **Soul standee**        | A coinless dead person, waking on the near shore with a whole life still inside them. | Moves from space 0 to space 12, only onto Lit spaces without Black Water.                                       |
 | **The Far Shore**       | Where the veiled Keeper waits with the cup of forgetting.                             | Space 12. When the soul reaches it, you win.                                                                    |
-| **Bank card, fog side** | The mist that hides the bank.                                                         | Covers a bank until a Root is placed there (section 5).                                                         |
+| **Bank tile, fog side** | The mist that hides the bank.                                                         | Covers a bank until a Root is placed there (section 5).                                                         |
 | **Fertile**             | Soft riverbank earth.                                                                 | A Root is placed.                                                                                               |
 | **Stony**               | Hard, grey stone where little can grow.                                               | A Root is placed only by a card that allows Stony ground or the Root-Weaver.                                    |
 | **Memory Site**         | A place the soul once knew, surfacing through the fog.                                | A Root is placed; take a keepsake (Open Crossing: also 2 Light).                                                |
@@ -381,14 +381,15 @@ Each component, what it represents in the story, and what it does in the game.
 |--------------------------------------------------------|-----------------------------------------------------------------------------------------------|
 | Memory cards                                           | 72: 32 core, 8 Echo cards (Open Crossing), 4 Soul packs of 8                                  |
 | Mist cards                                             | 42: 10 basic for each Reach, 2 extra for each Reach (Rising Water, Shade Drawn Near), 6 harsh |
-| Bank cards                                             | 20: 6, 8, 6 for Reaches I, II, III                                                            |
+| Bank tiles                                             | 20: 6, 8, 6 for Reaches I, II, III                                                            |
 | Soul cards / Mantle cards / Ghost cards                | 5 / 4 / 12                                                                                    |
 | Boards                                                 | 3 river board panels, 1 Loom of the Fates, 1 Ledger                                           |
 | Books of Remembrance                                   | 5, one for each Soul                                                                          |
 | Root/Bloom discs                                       | 24                                                                                            |
 | Shades / Black Water / Fractures                       | 8 / 6 / 3                                                                                     |
 | Light / knots                                          | 12 / 15                                                                                       |
-| Echo, Oar, soul (Ghost on the back)                    | 1 each                                                                                        |
+| Soul standees (fold-up)                                | 5, one for each Soul                                                                          |
+| Echo / Oar                                             | 1 each                                                                                        |
 | Push Through / Hold Fast / Shield / Resignation tokens | 4 / 1 / 1 / 1                                                                                 |
 
 **Cards that track their own use.** Turn the Spirit Warden card sideways when it is used, and straighten it at the start of its holder's turn. Turn a Soul card sideways when its once-only rule has been used. In solo play, flip a Mantle you give up face down.
@@ -412,7 +413,7 @@ Words printed in this style on the cards are game terms. This table says exactly
 | Empty the fullest thread                                              | Remove every knot from the thread with the most knots. No Backlash. If threads are tied, you choose.                                                                                                                                                                                                          |
 | Tie N knots                                                           | Add N knots to the thread named. If this fills it, resolve its Backlash.                                                                                                                                                                                                                                      |
 | Backlash                                                              | What a full thread does (section 6). Resolve it, then remove that thread's knots.                                                                                                                                                                                                                             |
-| Lift the fog across this Reach; Graves turn Fertile                   | Flip every fog-side-up bank card in the soul's Reach face up without placing Roots. Remove every Grave card flipped this way from the board: those banks count as Fertile. Cards flipped this way cause no Shade, keepsake or Light.                                                                          |
+| Lift the fog across this Reach; Graves turn Fertile                   | Flip every fog-side-up bank tile in the soul's Reach face up without placing Roots. Remove every Grave tile flipped this way from the board: those banks count as Fertile. Tiles flipped this way cause no Shade, keepsake or Light.                                                                          |
 | The soul steps forward now                                            | Move the soul to the next space now, if it is Lit and has no Black Water. Gain its Light as usual.                                                                                                                                                                                                            |
 | The soul waits without forgetting this turn                           | Put the Hold Fast token next to the soul. If the soul Lingers this turn, no card is forgotten.                                                                                                                                                                                                                |
 | Prevent the next Fracture                                             | Take the Shield token (section 7).                                                                                                                                                                                                                                                                            |

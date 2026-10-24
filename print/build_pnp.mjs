@@ -121,12 +121,23 @@ function tileSheet() {
   const tiles = TILES.map(([spaces, list], r) => list.map(t => `<div class="tile">${icon(icons[t], "big")}<b>${ZH_TILES[t]}</b><small>第${NUM[r]}河段</small></div>`).join("")).join("");
   const fog = Array.from({ length: 20 }, () => `<div class="tile fog">${icon("nb-fog", "big")}<b>霧</b></div>`).join("");
   const tok = (id, name, n) => Array.from({ length: n }, () => `<div class="tok">${icon(id)}<small>${name}</small></div>`).join("");
-  return `<section class="sheet tiles"><h2>河岸板塊與標記</h2>
-    <p class="lead">板塊依河段分開洗混，面朝下放在該河段的河岸上（第1格兩岸開局即各有1朵花）。霧板塊為牌背；可印在板塊背面。</p>
-    <div class="tgrid">${tiles}</div><h3>霧（板塊背面）</h3><div class="tgrid">${fog}</div></section>
-    <section class="sheet tiles"><h2>標記</h2><p class="lead">沿圓圈剪下。數量為建議值，不足時可用任何小物件代替。</p><div class="kgrid">${tok("nb-root", "根", 24)}${tok("nb-bloom", "花", 24)}${tok("nb-grievance", "怨念", 8)}${tok("nb-blackwater", "黑水", 6)}${tok("nb-fracture", "裂痕", 3)}${tok("nb-light", "光", 12)}${tok("nb-knot", "結", 15)}${tok("nb-echo", "迴響", 1)}${tok("nb-soul", "亡魂", 1)}</div>
+  return `<section class="sheet tiles"><h2>河岸板塊</h2>
+    <p class="lead">每塊 40 × 40 mm。將各河段的板塊分開洗混，霧面朝上放置到該河段的方槽中（第1格兩岸開局即各有1朵花）。霧面為板塊背面，可印在下一頁並對齊黏貼。</p>
+    <div class="tgrid">${tiles}</div></section>
+    <section class="sheet tiles"><h2>霧（板塊背面）</h2><div class="tgrid">${fog}</div></section>
+    ${standeeSheet()}
+    <section class="sheet tiles"><h2>標記</h2><p class="lead">沿圓圈剪下。數量為建議值，不足時可用任何小物件代替。</p><div class="kgrid">${tok("nb-root", "根", 24)}${tok("nb-bloom", "花", 24)}${tok("nb-grievance", "怨念", 8)}${tok("nb-blackwater", "黑水", 6)}${tok("nb-fracture", "裂痕", 3)}${tok("nb-light", "光", 12)}${tok("nb-knot", "結", 15)}${tok("nb-echo", "迴響", 1)}</div>
     <h3 style="margin-top:5mm">行動標記</h3><p class="lead">記錄一條規則持續的效果：破浪標記每位玩家1個（奮力駛過時翻面）、堅守與認命放在亡魂旁、護盾放在升起者面前、船槳交給輪到的玩家。</p>
     <div class="kgrid">${tok("nb-tok-oar", "船槳", 1)}${tok("nb-tok-push", "破浪", 4)}${tok("nb-tok-hold", "堅守", 1)}${tok("nb-tok-shield", "護盾", 1)}${tok("nb-tok-resign", "認命", 1)}</div></section>`;
+}
+
+// The Soul standees: five strips to cut, fold on the three dashed lines and glue into a little tent (tab inside the front).
+function standeeSheet() {
+  const strip = k => `<div class="sd"><div class="sdp tab">黏貼處</div><div class="sdp base">底座</div>
+    <div class="sdp face flip">${icon("nb-soul", "big")}<b>${ZH_SOULS[k].name}</b></div><div class="sdp face">${icon("nb-soul", "big")}<b>${ZH_SOULS[k].name}</b></div></div>`;
+  return `<section class="sheet tiles"><h2>亡魂立牌</h2>
+    <p class="lead">沿外框剪下。將3條虛線往同一方向摺，圖面朝外；將黏貼處黏在正面底部的內側，圍成三角形。將本局引渡的亡魂立在此岸（第0格）。</p>
+    <div class="sdrow">${["open", "child", "garland", "king", "bride"].map(strip).join("")}</div></section>`;
 }
 
 // The Ledger: the forgotten track (each Lantern's limit marked ✕), the Fracture wells and the Black Water well.
@@ -137,7 +148,7 @@ function ledgerSheet() {
     return `<div class="lcell${at.length ? " lose" : ""}"><b>${n}</b>${at.length ? `<small>✕ ${at.join("・")}消散</small>` : ""}</div>`;
   }).join("");
   return `<section class="sheet ledger"><h2>渡帳</h2>
-    <p class="lead">被遺忘的牌依序正面朝上放在編號軌上；最新那張上方的數字就是被遺忘的張數。到達你燈籠的✕即消散（落敗）。</p>
+    <p class="lead">被遺忘的牌依序面朝上放在編號軌上；最新那張上方的數字就是被遺忘的張數。到達你燈籠的✕即消散（落敗）。</p>
     <div class="ltrack">${cells}</div>
     <div class="lwells"><div><h3>裂痕</h3>${[1, 2, 3].map(n => `<span class="well">${icon("nb-fracture")}<small>${n === 3 ? "第3道：破碎" : n}</small></span>`).join("")}</div>
     <div><h3>黑水供應區</h3><span class="well big">${icon("nb-blackwater")}<small>放入燈籠規定數量的黑水；空了又必須放置黑水即滅頂</small></span></div></div></section>`;
@@ -161,7 +172,8 @@ function contents() {
       <tr><td>稱號牌</td><td>${Object.keys(MANTLES).length}</td><td>卡牌</td></tr>
       <tr><td>亡魂牌</td><td>${Object.keys(ZH_SOULS).length}</td><td>卡牌</td></tr>
       <tr><td>河岸板塊（沃土、石地、記憶之地、墳墓）與霧</td><td>${TILES.reduce((a, [, l]) => a + l.length, 0)}</td><td>板塊</td></tr>
-      <tr><td>標記：根、花、怨念、黑水、裂痕、光、結、迴響、亡魂</td><td>—</td><td>標記</td></tr>
+      <tr><td>亡魂立牌（摺疊式）</td><td>5</td><td>立牌</td></tr>
+      <tr><td>標記：根、花、怨念、黑水、裂痕、光、結、迴響</td><td>—</td><td>標記</td></tr>
       <tr><td>行動標記：船槳1、破浪4、堅守1、護盾1、認命1</td><td>8</td><td>標記</td></tr>
       <tr><td>渡帳（遺忘軌、裂痕、黑水供應區）</td><td>1</td><td>渡帳</td></tr>
       <tr><td>燈籠表與玩家輔助卡</td><td>1</td><td>輔助</td></tr>
@@ -230,9 +242,14 @@ h2 { font-size: 12pt; border-bottom: .3mm solid #b9a27a; padding-bottom: 1mm; } 
 .book .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin-top: 2mm; }
 .book .slots div { display: flex; gap: 1.5mm; align-items: center; border-bottom: .25mm dotted #8a6a3e; padding-bottom: 1mm; color: #8a5a2e; } .book .slots span { flex: 1; }
 .book .bless, .book .sign { font-size: 9pt; color: #6b5a44; margin-top: 2mm; }
-.tgrid { display: grid; grid-template-columns: repeat(6, 25mm); grid-auto-rows: 25mm; gap: 1.5mm; margin-bottom: 4mm; }
-.tile { border: .3mm solid #8a7a62; border-radius: 2mm; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 8pt; background: #fbf7ee; }
-.tile .ic.big { width: 11mm; height: 11mm; margin: 0; color: #5a4630; } .tile small { font-size: 6pt; color: #8a7a62; } .tile.fog { background: #e6e8e8; }
+.tgrid { display: grid; grid-template-columns: repeat(4, 40mm); grid-auto-rows: 40mm; gap: 1.5mm; margin-bottom: 4mm; }
+.sdrow { display: flex; gap: 4mm; justify-content: center; }
+.sd { width: 32mm; border: .3mm solid #8a7a62; display: flex; flex-direction: column; }
+.sdp { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-size: 10.5pt; border-bottom: .3mm dashed #8a7a62; }
+.sdp:last-child { border-bottom: 0; } .sd .tab { height: 10mm; color: #8a7a62; } .sd .base { height: 22mm; } .sd .face { height: 52mm; padding: 0 2mm; }
+.sd .flip { transform: rotate(180deg); } .sd .ic.big { width: 14mm; height: 14mm; color: #5a4630; }
+.tile { border: .3mm solid #8a7a62; border-radius: 2mm; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10.5pt; background: #fbf7ee; text-align: center; padding: 1.5mm; }
+.tile .ic.big { width: 11mm; height: 11mm; margin: 0; color: #5a4630; } .tile small { font-size: 10.5pt; color: #8a7a62; } .tile.fog { background: #e6e8e8; }
 .kgrid { display: grid; grid-template-columns: repeat(10, 16mm); grid-auto-rows: 16mm; gap: 1mm; }
 .tok { border: .3mm solid #8a7a62; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .tok .ic { width: 8mm; height: 8mm; color: #5a4630; } .tok small { font-size: 5.5pt; }

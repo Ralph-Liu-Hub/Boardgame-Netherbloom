@@ -1,5 +1,5 @@
 // The rulebook as a printed A4 booklet (210 x 297 mm, 3 mm bleed), text from the in-game Rulebook (rules.js / rules_zh.js),
-// padded with Notes pages to a multiple of 4 for saddle stitching. Plus an A5 Player Aid sheet (print one per player).
+// padded with Notes pages to a multiple of 4 for saddle stitching. Plus the A5 Player Aid, a few double-sided cards (one set per player).
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { BLEED, C, FONTS, FACE, SYMBOLS, artImg, render } from "./lib.mjs";
@@ -90,6 +90,6 @@ export async function build(lang, dir, { png }) {
   }
   // the Player Aid on its own, A5 with bleed
   const aw = 148 + 2 * BLEED, ah = 210 + 2 * BLEED;
-  await render(join(dir, "player-aid"), flowDoc(lang, w.aidTitle, CSS(lang, aw, ah, BLEED + 9).replace("@page :first { margin: 0; @bottom-center { content: none; } }", "") + "body { font-size: 8.4pt; } h2 { margin-top: 0; }",
+  await render(join(dir, "player-aid"), flowDoc(lang, w.aidTitle, CSS(lang, aw, ah, BLEED + 9).replace("@page :first { margin: 0; @bottom-center { content: none; } }", "") + "body { font-size: 10.5pt; } h2 { margin-top: 0; }",
     forPaper(`<h2>${w.aidTitle}</h2>${w.aid(null)}`)), { w: aw, h: ah, png });
 }
