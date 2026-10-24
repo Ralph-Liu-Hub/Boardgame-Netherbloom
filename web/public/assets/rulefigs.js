@@ -95,7 +95,7 @@ const FIGS = {
       ${rows.map(([id, col, name, n, back], r) => { const y = 38 + r * 56;
         return `${use(id, 28, y, 26, col)}${label(50, y + 5, name, { col, size: 14, anchor: "start" })}<line x1="150" y1="${y}" x2="370" y2="${y}" stroke="${col}" stroke-opacity=".45" stroke-width="2"/>
           ${[0, 1, 2, 3, 4].map(k => `<circle cx="${170 + k * 46}" cy="${y}" r="15" fill="#1d1a22" stroke="${col}" stroke-opacity="${k < 4 ? .8 : .45}" ${k === 4 ? 'stroke-dasharray="4 3"' : ""}/>${k < n ? use("nb-knot", 170 + k * 46, y, 22, col) : ""}`).join("")}
-          ${label(398, y + 5, back, { col: n === 4 ? col : K.mist, size: 12.5, anchor: "start" })}`; }).join("")}
+          ${(([head, rest]) => label(398, y - 3, head, { col: n === 4 ? col : K.mist, size: 12.5, anchor: "start" }) + label(398, y + 14, rest, { col: n === 4 ? col : K.mist, size: 11.5, anchor: "start" }))(back.split(/, |，(.*)/s).filter(Boolean))}`; }).join("")}
       ${label(354, 182, t("5th knot: solo and 4 players only", "第5個結：僅限單人與4人"), { col: K.mist, size: 11 })}</svg>`;
     return figure(svg, t("Each card played face up or Burned ties a knot on its thread. With 2–3 players a thread holds 4 knots: here the Acceptance thread is full, so it snaps, its Backlash happens, and it is emptied.",
       "每張正面打出或焚燒的牌，都在其絲線上打一個結。2–3人遊戲時每條絲線可容納4個結：圖中的釋懷絲線已經打滿，於是斷裂、引發反噬，然後清空。"));
