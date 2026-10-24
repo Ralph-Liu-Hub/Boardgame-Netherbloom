@@ -1,6 +1,6 @@
 2f790be9decb478245cc0de2a56c12c3bc718144027850e35926447ba24617c6  netherbloom-factory-en-V3.1-part1-cards-boards-books.zip
-f5e27a212d690c95f81987b475c45e77288a58b58daf08afe8901977e6183374  netherbloom-factory-en-V3.1-part2-box-rulebook.zip
+3459463ad8751840a53db1f34975cfb45f4b9b1940a7ba9f0ae8d8a73acfd57c  netherbloom-factory-en-V3.1-part2-box-rulebook.zip
 e25c525a839be46a6726ce8be185b0b661d574bc01d5b3c877d10fbb1f7a5635  netherbloom-factory-zh-TW-V3.1-part1-cards-boards-books.zip
-0dd7e38f6b23847f6202c03afd4872a49b75afc34c9ef07146c78ca4fb9a3366  netherbloom-factory-zh-TW-V3.1-part2-box-rulebook.zip
+28da6485224ceab5c9e1cb8d993322b7fdda1f6089f67354094911a076a5decf  netherbloom-factory-zh-TW-V3.1-part2-box-rulebook.zip
 1249229cb263972f13f18b7f885d751fa95d7c5027814ac12484ab4c7c07eca6  netherbloom-screentop-en-V3.0.zip
 a8160a0ad0f2b1ffd955429ea66e1f63db1c2925c3732da8bb9b893f42487ded  netherbloom-v3.1-for-drive.zip

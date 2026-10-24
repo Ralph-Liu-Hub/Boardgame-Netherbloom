@@ -19,7 +19,7 @@ const PW = 210 + 2 * BLEED, PH = 297 + 2 * BLEED;
 const M = BLEED + 18;   // text margin from the bleed edge
 
 const CSS = (lang, w, h, m) => `
-@page { size: ${w}mm ${h}mm; margin: ${m}mm ${m}mm ${m + 4}mm;
+@page { size: ${w}mm ${h}mm; background: #efe5cf; margin: ${m}mm ${m}mm ${m + 4}mm;
   @bottom-center { content: counter(page); font-family: "IBM Plex Mono", monospace; font-size: 7pt; color: #8a6a3e; } }
 @page :first { margin: 0; @bottom-center { content: none; } }
 html { background: #efe5cf; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
