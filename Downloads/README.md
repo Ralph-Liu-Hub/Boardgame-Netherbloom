@@ -9,6 +9,7 @@ Click a file, then **Download** (or "View raw"). Each zip opens on its own.
 | `netherbloom-factory-en-V3.1-part2-box-rulebook.zip` | English factory files: box, rulebook and Player Aid |
 | `netherbloom-factory-zh-TW-V3.1-part1-cards-boards-books.zip` | 正體中文 factory files: MANUAL, cards, tokens, bank tiles, Ledger, Loom, river board, Books |
 | `netherbloom-factory-zh-TW-V3.1-part2-box-rulebook.zip` | 正體中文 factory files: box, rulebook and Player Aid |
+| `netherbloom-tokens-png-V3.1.zip` | Every token as single lossless PNGs, one per side (`en/` and `zh-TW/`, identical: tokens carry icons only). Each is a 31 × 31 mm canvas at 600 dpi (732 × 732 px) with the token centred at true size; fronts and backs share a name, e.g. `Soul Front 1.png` / `Soul Back 1.png`. 156 PNGs per edition, with a README |
 | `netherbloom-screentop-en-V3.0.zip` | Screentop.gg asset pack and setup guide (still V3.0: bank cards, A3 boards) |
 
 What changed in V3.1:
