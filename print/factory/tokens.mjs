@@ -73,7 +73,7 @@ export async function build(lang, dir, { png }) {
 
 // One token side per page, for printers who place each token themselves: every page is the same square canvas with the
 // disc centred on it at true size (its art 2 mm past the cut), white (no ink) round it. Page names pair front and back:
-// "Soul Front 1" / "Soul Back 1". Rasterised to PNG by tokenpng.mjs.
+// "Soul Front 1" / "Soul Back 1". Rasterised to CMYK JPGs by tokenjpg.mjs.
 export const SINGLE = 31;   // canvas, mm
 export const TOKEN_NAMES = { "nb-tok-oar": "Oar", "nb-tok-push": "Push Through", "nb-tok-hold": "Hold Fast", "nb-tok-shield": "Shield",
   "nb-tok-resign": "Resignation", "nb-soul": "Soul", "nb-root": "Root-Bloom", "nb-grievance": "Shade", "nb-blackwater": "Black Water",
