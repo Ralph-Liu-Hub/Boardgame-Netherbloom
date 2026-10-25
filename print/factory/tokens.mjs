@@ -70,3 +70,23 @@ export async function build(lang, dir, { png }) {
   const pages = ["front", "back", "die"].map(s => ({ name: `punchboard-${s}`, html: sheet(s) }));
   await render(join(dir, "punchboard"), doc({ lang, title: "Punchboard", w, h, css: ".pg > svg { display: block; width: 100%; height: 100%; }", pages }), { w, h, png });
 }
+
+// One token side per page, for printers who place each token themselves: every page is the same square canvas with the
+// disc centred on it at true size (its art 2 mm past the cut), white (no ink) round it. Page names pair front and back:
+// "Soul Front 1" / "Soul Back 1". Rasterised to CMYK JPGs by tokenjpg.mjs.
+export const SINGLE = 31;   // canvas, mm
+export const TOKEN_NAMES = { "nb-tok-oar": "Oar", "nb-tok-push": "Push Through", "nb-tok-hold": "Hold Fast", "nb-tok-shield": "Shield",
+  "nb-tok-resign": "Resignation", "nb-soul": "Soul", "nb-root": "Root-Bloom", "nb-grievance": "Shade", "nb-blackwater": "Black Water",
+  "nb-fracture": "Fracture", "nb-light": "Light", "nb-knot": "Knot", "nb-echo": "Echo" };
+export function singlePages() {
+  const c = SINGLE / 2, pages = [];
+  const one = inner => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SINGLE} ${SINGLE}" width="${SINGLE}mm" height="${SINGLE}mm">
+    <defs><radialGradient id="tk-glow"><stop offset="0" stop-color="#E6D3A3" stop-opacity=".10"/><stop offset="1" stop-color="#E6D3A3" stop-opacity="0"/></radialGradient></defs>
+    <rect width="${SINGLE}" height="${SINGLE}" fill="#fff"/>${inner}</svg>`;
+  for (const t of TOKENS) for (let i = 1; i <= t[4]; i++) {
+    const n = TOKEN_NAMES[t[0]];
+    pages.push({ name: `${n} Front ${i}`, html: one(disc(c, c, t[5], t[0], t[1])) });
+    pages.push({ name: `${n} Back ${i}`, html: one(disc(c, c, t[5], t[2], t[3], t[0] === "nb-tok-push")) });
+  }
+  return pages;
+}
