@@ -3,6 +3,8 @@ ddb12790da00de4e2637f7151e70e1bd4a6d7ea7e31df817b16bed194cace62c  netherbloom-fa
 f1ddf06b2f11a044ae93e9d08e96e127d8a705292840a2188fc696aca29af532  netherbloom-factory-zh-TW-V3.1-part1-cards-boards-books.zip
 fde13362afc0bc69ff0c8bf46906a9bd3e6b670958adb4ae024472862cef7426  netherbloom-factory-zh-TW-V3.1-part2-box-rulebook.zip
 1249229cb263972f13f18b7f885d751fa95d7c5027814ac12484ab4c7c07eca6  netherbloom-screentop-en-V3.0.zip
-9d9c2c6c0197e4b66735dd6fc36246ffec120790929c2b1d8638c87a48a14695  netherbloom-tokens-cmyk-jpg-en-V3.1.zip
-5e21cd9fcfb37e8481d44cd5830c39c8d9baa909d37767ab5cf37b3dad4cbee0  netherbloom-tokens-cmyk-jpg-zh-TW-V3.1.zip
+f8d9a0c4c0ce077c2b76a2a8dd4038b3ed0905ab556399950177df03ac9c0998  netherbloom-tokens-18mm-cmyk-jpg-en-V3.1.zip
+eb740d346e16bde97fb3f8c6b0b18c9f4045a36e3fb607bc6add930a0f9f63f9  netherbloom-tokens-18mm-cmyk-jpg-zh-TW-V3.1.zip
+e9fcaedf6075b41c30b5cb5b60bacda5ec94b6611675f14b205e1bfaa863690f  netherbloom-tokens-25mm-cmyk-jpg-en-V3.1.zip
+1f883253096b8cbe6809311db2d8fc7318715799925ad127657591cc2a17f6d5  netherbloom-tokens-25mm-cmyk-jpg-zh-TW-V3.1.zip
 24ee9011f175635adc86e790e3913d2069f1663408b9e87d9604ae3e6b8eeaf6  netherbloom-v3.1-for-drive.zip
