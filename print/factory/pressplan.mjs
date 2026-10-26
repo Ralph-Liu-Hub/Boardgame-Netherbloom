@@ -6,7 +6,6 @@ import { decks, cardBacks } from "./cards.mjs";
 import { PW as BPW, PH as BPH } from "./board.mjs";
 import { LID, BASE, TURN } from "./box.mjs";
 import { TILE, TILE_COUNT } from "./tiles.mjs";
-import { TOKENS, BIG, SMALL, CUT_BLEED } from "./tokens.mjs";
 
 export const SLUG = 10;                       // mm of slug outside the bleed, for the marks
 export const PROFILE = "Coated FOGRA39 (ISO 12647-2:2004, ISO Coated v2 condition), total ink 330%";
@@ -49,15 +48,6 @@ export function pressPlan(lang) {
     what: T(`${backs.length} card backs, one per deck (Mantle shares the Soul back)`, `${backs.length} 種牌背，每個牌組一種（稱號牌與亡魂牌共用背面）`),
     pair: T("Page 1 Memory, 2 Mist, 3 Ghost, 4 Soul, 5 Mantle: print behind every front of that deck.", "第 1 頁記憶、2 迷霧、3 幽靈、4 亡魂、5 稱號：印在該牌組每張正面的背後。"),
     turn: TURN_HOW.card, stock: card, finish: T("As the fronts", "同正面"), qty: T("As many as the fronts of its deck", "與該牌組正面數量相同"),
-  });
-  files.push({
-    path: "tokens/punchboard.pdf", trim: [297, 210], sides: "4/4",
-    labels: ["FRONT · punchboard", "BACK · punchboard · already mirrored: work-and-turn", "DIE LINE · do not print · register to page 1"],
-    what: T(`${TOKENS.reduce((n, t) => n + t[4], 0)} tokens: ${BIG} mm and ${SMALL} mm discs; art runs ${CUT_BLEED} mm past every cut`, `${TOKENS.reduce((n, t) => n + t[4], 0)} 個標記：${BIG} mm 與 ${SMALL} mm 圓片；圖案超出每條裁切線 ${CUT_BLEED} mm`),
-    pair: T("Page 1 front, page 2 back, page 3 die line (not printed).", "第 1 頁正面、第 2 頁背面、第 3 頁刀模（不印）。"),
-    turn: TURN_HOW.sheet, stock: T("2 mm greyboard, both sides laminated with printed 157 g/m² art paper", "2 mm 灰紙板，雙面裱 157 g/m² 印刷銅版紙"),
-    finish: T("Die-cut with page 3, leave the discs in the board (kiss-cut tabs) for shipping", "依第 3 頁模切，標記留在板上（留連接點）出貨"),
-    qty: T("1 sheet", "1 張"),
   });
   files.push({
     path: "tiles/bank-tiles.pdf", trim: [297, 210], sides: "4/4",

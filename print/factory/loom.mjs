@@ -1,5 +1,5 @@
 // The Loom of the Fates: one cardboard board (A4 landscape, 297 x 210 mm, 3 mm bleed), printed one side and mounted.
-// Three threads, each with five knot circles for the 18 mm knot discs from the punchboard: a thread snaps at its 4th knot
+// Three threads, each with five knot circles for the 18 mm knot discs: a thread snaps at its 4th knot
 // with 2-3 players and at its 5th in solo play or with 4 (the Lantern does not change it), so five circles serve every game.
 // Each thread also has a ring for the Echo token (it sits on the thread of the last card played face up or Burned)
 // and its Backlash, printed beside it. Pages: 1 the board, 2 the trim line (not printed).

@@ -2,8 +2,8 @@
   - every planned file went through press.py, and every image in it is CMYK (or grey);
   - every page of a file has the same page, bleed and trim box, and card fronts match card-backs.pdf;
   - the art fills the bleed: no paper white between the bleed edge and the trim (cutting guides excepted);
-  - on the die-cut sheets (punchboard, bank tiles) each back, turned over left to right, sits behind its front and
-    inside its cut: the art centre of every piece is measured against its cut on the die line.
+  - on the bank-tile sheet each back, turned over left to right, sits behind its front and inside its cut;
+  - the single token JPGs come in front/back pairs of one canvas size, CMYK, each token centred.
 Exits non-zero on any failure."""
 import json, os, sys
 import numpy as np
@@ -25,59 +25,23 @@ def raster(page, dpi):
     return np.frombuffer(pix.samples, np.uint8).reshape(pix.height, pix.width, pix.n)[..., :3].astype(int)
 
 
-def sheet_registration(doc, circle):
-    """Pages 1 front, 2 back (mirrored), 3 die. Returns the largest offset (mm) of any piece's art from its cut."""
-    dpi = 300
-    tb = doc[0].trimbox
-    crop = lambda img: img[int(round((tb.y0 - 3 * MM) / 72 * dpi)):int(round((tb.y1 + 3 * MM) / 72 * dpi)),
-                           int(round((tb.x0 - 3 * MM) / 72 * dpi)):int(round((tb.x1 + 3 * MM) / 72 * dpi))]
-    front, back, die = (crop(raster(doc[i], dpi)) for i in range(3))
-    back = back[:, ::-1]
-    px = dpi / 25.4
-    mag = (die[..., 0] > 180) & (die[..., 1] < 120) & (die[..., 2] > 90)
-    H, W = mag.shape
-    seen = np.zeros_like(mag)
-    shapes = []
-    for y0, x0 in zip(*np.nonzero(mag)):
-        if seen[y0, x0]: continue
-        st, pts = [(y0, x0)], []
-        seen[y0, x0] = True
-        while st:
-            y, x = st.pop(); pts.append((y, x))
-            for dy in (-1, 0, 1):
-                for dx in (-1, 0, 1):
-                    yy, xx = y + dy, x + dx
-                    if 0 <= yy < H and 0 <= xx < W and mag[yy, xx] and not seen[yy, xx]:
-                        seen[yy, xx] = True; st.append((yy, xx))
-        p = np.array(pts)
-        if np.ptp(p[:, 0]) < 10 * px: continue          # the caption text
-        shapes.append((p[:, 0].min(), p[:, 0].max(), p[:, 1].min(), p[:, 1].max()))
-    # For every cut shape: (1) the art must cover the whole band from the cut out to 1.5 mm past it, on the front
-    # and on the turned-over back; (2) the art centre, measured inside the cut only (so neighbouring pieces cannot
-    # pull it), must sit on the cut centre.
-    worst, cover_min = 0.0, 1.0
-    yy, xx = np.mgrid[0:H, 0:W]
-    for img in (front, back):
-        bg = img[int(px), int(px)]
-        art = np.abs(img - bg).sum(-1) > 3
-        for (y0, y1, x0, x1) in shapes:
-            cy, cx, ry, rx = (y0 + y1) / 2, (x0 + x1) / 2, (y1 - y0) / 2, (x1 - x0) / 2
-            pad = int(2.5 * px)
-            a0, a1, b0, b1 = max(0, y0 - pad), min(H, y1 + pad + 1), max(0, x0 - pad), min(W, x1 + pad + 1)
-            Y, X, A = yy[a0:a1, b0:b1], xx[a0:a1, b0:b1], art[a0:a1, b0:b1]
-            if circle:
-                d = np.hypot(Y - cy, X - cx); r = (ry + rx) / 2
-                band = (d >= r) & (d <= r + 1.5 * px)
-                inside = d < r
-            else:
-                dy, dx = np.abs(Y - cy) - ry, np.abs(X - cx) - rx
-                out = np.maximum(dy, dx)
-                band = (out >= 0) & (out <= 1.5 * px)
-                inside = out < 0
-            cover_min = min(cover_min, A[band].mean())
-            iy, ix = Y[inside & A], X[inside & A]
-            worst = max(worst, np.hypot(iy.mean() - cy, ix.mean() - cx) / px if len(iy) else 99)
-    return len(shapes), worst, cover_min
+def token_jpgs(folder):
+    """The single token JPGs: every front has a back of the same name, every JPG in a size folder is CMYK with the same
+    canvas, and the token sits centred on it. Returns (pieces, canvas px, largest centre offset px) and a list of faults."""
+    from PIL import Image
+    bad, names, sizes, worst = [], sorted(f for f in os.listdir(folder) if f.endswith(".jpg")), set(), 0.0
+    for f in names:
+        if " Front " in f and f.replace(" Front ", " Back ") not in names: bad.append(f"{f}: no back")
+        if " Back " in f and f.replace(" Back ", " Front ") not in names: bad.append(f"{f}: no front")
+        im = Image.open(os.path.join(folder, f))
+        if im.mode != "CMYK": bad.append(f"{f}: {im.mode}, not CMYK")
+        sizes.add(im.size)
+        ink = np.asarray(im.convert("CMYK")).astype(int).sum(-1) > 8
+        ys, xs = np.nonzero(ink)
+        H, W = ink.shape
+        worst = max(worst, abs((ys.min() + ys.max()) / 2 - (H - 1) / 2), abs((xs.min() + xs.max()) / 2 - (W - 1) / 2))
+    if len(sizes) != 1: bad.append(f"canvas sizes differ: {sizes}")
+    return len(names) // 2, next(iter(sizes))[0] if sizes else 0, worst, bad
 
 
 def tile_geometry(html, sheet_w):
@@ -140,13 +104,16 @@ for f in plan["files"]:
         if not (n == nf == nb): fails.append(f"{f['path']}: {n} cuts but {nf} fronts and {nb} backs")
         if worst > .01: fails.append(f"{f['path']}: a tile is {worst:.3f} mm off its cut")
         if margin < 1.5: fails.append(f"{f['path']}: art bleed past the cut only {margin:.2f} mm")
-    if f["path"] == "tokens/punchboard.pdf":
-        n, worst, cover = sheet_registration(doc, f["path"].startswith("tokens"))
-        notes.append(f"{f['path']}: {n} pieces; art covers {cover * 100:.1f}% of the 1.5 mm band outside every cut, front and back; art centre within {worst:.3f} mm of every cut centre")
-        if cover < .995: fails.append(f"{f['path']}: art covers only {cover * 100:.1f}% of the 1.5 mm band past a cut")
-        if worst > .15: fails.append(f"{f['path']}: art centre {worst:.3f} mm off its cut")
     notes.append(f"{f['path']}: {len(doc)} p, trim {tw} x {th} mm, bleed {round(trim[0] - bleed[0], 2)} mm, slug {round(bleed[0] - media[0], 2)} mm, CMYK")
     doc.close()
+for size in ("25mm", "18mm"):
+    folder = os.path.join(d, "tokens", "jpg", size)
+    if not os.path.isdir(folder):
+        fails.append(f"tokens/jpg/{size}: missing"); continue
+    n, px, worst, bad = token_jpgs(folder)
+    notes.append(f"tokens/jpg/{size}: {n} tokens, front and back each, CMYK, all {px} x {px} px; every token centred within {worst:.1f} px")
+    fails += [f"tokens/jpg/{size}/{b}" for b in bad]
+    if worst > 1: fails.append(f"tokens/jpg/{size}: a token is {worst:.1f} px off centre")
 if len(set(card_boxes.values())) > 1:
     fails.append(f"card fronts and backs differ: {card_boxes}")
 else:
