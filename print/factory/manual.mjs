@@ -12,6 +12,9 @@ import { pressPlan } from "./pressplan.mjs";
 import { PW as BPW, PH as BPH } from "./board.mjs";
 import { TILE, TILE_COUNT } from "./tiles.mjs";
 
+const tokensOf = size => TOKENS.filter(t => t[5] === size).reduce((a, t) => a + t[4], 0);
+const nBig = tokensOf(BIG), nSmall = tokensOf(SMALL);
+
 const PW = 210, PH = 297;
 const today = new Date().toISOString().slice(0, 10);
 const pages = file => existsSync(file) ? (readFileSync(file).toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length : 0;
@@ -76,10 +79,10 @@ const W = {
     s1: "1. What is in one box", bomHead: ["Component", "Qty", "Finished size", "Printing", "Suggested stock and finish", "File"],
     s2: "2. Rules for every file",
     s3pf: "3. Printing instructions, file by file",
-    pfIntro: "Every file below is listed with everything needed to print it. Pages labelled DIE LINE or TRIM LINE are cutting guides: register them to the printed page with the crop marks and never print them. Files not listed here (MANUAL.pdf, tiles/bank-tile-singles.pdf) are not printed.",
+    pfIntro: "Every file below is listed with everything needed to print it. Pages labelled DIE LINE or TRIM LINE are cutting guides: register them to the printed page with the crop marks and never print them. Files not listed here (MANUAL.pdf, tiles/bank-tile-singles.pdf) are not printed. The tokens are single JPGs, not a PDF: see section 6.",
     pfKeys: ["Contents", "Finished size (trim)", "PDF page", "Colours", "Pages, front and back", "Turning the sheet", "Stock", "Finishing", "Quantity per game"],
     pfPage: (w, h, b, s) => `${w + 2 * b} × ${h + 2 * b} mm with bleed; ${w + 2 * b + 2 * s} × ${h + 2 * b + 2 * s} mm with the slug and marks`,
-    pfReg: "Front and back registration was checked on every two-sided file. Cards, Player Aid, rulebook and Books: every front and back page has the same page size, bleed box and trim box. Punchboard and bank tiles: with the back turned over left to right, every token and tile back is centred exactly on its front and on its cut on the die line, and the art covers the whole band 1.5 mm past every cut on both sides (it runs 2 mm past). The check is <code>print/factory/checkpress.py</code>; it also confirms every page is CMYK and the art fills the bleed.",
+    pfReg: "Front and back registration was checked on every two-sided file. Cards, Player Aid, rulebook and Books: every front and back page has the same page size, bleed box and trim box. Token JPGs: every front has a back of the same name, the same canvas size, and the token centred on it. Bank tiles: with the back turned over left to right, every tile back is centred exactly on its front and on its cut on the die line, and the art covers the whole band 1.5 mm past every cut on both sides (it runs 2 mm past). The check is <code>print/factory/checkpress.py</code>; it also confirms every page is CMYK and the art fills the bleed.",
     general: [
       "Every page has <b>3 mm bleed</b> on all four sides (more than the 1.5 mm minimum), and the die-cut sheets carry <b>2 mm</b> of art past every cut. Trim to the finished size; keep the cut within ±0.5 mm. Nothing important sits within 3 mm of the trim.",
       "Files are <b>CMYK</b>, converted with the profile <b>Coated FOGRA39</b> (ISO Coated v2 condition, total ink 330%, relative colorimetric with black point compensation). If you print to another standard, convert from these files with your own profile. Send a printed <b>colour proof</b> before the run: the art is dark, so protect shadow detail and do not let blacks fill in.",
@@ -96,13 +99,13 @@ const W = {
     s4: "5. River board (3 panels)",
     board: [
       `<code>board/river-board.pdf</code> has three pages, one panel each (4/0), <b>${BPW} × ${BPH} mm</b> (smaller than A4). Mount each on 2 mm greyboard, matte laminate, trim. Each panel has a Mist deck well (66 × 91 mm) at the start of its Reach and 42 mm square wells for the ${TILE} mm bank tiles. The panels are separate pieces laid edge to edge on the table, I | II | III, left to right; the river runs straight across the joins.`,
-      "<b>Loom of the Fates board.</b> <code>loom/loom-of-the-fates.pdf</code>, page 1 (4/0); page 2 is its trim line (not printed). Mount on 2 mm greyboard, matte laminate, trim to 297 × 210 mm with 3 mm round corners. Its 22 mm knot circles take the 18 mm knot discs from the punchboard.",
+      "<b>Loom of the Fates board.</b> <code>loom/loom-of-the-fates.pdf</code>, page 1 (4/0); page 2 is its trim line (not printed). Mount on 2 mm greyboard, matte laminate, trim to 297 × 210 mm with 3 mm round corners. Its 22 mm knot circles take the 18 mm Knot tokens.",
       "<b>The Ledger board.</b> <code>ledger/the-ledger.pdf</code>, page 1 (4/0); page 2 is its trim line (not printed). Mount, laminate and trim like the Loom board (297 × 210 mm, 3 mm round corners). It holds the forgotten pile (a card-width numbered track), the 3 Fracture discs and the Black Water discs.",
     ],
-    s5: "6. Punchboard (tokens)",
+    s5: "6. Tokens and bank tiles",
     punch: [
-      `<code>tokens/punchboard.pdf</code>: page 1 is the front, page 2 the back, page 3 the die line (not printed). The back is already mirrored: turn the sheet over <b>left to right</b>, round its vertical centre line, so every back lands behind its front. Die-cut ${BIG} mm and ${SMALL} mm discs; the art runs ${CUT_BLEED} mm past every cut.`,
-      `<b>Bank tiles.</b> <code>tiles/bank-tiles.pdf</code>: ${TILE_COUNT} square tiles, ${TILE} × ${TILE} mm, on one A4 landscape sheet of 2 mm greyboard, laminated, 4/4. Page 1 front, page 2 back (already mirrored, turn over left to right like the punchboard), page 3 die line. The back is the fog side, marked with its Reach's numeral. <code>tiles/bank-tile-singles.pdf</code> is the same tiles one per page, for the digital table only (not printed).`,
+      `<b>Tokens.</b> The tokens come as single CMYK JPGs, one per side, not as a sheet: <code>tokens/jpg/25mm/</code> (${nBig} tokens of ${BIG} mm) and <code>tokens/jpg/18mm/</code> (${nSmall} tokens of ${SMALL} mm). Each JPG is the token centred on a square canvas at true size, 600 dpi, Coated FOGRA39 embedded; the art runs ${CUT_BLEED} mm past the cut circle. A token's front and back share a name (<code>Soul Front 1.jpg</code>, <code>Soul Back 1.jpg</code>): place both on the same spot of your die layout, centre on centre, upright, back behind front (the backs are <b>not</b> mirrored; mirror them yourself if your layout is work-and-turn). Die-cut ${BIG} mm and ${SMALL} mm circles from 2 mm greyboard, laminated, 4/4. The README in each folder lists the copies of each token.`,
+      `<b>Bank tiles.</b> <code>tiles/bank-tiles.pdf</code>: ${TILE_COUNT} square tiles, ${TILE} × ${TILE} mm, on one A4 landscape sheet of 2 mm greyboard, laminated, 4/4. Page 1 front, page 2 back (already mirrored: turn the sheet over left to right, as the drawing shows), page 3 die line. The back is the fog side, marked with its Reach's numeral. <code>tiles/bank-tile-singles.pdf</code> is the same tiles one per page, for the digital table only (not printed).`,
     ],
     tokHead: ["Token", "Front", "Back", "Qty", "Size"],
     tokenNames: { "nb-tok-oar": "The Oar", "nb-tok-push": "Push Through", "nb-tok-hold": "Hold Fast", "nb-tok-shield": "Shield", "nb-tok-resign": "Resignation", "nb-soul": "The soul / the Ghost",
@@ -124,7 +127,7 @@ const W = {
     pack: [
       "Base on the table. In this order, bottom to top:",
       "The three river board panels, stacked I, II, III, face up, then the Loom of the Fates board and the Ledger board on top.",
-      "The punchboard and the bank-tile board, face up (unpunched).",
+      "The tokens (bagged) and the bank-tile board, face up (unpunched).",
       "The five Books of Remembrance, each with its photo corners applied.",
       "The cards, each deck shrink-wrapped or banded separately: Memory 72, Mist 42, Ghost 12, then Soul 5 and Mantle 4 together.",
       "Four Player Aids, then the rulebook on top, cover up.",
@@ -134,7 +137,7 @@ const W = {
     check: [
       "Colour proof approved, especially the dark river and box art.",
       "Card backs line up with their fronts (head to head); every bank tile's fog side shows its own Reach.",
-      `Punchboard back registers with the front; die cuts stay inside the art's ${CUT_BLEED} mm overrun.`,
+      `Every token's back sits centre on centre behind its front; die cuts stay inside the art's ${CUT_BLEED} mm overrun.`,
       "Box wrap: sides read upright when folded; cover title at the top; turn-ins neat on the inside.",
       "Book pages 4–6: 48 photo corners each, on the printed marks; cards slide in and out.",
       "Counts match section 1.",
@@ -155,7 +158,7 @@ const W = {
       ["River board panels", 3, `${BPW} × ${BPH} mm`, "4/0", "mounted on 2 mm greyboard, matte laminated", "board/river-board.pdf"],
       ["Loom of the Fates board", 1, "297 × 210 mm", "4/0", "mounted on 2 mm greyboard, matte laminated", "loom/loom-of-the-fates.pdf"],
       ["The Ledger board", 1, "297 × 210 mm", "4/0", "mounted on 2 mm greyboard, matte laminated", "ledger/the-ledger.pdf"],
-      ["Punchboard", `1 (${n.tokens} tokens)`, "297 × 210 mm", "4/4", "2 mm greyboard, laminated, die-cut", "tokens/punchboard.pdf"],
+      ["Tokens", n.tokens, `${BIG} mm and ${SMALL} mm discs`, "4/4", "2 mm greyboard, laminated, die-cut", "tokens/jpg/25mm/, tokens/jpg/18mm/"],
       ["Bank tiles", n.tiles, `${TILE} × ${TILE} mm`, "4/4", "2 mm greyboard, laminated, die-cut (one A4 sheet)", "tiles/bank-tiles.pdf"],
       ["Books of Remembrance", 5, "A4, 8 pages", "4/4", "cover 250 g/m², inside 157 g/m² matte; saddle stitch", "books/…"],
       ["Clear photo corners", 240, "≈12 mm", "—", "self-adhesive, 48 per Book", "—"],
@@ -176,10 +179,10 @@ const W = {
     s1: "1. 一盒內容物", bomHead: ["配件", "數量", "成品尺寸", "印刷", "建議用紙與加工", "檔案"],
     s2: "2. 所有檔案的共通規則",
     s3pf: "3. 逐檔印刷說明",
-    pfIntro: "以下每個檔案都列出印刷所需的全部資訊。標示 DIE LINE 或 TRIM LINE 的頁面為裁切依據：請以裁切標記與印刷頁套準，且絕不印出。未列於此的檔案（MANUAL.pdf、tiles/bank-tile-singles.pdf）不需印刷。",
+    pfIntro: "以下每個檔案都列出印刷所需的全部資訊。標示 DIE LINE 或 TRIM LINE 的頁面為裁切依據：請以裁切標記與印刷頁套準，且絕不印出。未列於此的檔案（MANUAL.pdf、tiles/bank-tile-singles.pdf）不需印刷。標記為單張 JPG 而非 PDF：見第 6 節。",
     pfKeys: ["內容", "成品尺寸（裁切）", "PDF 頁面", "色數", "頁面與正背面", "翻面方式", "用紙", "加工", "每套數量"],
     pfPage: (w, h, b, s) => `含出血 ${w + 2 * b} × ${h + 2 * b} mm；含版邊與標記 ${w + 2 * b + 2 * s} × ${h + 2 * b + 2 * s} mm`,
-    pfReg: "所有雙面印刷的檔案都已檢查正背面套準。卡牌、玩家輔助卡、規則書與憶念之書：每個正面與背面頁的頁面尺寸、BleedBox 與 TrimBox 完全相同。標記板與河岸板塊：將背面左右翻面後，每個標記與板塊的背面都正好對準其正面與刀模上的裁切線，且正、背兩面的圖案都完整覆蓋裁切線外 1.5 mm 的範圍（實際超出 2 mm）。檢查程式為 <code>print/factory/checkpress.py</code>，並確認每頁皆為 CMYK、圖案填滿出血。",
+    pfReg: "所有雙面印刷的檔案都已檢查正背面套準。卡牌、玩家輔助卡、規則書與憶念之書：每個正面與背面頁的頁面尺寸、BleedBox 與 TrimBox 完全相同。標記 JPG：每個正面都有同名的背面，畫布尺寸相同，標記置中。河岸板塊：將背面左右翻面後，每塊板塊的背面都正好對準其正面與刀模上的裁切線，且正、背兩面的圖案都完整覆蓋裁切線外 1.5 mm 的範圍（實際超出 2 mm）。檢查程式為 <code>print/factory/checkpress.py</code>，並確認每頁皆為 CMYK、圖案填滿出血。",
     general: [
       "每個頁面四邊皆有 <b>3 mm 出血</b>（大於 1.5 mm 的最低要求），模切紙張上的圖案超出每條裁切線 <b>2 mm</b>。裁切至成品尺寸，誤差在 ±0.5 mm 以內。距裁切線 3 mm 內沒有重要內容。",
       "檔案為 <b>CMYK</b>，以 <b>Coated FOGRA39</b> 描述檔（ISO Coated v2 印刷條件，總墨量 330%，相對色度並使用黑點補償）轉換。如貴廠採用其他印刷標準，請由這些檔案以貴廠描述檔轉換。量產前請提供<b>印刷色樣</b>：美術風格偏暗，請保留暗部細節，避免黑色糊掉。",
@@ -196,13 +199,13 @@ const W = {
     s4: "5. 河流圖板（3 塊）",
     board: [
       `<code>board/river-board.pdf</code> 有三頁，每頁一塊（4/0），<b>${BPW} × ${BPH} mm</b>（小於 A4）。各自裱於 2 mm 灰紙板，上霧膜後裁切。每塊在其河段起點有一個迷霧牌庫槽（66 × 91 mm），並有 42 mm 方槽用來放 ${TILE} mm 的河岸板塊。三塊為獨立配件，於桌上依 I | II | III 由左至右邊對邊排列；河流會直接跨過接縫。`,
-      "<b>命運織機圖板。</b><code>loom/loom-of-the-fates.pdf</code> 第 1 頁（4/0）；第 2 頁為裁切線（不印）。裱於 2 mm 灰紙板，上霧膜，裁切為 297 × 210 mm，圓角 3 mm。其 22 mm 的結圓圈用來放標記板上 18 mm 的結圓片。",
+      "<b>命運織機圖板。</b><code>loom/loom-of-the-fates.pdf</code> 第 1 頁（4/0）；第 2 頁為裁切線（不印）。裱於 2 mm 灰紙板，上霧膜，裁切為 297 × 210 mm，圓角 3 mm。其 22 mm 的結圓圈用來放 18 mm 的結標記。",
       "<b>渡帳圖板。</b><code>ledger/the-ledger.pdf</code> 第 1 頁（4/0）；第 2 頁為裁切線（不印）。裱板、上膜與裁切方式同命運織機圖板（297 × 210 mm，圓角 3 mm）。板上放遺忘堆（一條與牌同寬的編號軌）、3 個裂痕圓片與黑水圓片。",
     ],
-    s5: "6. 標記板（模切標記）",
+    s5: "6. 標記與河岸板塊",
     punch: [
-      `<code>tokens/punchboard.pdf</code>：第 1 頁為正面、第 2 頁為背面、第 3 頁為刀模（不印）。背面已鏡像處理：請將紙張沿垂直中線<b>左右翻面</b>，每個背面便會落在其正面的背後。模切 ${BIG} mm 與 ${SMALL} mm 圓形標記；圖案超出每條裁切線 ${CUT_BLEED} mm。`,
-      `<b>河岸板塊。</b><code>tiles/bank-tiles.pdf</code>：${TILE_COUNT} 塊 ${TILE} × ${TILE} mm 方形板塊，排在一張 A4 橫式 2 mm 灰紙板上，上膜，4/4。第 1 頁正面、第 2 頁背面（已鏡像，與標記板一樣左右翻面）、第 3 頁刀模。背面為霧面，印有所屬河段的羅馬數字。<code>tiles/bank-tile-singles.pdf</code> 為每頁一塊的版本，僅供線上桌遊使用（不印）。`,
+      `<b>標記。</b>標記以單張 CMYK JPG 提供，每面一張，不再排成一張板：<code>tokens/jpg/25mm/</code>（${nBig} 個 ${BIG} mm 標記）與 <code>tokens/jpg/18mm/</code>（${nSmall} 個 ${SMALL} mm 標記）。每張 JPG 都是標記以實際尺寸置中於正方形畫布上，600 dpi，內嵌 Coated FOGRA39；圖案超出圓形裁切線 ${CUT_BLEED} mm。同一標記的正面與背面檔名相對應（<code>Soul Front 1.jpg</code>、<code>Soul Back 1.jpg</code>）：請在模切排版上放在同一位置，中心對中心、正立、背面在正面背後（背面<b>未</b>鏡像；若採自翻版印刷請自行鏡像）。以 2 mm 灰紙板模切 ${BIG} mm 與 ${SMALL} mm 圓片，上膜，4/4。各資料夾內的 README 列出每種標記的數量。`,
+      `<b>河岸板塊。</b><code>tiles/bank-tiles.pdf</code>：${TILE_COUNT} 塊 ${TILE} × ${TILE} mm 方形板塊，排在一張 A4 橫式 2 mm 灰紙板上，上膜，4/4。第 1 頁正面、第 2 頁背面（已鏡像：如圖所示將紙張左右翻面）、第 3 頁刀模。背面為霧面，印有所屬河段的羅馬數字。<code>tiles/bank-tile-singles.pdf</code> 為每頁一塊的版本，僅供線上桌遊使用（不印）。`,
     ],
     tokHead: ["標記", "正面", "背面", "數量", "尺寸"],
     tokenNames: { "nb-tok-oar": "船槳", "nb-tok-push": "破浪", "nb-tok-hold": "堅守", "nb-tok-shield": "護盾", "nb-tok-resign": "認命", "nb-soul": "亡魂／幽靈",
@@ -224,7 +227,7 @@ const W = {
     pack: [
       "盒底放在桌上，由下而上依序放入：",
       "三塊河流圖板，依 I、II、III 疊放，面朝上；最上面放命運織機圖板與渡帳圖板。",
-      "標記板與河岸板塊板，面朝上（未壓出）。",
+      "標記（裝袋）與河岸板塊板，面朝上（未壓出）。",
       "五本憶念之書，各自貼好相角。",
       "卡牌，各牌組分別收縮膜或以束帶綁好：記憶牌 72、迷霧牌 42、幽靈牌 12，亡魂牌 5 與稱號牌 4 合為一疊。",
       "四張玩家輔助卡，最上面放規則書，封面朝上。",
@@ -234,7 +237,7 @@ const W = {
     check: [
       "印刷色樣已確認，尤其是深色的河流與盒子美術。",
       "卡牌背面與正面對齊（頭對頭）；每塊河岸板塊的霧面印有其所屬河段。",
-      `標記板背面與正面套準；模切位置不超出圖案的 ${CUT_BLEED} mm 延伸範圍。`,
+      `每個標記的背面與正面中心對中心套準；模切位置不超出圖案的 ${CUT_BLEED} mm 延伸範圍。`,
       "盒子裱紙：側面摺下後為正向；封面標題在上；內折邊平整。",
       "憶念之書第 4–6 頁：每頁 48 個相角貼在角標上；卡牌能順利插入與取出。",
       "數量與第 1 節相符。",
@@ -254,7 +257,7 @@ const W = {
       ["河流圖板", 3, `${BPW} × ${BPH} mm`, "4/0", "裱 2 mm 灰紙板，上霧膜", "board/river-board.pdf"],
       ["命運織機圖板", 1, "297 × 210 mm", "4/0", "裱 2 mm 灰紙板，上霧膜", "loom/loom-of-the-fates.pdf"],
       ["渡帳圖板", 1, "297 × 210 mm", "4/0", "裱 2 mm 灰紙板，上霧膜", "ledger/the-ledger.pdf"],
-      ["標記板", `1（${n.tokens} 個標記）`, "297 × 210 mm", "4/4", "2 mm 灰紙板，上膜，模切", "tokens/punchboard.pdf"],
+      ["標記", n.tokens, `${BIG} mm 與 ${SMALL} mm 圓片`, "4/4", "2 mm 灰紙板，上膜，模切", "tokens/jpg/25mm/、tokens/jpg/18mm/"],
       ["河岸板塊", n.tiles, `${TILE} × ${TILE} mm`, "4/4", "2 mm 灰紙板，上膜，模切（一張 A4）", "tiles/bank-tiles.pdf"],
       ["憶念之書", 5, "A4，8 頁", "4/4", "封面 250 g/m²，內頁 157 g/m² 霧面；騎馬釘", "books/…"],
       ["透明相角", 240, "約 12 mm", "—", "自黏，每本 48 個", "—"],
@@ -273,7 +276,7 @@ const W = {
 
 const FILES = [
   "MANUAL.pdf", "cards/cards-memory.pdf", "cards/cards-mist.pdf", "cards/cards-ghost.pdf", "cards/cards-mantle.pdf", "cards/cards-soul.pdf", "cards/card-backs.pdf",
-  "board/river-board.pdf", "loom/loom-of-the-fates.pdf", "ledger/the-ledger.pdf", "tokens/punchboard.pdf", "tiles/bank-tiles.pdf", "tiles/bank-tile-singles.pdf",
+  "board/river-board.pdf", "loom/loom-of-the-fates.pdf", "ledger/the-ledger.pdf", "tokens/jpg/25mm/", "tokens/jpg/18mm/", "tiles/bank-tiles.pdf", "tiles/bank-tile-singles.pdf",
   "books/book-of-remembrance-child.pdf", "books/book-of-remembrance-garland.pdf", "books/book-of-remembrance-king.pdf", "books/book-of-remembrance-bride.pdf", "books/book-of-remembrance-open.pdf",
   "rulebook/rulebook.pdf", "rulebook/player-aid.pdf",
   "box/box-lid-wrap.pdf", "box/box-lid-dieline.pdf", "box/box-base-wrap.pdf", "box/box-base-dieline.pdf", "box/box-lid-liner.pdf", "box/box-base-liner.pdf",
