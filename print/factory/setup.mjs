@@ -100,7 +100,7 @@ function spread(lang) {
   // 1-3, 6 the river board, drawn to scale from its own geometry: three panels with the river running through all of them, each
   // with its Mist deck in its well along the left bank, square bank wells holding fog-side tiles (Blooms on space 1), and the
   // soul token on the near shore
-  const BX = 60, BY = 92, BWd = 300, bk = BWd / (3 * BPW), BHt = BPH * bk, X = sp => BX + G.spaceX(sp) * bk, RY = BY + G.RY * bk, TS = G.SW * bk, WH = 32 * bk;
+  const BX = 78, BY = 96, BWd = 264, bk = BWd / (3 * BPW), BHt = BPH * bk, X = sp => BX + G.spaceX(sp) * bk, RY = BY + G.RY * bk, TS = G.SW * bk, WH = 32 * bk;
   s += `<rect x="${BX - 1}" y="${BY - 1}" width="${BWd + 2}" height="${BHt + 2}" rx="1.5" fill="#0b0a0d"/>
     <clipPath id="ss-board"><rect x="${BX}" y="${BY}" width="${BWd}" height="${BHt}" rx="1"/></clipPath>
     <g clip-path="url(#ss-board)">${img("tex-bank", BX, BY, BWd, BHt, 'opacity=".9"')}<rect x="${BX}" y="${BY}" width="${BWd}" height="${BHt}" fill="#0f0d11" opacity=".3"/>
@@ -119,8 +119,8 @@ function spread(lang) {
   }
   for (let sp = 1; sp <= 11; sp++) s += `<text x="${X(sp)}" y="${RY + 1.6}" text-anchor="middle" class="ssp">${sp}</text>`;
   s += `<circle cx="${X(0)}" cy="${RY}" r="6" fill="${C.ink}" stroke="${C.bone}" stroke-width=".5"/>${use("nb-soul", X(0), RY, 8, "#EFE7D6")}
-    ${use("nb-light", X(12), RY, 9, C.bone)}${cap(X(0), BY + 8, c.near)}${cap(X(12), BY + 8, c.far)}
-    ${[0, 1, 2].map(r => cap(BX + BWd * r / 3 + 4, BY - 2.5, c.reach(r), "start")).join("")}`;
+    ${use("nb-light", X(12), RY, 9, C.bone)}${cap(BX + 1.5, RY + 11, c.near, "start")}${cap(X(12), BY + 8, c.far)}
+    ${[0, 1, 2].map(r => cap(BX + (G.mistX(r) + G.MW + 6) * bk, BY + (G.MY + G.MH / 2) * bk, c.reach(r), "start")).join("")}`;
   // 7 the Loom of the Fates board (scaled), a few knots, the Echo token beside it
   const k = 84 / LOOM.w, LX = 14, LY = 206, LW = LOOM.w * k, LH = LOOM.h * k;
   s += `<rect x="${LX}" y="${LY}" width="${LW}" height="${LH}" rx="1.2" fill="${C.ink}" stroke="${C.gilt}" stroke-width=".4"/>
@@ -146,7 +146,7 @@ function spread(lang) {
     s += `<text x="${x}" y="${y + 9.6}" text-anchor="middle" class="sc">${esc(L.supply[id])}</text><text x="${x}" y="${y + 13.2}" text-anchor="middle" class="sq">× ${t[4]}</text>`;
   });
   // step numbers
-  const N = { 6: [BX + G.mistX(0) * bk + 1, BY + G.MY * bk + 1], 5: [112, 32], 4: [222, 26], 9: [294, 24], 1: [BX + 1, BY + 2], 2: [X(3) + TS / 2 + 3, BY + 3], 3: [X(0) + 6, RY - 9], 7: [LX + 1, LY + 1], 11: [106, 230], 8: [222, 207], 10: [314, 196] };
+  const N = { 6: [BX + G.mistX(0) * bk + 1, BY + G.MY * bk + 1], 5: [112, 32], 4: [222, 26], 9: [294, 24], 1: [BX - 9, BY + 2], 2: [X(3) + TS / 2 + 3, BY + 3], 3: [X(0) + 6, RY - 9], 7: [LX + 1, LY + 1], 11: [106, 230], 8: [222, 207], 10: [314, 196] };
   for (const [n, [x, y]] of Object.entries(N)) s += num(n, x, y);
   return s;
 }

@@ -56,12 +56,12 @@ The picture shows the table set up for the Child of the Last Flame. Its numbers 
 
 ![setup1](figures/en_setup1.jpg)
 
-1.  **The river board.** Join the three panels in order: Reach I on the left (with the near shore) and Reach III on the right (ending at the Far Shore). Each panel has a Mist deck well where its Reach begins and a square well on each bank for a bank tile.
+1.  **The river board.** Join the three panels in order: Reach I on the left (with the near shore) and Reach III on the right (ending at the Far Shore). Each panel has a square well on each bank for a bank tile and, in the strip along the left bank, its Reach's Mist deck well; the river runs on unbroken from panel to panel.
 2.  **Bank tiles.** Sort the bank tiles by the Reach number on their fog side: 6, 8, 6 tiles for Reaches I, II and III. Shuffle each Reach's tiles separately and place them fog side up in the square wells of spaces 2–4, 5–8 and 9–11. Do not look at the other side.
 3.  **The first Blooms and the soul.** Space 1 has no bank tiles: put a disc Bloom side up on both of its banks. Put the soul token on the near shore (space 0).
 4.  **The Soul and the Lantern.** Choose a Soul and a Lantern (section 10). Put the Soul card face up next to the board. The Child of the Last Flame starts with **3 Light** and the Bride Who Stayed Below with **1 Light**; every other Soul starts with 0.
 5.  **The Memory deck.** Shuffle the 32 core Memory cards with the Soul's 8-card pack (the 8 Echo cards for the Open Crossing) and put the deck face down. Leave room next to it for the **discard pile** (face up).
-6.  **The Mist decks.** Build one deck for each Reach: its 10 basic Mist cards, plus one *Rising Water* and one *Shade Drawn Near*, plus the Lantern's number of harsh Mist cards chosen at random (none at Gentle). Shuffle each deck and put it face down in the Mist well where its Reach begins.
+6.  **The Mist decks.** Build one deck for each Reach: its 10 basic Mist cards, plus one *Rising Water* and one *Shade Drawn Near*, plus the Lantern's number of harsh Mist cards chosen at random (none at Gentle). Shuffle each deck and put it face down in its Reach's Mist well, in the strip along the left bank.
 7.  **The Loom of the Fates.** Put the Loom board out with its three threads, Obsession, Acceptance and Oblivion, and put the knots next to it. A thread is full at 4 knots with 2–3 players, and at 5 in solo play or with 4 players. Keep the Echo token next to the Loom: it goes onto a thread when the first card is played face up or Burned.
 8.  **The Mantles.** Put the four Mantle cards face up where everyone can reach them.
 9.  **The Book of Remembrance.** Open the chosen Soul's Book at page I, with the photo corners ready.

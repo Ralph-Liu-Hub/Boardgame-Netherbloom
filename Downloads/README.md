@@ -1,4 +1,4 @@
-# Downloads (V3.1: B5-size river boards, square bank tiles, larger print text)
+# Downloads (V3.1: river boards with an unbroken river, square bank tiles, larger print text)
 
 Click a file, then **Download** (or "View raw"). Each zip opens on its own.
 
@@ -12,7 +12,7 @@ Click a file, then **Download** (or "View raw"). Each zip opens on its own.
 | `netherbloom-screentop-en-V3.0.zip` | Screentop.gg asset pack and setup guide (still V3.0: bank cards, A3 boards) |
 
 What changed in V3.1:
-- River board panels are 266 × 182 mm (was A3), each with a Mist deck well and 42 mm square wells.
+- River board panels are 266 × 269 mm (they lie flat in the 296 mm box base). The river runs unbroken across all three; each Reach's Mist deck well sits in a strip along the left bank, and every bank has a 42 mm square well.
 - The 20 bank cards are now 40 × 40 mm bank tiles (`tiles/`), fog on the back.
 - Factory PDFs are press-ready: **CMYK** (Coated FOGRA39), **3 mm bleed** on every page (die-cut tokens and tiles carry 2 mm of art past every cut), and a 10 mm slug with crop marks, bleed marks, registration targets, a colour bar and a page label; each page has its TrimBox and BleedBox.
 - Every two-sided piece is checked: each tile back, turned over left to right, sits exactly on its front and its cut; each token JPG has a back of the same name and size, centred; card fronts and backs share one page geometry. `MANUAL.pdf` section 3 says how to print each file.
