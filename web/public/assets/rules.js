@@ -111,12 +111,12 @@ const BOOK = [
     <p>The picture shows the table set up for the Child of the Last Flame. Its numbers match the steps below. Appendix A shows every component.</p>
     <div class="setupfig" aria-hidden="false"></div>
     <ol class="steps setuplist">
-      <li><b>The river board.</b> Join the three panels in order: Reach I on the left (with the near shore) and Reach III on the right (ending at the Far Shore). Each panel has a Mist deck well where its Reach begins and a square well on each bank for a bank tile.</li>
+      <li><b>The river board.</b> Join the three panels in order: Reach I on the left (with the near shore) and Reach III on the right (ending at the Far Shore). Each panel has a square well on each bank for a bank tile, and the river runs on unbroken from panel to panel.</li>
       <li><b>Bank tiles.</b> Sort the bank tiles by the Reach number on their fog side: ${TILES.map(t => t[1].length).join(", ")} tiles for Reaches I, II and III. Shuffle each Reach's tiles separately and place them fog side up in the square wells of spaces 2–4, 5–8 and 9–11. Do not look at the other side.</li>
       <li><b>The first Blooms and the soul.</b> Space 1 has no bank tiles: put a disc Bloom side up on both of its banks. Put the soul token on the near shore (space 0).</li>
       <li><b>The Soul and the Lantern.</b> Choose a Soul and a Lantern (section 10). Put the Soul card face up next to the board. The Child of the Last Flame starts with <b>3 Light</b> and the Bride Who Stayed Below with <b>1 Light</b>; every other Soul starts with 0.</li>
       <li><b>The Memory deck.</b> Shuffle the 32 core Memory cards with the Soul's 8-card pack (the 8 Echo cards for the Open Crossing) and put the deck face down. Leave room next to it for the <b>discard pile</b> (face up).</li>
-      <li><b>The Mist decks.</b> Build one deck for each Reach: its ${MIST[0].length} basic Mist cards, plus one <i>Rising Water</i> and one <i>Shade Drawn Near</i>, plus the Lantern's number of harsh Mist cards chosen at random (none at Gentle). Shuffle each deck and put it face down in the Mist well where its Reach begins.</li>
+      <li><b>The Mist decks.</b> Build one deck for each Reach: its ${MIST[0].length} basic Mist cards, plus one <i>Rising Water</i> and one <i>Shade Drawn Near</i>, plus the Lantern's number of harsh Mist cards chosen at random (none at Gentle). Shuffle each deck and put it face down just above its Reach's panel.</li>
       <li><b>The Loom of the Fates.</b> Put the Loom board out with its three threads, Obsession, Acceptance and Oblivion, and put the knots next to it. A thread is full at 4 knots with 2–3 players, and at 5 in solo play or with 4 players. Keep the Echo token next to the Loom: it goes onto a thread when the first card is played face up or Burned.</li>
       <li><b>The Mantles.</b> Put the four Mantle cards face up where everyone can reach them.</li>
       <li><b>The Book of Remembrance.</b> Open the chosen Soul's Book at page I, with the photo corners ready.</li>
@@ -401,7 +401,7 @@ export function playerAid(cfg) {
       <li><b>Soul and Lantern</b>: choose both. The Soul card's special rule applies all game. Starting Light: the Child 3, the Bride 1, others 0.</li>
       <li><b>Lantern</b>: ${Object.entries(LANTERN).map(([l, [bw, fl, h]]) => `${LANTERN_NAMES[l]}: ${bw} Black Water, Faded at ${fl}, ${h} harsh Mist per Reach`).join("; ")}.</li>
       <li><b>Memory deck</b>: the 32 core cards plus the Soul's 8 (the 8 Echo cards for the Open Crossing), shuffled face down. Leave room for a face-up discard pile.</li>
-      <li><b>Mist decks</b>: one per Reach: its ${MIST[0].length} basic cards, plus Rising Water and Shade Drawn Near, plus the Lantern's number of random harsh cards. Shuffle each and put it face down in its Reach's Mist well.</li>
+      <li><b>Mist decks</b>: one per Reach: its ${MIST[0].length} basic cards, plus Rising Water and Shade Drawn Near, plus the Lantern's number of random harsh cards. Shuffle each and put it face down above its Reach's panel.</li>
       <li><b>Loom</b>: knots beside it; the Echo token beside it (it goes on a thread at the first card played face up or Burned).</li>
       <li><b>Ledger</b>: the Lantern's Black Water tokens in its well (the rest back in the box); Fractures beside it. Forgotten cards will go on its numbered track.</li>
       <li><b>Mantles</b> face up; the Soul's <b>Book</b> open at page I; the rest of the tokens in a supply.</li>
