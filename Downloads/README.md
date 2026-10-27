@@ -9,6 +9,7 @@ Click a file, then **Download** (or "View raw"). Each zip opens on its own.
 | `netherbloom-factory-en-V3.1-part2-box-rulebook.zip` | English factory files: box, rulebook and Player Aid |
 | `netherbloom-factory-zh-TW-V3.1-part1-cards-boards-books.zip` | 正體中文 factory files: MANUAL, cards, bank tiles, Ledger, Loom, river board, Books, and every token as single CMYK JPGs (`tokens/jpg/25mm/`, `tokens/jpg/18mm/`) |
 | `netherbloom-factory-zh-TW-V3.1-part2-box-rulebook.zip` | 正體中文 factory files: box, rulebook and Player Aid |
+| `netherbloom-zh-TW-V3.1-river-board-update.zip` | 正體中文, everything the river board redesign changed, in one zip: the three river board panels (266 × 244 mm, one print-ready PDF each), the illustrated rulebook (Word, PDF, Markdown), the factory print rulebook, the box back and the production manual |
 | `netherbloom-screentop-en-V3.0.zip` | Screentop.gg asset pack and setup guide (still V3.0: bank cards, A3 boards) |
 
 What changed in V3.1:
