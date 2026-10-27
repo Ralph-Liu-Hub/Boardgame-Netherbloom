@@ -22,7 +22,7 @@ const W = {
       3: ["First Blooms and the soul", "A Bloom on both banks of space 1, so the first step is Lit. The soul token starts on the near shore, space 0."],
       4: ["Soul card and Lantern", "The chosen Soul card, face up. Fractures go on the Ledger: the third shatters the soul. The Child starts with 3 Light, the Bride with 1. The Lantern is the difficulty you choose (section 10); it has no piece."],
       5: ["Memory deck", `${CORE_IDS.length} core cards and the Soul's own 8 (the 8 Echo cards for the Open Crossing), shuffled, face down. Discard pile face up; the forgotten pile goes on the Ledger.`],
-      6: ["Mist decks", `One per Reach, face down in the Mist well where that Reach begins: its ${MIST[0].length} Mist cards, Rising Water and Shade Drawn Near, and harsh Mist cards by Lantern (${harsh}).`],
+      6: ["Mist decks", `One per Reach, face down and sideways in its Mist well, in the strip along the left bank: its ${MIST[0].length} Mist cards, Rising Water and Shade Drawn Near, and harsh Mist cards by Lantern (${harsh}).`],
       7: ["Loom of the Fates", `The Loom board, knot discs beside it. Each knot goes on its thread's next circle: a thread snaps at 4 knots with 2–3 players, at 5 in solo or with 4. The Echo token waits beside the board.`],
       8: ["Mantles", `The ${Object.keys(MANTLES).length} Mantle cards, face up, where everyone can reach them.`],
       9: ["Book of Remembrance", "The chosen Soul's Book, open at Chapter I. Inscribed cards go in its wells, held by the photo corners."],
@@ -42,7 +42,7 @@ const W = {
       3: ["最初的花與亡魂", "在第1格的兩個河岸各放置1朵花，讓第一步就是照亮的。將亡魂標記放置到此岸（第0格）。"],
       4: ["亡魂牌與燈籠", "所選亡魂牌面朝上。裂痕放在渡帳上：第三道裂痕會讓亡魂破碎。孩子起始擁有3點光，新娘起始擁有1點光。燈籠是你們選擇的難度（第10節），沒有配件。"],
       5: ["記憶牌庫", `${CORE_IDS.length}張基本記憶牌加上亡魂的8張專屬牌（無名渡河用8張迴響牌），洗混後面朝下。棄牌堆面朝上；遺忘堆放在渡帳上。`],
-      6: ["迷霧牌庫", `每個河段一副，面朝下放置到該河段起點的迷霧牌槽：該河段的${MIST[0].length}張迷霧牌、「${ZH_MIST["Rising Water"][0]}」與「${ZH_MIST["Shade Drawn Near"][0]}」，以及依燈籠加入的凶霧（${harsh}）。`],
+      6: ["迷霧牌庫", `每個河段一副，面朝下橫放到左岸外側長條區的迷霧牌槽：該河段的${MIST[0].length}張迷霧牌、「${ZH_MIST["Rising Water"][0]}」與「${ZH_MIST["Shade Drawn Near"][0]}」，以及依燈籠加入的凶霧（${harsh}）。`],
       7: ["命運織機", "織機圖板，結圓片放在一旁。每個結放在其絲線的下一個圓圈上：2–3人時打滿4個結便斷裂，單人或4人時為5個。迴響標記放在圖板旁備用。"],
       8: ["稱號", `${Object.keys(MANTLES).length}張稱號牌面朝上，放在每個人都拿得到的地方。`],
       9: ["憶念之書", "所選亡魂的那本書，翻開到第一章。銘刻的牌放進牌槽，用相角固定。"],
@@ -97,18 +97,22 @@ function spread(lang) {
     <line x1="350" y1="27" x2="350" y2="77" stroke="#c9b48a" stroke-width=".8"/>
     <clipPath id="ss-book"><rect x="298" y="31" width="48" height="42"/></clipPath>${img("child-road", 298, 31, 48, 42, 'clip-path="url(#ss-book)" opacity=".85"')}
     ${[0, 1].map(r => [0, 1].map(k => `<rect x="${356 + k * 24}" y="${31 + r * 22}" width="18" height="19" rx=".8" fill="none" stroke="#8a6a3e" stroke-dasharray="1 .8" stroke-width=".3"/>`).join("")).join("")}</g>`;
-  // 1-3, 6 the river board, drawn to scale from its own geometry: three panels, each with its Mist deck in its well, square
-  // bank wells holding fog-side tiles (Blooms on space 1), and the soul token on the near shore
-  const BX = 14, BY = 97, BWd = 392, bk = BWd / (3 * BPW), BHt = BPH * bk, X = sp => BX + G.spaceX(sp) * bk, RY = BY + G.RY * bk, TS = G.SW * bk;
+  // 1-3, 6 the river board, drawn to scale from its own geometry: three panels with the river running through all of them, each
+  // with its Mist deck in its well along the left bank, square bank wells holding fog-side tiles (Blooms on space 1), and the
+  // soul token on the near shore
+  const BX = 78, BY = 96, BWd = 264, bk = BWd / (3 * BPW), BHt = BPH * bk, X = sp => BX + G.spaceX(sp) * bk, RY = BY + G.RY * bk, TS = G.SW * bk, WH = 32 * bk;
   s += `<rect x="${BX - 1}" y="${BY - 1}" width="${BWd + 2}" height="${BHt + 2}" rx="1.5" fill="#0b0a0d"/>
     <clipPath id="ss-board"><rect x="${BX}" y="${BY}" width="${BWd}" height="${BHt}" rx="1"/></clipPath>
     <g clip-path="url(#ss-board)">${img("tex-bank", BX, BY, BWd, BHt, 'opacity=".9"')}<rect x="${BX}" y="${BY}" width="${BWd}" height="${BHt}" fill="#0f0d11" opacity=".3"/>
-      ${img("tex-water", BX, RY - 16, BWd, 32)}<rect x="${BX}" y="${RY - 16}" width="${BWd}" height="32" fill="url(#ss-water)"/>
-      <rect x="${X(11) + TS / 2 + 4}" y="${BY}" width="${BWd}" height="${BHt}" fill="#1a0b10" opacity=".8"/><rect x="${BX}" y="${BY}" width="${20 * bk}" height="${BHt}" fill="#0a090c" opacity=".75"/></g>
+      ${img("tex-water", BX, RY - WH, BWd, 2 * WH)}<rect x="${BX}" y="${RY - WH}" width="${BWd}" height="${2 * WH}" fill="url(#ss-water)"/>
+      <rect x="${X(12) - 22 * bk}" y="${BY}" width="${BWd}" height="${BHt}" fill="#1a0b10" opacity=".8"/><rect x="${BX}" y="${BY}" width="${G.NEAR * bk}" height="${BHt}" fill="#0a090c" opacity=".75"/></g>
     ${[1, 2].map(i => `<line x1="${BX + BWd * i / 3}" y1="${BY}" x2="${BX + BWd * i / 3}" y2="${BY + BHt}" stroke="#000" stroke-width=".6" opacity=".8"/>`).join("")}`;
   [0, 1, 2].forEach(r => {
-    const mx = BX + G.mistX(r) * bk, my = RY - G.MH * bk / 2, mw = G.MW * bk, mh = G.MH * bk;
-    s += `<rect x="${mx}" y="${my}" width="${mw}" height="${mh}" rx="1.4" fill="#0b0f12" fill-opacity=".8" stroke="#4f7d86" stroke-width=".35"/>` + stack("back-mist", mx + 3.6, my + 4.6, mw - 8.8, mh - 8.8);
+    const mx = BX + G.mistX(r) * bk, my = BY + G.MY * bk, mw = G.MW * bk, mh = G.MH * bk;
+    // the deck lies sideways in its well: a portrait card turned a quarter turn
+    const cw = mh - 4.4, ch = mw - 4, cx = mx + mw / 2, cy = my + mh / 2;
+    s += `<rect x="${mx}" y="${my}" width="${mw}" height="${mh}" rx="1.2" fill="#0b0f12" fill-opacity=".8" stroke="#4f7d86" stroke-width=".35"/>` +
+      [0, 1, 2].map(i => card("back-mist", cx - cw / 2 + i * .8, cy - ch / 2 - i * .8, cw, ch, 90)).join("");
   });
   for (let sp = 1; sp <= 11; sp++) for (const y0 of [G.TOP, G.BOT]) {
     const x = X(sp) - TS / 2, y = BY + y0 * bk;
@@ -118,8 +122,8 @@ function spread(lang) {
   }
   for (let sp = 1; sp <= 11; sp++) s += `<text x="${X(sp)}" y="${RY + 1.6}" text-anchor="middle" class="ssp">${sp}</text>`;
   s += `<circle cx="${X(0)}" cy="${RY}" r="6" fill="${C.ink}" stroke="${C.bone}" stroke-width=".5"/>${use("nb-soul", X(0), RY, 8, "#EFE7D6")}
-    ${use("nb-light", X(12), RY, 9, C.bone)}${cap(X(0), BY + 8, c.near)}${cap(X(12), BY + 8, c.far)}
-    ${[0, 1, 2].map(r => cap(BX + BWd * r / 3 + 4, BY - 2.5, c.reach(r), "start")).join("")}`;
+    ${use("nb-light", X(12), RY, 9, C.bone)}${cap(BX + 1.5, RY + 11, c.near, "start")}${cap(X(12), BY + 8, c.far)}
+    ${[0, 1, 2].map(r => cap(BX + (G.mistX(r) + G.MW + 6) * bk, BY + (G.MY + G.MH / 2) * bk, c.reach(r), "start")).join("")}`;
   // 7 the Loom of the Fates board (scaled), a few knots, the Echo token beside it
   const k = 84 / LOOM.w, LX = 14, LY = 206, LW = LOOM.w * k, LH = LOOM.h * k;
   s += `<rect x="${LX}" y="${LY}" width="${LW}" height="${LH}" rx="1.2" fill="${C.ink}" stroke="${C.gilt}" stroke-width=".4"/>
@@ -145,7 +149,7 @@ function spread(lang) {
     s += `<text x="${x}" y="${y + 9.6}" text-anchor="middle" class="sc">${esc(L.supply[id])}</text><text x="${x}" y="${y + 13.2}" text-anchor="middle" class="sq">× ${t[4]}</text>`;
   });
   // step numbers
-  const N = { 6: [BX + G.mistX(0) * bk + 1.5, RY - G.MH * bk / 2 + 1.5], 5: [112, 32], 4: [222, 26], 9: [294, 24], 1: [BX + 1, BY + 2], 2: [X(3) + TS / 2 + 3, BY + 3], 3: [X(0) + 6, RY - 9], 7: [LX + 1, LY + 1], 11: [106, 230], 8: [222, 207], 10: [314, 196] };
+  const N = { 6: [BX + G.mistX(0) * bk + 1, BY + G.MY * bk + 1], 5: [112, 32], 4: [222, 26], 9: [294, 24], 1: [BX - 9, BY + 2], 2: [X(3) + TS / 2 + 3, BY + 3], 3: [X(0) + 6, RY - 9], 7: [LX + 1, LY + 1], 11: [106, 230], 8: [222, 207], 10: [314, 196] };
   for (const [n, [x, y]] of Object.entries(N)) s += num(n, x, y);
   return s;
 }

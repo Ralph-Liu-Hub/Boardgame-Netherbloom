@@ -98,7 +98,7 @@ const W = {
     backHead: ["Back page", "Back", "Used by"], cardHead: ["Deck", "Cards", "Front file", "Back page"],
     s4: "5. River board (3 panels)",
     board: [
-      `<code>board/river-board.pdf</code> has three pages, one panel each (4/0), <b>${BPW} × ${BPH} mm</b> (smaller than A4). Mount each on 2 mm greyboard, matte laminate, trim. Each panel has a Mist deck well (66 × 91 mm) at the start of its Reach and 42 mm square wells for the ${TILE} mm bank tiles. The panels are separate pieces laid edge to edge on the table, I | II | III, left to right; the river runs straight across the joins.`,
+      `<code>board/river-board.pdf</code> has three pages, one panel each (4/0), <b>${BPW} × ${BPH} mm</b>. Mount each on 2 mm greyboard, matte laminate, trim. Each panel has 42 mm square wells for the ${TILE} mm bank tiles and, in a strip along the left bank, a 91 × 66 mm Mist deck well (the deck lies sideways); the river painting runs across all three joins (the middle panel is drawn mirrored so each join matches). The panels lie flat in the 296 mm box base. The panels are separate pieces laid edge to edge on the table, I | II | III, left to right; the river runs straight across the joins.`,
       "<b>Loom of the Fates board.</b> <code>loom/loom-of-the-fates.pdf</code>, page 1 (4/0); page 2 is its trim line (not printed). Mount on 2 mm greyboard, matte laminate, trim to 297 × 210 mm with 3 mm round corners. Its 22 mm knot circles take the 18 mm Knot tokens.",
       "<b>The Ledger board.</b> <code>ledger/the-ledger.pdf</code>, page 1 (4/0); page 2 is its trim line (not printed). Mount, laminate and trim like the Loom board (297 × 210 mm, 3 mm round corners). It holds the forgotten pile (a card-width numbered track), the 3 Fracture discs and the Black Water discs.",
     ],
@@ -198,7 +198,7 @@ const W = {
     backHead: ["背面頁", "背面", "使用於"], cardHead: ["牌組", "張數", "正面檔案", "背面頁"],
     s4: "5. 河流圖板（3 塊）",
     board: [
-      `<code>board/river-board.pdf</code> 有三頁，每頁一塊（4/0），<b>${BPW} × ${BPH} mm</b>（小於 A4）。各自裱於 2 mm 灰紙板，上霧膜後裁切。每塊在其河段起點有一個迷霧牌庫槽（66 × 91 mm），並有 42 mm 方槽用來放 ${TILE} mm 的河岸板塊。三塊為獨立配件，於桌上依 I | II | III 由左至右邊對邊排列；河流會直接跨過接縫。`,
+      `<code>board/river-board.pdf</code> 有三頁，每頁一塊（4/0），<b>${BPW} × ${BPH} mm</b>。各自裱於 2 mm 灰紙板，上霧膜後裁切。每塊有 42 mm 方槽用來放 ${TILE} mm 的河岸板塊，左岸外側的長條區有一個 91 × 66 mm 的迷霧牌庫槽（牌庫橫放）；河流圖案跨過所有接縫（中間一塊以鏡像繪製，讓每條接縫兩側相同）。圖板可平放入 296 mm 的盒底。三塊為獨立配件，於桌上依 I | II | III 由左至右邊對邊排列；河流會直接跨過接縫。`,
       "<b>命運織機圖板。</b><code>loom/loom-of-the-fates.pdf</code> 第 1 頁（4/0）；第 2 頁為裁切線（不印）。裱於 2 mm 灰紙板，上霧膜，裁切為 297 × 210 mm，圓角 3 mm。其 22 mm 的結圓圈用來放 18 mm 的結標記。",
       "<b>渡帳圖板。</b><code>ledger/the-ledger.pdf</code> 第 1 頁（4/0）；第 2 頁為裁切線（不印）。裱板、上膜與裁切方式同命運織機圖板（297 × 210 mm，圓角 3 mm）。板上放遺忘堆（一條與牌同寬的編號軌）、3 個裂痕圓片與黑水圓片。",
     ],
