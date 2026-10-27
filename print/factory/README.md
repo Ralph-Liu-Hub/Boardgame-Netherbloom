@@ -21,7 +21,7 @@ Output goes to `print/out/factory/<en|zh-TW>/`. **Send the factory `MANUAL.pdf`*
 | Soul cards | 5 | 63 × 88 mm | `cards/cards-soul.pdf`, back `back-soul` |
 | Bank tiles (6 / 8 / 6 for Reaches I / II / III), 2 mm greyboard | 20 | 40 × 40 mm | `tiles/bank-tiles.pdf`: front, back (the fog side, marked with its Reach; mirrored for duplex), die line |
 | Card backs | 8 | 63 × 88 mm | `cards/card-backs.pdf` |
-| River board panels (one per Reach, joined edge to edge; 42 mm tile wells, the river unbroken across the joins; Mist decks sit off the board) | 3 | 266 × 182 mm (smaller than A4) | `board/river-board.pdf` |
+| River board panels (one per Reach, joined edge to edge; 42 mm tile wells, a Mist deck well in a strip along the left bank, the river unbroken across the joins) | 3 | 266 × 269 mm (lies flat in the 296 mm box base) | `board/river-board.pdf` |
 | Loom of the Fates board: three threads with five 22 mm knot circles each (a thread snaps at 4 knots with 2–3 players, 5 solo or with 4), an Echo ring and its Backlash | 1 | A4 landscape, 297 × 210 mm | `loom/loom-of-the-fates.pdf` (page 2 is the trim line) |
 | The Ledger board: the forgotten track (numbered, with each Lantern's ✕), three Fracture wells and the Black Water well | 1 | A4 landscape, 297 × 210 mm | `ledger/the-ledger.pdf` (page 2 is the trim line) |
 | Tokens: 9 large discs (25 mm) and 69 small (18 mm) | single JPGs | 31 / 24 mm canvas | `tokens/jpg/25mm/`, `tokens/jpg/18mm/`: one CMYK JPG per side, front and back share a name (`node print/factory/tokenjpg.mjs`); `tokens/punchboard.pdf` is a proof sheet only, not sent to the factory |

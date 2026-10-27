@@ -1,15 +1,16 @@
-// The river board: three panels of 266 x 182 mm (about JIS B5, smaller than A4; 3 mm bleed), one per Reach, joined edge to edge.
-// Painted banks and still water seen from above. Every bank of spaces 1-11 has a 42 mm square well for a 40 mm bank tile, and
-// the river runs unbroken from the near shore to the Far Shore across the three joins: the water and bank paintings are mirrored
-// on the middle panel so each join meets itself, and the Mist decks sit off the board, above their panels. Each river space is a
-// ring of ripples with a halo where the soul token stands. All printed words are at least 3.7 mm (10.5 pt) high.
+// The river board: three panels of 266 x 269 mm (3 mm bleed), one per Reach, joined edge to edge; they lie flat in the 296 mm
+// box base. Painted banks and still water seen from above. Every bank of spaces 1-11 has a 42 mm square well for a 40 mm bank
+// tile. Along the left bank runs a strip with each Reach's 66 x 91 mm Mist deck well and its name, so the river runs unbroken
+// from the near shore to the Far Shore across the three joins: the water and bank paintings are mirrored on the middle panel so
+// each join meets itself. Each river space is a ring of ripples with a halo where the soul token stands. All printed words are
+// at least 3.7 mm (10.5 pt) high.
 import { join } from "node:path";
 import { BLEED, C, doc, art, render } from "./lib.mjs";
 import { ZH_REACHES } from "../../web/public/assets/zh.js";
 import { REACH_NAMES } from "../../web/public/assets/cards.js";
 
-export const PW = 266, PH = 182, TILE = 40;
-const SW = 42, RY = 91, TOP = 14, BOT = RY + 35;
+export const PW = 266, PH = 269, TILE = 40;
+const SW = 42, MW = 66, MH = 91, MY = 6, TOP = MY + MH + 4, RY = TOP + SW + 4 + 31, BOT = RY + 35;
 const BONE = C.bone, GILT = C.gilt, MIST = C.mist;
 const RANGE = [[1, 4], [5, 8], [9, 11]], NUM = ["I", "II", "III"];
 const f = x => (+x.toFixed(1)).toString();
@@ -21,18 +22,18 @@ const EDGE_BACK = (y, k) => `H${PW} C${PW - 40} ${y} 186 ${y} 133 ${y - 3 * k} C
 // Where things sit on the three panels laid edge to edge (mm from the left of panel I): each panel spreads its spaces evenly
 // over its width, after the near shore on panel I; the Far Shore takes the last space's place on panel III.
 const NEAR = 30;
-export const GEO = { SW, RY, TOP, BOT, NEAR,
+export const GEO = { SW, RY, TOP, BOT, NEAR, MW, MH, MY, mistX: r => r * PW + (r === 0 ? NEAR : 0) + 4,
   spaceX: sp => sp === 0 ? NEAR / 2 : sp <= 4 ? NEAR + (sp - .5) * (PW - NEAR) / 4 : sp <= 8 ? PW + (sp - 4.5) * PW / 4 : 2 * PW + (sp - 8.5) * PW / 4 };
 
 const W = {
   en: { reach: r => `Reach ${NUM[r]} · ${REACH_NAMES[r]}`, left: "Left bank", right: "Right bank", open: "starts with a Bloom", fog: "bank tile, fog side up",
-    mist: r => `▲ Mist deck · Reach ${NUM[r]}`,
+    mist: r => `Mist deck · Reach ${NUM[r]}`, mistNote: "face down; flip the top card at each end of turn",
     near: "Near Shore · the soul wakes here", far: "The Far Shore", keeper: "the Keeper and the cup", joins: r => `joins Reach ${NUM[r]}`,
-    foot: i => `NETHERBLOOM · RIVER BOARD ${i + 1}/3 · 266 × 182 mm`, disp: "IM Fell English SC, Georgia, serif", serif: "IM Fell English, Georgia, serif" },
+    foot: i => `NETHERBLOOM · RIVER BOARD ${i + 1}/3 · ${PW} × ${PH} mm`, disp: "IM Fell English SC, Georgia, serif", serif: "IM Fell English, Georgia, serif" },
   zh: { reach: r => `第${["一", "二", "三"][r]}河段 · ${ZH_REACHES[r]}`, left: "左岸", right: "右岸", open: "開局即有一朵花", fog: "河岸板塊，霧面朝上",
-    mist: r => `▲ 迷霧牌庫 · 第${["一", "二", "三"][r]}河段`,
+    mist: r => `迷霧牌庫 · 第${["一", "二", "三"][r]}河段`, mistNote: "面朝下放置；每次回合結束時翻開最上面的1張",
     near: "此岸 · 亡魂在此醒來", far: "彼岸", keeper: "守岸人與那杯河水", joins: r => `接第${["一", "二", "三"][r]}河段`,
-    foot: i => `《彼岸花渡》 · 河流圖板 ${i + 1}/3 · 266 × 182 mm`, disp: "Noto Serif TC, serif", serif: "Noto Serif TC, serif" },
+    foot: i => `《彼岸花渡》 · 河流圖板 ${i + 1}/3 · ${PW} × ${PH} mm`, disp: "Noto Serif TC, serif", serif: "Noto Serif TC, serif" },
 };
 
 // A small seeded random, so every build draws the same ripples.
@@ -108,16 +109,18 @@ export function panel(ri, lang, pieces = {}) {
   o += sketch(EDGE(RY - 31, 1), BONE, { w: .35, op: .35, seed: 1 });
   o += sketch(EDGE(RY + 31, -1), BONE, { w: .35, op: .35, seed: 4 });
   [[60, 100], [148, 110], [222, 76]].forEach(([cx, wd], k) => { o += `<ellipse cx="${cx}" cy="${RY + (k - 1) * 5}" rx="${wd / 2}" ry="7" fill="${MIST}" opacity=".2" filter="url(#pd-mist)"/>`; });
-  // the Reach's name across the top
-  const titleX = (x0 - SW / 2 + lastX + SW / 2) / 2;
-  o += `<text x="${f(titleX)}" y="10" text-anchor="middle" font-family="${w.disp}" font-size="4.6" fill="${BONE}" style="paint-order:stroke" stroke="#0f0d11" stroke-width="1.4">${w.reach(ri)}</text>`;
+  // the strip along the left bank: the Reach's Mist deck well, and the Reach's name beside it
+  const titleX = (x0 - SW / 2 + lastX + SW / 2) / 2, mistX = GEO.mistX(ri) - ri * PW, my = MY;
+  o += `<text x="${f(mistX + MW + 10)}" y="${f(my + MH / 2)}" font-family="${w.disp}" font-size="7" fill="${BONE}" style="paint-order:stroke" stroke="#0f0d11" stroke-width="1.6">${w.reach(ri)}</text>`;
+  o += `<rect x="${f(mistX)}" y="${f(my)}" width="${MW}" height="${MH}" rx="4" fill="#0b0f12" fill-opacity=".78" stroke="#4f7d86" stroke-width=".7"/>
+    <rect x="${f(mistX + 2.2)}" y="${f(my + 2.2)}" width="${MW - 4.4}" height="${MH - 4.4}" rx="2.6" fill="none" stroke="#4f7d86" stroke-width=".25" stroke-dasharray="1.2 1.2"/>
+    <use href="#nb-fog" x="${f(mistX + MW / 2 - 11)}" y="${f(my + 22)}" width="22" height="22" style="color:${C.cyan}" opacity=".6"/>
+    <foreignObject x="${f(mistX + 4)}" y="${f(my + 50)}" width="${MW - 8}" height="38"><div xmlns="http://www.w3.org/1999/xhtml" style="font-family:${w.serif};font-size:${FS}px;line-height:1.2;color:${BONE};text-align:center"><b style="font-weight:600">${w.mist(ri)}</b><br/><span style="color:${MIST}">${w.mistNote}</span></div></foreignObject>`;
   if (ri === 0) {
     o += `<path d="M${-B} ${-B} H${nearW} C${nearW + 4} 60 ${nearW - 4} 120 ${nearW + 2} ${PH + B} H${-B} Z" fill="#0a090c" opacity=".85"/>` + sketch(`M${nearW} ${-B} C${nearW + 4} 60 ${nearW - 4} 120 ${nearW + 2} ${PH + B}`, BONE, { w: .4, op: .45, seed: 21 });
     o += ripple(nearW / 2 + .5, RY, 0, 30, 7, .5);
     o += `<text x="${f(nearW / 2 - 2)}" y="${PH - 12}" font-family="${w.disp}" font-size="${FS}" fill="${BONE}" transform="rotate(-90 ${f(nearW / 2 - 2)} ${PH - 12})">${w.near}</text>`;
   }
-  // the Mist deck sits off the board, just above this edge
-  o += `<text x="${f(nearW + 4)}" y="10" font-family="${w.serif}" font-size="${FS}" fill="${MIST}" style="paint-order:stroke" stroke="#0f0d11" stroke-width="1.2">${w.mist(ri)}</text>`;
   if (ri === 2) {
     const fx = GEO.spaceX(12) - 2 * PW;
     o += `<path d="M${PW + B} ${-B} H${f(fx - 22)} C${f(fx - 28)} 60 ${f(fx - 18)} 120 ${f(fx - 24)} ${PH + B} H${PW + B} Z" fill="#1a0b10" opacity=".92"/>` + sketch(`M${f(fx - 22)} ${-B} C${f(fx - 28)} 60 ${f(fx - 18)} 120 ${f(fx - 24)} ${PH + B}`, "#d9a441", { w: .45, op: .6, seed: 22 });
