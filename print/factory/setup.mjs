@@ -22,7 +22,7 @@ const W = {
       3: ["First Blooms and the soul", "A Bloom on both banks of space 1, so the first step is Lit. The soul token starts on the near shore, space 0."],
       4: ["Soul card and Lantern", "The chosen Soul card, face up. Fractures go on the Ledger: the third shatters the soul. The Child starts with 3 Light, the Bride with 1. The Lantern is the difficulty you choose (section 10); it has no piece."],
       5: ["Memory deck", `${CORE_IDS.length} core cards and the Soul's own 8 (the 8 Echo cards for the Open Crossing), shuffled, face down. Discard pile face up; the forgotten pile goes on the Ledger.`],
-      6: ["Mist decks", `One per Reach, face down in its Mist well, in the strip along the left bank: its ${MIST[0].length} Mist cards, Rising Water and Shade Drawn Near, and harsh Mist cards by Lantern (${harsh}).`],
+      6: ["Mist decks", `One per Reach, face down and sideways in its Mist well, in the strip along the left bank: its ${MIST[0].length} Mist cards, Rising Water and Shade Drawn Near, and harsh Mist cards by Lantern (${harsh}).`],
       7: ["Loom of the Fates", `The Loom board, knot discs beside it. Each knot goes on its thread's next circle: a thread snaps at 4 knots with 2–3 players, at 5 in solo or with 4. The Echo token waits beside the board.`],
       8: ["Mantles", `The ${Object.keys(MANTLES).length} Mantle cards, face up, where everyone can reach them.`],
       9: ["Book of Remembrance", "The chosen Soul's Book, open at Chapter I. Inscribed cards go in its wells, held by the photo corners."],
@@ -42,7 +42,7 @@ const W = {
       3: ["最初的花與亡魂", "在第1格的兩個河岸各放置1朵花，讓第一步就是照亮的。將亡魂標記放置到此岸（第0格）。"],
       4: ["亡魂牌與燈籠", "所選亡魂牌面朝上。裂痕放在渡帳上：第三道裂痕會讓亡魂破碎。孩子起始擁有3點光，新娘起始擁有1點光。燈籠是你們選擇的難度（第10節），沒有配件。"],
       5: ["記憶牌庫", `${CORE_IDS.length}張基本記憶牌加上亡魂的8張專屬牌（無名渡河用8張迴響牌），洗混後面朝下。棄牌堆面朝上；遺忘堆放在渡帳上。`],
-      6: ["迷霧牌庫", `每個河段一副，面朝下放置到左岸外側長條區的迷霧牌槽：該河段的${MIST[0].length}張迷霧牌、「${ZH_MIST["Rising Water"][0]}」與「${ZH_MIST["Shade Drawn Near"][0]}」，以及依燈籠加入的凶霧（${harsh}）。`],
+      6: ["迷霧牌庫", `每個河段一副，面朝下橫放到左岸外側長條區的迷霧牌槽：該河段的${MIST[0].length}張迷霧牌、「${ZH_MIST["Rising Water"][0]}」與「${ZH_MIST["Shade Drawn Near"][0]}」，以及依燈籠加入的凶霧（${harsh}）。`],
       7: ["命運織機", "織機圖板，結圓片放在一旁。每個結放在其絲線的下一個圓圈上：2–3人時打滿4個結便斷裂，單人或4人時為5個。迴響標記放在圖板旁備用。"],
       8: ["稱號", `${Object.keys(MANTLES).length}張稱號牌面朝上，放在每個人都拿得到的地方。`],
       9: ["憶念之書", "所選亡魂的那本書，翻開到第一章。銘刻的牌放進牌槽，用相角固定。"],
@@ -109,7 +109,10 @@ function spread(lang) {
     ${[1, 2].map(i => `<line x1="${BX + BWd * i / 3}" y1="${BY}" x2="${BX + BWd * i / 3}" y2="${BY + BHt}" stroke="#000" stroke-width=".6" opacity=".8"/>`).join("")}`;
   [0, 1, 2].forEach(r => {
     const mx = BX + G.mistX(r) * bk, my = BY + G.MY * bk, mw = G.MW * bk, mh = G.MH * bk;
-    s += `<rect x="${mx}" y="${my}" width="${mw}" height="${mh}" rx="1.2" fill="#0b0f12" fill-opacity=".8" stroke="#4f7d86" stroke-width=".35"/>` + stack("back-mist", mx + 1.6, my + 2, mw - 4, mh - 4.4);
+    // the deck lies sideways in its well: a portrait card turned a quarter turn
+    const cw = mh - 4.4, ch = mw - 4, cx = mx + mw / 2, cy = my + mh / 2;
+    s += `<rect x="${mx}" y="${my}" width="${mw}" height="${mh}" rx="1.2" fill="#0b0f12" fill-opacity=".8" stroke="#4f7d86" stroke-width=".35"/>` +
+      [0, 1, 2].map(i => card("back-mist", cx - cw / 2 + i * .8, cy - ch / 2 - i * .8, cw, ch, 90)).join("");
   });
   for (let sp = 1; sp <= 11; sp++) for (const y0 of [G.TOP, G.BOT]) {
     const x = X(sp) - TS / 2, y = BY + y0 * bk;

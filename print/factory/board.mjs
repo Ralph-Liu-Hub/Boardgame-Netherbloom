@@ -1,6 +1,6 @@
-// The river board: three panels of 266 x 269 mm (3 mm bleed), one per Reach, joined edge to edge; they lie flat in the 296 mm
+// The river board: three panels of 266 x 244 mm (3 mm bleed), one per Reach, joined edge to edge; they lie flat in the 296 mm
 // box base. Painted banks and still water seen from above. Every bank of spaces 1-11 has a 42 mm square well for a 40 mm bank
-// tile. Along the left bank runs a strip with each Reach's 66 x 91 mm Mist deck well and its name, so the river runs unbroken
+// tile. Along the left bank runs a strip with each Reach's Mist deck well, 91 x 66 mm so the deck lies sideways, and its name, so the river runs unbroken
 // from the near shore to the Far Shore across the three joins: the water and bank paintings are mirrored on the middle panel so
 // each join meets itself. Each river space is a ring of ripples with a halo where the soul token stands. All printed words are
 // at least 3.7 mm (10.5 pt) high.
@@ -9,8 +9,8 @@ import { BLEED, C, doc, art, render } from "./lib.mjs";
 import { ZH_REACHES } from "../../web/public/assets/zh.js";
 import { REACH_NAMES } from "../../web/public/assets/cards.js";
 
-export const PW = 266, PH = 269, TILE = 40;
-const SW = 42, MW = 66, MH = 91, MY = 6, TOP = MY + MH + 4, RY = TOP + SW + 4 + 31, BOT = RY + 35;
+export const PW = 266, PH = 244, TILE = 40;
+const SW = 42, MW = 91, MH = 66, MY = 6, TOP = MY + MH + 4, RY = TOP + SW + 4 + 31, BOT = RY + 35;
 const BONE = C.bone, GILT = C.gilt, MIST = C.mist;
 const RANGE = [[1, 4], [5, 8], [9, 11]], NUM = ["I", "II", "III"];
 const f = x => (+x.toFixed(1)).toString();
@@ -114,8 +114,8 @@ export function panel(ri, lang, pieces = {}) {
   o += `<text x="${f(mistX + MW + 10)}" y="${f(my + MH / 2)}" font-family="${w.disp}" font-size="7" fill="${BONE}" style="paint-order:stroke" stroke="#0f0d11" stroke-width="1.6">${w.reach(ri)}</text>`;
   o += `<rect x="${f(mistX)}" y="${f(my)}" width="${MW}" height="${MH}" rx="4" fill="#0b0f12" fill-opacity=".78" stroke="#4f7d86" stroke-width=".7"/>
     <rect x="${f(mistX + 2.2)}" y="${f(my + 2.2)}" width="${MW - 4.4}" height="${MH - 4.4}" rx="2.6" fill="none" stroke="#4f7d86" stroke-width=".25" stroke-dasharray="1.2 1.2"/>
-    <use href="#nb-fog" x="${f(mistX + MW / 2 - 11)}" y="${f(my + 22)}" width="22" height="22" style="color:${C.cyan}" opacity=".6"/>
-    <foreignObject x="${f(mistX + 4)}" y="${f(my + 50)}" width="${MW - 8}" height="38"><div xmlns="http://www.w3.org/1999/xhtml" style="font-family:${w.serif};font-size:${FS}px;line-height:1.2;color:${BONE};text-align:center"><b style="font-weight:600">${w.mist(ri)}</b><br/><span style="color:${MIST}">${w.mistNote}</span></div></foreignObject>`;
+    <use href="#nb-fog" x="${f(mistX + MW / 2 - 9)}" y="${f(my + 9)}" width="18" height="18" style="color:${C.cyan}" opacity=".6"/>
+    <foreignObject x="${f(mistX + 5)}" y="${f(my + 31)}" width="${MW - 10}" height="32"><div xmlns="http://www.w3.org/1999/xhtml" style="font-family:${w.serif};font-size:${FS}px;line-height:1.2;color:${BONE};text-align:center"><b style="font-weight:600">${w.mist(ri)}</b><br/><span style="color:${MIST}">${w.mistNote}</span></div></foreignObject>`;
   if (ri === 0) {
     o += `<path d="M${-B} ${-B} H${nearW} C${nearW + 4} 60 ${nearW - 4} 120 ${nearW + 2} ${PH + B} H${-B} Z" fill="#0a090c" opacity=".85"/>` + sketch(`M${nearW} ${-B} C${nearW + 4} 60 ${nearW - 4} 120 ${nearW + 2} ${PH + B}`, BONE, { w: .4, op: .45, seed: 21 });
     o += ripple(nearW / 2 + .5, RY, 0, 30, 7, .5);
