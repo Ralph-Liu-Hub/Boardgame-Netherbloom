@@ -22,7 +22,7 @@ Talk freely about plans and the table, and say which threads you hold ("2 Obsess
 2.  **Soul and Lantern**: choose both. The Soul card's special rule applies all game. Starting Light: the Child 3, the Bride 1, others 0.
 3.  **Lantern**: Gentle: 6 Black Water, Faded at 11, 0 harsh Mist per Reach; Standard: 5 Black Water, Faded at 10, 2 harsh Mist per Reach; Hard: 4 Black Water, Faded at 9, 3 harsh Mist per Reach; Heroic: 3 Black Water, Faded at 8, 3 harsh Mist per Reach.
 4.  **Memory deck**: the 32 core cards plus the Soul's 8 (the 8 Echo cards for the Open Crossing), shuffled face down. Leave room for a face-up discard pile.
-5.  **Mist decks**: one per Reach: its 10 basic cards, plus Rising Water and Shade Drawn Near, plus the Lantern's number of random harsh cards. Shuffle each and put it face down in its Reach's Mist well.
+5.  **Mist decks**: one per Reach: its 10 basic cards, plus Rising Water and Shade Drawn Near, plus the Lantern's number of random harsh cards. Shuffle each and lay it face down and sideways in its Reach's Mist well.
 6.  **Loom**: knots beside it; the Echo token beside it (it goes on a thread at the first card played face up or Burned).
 7.  **Ledger**: the Lantern's Black Water tokens in its well (the rest back in the box); Fractures beside it. Forgotten cards will go on its numbered track.
 8.  **Mantles** face up; the Soul's **Book** open at page I; the rest of the tokens in a supply.
