@@ -19,7 +19,7 @@ Talk freely about plans and the table, and say which threads you hold ("2 Obsess
 ### Setup
 
 1.  **River**: join the 3 panels (Reach I left, III right). Shuffle each Reach's bank tiles separately and lay them fog side up in its square wells (spaces 2–4, 5–8, 9–11). A Bloom on both banks of space 1; the soul token on space 0.
-2.  **Soul and Lantern**: choose both. The Soul card's special rule applies all game. Starting Light: the Child 3, the Bride 1, others 0.
+2.  **Soul and Lantern**: choose both. The Soul card's special rule applies all game. Starting Light: the Child of the Last Flame 3, the Bride Who Stayed Below 1, others 0.
 3.  **Lantern**: Gentle: 6 Black Water, Faded at 11, 0 harsh Mist per Reach; Standard: 5 Black Water, Faded at 10, 2 harsh Mist per Reach; Hard: 4 Black Water, Faded at 9, 3 harsh Mist per Reach; Heroic: 3 Black Water, Faded at 8, 3 harsh Mist per Reach.
 4.  **Memory deck**: the 32 core cards plus the Soul's 8 (the 8 Echo cards for the Open Crossing), shuffled face down. Leave room for a face-up discard pile.
 5.  **Mist decks**: one per Reach: its 10 basic cards, plus Rising Water and Shade Drawn Near, plus the Lantern's number of random harsh cards. Shuffle each and lay it face down and sideways in its Reach's Mist well.
@@ -49,20 +49,20 @@ Talk freely about plans and the table, and say which threads you hold ("2 Obsess
 
 ### Roots and Blooms
 
-- **Place a Root**: a disc Root side up on an empty bank (no disc, no Shade) on the soul's space or ahead. It must touch: the soul's space or the next space, or the other bank of its space has a disc, or the same bank one space before or after has a disc.
-- **Fog**: placing on a fog bank flips its bank tile. **Fertile**: the Root stays. **Stony**: only with "even on Stony ground" or the Root-Weaver, otherwise the Root is lost. **Memory Site**: the Root stays and you take a keepsake (Open Crossing: +2 Light). **Grave**: no Root; a Shade goes there.
+- **Place a Root**: a Root token on an empty bank (no token at all) on the soul's space or ahead. It must touch: the soul's space or the next space, or the other bank of its space already has a Root or Bloom token, or the same bank one space before or after has one.
+- **Fog**: placing on a fog bank flips its bank tile. **Fertile**: the Root stays. **Stony**: only with "even on Stony ground" or the Root-Weaver, otherwise return the Root token to the supply. **Memory Site**: the Root stays and you take a keepsake (with the Open Crossing, also +2 Light). **Grave**: no Root; a Shade token goes there.
 - **Bloom**: flip a Root on the soul's space or ahead to its Bloom side. A space with a Bloom is **Lit**; the soul only moves onto Lit spaces. **Wither**: flip a Bloom back to its Root side.
 
 ### End of turn (after every player's turn, in order)
 
-1.  **Bloom-Bringer**: if you hold it, Bloom 1 Root for free.
-2.  **Soul Step**:
+1.  **Bloom-Bringer**: if you hold the Bloom-Bringer Mantle, you may Bloom 1 Root for free.
+2.  **Soul Step** (check in order, do the first that applies):
     1.  If the Resignation token is beside the soul: it does not move; forget the top card of the deck; remove the token. Go to *d*.
-    2.  Otherwise, if the next space is Lit and without Black Water: the soul moves there. Gain 1 Light per Bloom on the space it left, then clear that space (discs and Shades back to the supply). Entering a new Reach clears all knots from the Loom. Then check one **extra move**: with 9+ forgotten (Adrift) it moves one more space even if that space is dark or flooded, and takes 1 Fracture if it was (unless the Spirit Warden stops it); otherwise with 6+ forgotten (Light as Ash) it moves one more space only if that space is Lit and without Black Water.
-    3.  Otherwise the soul cannot move: it **Lingers**. Nothing is forgotten if the Hold Fast token is out, the Spirit Warden is used, or the soul's own space is Lit (the Bride may step back once instead). Otherwise forget the top card of the deck.
+    2.  Otherwise, if the next space is Lit and without Black Water: the soul moves there. Gain 1 Light per Bloom on the space it left, then clear that space (Root, Bloom and Shade tokens back to the supply). Entering a new Reach clears all knots from the Loom. Then check one **extra move**: with 6 or more but fewer than 9 forgotten (***Light as Ash***) it moves one more space only if that space is Lit and without Black Water; with 9 or more (***Adrift***) it must move one more space even if that space is dark or flooded, and takes 1 Fracture if it was (unless the Spirit Warden stops it).
+    3.  Otherwise the soul cannot move: it **Lingers**. In order: the Hold Fast token is out, the Spirit Warden is unused, or the soul's own space is Lit → nothing is forgotten; the Bride Who Stayed Below may move back one space instead (once per game); none of these → forget the top card of the deck.
     4.  Always, last: a Shade on either bank of the soul's space gives it 1 Fracture.
-3.  **Mist**: flip the top card of the current Reach's Mist deck and do it. Empty deck: shuffle that Reach's basic Mist cards.
-4.  **Cleanup**: Black Water with a disc on both banks of its space goes back in the box. A Shade with a Bloom on the same bank one space before and one after goes back to the supply.
+3.  **Mist**: flip the top card of the current Reach's Mist deck and do it, then put it on the Mist discard pile beside its well. Empty deck: shuffle that Reach's basic Mist cards.
+4.  **Cleanup**: Black Water with a Root or Bloom token on both banks of its space goes back in the box. A Shade token with a Bloom token on the same bank one space before and one after goes back to the supply.
 5.  **Draw** back up to 3 (4 in solo) (empty deck: shuffle the discard pile).
 6.  **Solo**: flip a Ghost card and do it; tie its knot and move the Echo; Cleanup again.
 7.  **Pass the Oar** left. Next turn: remove the Hold Fast token; the Spirit Warden straightens at its holder's turn; an unused Shield goes at the end of its owner's next turn.
@@ -71,20 +71,20 @@ Talk freely about plans and the table, and say which threads you hold ("2 Obsess
 
 A full thread causes its Backlash at once, then all its knots come off:
 
-- **Obsession, Grasping**: a Shade on the soul's space (left bank, else right; both taken: the next space).
+- **Obsession, Grasping**: a Shade token on the soul's space (left bank first, else right; both taken: the next space; a Root or Bloom token on that bank goes back to the supply).
 - **Acceptance, Resignation**: the Resignation token beside the soul (next Soul Step it stays and forgets 1).
 - **Oblivion, the Tide Rises**: Black Water on the next space.
 
 ### Threats
 
 - **Black Water**: taken from the Ledger's well. If the space already has some, use the next space ahead without it. Blooms on that space wither. The soul cannot enter it. Removed Black Water goes in the box.
-- **Shades**: on the bank named; taken: the other bank; both taken: the next space. A disc there goes back to the supply. No Root on a Shade's bank.
+- **Shade tokens**: on the bank named; taken: the other bank; both taken: the next space. A Root or Bloom token there goes back to the supply. No Root on a bank with a Shade token.
 - **Fractures**: each on the next Ledger well; 3rd = Shattered. The Shield token cancels the next one.
 - **Forgetting**: forgotten cards go face up on the Ledger's track. 6: Light as Ash · 9: Adrift · 8–11: Faded (you lose).
 
 ### Light and Mantles
 
-Gain 1 Light per Bloom on each space the soul leaves. Spend 3 to Recall (as your Answer) or to summon a Mantle.
+Light is shared by all players. Gain 1 Light per Bloom token on each space the soul leaves. Spend 3 to Recall (as your Answer) or to summon a Mantle.
 
 - **The Root-Weaver** (Obsession): Your Roots may grow on Stony ground. Your first Root effect each turn places 1 extra Root.
 - **The Spirit Warden** (Obsession): Once per round, stop the soul from Lingering or from drifting Adrift.
