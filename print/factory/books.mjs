@@ -135,12 +135,15 @@ function soulBook(lang, k) {
     const pairs = PAIR_SLOTS.map(([a, b], i) => `<div><span class="box"></span><b>${w.slot(a)}${w.plus}${w.slot(b)}</b><span>${esc(w.ops(PAIR_REWARDS[r][i]))}</span></div>`).join("");
     pages.push(page(`<div class="eyebrow">${w.reach(r)}</div><h2>${esc(title)}</h2><div class="wells">${wells}</div>
       <div class="pairs">${pairs}</div>
-      <div class="foot" style="margin-top:4mm"><span><span class="box"></span>${w.blessing}</span><span>${w.keepsakes} <span class="box"></span><span class="box"></span><span class="box"></span></span></div>`, PAINT[k][r]));
+      <div class="foot" style="margin-top:4mm"><span><span class="box"></span>${w.blessing}</span>${KEY[k] ? `<span>${w.keepsakes} <span class="box"></span><span class="box"></span><span class="box"></span></span>` : ""}</div>`, PAINT[k][r]));
   });
-  const end = paras(bookPart(w.book, 1));
+  // the ending: reading the Book first; then, for a named Soul, the ending card (the Key Memory boxes, then how to pick it)
+  const endHtml = bookPart(w.book, 1).replace(/<svg[^>]*>.*?<\/svg>/gs, "");
+  const ps = [...endHtml.matchAll(/<p>([\s\S]*?)<\/p>/g)].map(m => m[1]), lis = [...endHtml.matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m => m[1]);
   pages.push(page(`<div class="eyebrow">${w.far}</div><h2>${w.far}</h2><p class="lore">${esc(w.endLore)}</p>
-    ${KEY[k] ? `<div class="note">${end.slice(1, 4).map((p, i) => `<p style="margin:1.5mm 0"><span class="box"></span>${p}</p>`).join("")}</div>` : ""}
-    <p style="margin-top:6mm">${end[end.length - 1]}</p>
+    <p>${ps[0]}</p>
+    ${KEY[k] ? `<p>${ps[1]}</p><div class="note">${lis.map(p => `<p style="margin:1.5mm 0"><span class="box"></span>${p}</p>`).join("")}</div>
+    ${ps.slice(2).map(p => `<p>${p}</p>`).join("")}` : ""}
     <div class="sign">${w.sign.map(t => `<span>${t}</span>`).join("")}</div>${folio(7, w, k)}`, PAINT[k][2], "50% 60%"));
   pages.push(`<div class="dark">${icon("nb-bloom", C.crimson)}<div class="t">NETHERBLOOM</div>${lang === "zh" ? `<div style="font-family:'Noto Serif TC',serif;letter-spacing:.3em">《彼岸花渡》</div>` : ""}<small>RALPH LAUXIE</small></div>`);
   // page numbers, bottom centre, on every page but the two covers

@@ -1,4 +1,4 @@
-// The Ledger: one cardboard board (A4 landscape, 297 x 210 mm, 3 mm bleed), printed one side and mounted. It holds the three
+// The Ledger: one cardboard board (285 x 210 mm, 3 mm bleed, narrow enough to lie flat in the box base), printed one side and mounted. It holds the three
 // ways to lose, so they are on the table and not only in the Rulebook: the forgotten pile laid out over a numbered track
 // (Light as Ash, Adrift and each Lantern's Faded limit marked), three Fracture wells (the third is Shattered) and the
 // Black Water supply well (empty when one must be placed is Deluge). Pages: 1 the board, 2 the trim line (not printed).
@@ -7,7 +7,7 @@ import { BLEED, C, doc, render, artImg, esc } from "./lib.mjs";
 import { LANTERN, LANTERN_NAMES, lanternIcon } from "../../web/public/assets/cards.js";
 import { ZH_LANTERNS } from "../../web/public/assets/zh.js";
 
-const BW = 297, BH = 210;
+const BW = 285, BH = 210;
 const SLOTS = Math.max(...Object.values(LANTERN).map(l => l[1])) + 1;   // the longest Faded limit (Gentle), +1 for the Child
 const COL0 = 16, STEP = 11, CARD_W = 63, CARD_H = 88, TRACK_Y = 54;
 const colX = k => COL0 + (k - 1) * STEP;                            // left edge of forgotten card k
@@ -28,7 +28,7 @@ const W = {
     water: "Black Water supply",
     waterNote: lan => `Put only your Lantern's Black Water tokens here: ${lan}. Black Water removed from the river goes back in the box, never here. If you must place Black Water and this well is empty, you lose (Deluge).`,
     names: LANTERN_NAMES,
-    die: "TRIM LINE · The Ledger · 297 × 210 mm · mount on 2 mm greyboard",
+    die: "TRIM LINE · The Ledger · 285 × 210 mm · mount on 2 mm greyboard",
   },
   zh: {
     title: "渡帳", sub: "這趟擺渡會失敗的三種方式",
@@ -39,7 +39,7 @@ const W = {
     water: "黑水供應區",
     waterNote: lan => `這裡只放你們燈籠的黑水標記：${lan}。從河中移除的黑水放回盒中，絕不放回這裡。若必須放置黑水而此處已空，你們落敗（滅頂）。`,
     names: ZH_LANTERNS,
-    die: "裁切線 · 渡帳 · 297 × 210 mm · 裱於 2 mm 灰紙板",
+    die: "裁切線 · 渡帳 · 285 × 210 mm · 裱於 2 mm 灰紙板",
   },
 };
 
@@ -87,7 +87,7 @@ function board(lang) {
     <div class="mk" style="left:${colX(9) + STEP / 2 - 15}mm;top:${TRACK_Y - 19}mm">${esc(L.adrift)} ▼</div>
     <div class="note" style="left:${colX(SLOTS) + CARD_W + 4}mm;top:${TRACK_Y}mm;width:${BW - 14 - (colX(SLOTS) + CARD_W + 4)}mm">${esc(L.trackNote(lanKey))}</div>
     <div class="cap" style="left:21mm;top:145mm">${esc(L.fractures)}</div>
-    <div class="shat" style="left:${32 + 54 - 17}mm;top:180.5mm">${esc(L.shattered)}</div>
+    <div class="shat" style="left:${32 + 54 - 24}mm;top:180.5mm">${esc(L.shattered)}</div>
     <div class="note" style="left:21mm;top:186.5mm;width:88mm">${esc(L.fracNote)}</div>
     <div class="cap" style="left:112mm;top:145mm">${esc(L.water)}</div>
     <div class="note big" style="left:190mm;top:151mm;width:${BW - 14 - 190}mm">${esc(L.waterNote(lan))}</div>`;
@@ -117,7 +117,7 @@ const CSS = `
 [lang="zh-Hant-TW"] .cap { font-family: var(--f-body); font-size: 11pt; letter-spacing: .1em; }
 .mk { width: 30mm; text-align: center; font-family: var(--f-mono); font-size: 10pt; color: ${C.cyan}; white-space: nowrap; }
 [lang="zh-Hant-TW"] .mk { font-family: var(--f-body); font-size: 10.5pt; }
-.shat { width: 34mm; text-align: center; font-family: var(--f-mono); font-size: 10pt; color: ${C.crimson}; }
+.shat { width: 48mm; text-align: center; font-family: var(--f-mono); font-size: 10pt; color: ${C.crimson}; }
 [lang="zh-Hant-TW"] .shat { font-family: var(--f-body); font-size: 10.5pt; }
 .note { font-size: 10.5pt; line-height: 1.25; color: #d8ccb8; }
 .note.big { font-size: 10.5pt; }

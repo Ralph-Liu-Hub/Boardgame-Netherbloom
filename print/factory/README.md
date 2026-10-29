@@ -48,13 +48,11 @@ Card PDFs have one card per page, fronts only, in deck order; each deck uses the
 
 ## Parked: story cards and the Nameless Souls module
 
-The Soul Roster v3 and Card Compendium v0.2 also describe components that the rulebook and the web game do not use yet. Their cards are designed and illustrated but **parked**: they are not in the factory files, the manual or the box until they have rules.
+The Keepsake cards (9 per named Soul, 3 per Reach) and the ending cards (A–D per named Soul, plus the hidden endings of the King, the Garland Girl and the Bride) from the Soul Roster v3 are in the factory files, with the Keepsake and Story backs (Rulebook sections 5 and 9). The Soul Roster v3 and Card Compendium v0.2 also describe components that the rulebook and the web game do not use yet. Their cards are designed and illustrated but **parked**: they are not in the factory files, the manual or the box until they have rules.
 
 | Component | Count | Back |
 |---|---|---|
-| Keepsakes (9 per named Soul, 3 per Reach) | 36 | Keepsake |
 | Chapter cards (3 per named Soul) | 12 | Story |
-| Ending cards (A–D per named Soul, and the hidden ending for the King, the Garland Girl and the Bride) | 19 | Story |
 | Nameless Soul Memory cards (G01–G24; G17–G24 are the Lives' Key Memories) | 24 | Memory |
 | Lives, Wounds, Last Wishes | 8 each | Life, Wound, Last Wish |
 | Wish endings (Be Forgotten has no "fulfilled, remembered" ending) | 23 | Story |

@@ -121,7 +121,7 @@ const BOOK = [
       <li><b>The Mist decks.</b> Build one deck for each Reach: its ${MIST[0].length} basic Mist cards, plus one <i>Rising Water</i> and one <i>Shade Drawn Near</i>, plus as many random harsh Mist cards as the Lantern calls for (none at Gentle). Shuffle each deck and place it face down, turned sideways, in its Reach's Mist well along the left bank. Leave room beside each well for that Reach's face-up <b>Mist discard pile</b>.</li>
       <li><b>The Loom of the Fates.</b> Place the Loom board with its three threads (Obsession, Acceptance, and Oblivion), and put the knots next to it. A thread is full at 4 knots with 2–3 players, and at 5 in solo play or with 4 players. Keep the Echo token next to the Loom: it goes onto a thread when the first card is played face up or Burned (section 6).</li>
       <li><b>The Mantles.</b> Place the four Mantle cards face up within reach of all players (section 8).</li>
-      <li><b>The Book of Remembrance.</b> Open the chosen Soul's Book to page I and keep the photo corners handy (section 9).</li>
+      <li><b>The Book of Remembrance.</b> Open the chosen Soul's Book to page I and keep the photo corners handy (section 9). Sort the Soul's 9 <b>Keepsake cards</b> by Reach, shuffle each Reach's 3 cards separately, and place them face down beside the Book in three stacks (I, II, and III). Place the Soul's <b>ending cards</b> face down beside them, unread. ${mid("open")} has no Keepsake or ending cards.</li>
       <li><b>The Ledger and the supply.</b> Place the Ledger board next to the Loom. Forgotten cards go on its numbered track, and Fractures go in its Fracture wells. Place only as many Black Water tokens as the Lantern allows (${Object.values(LANTERN).map(l => l[0]).join(", ")} for ${Object.values(LANTERN_NAMES).join(", ")}) in its Black Water well, and return the rest to the box (section 7). Place the Root/Bloom tokens, Shade tokens, Light, Fractures, knots, and the Hold Fast, Shield, and Resignation tokens within reach of all players: this is the <b>supply</b>. Put the chosen Soul's starting Light in the shared <b>Light pool</b> (see the table below).</li>
       <li><b>The Ferrymen.</b> Deal each player a hand of cards: 4 in solo play, 3 with 2–4 players. Each player takes a Push Through token and places it face up. The first player takes the Oar. In solo play, shuffle the ${GHOST.length} Ghost cards into a face-down Ghost deck next to you (section 11).</li>
     </ol>
@@ -204,7 +204,7 @@ const BOOK = [
       <li>A Shield token that has not canceled a Fracture is removed at the end of its owner's next turn.</li>
     </ul>
     <h4>Effects that happen immediately</h4>
-    <p>A thread that becomes full triggers its <b>Backlash</b> immediately (section 6). Page rewards and Chapter Blessings are resolved immediately, as soon as the inscription that earns them is made (section 9). A Memory Site gives its keepsake (and, with ${mid("open")}, its Light) when its bank tile is flipped. The game ends the moment the soul reaches the Far Shore (you win), the forgotten pile reaches the Lantern's limit (Faded), the soul takes its third Fracture (Shattered), or a Black Water token must be placed with none left in the supply (Deluge).</p>
+    <p>A thread that becomes full triggers its <b>Backlash</b> immediately (section 6). Page rewards and Chapter Blessings are resolved immediately, as soon as the inscription that earns them is made (section 9). A Memory Site gives its keepsake (with ${mid("open")}, its 2 Light instead) when its bank tile is flipped. The game ends the moment the soul reaches the Far Shore (you win), the forgotten pile reaches the Lantern's limit (Faded), the soul takes its third Fracture (Shattered), or a Black Water token must be placed with none left in the supply (Deluge).</p>
     <p><b>Canceling a Fracture.</b> If the Shield token is next to the soul, or the Soul is ${mid("child")} and her special rule applies (the first Fracture in each Reach), the Fracture the soul would take is canceled: no Fracture is placed, and it does not count as taken.</p>
     ${fig("mist")}` },
 
@@ -222,7 +222,7 @@ const BOOK = [
     <ul>
       <li><b>Fertile</b>: place the Root.</li>
       <li><b>Stony</b>: place the Root only if the card's effect says "even on Stony ground" or you hold the Root-Weaver Mantle. Otherwise, no Root is placed; return the Root token to the supply.</li>
-      <li><b>Memory Site</b>: place the Root and take a keepsake. With ${mid("open")}, also gain 2 Light; with any other Soul, a Memory Site gives only the keepsake, not Light.</li>
+      <li><b>Memory Site</b>: place the Root and find a <b>keepsake</b>: take the top card of the Keepsake stack for this bank's Reach, read it aloud, and place it face up beside that Reach's page of the Book. Keepsakes have no effect on play; they are read with the Book at the end (section 9). ${mid("open")} has no Keepsake cards: gain 2 Light instead. With any other Soul, a Memory Site gives no Light.</li>
       <li><b>Grave</b>: no Root is placed. Put a Shade token on this bank.</li>
     </ul>
     <p>A bank with no bank tile (both banks of space 1, or a bank whose Grave tile was removed) counts as Fertile. A face-up bank tile follows the same rules: Roots can be placed on Fertile and Memory Site banks, on Stony banks only as described above, and never on a Grave. Reach I has 3 Fertile, 1 Stony, and 2 Memory Site tiles; Reach II has 3 Fertile, 2 Stony, 2 Memory Site, and 1 Grave; Reach III has 2 Fertile, 1 Stony, 2 Memory Site, and 1 Grave.</p>
@@ -285,13 +285,15 @@ const BOOK = [
     </ol>
     ${fig("book")}
     <h4>The ending</h4>
-    <p>When the game ends, the Veiled Memories are lifted: everyone may reveal their cards and share the memories written on them. Check where the soul's <b>Key Memory</b> card is:</p>
+    <p>When the game ends, the Veiled Memories are lifted: everyone may reveal their cards and share the memories written on them. Then read the Book aloud, page by page, even after a loss. Read each page's slots in order, and read an empty slot as "…but this, the river has taken". Then read the keepsakes found beside that page: "…and from this Reach, all that was left: a torn banner, a dented helm."</p>
+    <p><b>The ending card.</b> If you win, the soul's story ends with one of its ending cards (${mid("open")} has none). First check where the soul's <b>Key Memory</b> card is:</p>
     <ul>
       <li><b>Inscribed in the Book</b>: the soul crosses remembering what mattered most.</li>
       <li><b>In the forgotten pile</b>: the soul crosses without it, lighter and emptier.</li>
-      <li><b>Anywhere else</b> (the deck, a hand, or the discard pile): it was never spoken, and the soul crosses with it unsaid.</li>
+      <li><b>Anywhere else</b> (the deck, a hand, or the discard pile): it was never spoken (the cards say "unspoken"), and the soul crosses with it unsaid.</li>
     </ul>
-    <p>Then read the Book aloud, page by page, even after a loss. Empty slots are read as "…but this, the river has taken".</p>` },
+    <p>Then, without reading the stories, look at the "Triggers when" line of each of the soul's ending cards and take the one that matches where the Key Memory is and how many cards were forgotten. A <b>hidden ending</b> whose conditions are all met replaces the ending it names. Read the chosen ending card aloud last.</p>
+    <p>If you lose, no ending card is read: the Book and its keepsakes are all that remain of the soul.</p>` },
 
   { id: "souls", title: "10. The Souls and the Lantern", keys: "child king garland bride open crossing twist first game new players suggested story difficulty lantern level gentle standard hard heroic", body: `
     ${lore("Four souls the old ferryman would not carry, and one with no name at all.")}
@@ -323,12 +325,13 @@ const BOOK = [
     <p><b>Special rule:</b> "${esc(SOULS.bride.twist)}"</p>
     <ul>
       <li><b>Starts with 1 Light</b>: put 1 Light in the Light pool during setup.</li>
+      <li><b>Her hidden ending</b>: one of her ending cards needs a game in which the soul never Lingers. The first time the soul Lingers, turn her Soul card upside down as a reminder.</li>
       <li><b>Pulled one space back</b> (once per game): in the Soul Step, when the soul Lingers and would forget the top card of the deck (her space is not Lit, and neither the Hold Fast token nor the Spirit Warden stops it; section 4, step d, IV), move the soul token back one space (to the space numbered 1 lower) instead. Nothing is forgotten and no Light is gained. Then turn her Soul card sideways to show it has been used. It does not apply while the soul is on the near shore (space 0).</li>
     </ul>
     <p><b>Key Memory:</b> <i>${esc(CARDS.find(c => c.id === "B04").band)}</i>.</p>
     <h4>${esc(SOULS.open.name)}</h4>
     <p class="story">A nameless soul. You do not learn its story; you write it.</p>
-    <p><b>Special rule:</b> "${esc(SOULS.open.twist)}" That is, each Memory Site flipped gives 2 Light as well as its keepsake (section 5). There is no Key Memory; the Book is the soul's whole story.</p>
+    <p><b>Special rule:</b> "${esc(SOULS.open.twist)}" That is, each Memory Site flipped gives 2 Light; this Soul has no Keepsake cards (section 5). There is no Key Memory and no ending card; the Book is the soul's whole story.</p>
     ${fig("souls")}
     <h4>The Lantern</h4>
     <p>The Lantern sets the difficulty and is chosen in step 4 of the setup (section 2). <b>Standard</b> is the baseline: an experienced group should win about half of its games. Use <b>Gentle</b> to learn the game, and <b>Hard</b> or <b>Heroic</b> for a greater challenge.</p>${lanternTable()}
@@ -348,7 +351,7 @@ const BOOK = [
       ${piece("nb-fog", "#9A948C", "Bank tile, fog side", "The mist that hides the bank.", "Covers a bank until a Root is placed there (section 5).")}
       ${piece("nb-fertile", "#6d665e", "Fertile", "Soft riverbank earth.", "A Root is placed.")}
       ${piece("nb-stony", "#9A948C", "Stony", "Hard, gray stone where little can grow.", "A Root is placed only by a card that allows Stony ground or the Root-Weaver.")}
-      ${piece("nb-memorysite", "#E6D3A3", "Memory Site", "A place the soul once knew, surfacing through the fog.", "A Root is placed; take a keepsake (Open Crossing: also 2 Light).")}
+      ${piece("nb-memorysite", "#E6D3A3", "Memory Site", "A place the soul once knew, surfacing through the fog.", "A Root is placed; find a keepsake (Open Crossing: 2 Light instead).")}
       ${piece("nb-grave", "#8FD6E1", "Grave", "Something unfinished is buried here.", "No Root; a Shade is placed instead.")}
       ${piece("nb-root", "#E6D3A3", "Root token", "A Netherbloom seed, planted in the dark.", "Extends the network. Does not light a space.")}
       ${piece("nb-bloom", "#D7263D", "Bloom token", "An open Netherbloom, glowing crimson.", "Makes its space Lit.")}
@@ -373,6 +376,8 @@ const BOOK = [
       ${piece("", "", "Mist cards", "The underworld itself: rising water, cold wind, returning fog.", "One deck per Reach; one is flipped each turn (Appendix C).")}
       ${piece("", "", "Mantle cards", "Roles a Ferryman can take up on the river.", "Lasting powers bought with Light (section 8).")}
       ${piece("", "", "Soul cards", "The five souls you can carry.", "Each has a special rule (section 10).")}
+      ${piece("", "", "Keepsake cards", "Things from the soul's life, found where it once walked.", "Found at Memory Sites; read with the Book at the end (sections 5 and 9).")}
+      ${piece("", "", "Ending cards", "How the soul's story ends at the Far Shore.", "If you win, one is read last (section 9).")}
       ${piece("nb-soul", "#8FD6E1", "Ghost cards (solo)", "A silent Ferryman who travels beside you.", "Played after each of your turns (section 11).")}
     </tbody></table>
     <h4>What is in the box</h4>
@@ -380,6 +385,7 @@ const BOOK = [
       <tr><td>Memory cards</td><td>${MEMORY_N}: 32 core, 8 Echo cards (Open Crossing), 4 Soul packs of 8</td></tr>
       <tr><td>Mist cards</td><td>${MIST_N}: ${MIST[0].length} basic for each Reach, ${MIST_EXTRA.length} extra for each Reach (${MIST_EXTRA.map(m => m[0]).join(", ")}), ${HARSH.length} harsh</td></tr>
       <tr><td>Bank tiles</td><td>${TILES.reduce((n, t) => n + t[1].length, 0)}: ${TILES.map(t => t[1].length).join(", ")} for Reaches I, II, III</td></tr>
+      <tr><td>Keepsake cards / ending cards</td><td>36 (9 for each named Soul) / 19 (4 or 5 for each named Soul)</td></tr>
       <tr><td>Soul cards / Mantle cards / Ghost cards</td><td>5 / ${Object.keys(MANTLES).length} / ${GHOST.length}</td></tr>
       <tr><td>Boards</td><td>3 river board panels, 1 Loom of the Fates, 1 Ledger</td></tr>
       <tr><td>Books of Remembrance</td><td>5, one for each Soul</td></tr>
@@ -389,7 +395,7 @@ const BOOK = [
       <tr><td>Echo, Oar, soul (Ghost on the back)</td><td>1 each</td></tr>
       <tr><td>Push Through / Hold Fast / Shield / Resignation tokens</td><td>4 / 1 / 1 / 1</td></tr>
     </tbody></table>
-    <p><b>Cards that track their own use.</b> Turn the Spirit Warden card sideways when it is used, and straighten it at the start of its holder's turn. Turn a Soul card sideways when its once-only rule has been used. In solo play, flip a Mantle you give up face down.</p>` },
+    <p><b>Cards that track their own use.</b> Turn the Spirit Warden card sideways when it is used, and straighten it at the start of its holder's turn. Turn a Soul card sideways when its once-only rule has been used, and turn the Bride's Soul card upside down the first time the soul Lingers. In solo play, flip a Mantle you give up face down.</p>` },
 
   { id: "terms", title: "Appendix B. Card terms", keys: "glossary terms keywords bloom banish drain mend wash wither untie tie lift fog forget linger lit guide summon recall burn resonate inscribe backlash", body: `
     <p>Words printed in ${kw("this style")} on the cards are game terms. This table explains exactly what to do.</p>
@@ -470,7 +476,7 @@ export function playerAid(cfg) {
       <li><b>Mist decks</b>: one per Reach: its ${MIST[0].length} basic cards, plus Rising Water and Shade Drawn Near, plus the Lantern's number of random harsh cards. Shuffle each and place it face down, turned sideways, in its Reach's Mist well.</li>
       <li><b>Loom</b>: knots beside it; the Echo token beside it (it goes on a thread at the first card played face up or Burned).</li>
       <li><b>Ledger</b>: the Lantern's Black Water tokens in its well (the rest back in the box); Fractures beside it. Forgotten cards will go on its numbered track.</li>
-      <li><b>Mantles</b> face up; the Soul's <b>Book</b> open at page I; all other tokens in the supply.</li>
+      <li><b>Mantles</b> face up; the Soul's <b>Book</b> open to page I, with its Keepsake cards in three face-down stacks by Reach and its ending cards face down beside it; all other tokens in the supply.</li>
       <li><b>Players</b>: deal each a hand of ${hand}; each takes a Push Through token face up; the first player takes the Oar. Solo: shuffle the Ghost cards into a deck.</li>
     </ol>
     <h3>On your turn</h3>
@@ -494,7 +500,7 @@ export function playerAid(cfg) {
     <h3>Roots and Blooms</h3>
     <ul>
       <li><b>Place a Root</b>: a Root token on an empty bank (no token at all) on the soul's space or ahead. It must touch: the soul's space or the next space, or the other bank of its space already has a Root or Bloom token, or the same bank one space before or after has one.</li>
-      <li><b>Fog</b>: placing on a fog bank flips its bank tile. <b>Fertile</b>: the Root stays. <b>Stony</b>: only with "even on Stony ground" or the Root-Weaver, otherwise return the Root token to the supply. <b>Memory Site</b>: the Root stays and you take a keepsake (with the Open Crossing, also +2 Light). <b>Grave</b>: no Root; a Shade token goes there.</li>
+      <li><b>Fog</b>: placing on a fog bank flips its bank tile. <b>Fertile</b>: the Root stays. <b>Stony</b>: only with "even on Stony ground" or the Root-Weaver, otherwise return the Root token to the supply. <b>Memory Site</b>: the Root stays; draw a keepsake from that Reach's stack, read it aloud, and place it beside its Book page (Open Crossing: +2 Light instead). <b>Grave</b>: no Root; a Shade token goes there.</li>
       <li><b>Bloom</b>: flip a Root on the soul's space or ahead to its Bloom side. A space with a Bloom is <b>Lit</b>; the soul only moves onto Lit spaces. <b>Wither</b>: flip a Bloom back to its Root side.</li>
     </ul>
     <h3>End of turn (after every player's turn, in order)</h3>
@@ -543,6 +549,6 @@ export function playerAid(cfg) {
       <li><b>Forget</b>: put the card face up on the Ledger's track. <b>Linger</b>: the soul does not move. <b>Lift the fog</b>: flip a Reach's bank tiles without placing Roots; Graves turn Fertile.</li>
     </ul>
     <h3>The ending</h3>
-    <p>When the game ends, check the Soul's Key Memory: inscribed, forgotten or never played. Then read the Book aloud, page by page; an empty slot reads "…but this, the river has taken".</p>
+    <p>When the game ends, read the Book aloud, page by page; an empty slot reads "…but this, the river has taken", and each page's keepsakes follow it. If you won, check where the Key Memory is (inscribed, forgotten, or unspoken) and how many cards were forgotten, and read the matching ending card last; a hidden ending whose conditions are met replaces the one it names.</p>
   </section>`;
 }

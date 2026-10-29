@@ -28,7 +28,7 @@ const T = (en, zh) => ({ en, zh });
 // instructions for the manual. A page whose label starts with "DIE" or "TRIM" is a cutting guide and is never printed.
 export function pressPlan(lang) {
   const dk = decks(lang), backs = cardBacks(lang);
-  const backPage = { "cards-memory": 1, "cards-mist": 2, "cards-ghost": 3, "cards-soul": 4, "cards-mantle": 5 };
+  const backPage = { "cards-memory": 1, "cards-mist": 2, "cards-ghost": 3, "cards-soul": 4, "cards-mantle": 5, "cards-keepsake": 6, "cards-ending": 7 };
   const card = T("310 g/m² black-core card, linen finish, matte", "310 g/m² 黑芯卡紙，布紋，霧面");
   const board = T("Print on 157 g/m² art paper, mount on 2 mm greyboard, matte laminate", "印於 157 g/m² 銅版紙，裱 2 mm 灰紙板，上霧膜");
   const lidW = LID.L + 2 * (LID.D + TURN), baseW = BASE.L + 2 * (BASE.D + TURN);
@@ -67,9 +67,9 @@ export function pressPlan(lang) {
     qty: T("Each page once: 3 panels", "每頁各 1 塊：共 3 塊"),
   });
   for (const [name, title] of [["loom/loom-of-the-fates.pdf", T("Loom of the Fates board", "命運織機圖板")], ["ledger/the-ledger.pdf", T("Ledger board", "渡帳圖板")]]) files.push({
-    path: name, trim: [297, 210], sides: "4/0",
+    path: name, trim: [285, 210], sides: "4/0",
     labels: [`PRINT · ${title.en}`, "TRIM LINE · do not print · register to page 1"],
-    what: T(`${title.en}, 297 × 210 mm`, `${title.zh}，297 × 210 mm`),
+    what: T(`${title.en}, 285 × 210 mm`, `${title.zh}，285 × 210 mm`),
     pair: T("Page 1 print, one side. Page 2 is its trim line (not printed).", "第 1 頁單面印刷。第 2 頁為裁切線（不印）。"), turn: T("—", "—"),
     stock: board, finish: T("Trim with page 2, 3 mm round corners. Back of the greyboard: plain black paper", "依第 2 頁裁切，圓角 3 mm。灰紙板背面裱黑色素紙"),
     qty: T("1", "1"),
