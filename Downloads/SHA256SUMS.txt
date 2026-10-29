@@ -1,9 +1,9 @@
-8f91604b26dd2d31986966a2afe59c62518864ccb0e909769153d3b3c518644e  netherbloom-en-V3.2-rulebook.zip
-d821763c535436915d04e03071dbe4c9514d1d595aa8d245d7758a7e00bc2d01  netherbloom-factory-en-V3.2-part1-cards-boards-tokens.zip
-3774433319433d9e9fd016515d711adbf4eb70417ed7548ac76a5543ad9ff38f  netherbloom-factory-en-V3.2-part2-books-box-rulebook.zip
-98e38a525ba67677bc3b59beece61e8be0e4ee880b291aeb75f63013889e6e3b  netherbloom-factory-zh-TW-V3.2-part1-cards-boards-tokens.zip
-b8d5c516f5a82282dd5c426af3cbe76980df564051188cf87423c051bc4af110  netherbloom-factory-zh-TW-V3.2-part2-books-box-rulebook.zip
+b57a72ac98e0118b1cde8edf9be045a949ef7ab7ce5d59816b67fc5e4f2c46d9  netherbloom-en-V3.2-rulebook.zip
+75628a5a9fe916f19e0fa9ec378965b32d652d6f96985ff54902e8f8dafe8241  netherbloom-factory-en-V3.2-part1-cards-boards-tokens.zip
+547f1c1f512638cf4cd9ad1a5a2cd0a9dc2d25dec5743f02aa6825ad7e3d3de8  netherbloom-factory-en-V3.2-part2-books-box-rulebook.zip
+a245477969555b897523000cec9bb0147e41a6154e4e1be43a3185a6ddc5ce92  netherbloom-factory-zh-TW-V3.2-part1-cards-boards-tokens.zip
+483ba9f268826def929e55b9a44909b3f87f09a00787a540717ba79f58c40085  netherbloom-factory-zh-TW-V3.2-part2-books-box-rulebook.zip
 1249229cb263972f13f18b7f885d751fa95d7c5027814ac12484ab4c7c07eca6  netherbloom-screentop-en-V3.0.zip
 8bb7930d55dc349f81cece798d429bc8ecb88b1cd6fbd26da631b7b32552f0e5  netherbloom-v3.1-for-drive.zip
 2393279a28c7ce9acff64e7d1ba2663430fb86088750048da53abd6510f36e33  netherbloom-zh-TW-V3.1-river-board-update.zip
-e73b7764a86a5c680422514009a69b56048d62a24129c4a158291512a1abce3f  netherbloom-zh-TW-V3.2-rulebook.zip
+674383e26758a1a691265284705ac646026ced62bad563fa4ca37cc58f9de17b  netherbloom-zh-TW-V3.2-rulebook.zip
