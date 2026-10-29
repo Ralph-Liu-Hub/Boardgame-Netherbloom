@@ -14,7 +14,7 @@ const harsh = Object.values(LANTERN).map(l => l[2]).join(" / "), bw = Object.val
 
 const W = {
   en: {
-    title: "Setting up", sub: "The table set for the Child of the Last Flame with three Ferrymen. The numbers match the steps in section 5.",
+    title: "Setting up", sub: "The table set for the Child of the Last Flame with three Ferrymen. The numbers match the steps in section 2.",
     lanterns: Object.values(LANTERN_NAMES).join(" / "),
     l: {
       1: ["River board", `Three panels, joined edge to edge: Reach I on the left (the near shore, space 0) to Reach III on the right (the Far Shore, space 12).`],
@@ -35,18 +35,18 @@ const W = {
       "nb-tok-hold": "Hold Fast", "nb-tok-shield": "Shield", "nb-tok-resign": "Resignation", "nb-echo": "Echo" },
   },
   zh: {
-    title: "遊戲準備", sub: "以「最後火光的孩子」與三位擺渡人擺好的桌面。圖中編號與第5節的步驟相對應。",
+    title: "遊戲準備", sub: "以「最後火光的孩子」與三位擺渡人擺好的桌面。圖中編號與第2節的步驟相對應。",
     l: {
       1: ["河流圖板", "三塊圖板邊對邊拼接：第一河段在左（此岸，第0格），第三河段在右（彼岸，第12格）。"],
       2: ["河岸板塊", `第一／二／三河段各${TILES.map(t => t[1].length).join("／")}塊。將各河段的板塊分開洗混，霧面朝上放置到第2–4、5–8、9–11格的方槽中。`],
-      3: ["最初的花與亡魂", "在第1格的兩個河岸各放置1朵花，讓第一步就是照亮的。將亡魂標記放置到此岸（第0格）。"],
-      4: ["亡魂牌與燈籠", "所選亡魂牌面朝上。裂痕放在渡帳上：第三道裂痕會讓亡魂破碎。孩子起始擁有3點光，新娘起始擁有1點光。燈籠是你們選擇的難度（第10節），沒有配件。"],
-      5: ["記憶牌庫", `${CORE_IDS.length}張基本記憶牌加上亡魂的8張專屬牌（無名渡河用8張迴響牌），洗混後面朝下。棄牌堆面朝上；遺忘堆放在渡帳上。`],
+      3: ["最初的花與亡魂", "在第1格的兩個河岸各放置1個花指示物，讓第一步就是照亮的。將亡魂標記放置到此岸（第0格）。"],
+      4: ["亡魂牌與燈籠", "所選亡魂牌面朝上，並依第2節的表格完成該亡魂的特殊準備（例如「最後火光的孩子」起始擁有3點光）。燈籠是你們選擇的難度（見第10節），沒有配件。"],
+      5: ["記憶牌庫", `${CORE_IDS.length}張基本記憶牌加上亡魂的8張專屬牌（「無名渡河」用8張迴響牌），洗混後面朝下。棄牌堆面朝上；遺忘堆放在渡帳上。`],
       6: ["迷霧牌庫", `每個河段一副，面朝下橫放到左岸外側長條區的迷霧牌槽：該河段的${MIST[0].length}張迷霧牌、「${ZH_MIST["Rising Water"][0]}」與「${ZH_MIST["Shade Drawn Near"][0]}」，以及依燈籠加入的凶霧（${harsh}）。`],
-      7: ["命運織機", "織機圖板，結圓片放在一旁。每個結放在其絲線的下一個圓圈上：2–3人時打滿4個結便斷裂，單人或4人時為5個。迴響標記放在圖板旁備用。"],
+      7: ["命運織機", "織機圖板，結指示物放在一旁。每個結放在其絲線的下一個圓圈上：2–3人時打滿4個結便斷裂，單人或4人時為5個。迴響標記放在圖板旁備用。"],
       8: ["稱號", `${Object.keys(MANTLES).length}張稱號牌面朝上，放在每個人都拿得到的地方。`],
       9: ["憶念之書", "所選亡魂的那本書，翻開到第一章。銘刻的牌放進牌槽，用相角固定。"],
-      10: ["渡帳與供應區", `渡帳放在織機旁；所有標記放在伸手可及處。黑水只取燈籠規定的數量（${Object.entries(LANTERN).map(([l, v]) => `${ZH_LANTERNS[l]}${v[0]}`).join("／")}）放進渡帳的黑水供應區，其餘放回盒中。`],
+      10: ["渡帳與供應區", `渡帳放在織機旁；所有指示物與標記放在伸手可及處。黑水只取燈籠規定的數量（${Object.entries(LANTERN).map(([l, v]) => `${ZH_LANTERNS[l]}${v[0]}`).join("／")}）放進渡帳的黑水供應區，其餘放回盒中。`],
       11: ["擺渡人", `每人發3張牌（單人4張）。每人拿1個破浪標記（面朝上）與1張玩家輔助卡。起始玩家拿起船槳。單人：${GHOST.length}張幽靈牌組成幽靈牌庫。`],
     },
     cap: { deck: "牌庫", discard: "棄牌堆", forgotten: "遺忘堆", hand: "手牌", push: "破浪", oar: "船槳", aid: "玩家輔助卡", ghost: "單人：幽靈牌庫",

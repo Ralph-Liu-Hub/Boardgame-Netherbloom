@@ -10,7 +10,7 @@
 //   Echo 迴響 · Resonate / Resonance 共鳴 · face up 正面打出 · face down 背面打出 · Burn 焚燒
 //   Book of Remembrance 憶念之書 · inscribe 銘刻 · Chapter Blessing 章節祝福 · Key Memory 關鍵記憶
 //   Mantle 稱號 · Summon 召喚 · Mist 迷霧 · harsh Mist 凶霧 · Lantern 燈籠（難度：Gentle 溫和 / Standard 標準 / Hard 困難 / Heroic 英雄）· Ghost 幽靈（單人模式的自動玩家）
-//   Soul Step 亡魂步驟 · deck 牌庫 · discard pile 棄牌堆 · hand 手牌 · draw 抽牌 · turn 回合 · round 輪
+//   Soul Step 亡魂行動 · deck 牌庫 · discard pile 棄牌堆 · hand 手牌 · draw 抽牌 · turn 回合 · round 輪
 //   Place 地點 · Person 人物 · Deed 事蹟 · Feeling 感受
 //   Ferrymen 擺渡人（玩家：冥府的僕役，既非生者也非亡魂）· old ferryman 老擺渡人（傳說中只載付了船資的亡者）· Keeper 守岸人
 //   action 行動 · Answer (first action) 回應 · Steer (second action) 掌舵 · Burn 焚燒（與另一位玩家共同進行）· Veiled Memories 隱憶之約 · discard 棄掉 · push through 奮力駛過 · Recall 喚回 · lay down (a Mantle, for good) 永久放下 · Chronicle 紀事

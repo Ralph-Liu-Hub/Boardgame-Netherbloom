@@ -89,7 +89,7 @@ const FIGS = {
 
   loom: t => {
     const rows = [["nb-obsession", K.crimson, t("Obsession", "執念"), 2, t("Full: Grasping, a Shade on the soul's space", "打滿：攫取，在亡魂所在格放置怨念")],
-      ["nb-acceptance", K.bone, t("Acceptance", "釋懷"), 4, t("Full: Resignation, the soul does not move next Soul Step", "打滿：認命，下一次亡魂步驟不移動")],
+      ["nb-acceptance", K.bone, t("Acceptance", "釋懷"), 4, t("Full: Resignation, the soul does not move next Soul Step", "打滿：認命，下一次亡魂行動不移動")],
       ["nb-oblivion", K.cyan, t("Oblivion", "忘卻"), 1, t("Full: the Tide Rises, Black Water on the next space", "打滿：漲潮，在下一格放置黑水")]];
     const svg = `<svg class="rf-svg" viewBox="0 0 620 190" role="img"><rect width="620" height="190" rx="10" fill="${K.plate}"/>
       ${rows.map(([id, col, name, n, back], r) => { const y = 38 + r * 56;
