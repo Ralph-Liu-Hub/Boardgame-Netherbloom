@@ -25,7 +25,7 @@ Talk freely about plans and the table, and say which threads you hold ("2 Obsess
 5.  **Mist decks**: one per Reach: its 10 basic cards, plus Rising Water and Shade Drawn Near, plus the Lantern's number of random harsh cards. Shuffle each and place it face down, turned sideways, in its Reach's Mist well.
 6.  **Loom**: knots beside it; the Echo token beside it (it goes on a thread at the first card played face up or Burned).
 7.  **Ledger**: the Lantern's Black Water tokens in its well (the rest back in the box); Fractures beside it. Forgotten cards will go on its numbered track.
-8.  **Mantles** face up; the Soul's **Book** open at page I; all other tokens in the supply.
+8.  **Mantles** face up; the Soul's **Book** open to page I, with its Keepsake cards in three face-down stacks by Reach and its ending cards face down beside it; all other tokens in the supply.
 9.  **Players**: deal each a hand of 3 (4 in solo); each takes a Push Through token face up; the first player takes the Oar. Solo: shuffle the Ghost cards into a deck.
 
 ### On your turn
@@ -50,7 +50,7 @@ Talk freely about plans and the table, and say which threads you hold ("2 Obsess
 ### Roots and Blooms
 
 - **Place a Root**: a Root token on an empty bank (no token at all) on the soul's space or ahead. It must touch: the soul's space or the next space, or the other bank of its space already has a Root or Bloom token, or the same bank one space before or after has one.
-- **Fog**: placing on a fog bank flips its bank tile. **Fertile**: the Root stays. **Stony**: only with "even on Stony ground" or the Root-Weaver, otherwise return the Root token to the supply. **Memory Site**: the Root stays and you take a keepsake (with the Open Crossing, also +2 Light). **Grave**: no Root; a Shade token goes there.
+- **Fog**: placing on a fog bank flips its bank tile. **Fertile**: the Root stays. **Stony**: only with "even on Stony ground" or the Root-Weaver, otherwise return the Root token to the supply. **Memory Site**: the Root stays; draw a keepsake from that Reach's stack, read it aloud, and place it beside its Book page (Open Crossing: +2 Light instead). **Grave**: no Root; a Shade token goes there.
 - **Bloom**: flip a Root on the soul's space or ahead to its Bloom side. A space with a Bloom is **Lit**; the soul only moves onto Lit spaces. **Wither**: flip a Bloom back to its Root side.
 
 ### End of turn (after every player's turn, in order)
@@ -107,4 +107,4 @@ Light is shared by all players. Gain 1 Light per Bloom token on each space the s
 
 ### The ending
 
-When the game ends, check the Soul's Key Memory: inscribed, forgotten or never played. Then read the Book aloud, page by page; an empty slot reads "…but this, the river has taken".
+When the game ends, read the Book aloud, page by page; an empty slot reads "…but this, the river has taken", and each page's keepsakes follow it. If you won, check where the Key Memory is (inscribed, forgotten, or unspoken) and how many cards were forgotten, and read the matching ending card last; a hidden ending whose conditions are met replaces the one it names.

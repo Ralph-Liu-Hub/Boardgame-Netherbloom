@@ -64,7 +64,7 @@ Follow these steps in every game; each Soul's special setup is listed in the tab
 6.  **The Mist decks.** Build one deck for each Reach: its 10 basic Mist cards, plus one *Rising Water* and one *Shade Drawn Near*, plus as many random harsh Mist cards as the Lantern calls for (none at Gentle). Shuffle each deck and place it face down, turned sideways, in its Reach's Mist well along the left bank. Leave room beside each well for that Reach's face-up **Mist discard pile**.
 7.  **The Loom of the Fates.** Place the Loom board with its three threads (Obsession, Acceptance, and Oblivion), and put the knots next to it. A thread is full at 4 knots with 2–3 players, and at 5 in solo play or with 4 players. Keep the Echo token next to the Loom: it goes onto a thread when the first card is played face up or Burned (section 6).
 8.  **The Mantles.** Place the four Mantle cards face up within reach of all players (section 8).
-9.  **The Book of Remembrance.** Open the chosen Soul's Book to page I and keep the photo corners handy (section 9).
+9.  **The Book of Remembrance.** Open the chosen Soul's Book to page I and keep the photo corners handy (section 9). Sort the Soul's 9 **Keepsake cards** by Reach, shuffle each Reach's 3 cards separately, and place them face down beside the Book in three stacks (I, II, and III). Place the Soul's **ending cards** face down beside them, unread. the *Open Crossing* has no Keepsake or ending cards.
 10. **The Ledger and the supply.** Place the Ledger board next to the Loom. Forgotten cards go on its numbered track, and Fractures go in its Fracture wells. Place only as many Black Water tokens as the Lantern allows (6, 5, 4, 3 for Gentle, Standard, Hard, Heroic) in its Black Water well, and return the rest to the box (section 7). Place the Root/Bloom tokens, Shade tokens, Light, Fractures, knots, and the Hold Fast, Shield, and Resignation tokens within reach of all players: this is the **supply**. Put the chosen Soul's starting Light in the shared **Light pool** (see the table below).
 11. **The Ferrymen.** Deal each player a hand of cards: 4 in solo play, 3 with 2–4 players. Each player takes a Push Through token and places it face up. The first player takes the Oar. In solo play, shuffle the 12 Ghost cards into a face-down Ghost deck next to you (section 11).
 
@@ -167,7 +167,7 @@ Resolve the end-of-turn steps after **every player's turn** (not once per round)
 
 ### Effects that happen immediately
 
-A thread that becomes full triggers its **Backlash** immediately (section 6). Page rewards and Chapter Blessings are resolved immediately, as soon as the inscription that earns them is made (section 9). A Memory Site gives its keepsake (and, with the *Open Crossing*, its Light) when its bank tile is flipped. The game ends the moment the soul reaches the Far Shore (you win), the forgotten pile reaches the Lantern's limit (Faded), the soul takes its third Fracture (Shattered), or a Black Water token must be placed with none left in the supply (Deluge).
+A thread that becomes full triggers its **Backlash** immediately (section 6). Page rewards and Chapter Blessings are resolved immediately, as soon as the inscription that earns them is made (section 9). A Memory Site gives its keepsake (with the *Open Crossing*, its 2 Light instead) when its bank tile is flipped. The game ends the moment the soul reaches the Far Shore (you win), the forgotten pile reaches the Lantern's limit (Faded), the soul takes its third Fracture (Shattered), or a Black Water token must be placed with none left in the supply (Deluge).
 
 **Canceling a Fracture.** If the Shield token is next to the soul, or the Soul is the *Child of the Last Flame* and her special rule applies (the first Fracture in each Reach), the Fracture the soul would take is canceled: no Fracture is placed, and it does not count as taken.
 
@@ -199,7 +199,7 @@ When you place a Root on a bank that is still covered by fog, flip its bank tile
 
 - **Fertile**: place the Root.
 - **Stony**: place the Root only if the card's effect says "even on Stony ground" or you hold the Root-Weaver Mantle. Otherwise, no Root is placed; return the Root token to the supply.
-- **Memory Site**: place the Root and take a keepsake. With the *Open Crossing*, also gain 2 Light; with any other Soul, a Memory Site gives only the keepsake, not Light.
+- **Memory Site**: place the Root and find a **keepsake**: take the top card of the Keepsake stack for this bank's Reach, read it aloud, and place it face up beside that Reach's page of the Book. Keepsakes have no effect on play; they are read with the Book at the end (section 9). the *Open Crossing* has no Keepsake cards: gain 2 Light instead. With any other Soul, a Memory Site gives no Light.
 - **Grave**: no Root is placed. Put a Shade token on this bank.
 
 A bank with no bank tile (both banks of space 1, or a bank whose Grave tile was removed) counts as Fertile. A face-up bank tile follows the same rules: Roots can be placed on Fertile and Memory Site banks, on Stony banks only as described above, and never on a Grave. Reach I has 3 Fertile, 1 Stony, and 2 Memory Site tiles; Reach II has 3 Fertile, 2 Stony, 2 Memory Site, and 1 Grave; Reach III has 2 Fertile, 1 Stony, 2 Memory Site, and 1 Grave.
@@ -285,13 +285,17 @@ The Book has one page per Reach: page I, *Who I Was* (Reach I); page II, *What I
 
 ### The ending
 
-When the game ends, the Veiled Memories are lifted: everyone may reveal their cards and share the memories written on them. Check where the soul's **Key Memory** card is:
+When the game ends, the Veiled Memories are lifted: everyone may reveal their cards and share the memories written on them. Then read the Book aloud, page by page, even after a loss. Read each page's slots in order, and read an empty slot as "…but this, the river has taken". Then read the keepsakes found beside that page: "…and from this Reach, all that was left: a torn banner, a dented helm."
+
+**The ending card.** If you win, the soul's story ends with one of its ending cards (the *Open Crossing* has none). First check where the soul's **Key Memory** card is:
 
 - **Inscribed in the Book**: the soul crosses remembering what mattered most.
 - **In the forgotten pile**: the soul crosses without it, lighter and emptier.
-- **Anywhere else** (the deck, a hand, or the discard pile): it was never spoken, and the soul crosses with it unsaid.
+- **Anywhere else** (the deck, a hand, or the discard pile): it was never spoken (the cards say "unspoken"), and the soul crosses with it unsaid.
 
-Then read the Book aloud, page by page, even after a loss. Empty slots are read as "…but this, the river has taken".
+Then, without reading the stories, look at the "Triggers when" line of each of the soul's ending cards and take the one that matches where the Key Memory is and how many cards were forgotten. A **hidden ending** whose conditions are all met replaces the ending it names. Read the chosen ending card aloud last.
+
+If you lose, no ending card is read: the Book and its keepsakes are all that remain of the soul.
 
 ## 10. The Souls and the Lantern
 
@@ -337,6 +341,7 @@ She died on her wedding day. Her husband came down into the dark to bring her ba
 **Special rule:** "Starts with 1 Light. The first time she would Linger in the dark, she is pulled one space back instead of forgetting."
 
 - **Starts with 1 Light**: put 1 Light in the Light pool during setup.
+- **Her hidden ending**: one of her ending cards needs a game in which the soul never Lingers. The first time the soul Lingers, turn her Soul card upside down as a reminder.
 - **Pulled one space back** (once per game): in the Soul Step, when the soul Lingers and would forget the top card of the deck (her space is not Lit, and neither the Hold Fast token nor the Spirit Warden stops it; section 4, step d, IV), move the soul token back one space (to the space numbered 1 lower) instead. Nothing is forgotten and no Light is gained. Then turn her Soul card sideways to show it has been used. It does not apply while the soul is on the near shore (space 0).
 
 **Key Memory:** *his face, the instant he turned to look at me*.
@@ -345,7 +350,7 @@ She died on her wedding day. Her husband came down into the dark to bring her ba
 
 A nameless soul. You do not learn its story; you write it.
 
-**Special rule:** "Memory Sites give +2 Light." That is, each Memory Site flipped gives 2 Light as well as its keepsake (section 5). There is no Key Memory; the Book is the soul's whole story.
+**Special rule:** "Memory Sites give +2 Light." That is, each Memory Site flipped gives 2 Light; this Soul has no Keepsake cards (section 5). There is no Key Memory and no ending card; the Book is the soul's whole story.
 
 ![souls](figures/en_souls.jpg)
 
@@ -392,7 +397,7 @@ Each component, what it represents in the story, and what it does in the game.
 | **Bank tile, fog side** | The mist that hides the bank.                                                         | Covers a bank until a Root is placed there (section 5).                                                         |
 | **Fertile**             | Soft riverbank earth.                                                                 | A Root is placed.                                                                                               |
 | **Stony**               | Hard, gray stone where little can grow.                                               | A Root is placed only by a card that allows Stony ground or the Root-Weaver.                                    |
-| **Memory Site**         | A place the soul once knew, surfacing through the fog.                                | A Root is placed; take a keepsake (*Open Crossing*: also 2 Light).                                              |
+| **Memory Site**         | A place the soul once knew, surfacing through the fog.                                | A Root is placed; find a keepsake (*Open Crossing*: 2 Light instead).                                           |
 | **Grave**               | Something unfinished is buried here.                                                  | No Root; a Shade is placed instead.                                                                             |
 | **Root token**          | A Netherbloom seed, planted in the dark.                                              | Extends the network. Does not light a space.                                                                    |
 | **Bloom token**         | An open Netherbloom, glowing crimson.                                                 | Makes its space Lit.                                                                                            |
@@ -417,6 +422,8 @@ Each component, what it represents in the story, and what it does in the game.
 | **Mist cards**          | The underworld itself: rising water, cold wind, returning fog.                        | One deck per Reach; one is flipped each turn (Appendix C).                                                      |
 | **Mantle cards**        | Roles a Ferryman can take up on the river.                                            | Lasting powers bought with Light (section 8).                                                                   |
 | **Soul cards**          | The five souls you can carry.                                                         | Each has a special rule (section 10).                                                                           |
+| **Keepsake cards**      | Things from the soul's life, found where it once walked.                              | Found at Memory Sites; read with the Book at the end (sections 5 and 9).                                        |
+| **Ending cards**        | How the soul's story ends at the Far Shore.                                           | If you win, one is read last (section 9).                                                                       |
 | **Ghost cards (solo)**  | A silent Ferryman who travels beside you.                                             | Played after each of your turns (section 11).                                                                   |
 
 ### What is in the box
@@ -426,6 +433,7 @@ Each component, what it represents in the story, and what it does in the game.
 | Memory cards                                           | 72: 32 core, 8 Echo cards (*Open Crossing*), 4 Soul packs of 8                                |
 | Mist cards                                             | 42: 10 basic for each Reach, 2 extra for each Reach (Rising Water, Shade Drawn Near), 6 harsh |
 | Bank tiles                                             | 20: 6, 8, 6 for Reaches I, II, III                                                            |
+| Keepsake cards / ending cards                          | 36 (9 for each named Soul) / 19 (4 or 5 for each named Soul)                                  |
 | Soul cards / Mantle cards / Ghost cards                | 5 / 4 / 12                                                                                    |
 | Boards                                                 | 3 river board panels, 1 Loom of the Fates, 1 Ledger                                           |
 | Books of Remembrance                                   | 5, one for each Soul                                                                          |
@@ -435,7 +443,7 @@ Each component, what it represents in the story, and what it does in the game.
 | Echo, Oar, soul (Ghost on the back)                    | 1 each                                                                                        |
 | Push Through / Hold Fast / Shield / Resignation tokens | 4 / 1 / 1 / 1                                                                                 |
 
-**Cards that track their own use.** Turn the Spirit Warden card sideways when it is used, and straighten it at the start of its holder's turn. Turn a Soul card sideways when its once-only rule has been used. In solo play, flip a Mantle you give up face down.
+**Cards that track their own use.** Turn the Spirit Warden card sideways when it is used, and straighten it at the start of its holder's turn. Turn a Soul card sideways when its once-only rule has been used, and turn the Bride's Soul card upside down the first time the soul Lingers. In solo play, flip a Mantle you give up face down.
 
 ## Appendix B. Card terms
 
