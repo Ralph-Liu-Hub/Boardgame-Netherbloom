@@ -72,7 +72,7 @@ p { font-family: var(--f-serif); font-size: 11pt; line-height: 1.55; margin: 0 0
 .pairs .box { grid-row: span 2; margin-top: .4mm; }
 .pairs b { font-family: var(--f-mono); font-weight: 400; font-size: 8.5pt; letter-spacing: .12em; text-transform: uppercase; color: #8a6a3e; }
 .box { display: inline-block; width: 4mm; height: 4mm; border: .3mm solid #8a6a3e; vertical-align: -.6mm; margin-right: 1.5mm; }
-.rules p { font-size: 10pt; }
+.rules p { font-size: 10pt; line-height: 1.45; margin-bottom: 2mm; }
 .epi { margin: -1mm 10mm 5mm; font-size: 12pt; }
 .tale p { font-size: 12.5pt; line-height: 1.6; text-align: justify; hyphens: auto; margin-bottom: 4mm; }
 [lang="zh-Hant-TW"] .tale p { font-size: 12pt; line-height: 1.9; text-indent: 2em; }
@@ -123,7 +123,6 @@ function soulBook(lang, k) {
     <p class="ferry">${esc(st.ferry)}</p>
     <p class="rule"><b>${w.twist}:</b> ${esc(s.twist)}</p>
     ${KEY[k] ? `<p class="rule"><b>${w.key}:</b> <i>${esc(w.band(KEY[k]))}</i></p>` : ""}
-    <div class="plate">${artImg(PAINT[k][2], "50% 40%")}</div>
     <h3>${w.keeping}</h3><div class="rules">${bookParas.map(p => `<p>${p}</p>`).join("")}</div>
     <div class="note"><p style="margin:0">${w.tuck}</p></div>${folio(3, w, k)}`, PAINT[k][0], "50% 50%"));
   w.frames.forEach(([title, frame], r) => {

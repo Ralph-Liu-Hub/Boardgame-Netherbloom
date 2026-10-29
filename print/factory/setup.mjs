@@ -1,4 +1,5 @@
-// The rulebook's Setting up picture for print: one landscape spread (420 x 280 mm) over two facing rulebook pages (210 x 280 mm), the whole
+// The rulebook's Setting up picture for print: one landscape spread over two facing rulebook pages (210 x 280 mm). It is drawn
+// on a 420 x 297 mm sheet and scaled down to the page height, anchored at the gutter so the two halves still meet, the whole
 // table seen from above with every component in place, each numbered to match the setup steps (section 5) and labelled
 // with what it is, how many there are and what to do with it. Counts come from the game data, so they always match.
 import { BLEED, C, art, esc } from "./lib.mjs";
@@ -8,7 +9,7 @@ import { TOKENS } from "./tokens.mjs";
 import { LOOM } from "./loom.mjs";
 import { PW as BPW, PH as BPH, GEO as G } from "./board.mjs";
 
-const SW = 420, SH = 280, B = BLEED, GUT = SW / 2;
+const SW = 420, SH = 297, PAGE_H = 280, FIT = (PAGE_H + 2 * BLEED) / (SH + 2 * BLEED), B = BLEED, GUT = SW / 2;
 const tok = id => TOKENS.find(t => t[0] === id);
 const harsh = Object.values(LANTERN).map(l => l[2]).join(" / "), bw = Object.values(LANTERN).map(l => l[0]).join(" / ");
 
@@ -156,7 +157,9 @@ function spread(lang) {
 
 export const SPREAD_CSS = lang => `
 @page spread { margin: 0; @bottom-center { content: none; } }
-.spread { page: spread; position: relative; width: ${GUT + 2 * B}mm; height: ${SH + 2 * B}mm; overflow: hidden; break-after: page; background: ${C.ink}; }
+.spread { page: spread; position: relative; width: ${GUT + 2 * B}mm; height: ${PAGE_H + 2 * B}mm; overflow: hidden; break-after: page; background: radial-gradient(circle at 50% 50%, #2a1d15, #120d0a); }
+.spread .sz { position: absolute; top: 0; width: ${GUT + 2 * B}mm; height: ${SH + 2 * B}mm; transform: scale(${FIT}); }
+.spread .sz.l { right: 0; transform-origin: 100% 0; } .spread .sz.r { left: 0; transform-origin: 0 0; }
 .spread svg.ss { position: absolute; inset: 0; width: 100%; height: 100%; }
 .spread .spn { position: absolute; left: 0; right: 0; bottom: ${B + 8}mm; text-align: center; font-family: ${lang === "zh" ? `"Noto Serif TC", serif` : `"IM Fell English", Georgia, serif`}; font-size: 10.5pt; color: #cfc4b0; }
 .ss .sc { font-family: ${lang === "zh" ? `"Noto Serif TC", serif` : `"IBM Plex Mono", monospace`}; font-size: ${lang === "zh" ? 2.5 : 2.1}px; letter-spacing: ${lang === "zh" ? .05 : .12}px; fill: #cfc4b0; text-transform: uppercase; }
@@ -185,6 +188,6 @@ export function setupSpread(lang) {
   }).join("");
   // the spread is pages 2 and 3 of the rulebook: they carry their page numbers like every other page
   const pn = n => `<div class="spn">${n}</div>`;
-  return `<section class="spread">${svg(0)}<div class="hd"><b>${L.title}</b><span>${esc(L.sub)}</span></div>${labels(0)}${pn(2)}</section>
-    <section class="spread">${svg(GUT)}${labels(GUT)}${pn(3)}</section>`;
+  return `<section class="spread"><div class="sz l">${svg(0)}<div class="hd"><b>${L.title}</b><span>${esc(L.sub)}</span></div>${labels(0)}</div>${pn(2)}</section>
+    <section class="spread"><div class="sz r">${svg(GUT)}${labels(GUT)}</div>${pn(3)}</section>`;
 }
