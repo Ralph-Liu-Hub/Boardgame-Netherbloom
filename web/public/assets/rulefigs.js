@@ -61,7 +61,7 @@ const cardRow = (faces, cls = "") => `<div class="rf-cards ${cls}">${faces.map((
 // ---------------------------------------------------------------- the pictures
 const FIGS = {
   network: (t, L) => figure(river({ from: 0, to: 6, soul: 1, tok: { "1L": "bloom", "1R": "bloom", "2L": "root", "3L": "root" }, fog: ["2R", "3R", "4L", "4R", "5L", "5R", "6L", "6R"], target: ["2R", "3R", "4L"], no: ["5L", "6R"], lit: [1] }),
-    t("The soul is on space 1, which its Blooms Light. The glowing banks are the only places a new Root may go: the lower banks of spaces 2 and 3 face a Root across the water, and the upper bank of space 4 follows the Root on space 3 along the same bank. The crossed-out banks touch nothing, so no Root can grow there.",
+    t("The soul is on space 1, which its Blooms make Lit. The glowing banks are the only places a new Root may go: the lower banks of spaces 2 and 3 face a Root across the water, and the upper bank of space 4 follows the Root on space 3 along the same bank. The crossed-out banks touch nothing, so no Root can grow there.",
       "亡魂在第1格，那裡的花照亮了這一格。發光的河岸是新的根唯一能放的地方：第2格與第3格下方的河岸隔水對著一個根，第4格上方的河岸沿著同一側接在第3格的根之後。打叉的河岸什麼都沒有碰到，根無法生長在那裡。")),
 
   tiles: (t, L, kit) => figure(cardRow([0, 1, 2, 3].map(k => [kit.tileFace(L, k, 0), ""]).concat([[kit.tileBack(L, 0), t("The fog side", "霧面")]]), "five"),
@@ -83,7 +83,7 @@ const FIGS = {
       <circle cx="150" cy="75" r="15" fill="#1d1a22" stroke="${K.cyan}" stroke-width="2"/>${use("nb-echo", 150, 75, 20, K.cyan)}
       ${label(150, 140, t("The Echo sits on Acceptance", "迴響停在釋懷"), { col: K.cyan, size: 12 })}</svg>`;
     return figure(`<div class="rf-echo">${loom}${cardRow([[kit.memoryCard(L, acc), `<b class="yes">${t("Played as your Answer: Resonates", "作為回應打出：共鳴")}</b>`], [kit.memoryCard(L, obs), `<b class="no">${t("Another thread: no Resonance", "其他絲線：不會共鳴")}</b>`]])}</div>`,
-      t("The last card played face up was an Acceptance card, so the Echo is on Acceptance. If your Answer is an Acceptance card, it Resonates: you also do its Resonance, and it may be inscribed in the Book.",
+      t("The last card played face up was an Acceptance card, so the Echo is on Acceptance. If your Answer is an Acceptance card, it Resonates: you also resolve its Resonance, and it may be inscribed in the Book.",
         "最後一張正面打出的牌是釋懷牌，所以迴響停在釋懷。若你的回應也是釋懷牌，它便會共鳴：你另外執行它的共鳴效果，而且可以把它銘刻進憶念之書。"));
   },
 
@@ -97,13 +97,13 @@ const FIGS = {
           ${[0, 1, 2, 3, 4].map(k => `<circle cx="${170 + k * 46}" cy="${y}" r="15" fill="#1d1a22" stroke="${col}" stroke-opacity="${k < 4 ? .8 : .45}" ${k === 4 ? 'stroke-dasharray="4 3"' : ""}/>${k < n ? use("nb-knot", 170 + k * 46, y, 22, col) : ""}`).join("")}
           ${(([head, rest]) => label(398, y - 3, head, { col: n === 4 ? col : K.mist, size: 12.5, anchor: "start" }) + label(398, y + 14, rest, { col: n === 4 ? col : K.mist, size: 11.5, anchor: "start" }))(back.split(/, |，(.*)/s).filter(Boolean))}`; }).join("")}
       ${label(354, 182, t("5th knot: solo and 4 players only", "第5個結：僅限單人與4人"), { col: K.mist, size: 11 })}</svg>`;
-    return figure(svg, t("Each card played face up or Burned ties a knot on its thread. With 2–3 players a thread holds 4 knots: here the Acceptance thread is full, so it snaps, its Backlash happens, and it is emptied.",
+    return figure(svg, t("Each card played face up or Burned ties a knot on its thread. With 2–3 players a thread holds 4 knots: here the Acceptance thread is full, so its Backlash is triggered and the thread is emptied.",
       "每張正面打出或焚燒的牌，都在其絲線上打一個結。2–3人遊戲時每條絲線可容納4個結：圖中的釋懷絲線已經打滿，於是斷裂、引發反噬，然後清空。"));
   },
 
   soulstep: t => figure(panels([
     [t("The next space is Lit", "下一格已被照亮"), river({ from: 1, to: 4, soul: 2, tok: { "2L": "bloom", "3L": "bloom", "3R": "root" }, fog: ["4L", "4R"], lit: [2, 3], arrow: [2, 3], notes: [[2, "L", t("+1 Light", "+1點光"), K.bone]], w: 70 }),
-      t("The soul moves. Gain 1 Light for each Bloom on the space it moved off, then clear that space.", "亡魂移動。它離開的那一格上每有1朵花，獲得1點光，然後清空那一格。")],
+      t("The soul moves. Gain 1 Light for each Bloom on the space it left, then clear that space.", "亡魂移動。它離開的那一格上每有1朵花，獲得1點光，然後清空那一格。")],
     [t("The next space is not Lit", "下一格未照亮"), river({ from: 1, to: 4, soul: 2, tok: { "2L": "root", "3L": "root" }, fog: ["3R", "4L", "4R"], w: 70 }),
       t("The soul Lingers (stays put). If its own space is not Lit, forget the top card of the deck; if it is Lit, nothing else happens.", "亡魂徘徊（留在原格）。若它所在格未照亮，遺忘牌庫頂的1張牌；若已照亮，不發生其他事。")],
   ]), ""),
@@ -112,7 +112,7 @@ const FIGS = {
     [t("Removing a Shade", "移除怨念"), river({ from: 2, to: 5, soul: 2, tok: { "3L": "bloom", "5L": "bloom", "2L": "bloom" }, griev: ["4L"], fog: ["3R", "4R", "5R"], lit: [2, 3, 5], w: 66 }),
       t("A Bloom on the same bank directly before and after a Shade: in Cleanup, return the Shade to the supply.", "怨念同一側河岸的正前一格與正後一格都有花：整理時把該怨念放回供應區。")],
     [t("Removing Black Water", "移除黑水"), river({ from: 2, to: 5, soul: 2, tok: { "2L": "bloom", "4L": "root", "4R": "root" }, flood: [4], fog: ["3L", "3R", "5L", "5R"], w: 66 }),
-      t("Black Water on a space with a Root or Bloom on both banks: in Cleanup, remove the Black Water from the game.", "有黑水的格子兩岸都有根或花：整理時把該黑水移出遊戲。")],
+      t("Black Water on a space with a Root or Bloom on both banks: in Cleanup, return the Black Water to the box.", "有黑水的格子兩岸都有根或花：整理時把該黑水移出遊戲。")],
     [t("Shades on both banks", "兩岸都有怨念"), river({ from: 2, to: 5, soul: 2, tok: { "2L": "bloom" }, griev: ["3L", "3R"], fog: ["4L", "4R", "5L", "5R"], w: 66 }),
       t("Shades on both banks of the next space: the soul cannot move there unless a player uses an action to Push Through.", "下一格兩岸都有怨念：除非有玩家花1個行動奮力駛過，否則亡魂無法移動到該格。")],
   ]), ""),
