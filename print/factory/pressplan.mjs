@@ -75,17 +75,17 @@ export function pressPlan(lang) {
     qty: T("1", "1"),
   });
   for (const k of ["child", "garland", "king", "bride", "open"]) files.push({
-    path: `books/book-of-remembrance-${k}.pdf`, trim: [210, 297], sides: "4/4",
+    path: `books/book-of-remembrance-${k}.pdf`, trim: [210, 280], sides: "4/4",
     labels: Array.from({ length: 8 }, (_, i) => `BOOK PAGE ${i + 1} of 8 · reading order`),
-    what: T("8 A4 pages in reading order", "8 頁 A4，依閱讀順序"),
+    what: T("8 pages of 210 × 280 mm in reading order", "8 頁 210 × 280 mm，依閱讀順序"),
     pair: T("Sheet 1 (cover): pages 8 | 1 outside, 2 | 7 inside. Sheet 2: pages 6 | 3 outside, 4 | 5 inside.", "第 1 張（封面）：外側 8 | 1、內側 2 | 7。第 2 張：外側 6 | 3、內側 4 | 5。"),
     turn: TURN_HOW.book, stock: T("Cover sheet 250 g/m², inner sheet 157 g/m², matte", "封面 250 g/m²，內頁 157 g/m²，霧面"),
     finish: T("Saddle-stitch (2 staples), then 48 clear photo corners on the printed marks of pages 4–6", "騎馬釘（2 針），再於第 4–6 頁的角標貼上 48 個透明相角"),
     qty: T("1 of each Soul's Book: 5 Books", "每位亡魂 1 本：共 5 本"),
   });
   files.push({
-    path: "rulebook/rulebook.pdf", trim: [210, 297], sides: "4/4", labelsAuto: "RULEBOOK PAGE {n} of {N} · reading order",
-    what: T("The rulebook, A4, pages in reading order (a multiple of 4)", "規則書，A4，依閱讀順序（4 的倍數）"),
+    path: "rulebook/rulebook.pdf", trim: [210, 280], sides: "4/4", labelsAuto: "RULEBOOK PAGE {n} of {N} · reading order",
+    what: T("The rulebook, 210 × 280 mm, pages in reading order (a multiple of 4)", "規則書，210 × 280 mm，依閱讀順序（4 的倍數）"),
     pair: T("Pages 2–3 are the two halves of one picture (the set-up spread): keep them facing.", "第 2–3 頁為同一張圖（遊戲準備跨頁）的左右兩半：須相對。"),
     turn: TURN_HOW.book, stock: T("157 g/m² matte art paper (cover may be 250 g/m²)", "157 g/m² 霧面銅版紙（封面可用 250 g/m²）"),
     finish: T("Saddle-stitch (2 staples)", "騎馬釘（2 針）"), qty: T("1", "1"),

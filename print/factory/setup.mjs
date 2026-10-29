@@ -1,4 +1,4 @@
-// The rulebook's Setting up picture for print: one A3 landscape spread (420 x 297 mm) over two facing A4 pages, the whole
+// The rulebook's Setting up picture for print: one landscape spread (420 x 280 mm) over two facing rulebook pages (210 x 280 mm), the whole
 // table seen from above with every component in place, each numbered to match the setup steps (section 5) and labelled
 // with what it is, how many there are and what to do with it. Counts come from the game data, so they always match.
 import { BLEED, C, art, esc } from "./lib.mjs";
@@ -8,7 +8,7 @@ import { TOKENS } from "./tokens.mjs";
 import { LOOM } from "./loom.mjs";
 import { PW as BPW, PH as BPH, GEO as G } from "./board.mjs";
 
-const SW = 420, SH = 297, B = BLEED, GUT = SW / 2;
+const SW = 420, SH = 280, B = BLEED, GUT = SW / 2;
 const tok = id => TOKENS.find(t => t[0] === id);
 const harsh = Object.values(LANTERN).map(l => l[2]).join(" / "), bw = Object.values(LANTERN).map(l => l[0]).join(" / ");
 

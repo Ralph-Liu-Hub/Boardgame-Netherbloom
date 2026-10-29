@@ -1,4 +1,4 @@
-// One Book of Remembrance per Soul: an 8-page A4 saddle-stitched booklet (210 x 297 mm, 3 mm bleed).
+// One Book of Remembrance per Soul: an 8-page saddle-stitched booklet (210 x 280 mm, 3 mm bleed, short enough to lie flat in the box base).
 //   1 cover · 2 keeping the Book · 3 the Soul's tale · 4-6 one page per Reach, four 63 x 88 mm card wells each · 7 the Far Shore · 8 back
 // The wells hold inscribed cards by four clear self-adhesive photo corners stuck on the printed corner marks (48 per Book).
 // Not die-cut slits: in the saddle stitch page 4 backs onto page 3, so slits for its wells would cut through page 3's text.
@@ -11,7 +11,7 @@ import { SOULS, BOOK_FRAMES, CARDS, REACH_NAMES, PAIR_SLOTS, PAIR_REWARDS, opsTe
 import { ZH_SOULS, ZH_BOOK_FRAMES, ZH_SLOTS, ZH_REACHES, ZH_BANDS, zhOpsText } from "../../web/public/assets/zh.js";
 import { STORIES } from "./stories.mjs";
 
-const PW = 210 + 2 * BLEED, PH = 297 + 2 * BLEED;
+const PW = 210 + 2 * BLEED, PH = 280 + 2 * BLEED;
 const WELL_W = 66, WELL_H = 91, GAP = 14;
 const ORDER = ["child", "garland", "king", "bride", "open"];
 const ART = { open: "nameless", child: "child", garland: "garland", king: "king", bride: "bride" };

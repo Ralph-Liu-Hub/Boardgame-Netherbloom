@@ -1,4 +1,4 @@
-// The rulebook as a printed A4 booklet (210 x 297 mm, 3 mm bleed), text from the in-game Rulebook (rules.js / rules_zh.js),
+// The rulebook as a printed booklet (210 x 280 mm, 3 mm bleed, short enough to lie flat in the box base), text from the in-game Rulebook (rules.js / rules_zh.js),
 // padded with Notes pages to a multiple of 4 for saddle stitching. Plus the A5 Player Aid, a few double-sided cards (one set per player).
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -15,7 +15,7 @@ const W = {
   zh: { book: RULEBOOK_ZH, aid: playerAidZh, title: "規則書", aidTitle: "玩家輔助卡", notes: "筆記", players: "1–4人 · 45–60分鐘 · 14歲以上",
     setupRef: ["下圖是以", "第2–3頁的圖是以"] },
 };
-const PW = 210 + 2 * BLEED, PH = 297 + 2 * BLEED;
+const PW = 210 + 2 * BLEED, PH = 280 + 2 * BLEED;
 const M = BLEED + 18;   // text margin from the bleed edge
 
 const CSS = (lang, w, h, m) => `
