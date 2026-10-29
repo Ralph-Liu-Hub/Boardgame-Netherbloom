@@ -24,7 +24,7 @@ const TERMS = {
     [/憶念之書/, "nb-seal", BONE], [/關鍵記憶/, "nb-seal", CRIMSON],
     [/黑水/, "nb-blackwater", MIST], [/怨念/, "nb-grievance", CYAN], [/裂痕/, "nb-fracture", CRIMSON],
     [/(?<![彼引])花(?![面環費葉瓣莖])/, "nb-bloom", CRIMSON], [/(?<![織扎])根(?![網面據])/, "nb-root", BONE],
-    [/\d+點光|(?<![燈照])光(?![芒線])/, "nb-light", BONE], [/迴響(?!牌)/, "nb-echo", CYAN], [/(?<=[個的])結(?!束)/, "nb-knot", BONE],
+    [/\d+點光|(?<![燈照火])光(?![芒線])/, "nb-light", BONE], [/迴響(?!牌)/, "nb-echo", CYAN], [/(?<=[個的])結(?!束)/, "nb-knot", BONE],
     [/執念/, ...THREADS[0]], [/釋懷/, ...THREADS[1]], [/忘卻/, ...THREADS[2]],
     [/(?<![破迷])霧(?!氣)/, "nb-fog", MIST], [/沃土/, "nb-fertile", "#6d665e"], [/石地/, "nb-stony", MIST],
     [/記憶之地/, "nb-memorysite", BONE], [/墳墓/, "nb-grave", CYAN],

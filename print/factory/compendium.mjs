@@ -1,6 +1,6 @@
-// PARKED: not part of the factory files. The rulebook and the web game have no rules for these yet; build them
-// on their own with parked.mjs. The story cards from the Card Compendium v0.2 and Soul Roster v3:
-// Keepsakes, chapter and ending cards for the four authored Souls, and the Nameless Souls module
+// The story cards from the Card Compendium v0.2 and Soul Roster v3. The Keepsake and ending cards ship (cards.mjs adds
+// them to the factory files; Rulebook sections 5 and 9). The rest is PARKED, with no rules yet, built on its own by
+// parked.mjs: the chapter cards for the four authored Souls, and the Nameless Souls module
 // (the generic Soul pool, Lives, Wounds, Last Wishes with their endings, and the two Wish tiles).
 // The words are in data/compendium.json, parsed from the two design docs in both languages; card effects
 // come from the web game's own shapes (cards.js), so their wording matches every other Memory card.
@@ -47,10 +47,10 @@ export const COMP_CSS = `
 .quote { background: ${C.bone}; color: ${C.ink}; border-radius: 1.2mm; padding: 2mm 2.4mm; font-family: var(--f-hand); font-style: italic; font-size: 8.6pt; line-height: 1.3; text-align: center; }
 [lang="zh-Hant-TW"] .quote { font-style: normal; font-size: 8.4pt; line-height: 1.5; }
 .etitle { font-family: var(--f-display); font-size: 12pt; color: ${C.bone}; text-align: center; line-height: 1.1; }
-.etext { font-family: var(--f-hand); font-style: italic; font-size: 7.6pt; line-height: 1.32; color: #e3d8c3; text-align: center; }
-[lang="zh-Hant-TW"] .etext { font-style: normal; font-size: 7.4pt; line-height: 1.5; }
+.etext { font-family: var(--f-hand); font-style: italic; font-size: 10.5pt; line-height: 1.22; color: #e3d8c3; text-align: center; }
+[lang="zh-Hant-TW"] .etext { font-style: normal; font-size: 10.5pt; line-height: 1.38; }
 .nbcard.hidden .frame { border-color: ${C.crimson}; }
-.when { font-size: 6.4pt; line-height: 1.35; color: ${C.mist}; border-top: .2mm dashed rgba(154,148,140,.5); padding-top: 1mm; }
+.when { font-size: 10.5pt; line-height: 1.22; color: ${C.mist}; border-top: .2mm dashed rgba(154,148,140,.5); padding-top: 1mm; }
 .when b { color: ${C.bone}; font-weight: 500; }
 .keep { text-align: center; font-family: var(--f-serif); font-size: 11pt; line-height: 1.2; color: ${C.paper}; padding: 0 1mm; }
 .uses { font-size: 6.6pt; line-height: 1.4; color: ${C.paper}; }

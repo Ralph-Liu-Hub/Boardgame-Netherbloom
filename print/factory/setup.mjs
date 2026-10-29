@@ -1,4 +1,5 @@
-// The rulebook's Setting up picture for print: one A3 landscape spread (420 x 297 mm) over two facing A4 pages, the whole
+// The rulebook's Setting up picture for print: one landscape spread over two facing rulebook pages (210 x 280 mm). It is drawn
+// on a 420 x 297 mm sheet and scaled down to the page height, anchored at the gutter so the two halves still meet, the whole
 // table seen from above with every component in place, each numbered to match the setup steps (section 5) and labelled
 // with what it is, how many there are and what to do with it. Counts come from the game data, so they always match.
 import { BLEED, C, art, esc } from "./lib.mjs";
@@ -8,26 +9,26 @@ import { TOKENS } from "./tokens.mjs";
 import { LOOM } from "./loom.mjs";
 import { PW as BPW, PH as BPH, GEO as G } from "./board.mjs";
 
-const SW = 420, SH = 297, B = BLEED, GUT = SW / 2;
+const SW = 420, SH = 297, PAGE_H = 280, FIT = (PAGE_H + 2 * BLEED) / (SH + 2 * BLEED), B = BLEED, GUT = SW / 2;
 const tok = id => TOKENS.find(t => t[0] === id);
 const harsh = Object.values(LANTERN).map(l => l[2]).join(" / "), bw = Object.values(LANTERN).map(l => l[0]).join(" / ");
 
 const W = {
   en: {
-    title: "Setting up", sub: "The table set for the Child of the Last Flame with three Ferrymen. The numbers match the steps in section 5.",
+    title: "Setting up", sub: "A game set up for the Child of the Last Flame with three Ferrymen. The numbers match the steps in section 2.",
     lanterns: Object.values(LANTERN_NAMES).join(" / "),
     l: {
       1: ["River board", `Three panels, joined edge to edge: Reach I on the left (the near shore, space 0) to Reach III on the right (the Far Shore, space 12).`],
-      2: ["Bank tiles", `${TILES.map(t => t[1].length).join(" / ")} tiles for Reaches I / II / III. Shuffle each Reach's tiles apart and lay them fog side up in the square wells of spaces 2–4, 5–8 and 9–11.`],
-      3: ["First Blooms and the soul", "A Bloom on both banks of space 1, so the first step is Lit. The soul token starts on the near shore, space 0."],
+      2: ["Bank tiles", `${TILES.map(t => t[1].length).join(" / ")} tiles for Reaches I / II / III. Shuffle each Reach's tiles separately and place them fog side up in the square wells of spaces 2–4, 5–8, and 9–11.`],
+      3: ["First Blooms and the soul", "A Bloom token on each bank of space 1, so the first space is Lit. The soul token starts on the near shore, space 0."],
       4: ["Soul card and Lantern", "The chosen Soul card, face up. Fractures go on the Ledger: the third shatters the soul. The Child starts with 3 Light, the Bride with 1. The Lantern is the difficulty you choose (section 10); it has no piece."],
       5: ["Memory deck", `${CORE_IDS.length} core cards and the Soul's own 8 (the 8 Echo cards for the Open Crossing), shuffled, face down. Discard pile face up; the forgotten pile goes on the Ledger.`],
-      6: ["Mist decks", `One per Reach, face down and sideways in its Mist well, in the strip along the left bank: its ${MIST[0].length} Mist cards, Rising Water and Shade Drawn Near, and harsh Mist cards by Lantern (${harsh}).`],
-      7: ["Loom of the Fates", `The Loom board, knot discs beside it. Each knot goes on its thread's next circle: a thread snaps at 4 knots with 2–3 players, at 5 in solo or with 4. The Echo token waits beside the board.`],
-      8: ["Mantles", `The ${Object.keys(MANTLES).length} Mantle cards, face up, where everyone can reach them.`],
-      9: ["Book of Remembrance", "The chosen Soul's Book, open at Chapter I. Inscribed cards go in its wells, held by the photo corners."],
-      10: ["Ledger and supply", `The Ledger beside the Loom; every token within reach. Black Water: put only the Lantern's number (${bw} for ${Object.values(LANTERN_NAMES).join(" / ")}) in the Ledger's Black Water well and the rest back in the box.`],
-      11: ["Ferrymen", `Deal 3 cards each (4 in solo play). Each player takes a Push Through token face up and a Player Aid. The first player takes the Oar. Solo: the ${GHOST.length} Ghost cards are the Ghost's deck.`],
+      6: ["Mist decks", `One per Reach, face down and sideways in its Mist well, in the strip along the left bank: its ${MIST[0].length} basic Mist cards, Rising Water, Shade Drawn Near, and harsh Mist cards by Lantern (${harsh}).`],
+      7: ["Loom of the Fates", `The Loom board, with the knots beside it. Each knot goes on its thread's next circle: a thread is full at 4 knots with 2–3 players, and at 5 in solo play or with 4. The Echo token waits beside the board.`],
+      8: ["Mantles", `The ${Object.keys(MANTLES).length} Mantle cards, face up, within reach of all players.`],
+      9: ["Book of Remembrance", "The chosen Soul's Book, open to page I. Inscribed cards go in its slots, held by the photo corners. Its Keepsake and ending cards wait face down beside it."],
+      10: ["Ledger and supply", `The Ledger beside the Loom; every token within reach. Black Water: place only as many as the Lantern allows (${bw} for ${Object.values(LANTERN_NAMES).join(" / ")}) in the Ledger's Black Water well, and return the rest to the box.`],
+      11: ["Ferrymen", `Deal 3 cards each (4 in solo play). Each player takes a Push Through token face up and a Player Aid. The first player takes the Oar. Solo: shuffle the ${GHOST.length} Ghost cards into the Ghost deck.`],
     },
     cap: { deck: "Deck", discard: "Discard", forgotten: "Forgotten", hand: "Hand", push: "Push Through", oar: "Oar", aid: "Player Aid", ghost: "Solo: Ghost deck",
       reach: r => `Reach ${["I", "II", "III"][r]}`, near: "Near Shore", far: "Far Shore", fracture: "Fractures", light: "3 Light" },
@@ -35,18 +36,18 @@ const W = {
       "nb-tok-hold": "Hold Fast", "nb-tok-shield": "Shield", "nb-tok-resign": "Resignation", "nb-echo": "Echo" },
   },
   zh: {
-    title: "遊戲準備", sub: "以「最後火光的孩子」與三位擺渡人擺好的桌面。圖中編號與第5節的步驟相對應。",
+    title: "遊戲準備", sub: "以「最後火光的孩子」與三位擺渡人擺好的桌面。圖中編號與第2節的步驟相對應。",
     l: {
       1: ["河流圖板", "三塊圖板邊對邊拼接：第一河段在左（此岸，第0格），第三河段在右（彼岸，第12格）。"],
       2: ["河岸板塊", `第一／二／三河段各${TILES.map(t => t[1].length).join("／")}塊。將各河段的板塊分開洗混，霧面朝上放置到第2–4、5–8、9–11格的方槽中。`],
-      3: ["最初的花與亡魂", "在第1格的兩個河岸各放置1朵花，讓第一步就是照亮的。將亡魂標記放置到此岸（第0格）。"],
-      4: ["亡魂牌與燈籠", "所選亡魂牌面朝上。裂痕放在渡帳上：第三道裂痕會讓亡魂破碎。孩子起始擁有3點光，新娘起始擁有1點光。燈籠是你們選擇的難度（第10節），沒有配件。"],
-      5: ["記憶牌庫", `${CORE_IDS.length}張基本記憶牌加上亡魂的8張專屬牌（無名渡河用8張迴響牌），洗混後面朝下。棄牌堆面朝上；遺忘堆放在渡帳上。`],
+      3: ["最初的花與亡魂", "在第1格的兩個河岸各放置1個花指示物，讓第一步就是照亮的。將亡魂標記放置到此岸（第0格）。"],
+      4: ["亡魂牌與燈籠", "所選亡魂牌面朝上，並依第2節的表格完成該亡魂的特殊準備（例如「最後火光的孩子」起始擁有3點光）。燈籠是你們選擇的難度（見第10節），沒有配件。"],
+      5: ["記憶牌庫", `${CORE_IDS.length}張基本記憶牌加上亡魂的8張專屬牌（「無名渡河」用8張迴響牌），洗混後面朝下。棄牌堆面朝上；遺忘堆放在渡帳上。`],
       6: ["迷霧牌庫", `每個河段一副，面朝下橫放到左岸外側長條區的迷霧牌槽：該河段的${MIST[0].length}張迷霧牌、「${ZH_MIST["Rising Water"][0]}」與「${ZH_MIST["Shade Drawn Near"][0]}」，以及依燈籠加入的凶霧（${harsh}）。`],
-      7: ["命運織機", "織機圖板，結圓片放在一旁。每個結放在其絲線的下一個圓圈上：2–3人時打滿4個結便斷裂，單人或4人時為5個。迴響標記放在圖板旁備用。"],
+      7: ["命運織機", "織機圖板，結指示物放在一旁。每個結放在其絲線的下一個圓圈上：2–3人時打滿4個結便斷裂，單人或4人時為5個。迴響標記放在圖板旁備用。"],
       8: ["稱號", `${Object.keys(MANTLES).length}張稱號牌面朝上，放在每個人都拿得到的地方。`],
-      9: ["憶念之書", "所選亡魂的那本書，翻開到第一章。銘刻的牌放進牌槽，用相角固定。"],
-      10: ["渡帳與供應區", `渡帳放在織機旁；所有標記放在伸手可及處。黑水只取燈籠規定的數量（${Object.entries(LANTERN).map(([l, v]) => `${ZH_LANTERNS[l]}${v[0]}`).join("／")}）放進渡帳的黑水供應區，其餘放回盒中。`],
+      9: ["憶念之書", "所選亡魂的那本書，翻開到第一頁。銘刻的牌放進牌槽，用相角固定。信物牌與結局牌面朝下放在書旁。"],
+      10: ["渡帳與供應區", `渡帳放在織機旁；所有指示物與標記放在伸手可及處。黑水只取燈籠規定的數量（${Object.entries(LANTERN).map(([l, v]) => `${ZH_LANTERNS[l]}${v[0]}`).join("／")}）放進渡帳的黑水供應區，其餘放回盒中。`],
       11: ["擺渡人", `每人發3張牌（單人4張）。每人拿1個破浪標記（面朝上）與1張玩家輔助卡。起始玩家拿起船槳。單人：${GHOST.length}張幽靈牌組成幽靈牌庫。`],
     },
     cap: { deck: "牌庫", discard: "棄牌堆", forgotten: "遺忘堆", hand: "手牌", push: "破浪", oar: "船槳", aid: "玩家輔助卡", ghost: "單人：幽靈牌庫",
@@ -156,7 +157,9 @@ function spread(lang) {
 
 export const SPREAD_CSS = lang => `
 @page spread { margin: 0; @bottom-center { content: none; } }
-.spread { page: spread; position: relative; width: ${GUT + 2 * B}mm; height: ${SH + 2 * B}mm; overflow: hidden; break-after: page; background: ${C.ink}; }
+.spread { page: spread; position: relative; width: ${GUT + 2 * B}mm; height: ${PAGE_H + 2 * B}mm; overflow: hidden; break-after: page; background: radial-gradient(circle at 50% 50%, #2a1d15, #120d0a); }
+.spread .sz { position: absolute; top: 0; width: ${GUT + 2 * B}mm; height: ${SH + 2 * B}mm; transform: scale(${FIT}); }
+.spread .sz.l { right: 0; transform-origin: 100% 0; } .spread .sz.r { left: 0; transform-origin: 0 0; }
 .spread svg.ss { position: absolute; inset: 0; width: 100%; height: 100%; }
 .spread .spn { position: absolute; left: 0; right: 0; bottom: ${B + 8}mm; text-align: center; font-family: ${lang === "zh" ? `"Noto Serif TC", serif` : `"IM Fell English", Georgia, serif`}; font-size: 10.5pt; color: #cfc4b0; }
 .ss .sc { font-family: ${lang === "zh" ? `"Noto Serif TC", serif` : `"IBM Plex Mono", monospace`}; font-size: ${lang === "zh" ? 2.5 : 2.1}px; letter-spacing: ${lang === "zh" ? .05 : .12}px; fill: #cfc4b0; text-transform: uppercase; }
@@ -185,6 +188,6 @@ export function setupSpread(lang) {
   }).join("");
   // the spread is pages 2 and 3 of the rulebook: they carry their page numbers like every other page
   const pn = n => `<div class="spn">${n}</div>`;
-  return `<section class="spread">${svg(0)}<div class="hd"><b>${L.title}</b><span>${esc(L.sub)}</span></div>${labels(0)}${pn(2)}</section>
-    <section class="spread">${svg(GUT)}${labels(GUT)}${pn(3)}</section>`;
+  return `<section class="spread"><div class="sz l">${svg(0)}<div class="hd"><b>${L.title}</b><span>${esc(L.sub)}</span></div>${labels(0)}</div>${pn(2)}</section>
+    <section class="spread"><div class="sz r">${svg(GUT)}${labels(GUT)}</div>${pn(3)}</section>`;
 }

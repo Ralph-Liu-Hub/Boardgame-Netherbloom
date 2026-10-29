@@ -1,4 +1,4 @@
-// One Book of Remembrance per Soul: an 8-page A4 saddle-stitched booklet (210 x 297 mm, 3 mm bleed).
+// One Book of Remembrance per Soul: an 8-page saddle-stitched booklet (210 x 280 mm, 3 mm bleed, short enough to lie flat in the box base).
 //   1 cover · 2 keeping the Book · 3 the Soul's tale · 4-6 one page per Reach, four 63 x 88 mm card wells each · 7 the Far Shore · 8 back
 // The wells hold inscribed cards by four clear self-adhesive photo corners stuck on the printed corner marks (48 per Book).
 // Not die-cut slits: in the saddle stitch page 4 backs onto page 3, so slits for its wells would cut through page 3's text.
@@ -11,7 +11,7 @@ import { SOULS, BOOK_FRAMES, CARDS, REACH_NAMES, PAIR_SLOTS, PAIR_REWARDS, opsTe
 import { ZH_SOULS, ZH_BOOK_FRAMES, ZH_SLOTS, ZH_REACHES, ZH_BANDS, zhOpsText } from "../../web/public/assets/zh.js";
 import { STORIES } from "./stories.mjs";
 
-const PW = 210 + 2 * BLEED, PH = 297 + 2 * BLEED;
+const PW = 210 + 2 * BLEED, PH = 280 + 2 * BLEED;
 const WELL_W = 66, WELL_H = 91, GAP = 14;
 const ORDER = ["child", "garland", "king", "bride", "open"];
 const ART = { open: "nameless", child: "child", garland: "garland", king: "king", bride: "bride" };
@@ -72,7 +72,7 @@ p { font-family: var(--f-serif); font-size: 11pt; line-height: 1.55; margin: 0 0
 .pairs .box { grid-row: span 2; margin-top: .4mm; }
 .pairs b { font-family: var(--f-mono); font-weight: 400; font-size: 8.5pt; letter-spacing: .12em; text-transform: uppercase; color: #8a6a3e; }
 .box { display: inline-block; width: 4mm; height: 4mm; border: .3mm solid #8a6a3e; vertical-align: -.6mm; margin-right: 1.5mm; }
-.rules p { font-size: 10pt; }
+.rules p { font-size: 10pt; line-height: 1.45; margin-bottom: 2mm; }
 .epi { margin: -1mm 10mm 5mm; font-size: 12pt; }
 .tale p { font-size: 12.5pt; line-height: 1.6; text-align: justify; hyphens: auto; margin-bottom: 4mm; }
 [lang="zh-Hant-TW"] .tale p { font-size: 12pt; line-height: 1.9; text-indent: 2em; }
@@ -123,7 +123,6 @@ function soulBook(lang, k) {
     <p class="ferry">${esc(st.ferry)}</p>
     <p class="rule"><b>${w.twist}:</b> ${esc(s.twist)}</p>
     ${KEY[k] ? `<p class="rule"><b>${w.key}:</b> <i>${esc(w.band(KEY[k]))}</i></p>` : ""}
-    <div class="plate">${artImg(PAINT[k][2], "50% 40%")}</div>
     <h3>${w.keeping}</h3><div class="rules">${bookParas.map(p => `<p>${p}</p>`).join("")}</div>
     <div class="note"><p style="margin:0">${w.tuck}</p></div>${folio(3, w, k)}`, PAINT[k][0], "50% 50%"));
   w.frames.forEach(([title, frame], r) => {
@@ -135,12 +134,15 @@ function soulBook(lang, k) {
     const pairs = PAIR_SLOTS.map(([a, b], i) => `<div><span class="box"></span><b>${w.slot(a)}${w.plus}${w.slot(b)}</b><span>${esc(w.ops(PAIR_REWARDS[r][i]))}</span></div>`).join("");
     pages.push(page(`<div class="eyebrow">${w.reach(r)}</div><h2>${esc(title)}</h2><div class="wells">${wells}</div>
       <div class="pairs">${pairs}</div>
-      <div class="foot" style="margin-top:4mm"><span><span class="box"></span>${w.blessing}</span><span>${w.keepsakes} <span class="box"></span><span class="box"></span><span class="box"></span></span></div>`, PAINT[k][r]));
+      <div class="foot" style="margin-top:4mm"><span><span class="box"></span>${w.blessing}</span>${KEY[k] ? `<span>${w.keepsakes} <span class="box"></span><span class="box"></span><span class="box"></span></span>` : ""}</div>`, PAINT[k][r]));
   });
-  const end = paras(bookPart(w.book, 1));
+  // the ending: reading the Book first; then, for a named Soul, the ending card (the Key Memory boxes, then how to pick it)
+  const endHtml = bookPart(w.book, 1).replace(/<svg[^>]*>.*?<\/svg>/gs, "");
+  const ps = [...endHtml.matchAll(/<p>([\s\S]*?)<\/p>/g)].map(m => m[1]), lis = [...endHtml.matchAll(/<li>([\s\S]*?)<\/li>/g)].map(m => m[1]);
   pages.push(page(`<div class="eyebrow">${w.far}</div><h2>${w.far}</h2><p class="lore">${esc(w.endLore)}</p>
-    ${KEY[k] ? `<div class="note">${end.slice(1, 4).map((p, i) => `<p style="margin:1.5mm 0"><span class="box"></span>${p}</p>`).join("")}</div>` : ""}
-    <p style="margin-top:6mm">${end[end.length - 1]}</p>
+    <p>${ps[0]}</p>
+    ${KEY[k] ? `<p>${ps[1]}</p><div class="note">${lis.map(p => `<p style="margin:1.5mm 0"><span class="box"></span>${p}</p>`).join("")}</div>
+    ${ps.slice(2).map(p => `<p>${p}</p>`).join("")}` : ""}
     <div class="sign">${w.sign.map(t => `<span>${t}</span>`).join("")}</div>${folio(7, w, k)}`, PAINT[k][2], "50% 60%"));
   pages.push(`<div class="dark">${icon("nb-bloom", C.crimson)}<div class="t">NETHERBLOOM</div>${lang === "zh" ? `<div style="font-family:'Noto Serif TC',serif;letter-spacing:.3em">《彼岸花渡》</div>` : ""}<small>RALPH LAUXIE</small></div>`);
   // page numbers, bottom centre, on every page but the two covers

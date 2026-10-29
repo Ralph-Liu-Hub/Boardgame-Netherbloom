@@ -17,7 +17,10 @@ function doc(lang, tag, title, book, aid) {
   const body = book.map(s => `<h2>${s.title}</h2>\n${wordish(noIcons(s.body))}`).join("\n")
     .replace(/<div class="setupfig"[^>]*><\/div>/, img(tag, "setup0", 6.3) + img(tag, "setup1", 6.3))
     .replace(/<div class="rfig" data-fig="(\w+)"><\/div>/g, (_, id) => img(tag, id, WIDE.has(id) ? 6.3 : 5.2))
-    .replace(/<p class="lore">(.*?)<\/p>/g, "<p><i>$1</i></p>");
+    .replace(/<p class="lore">(.*?)<\/p>/g, "<p><i>$1</i></p>")
+    // Word drops an ordered list's I, II, III numbering, so those items become numbered paragraphs.
+    .replace(/<ol type="I">(.*?)<\/ol>/gs, (_, items) => [...items.matchAll(/<li>(.*?)<\/li>/gs)]
+      .map((m, i) => `<p style="margin-left:0.9in">${["I", "II", "III", "IV", "V", "VI"][i]}. ${m[1]}</p>`).join(""));
   return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><title>${title}</title></head><body>
 
 ${body}

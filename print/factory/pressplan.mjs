@@ -28,7 +28,7 @@ const T = (en, zh) => ({ en, zh });
 // instructions for the manual. A page whose label starts with "DIE" or "TRIM" is a cutting guide and is never printed.
 export function pressPlan(lang) {
   const dk = decks(lang), backs = cardBacks(lang);
-  const backPage = { "cards-memory": 1, "cards-mist": 2, "cards-ghost": 3, "cards-soul": 4, "cards-mantle": 5 };
+  const backPage = { "cards-memory": 1, "cards-mist": 2, "cards-ghost": 3, "cards-soul": 4, "cards-mantle": 5, "cards-keepsake": 6, "cards-ending": 7 };
   const card = T("310 g/m² black-core card, linen finish, matte", "310 g/m² 黑芯卡紙，布紋，霧面");
   const board = T("Print on 157 g/m² art paper, mount on 2 mm greyboard, matte laminate", "印於 157 g/m² 銅版紙，裱 2 mm 灰紙板，上霧膜");
   const lidW = LID.L + 2 * (LID.D + TURN), baseW = BASE.L + 2 * (BASE.D + TURN);
@@ -67,25 +67,25 @@ export function pressPlan(lang) {
     qty: T("Each page once: 3 panels", "每頁各 1 塊：共 3 塊"),
   });
   for (const [name, title] of [["loom/loom-of-the-fates.pdf", T("Loom of the Fates board", "命運織機圖板")], ["ledger/the-ledger.pdf", T("Ledger board", "渡帳圖板")]]) files.push({
-    path: name, trim: [297, 210], sides: "4/0",
+    path: name, trim: [285, 210], sides: "4/0",
     labels: [`PRINT · ${title.en}`, "TRIM LINE · do not print · register to page 1"],
-    what: T(`${title.en}, 297 × 210 mm`, `${title.zh}，297 × 210 mm`),
+    what: T(`${title.en}, 285 × 210 mm`, `${title.zh}，285 × 210 mm`),
     pair: T("Page 1 print, one side. Page 2 is its trim line (not printed).", "第 1 頁單面印刷。第 2 頁為裁切線（不印）。"), turn: T("—", "—"),
     stock: board, finish: T("Trim with page 2, 3 mm round corners. Back of the greyboard: plain black paper", "依第 2 頁裁切，圓角 3 mm。灰紙板背面裱黑色素紙"),
     qty: T("1", "1"),
   });
   for (const k of ["child", "garland", "king", "bride", "open"]) files.push({
-    path: `books/book-of-remembrance-${k}.pdf`, trim: [210, 297], sides: "4/4",
+    path: `books/book-of-remembrance-${k}.pdf`, trim: [210, 280], sides: "4/4",
     labels: Array.from({ length: 8 }, (_, i) => `BOOK PAGE ${i + 1} of 8 · reading order`),
-    what: T("8 A4 pages in reading order", "8 頁 A4，依閱讀順序"),
+    what: T("8 pages of 210 × 280 mm in reading order", "8 頁 210 × 280 mm，依閱讀順序"),
     pair: T("Sheet 1 (cover): pages 8 | 1 outside, 2 | 7 inside. Sheet 2: pages 6 | 3 outside, 4 | 5 inside.", "第 1 張（封面）：外側 8 | 1、內側 2 | 7。第 2 張：外側 6 | 3、內側 4 | 5。"),
     turn: TURN_HOW.book, stock: T("Cover sheet 250 g/m², inner sheet 157 g/m², matte", "封面 250 g/m²，內頁 157 g/m²，霧面"),
     finish: T("Saddle-stitch (2 staples), then 48 clear photo corners on the printed marks of pages 4–6", "騎馬釘（2 針），再於第 4–6 頁的角標貼上 48 個透明相角"),
     qty: T("1 of each Soul's Book: 5 Books", "每位亡魂 1 本：共 5 本"),
   });
   files.push({
-    path: "rulebook/rulebook.pdf", trim: [210, 297], sides: "4/4", labelsAuto: "RULEBOOK PAGE {n} of {N} · reading order",
-    what: T("The rulebook, A4, pages in reading order (a multiple of 4)", "規則書，A4，依閱讀順序（4 的倍數）"),
+    path: "rulebook/rulebook.pdf", trim: [210, 280], sides: "4/4", labelsAuto: "RULEBOOK PAGE {n} of {N} · reading order",
+    what: T("The rulebook, 210 × 280 mm, pages in reading order (a multiple of 4)", "規則書，210 × 280 mm，依閱讀順序（4 的倍數）"),
     pair: T("Pages 2–3 are the two halves of one picture (the set-up spread): keep them facing.", "第 2–3 頁為同一張圖（遊戲準備跨頁）的左右兩半：須相對。"),
     turn: TURN_HOW.book, stock: T("157 g/m² matte art paper (cover may be 250 g/m²)", "157 g/m² 霧面銅版紙（封面可用 250 g/m²）"),
     finish: T("Saddle-stitch (2 staples)", "騎馬釘（2 針）"), qty: T("1", "1"),
