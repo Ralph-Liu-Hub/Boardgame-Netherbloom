@@ -5,5 +5,6 @@ a245477969555b897523000cec9bb0147e41a6154e4e1be43a3185a6ddc5ce92  netherbloom-fa
 483ba9f268826def929e55b9a44909b3f87f09a00787a540717ba79f58c40085  netherbloom-factory-zh-TW-V3.2-part2-books-box-rulebook.zip
 1249229cb263972f13f18b7f885d751fa95d7c5027814ac12484ab4c7c07eca6  netherbloom-screentop-en-V3.0.zip
 8bb7930d55dc349f81cece798d429bc8ecb88b1cd6fbd26da631b7b32552f0e5  netherbloom-v3.1-for-drive.zip
+f93e9d3b2c5f211ae1659e6ae8ad0cc3753b0e02f5acd47bf6ac4b66c9e5a3b4  netherbloom-v3.2-for-drive.zip
 2393279a28c7ce9acff64e7d1ba2663430fb86088750048da53abd6510f36e33  netherbloom-zh-TW-V3.1-river-board-update.zip
 674383e26758a1a691265284705ac646026ced62bad563fa4ca37cc58f9de17b  netherbloom-zh-TW-V3.2-rulebook.zip

@@ -153,3 +153,5 @@ export async function build(lang, dir, { png }) {
   for (const k of ORDER)
     await render(join(dir, `book-of-remembrance-${k}`), doc({ lang, title: `${W[lang].title} · ${W[lang].soul(k).name}`, w: PW, h: PH, css: CSS, pages: soulBook(lang, k) }), { w: PW, h: PH, png });
 }
+// The Book's words and pictures, for the editable Word edition (print/docx/books.mjs).
+export const BOOK_PARTS = { W, ORDER, ART, PAINT, KEY, leads, bookPart, paras };

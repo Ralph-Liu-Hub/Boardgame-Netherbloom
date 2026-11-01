@@ -4,6 +4,7 @@ Click a file, then **Download** (or "View raw"). Each zip opens on its own.
 
 | File | What is in it |
 |---|---|
+| `netherbloom-v3.2-for-drive.zip` | For Google Drive, in folders named like the Drive folders: the five Books of Remembrance as editable Word files and illustrated PDFs (03 Story & Souls), the Keepsake and ending card files (02), and the 正體中文 Print & Play V3.2 (02), English and 正體中文 |
 | `netherbloom-v3.1-for-drive.zip` | Illustrated Rulebook V3.1 (PDF + Word, page numbers on every page) and Player Aid, English and 正體中文, in folders named like the Google Drive folders; Markdown rulebooks; zh-TW Print & Play; visual kit |
 | `netherbloom-factory-en-V3.2-part1-cards-boards-tokens.zip` | English factory files V3.2: MANUAL, cards (now with the 36 Keepsake and 19 ending cards and their two backs), bank tiles, Loom and Ledger (285 × 210 mm), river board, and every token as single CMYK JPGs (`tokens/jpg/25mm/`, `tokens/jpg/18mm/`) |
 | `netherbloom-factory-en-V3.2-part2-books-box-rulebook.zip` | English factory files V3.2: Books of Remembrance, box, rulebook and Player Aid |
