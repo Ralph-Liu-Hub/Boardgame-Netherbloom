@@ -126,6 +126,7 @@ class Config:
         self.child_harsh = False     # the Child also gets harsh Mist (V3.2: she never does)
         self.child_shield = "reach"  # the Child ignores her first Fracture each "reach", once per "game", or "none"
         self.child_drift = False     # the Child can drift (V3.2: she never does)
+        self.blessing_trigger = "inscribed"  # with book_mode "blessing": a page's memories "inscribed" or "lit"
         self.replace_memories = False  # V2: a new memory may replace an unlit, non-key one (the old one is forgotten)
         self.burn_inscribe = False   # V2: the doubled card of a Burn may be inscribed instead of forgotten
         self.facedown_light = False  # V2: a face-down play with nowhere to root gives 1 Light
@@ -473,6 +474,11 @@ class State:
         self.order.append((self.reach, card.slot))
         self.stats["inscribed"] += 1
         self.note(f"  inscribed {card.cid} ({card.slot}): {card.band}")
+        if (self.cfg.book_mode == "blessing" and self.cfg.blessing_trigger == "inscribed"
+                and not self.blessed[self.reach] and len(page) >= self.cfg.blessing_at):
+            self.blessed[self.reach] = True
+            self.stats["blessings"] += 1
+            self.blessing(chooser)
         return True
 
     def commission_need(self):
@@ -511,6 +517,12 @@ class State:
         self.stats["lit"] = self.stats.get("lit", 0) + 1
         self.stats["light_on_memories"] = self.stats.get("light_on_memories", 0) + cost
         self.note(f"  lights {CARD[cid].cid}")
+        if self.cfg.book_mode == "blessing" and self.cfg.blessing_trigger == "lit":
+            r = next((i for i in range(3) if cid in self.book[i].values()), None)
+            if r is not None and not self.blessed[r] and sum(c in self.lit_mem for c in self.book[r].values()) >= self.cfg.blessing_at:
+                self.blessed[r] = True
+                self.stats["blessings"] += 1
+                self.blessing(None)
 
     def spring_pick(self, cands):
         mine = self.comm[self.cur] if self.comm else None
@@ -676,6 +688,7 @@ class State:
             cost = max(0, self.cfg.light_memory_cost - 1)   # one Light less than usual (V2: free at 1 Light)
             if cid is not None and self.light >= cost and not self.dim:
                 self.light_one(cid, cost)
+                self.stats["vigil_lights"] = self.stats.get("vigil_lights", 0) + 1
         elif kind == "cross":
             # V2 Lightless Crossing: step forward even into the dark or between two Shades (never into Black Water)
             sp = self.soul + 1
@@ -919,10 +932,6 @@ class State:
                 if filled == self.cfg.full_page_at:
                     self.stats["blessings"] += 1
                     self.do_ops([(op,) if isinstance(op, str) else op for op in self.cfg.full_page], chooser)
-            elif self.cfg.book_mode == "blessing" and not self.blessed[self.reach] and filled >= self.cfg.blessing_at:
-                self.blessed[self.reach] = True
-                self.stats["blessings"] += 1
-                self.blessing(chooser)
             if filled == 4:
                 self.stats["pages_full"] += 1
             return resonated
