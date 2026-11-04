@@ -673,8 +673,9 @@ class State:
         elif kind == "vigil" and self.cfg.vigil_mode == "kindle":
             # V2 Vigil: light one memory for 1 Light
             cid = chooser.light_target(self) if hasattr(chooser, "light_target") else None
-            if cid is not None and self.light >= 1 and not self.dim:
-                self.light_one(cid, 1)
+            cost = max(0, self.cfg.light_memory_cost - 1)   # one Light less than usual (V2: free at 1 Light)
+            if cid is not None and self.light >= cost and not self.dim:
+                self.light_one(cid, cost)
         elif kind == "cross":
             # V2 Lightless Crossing: step forward even into the dark or between two Shades (never into Black Water)
             sp = self.soul + 1
