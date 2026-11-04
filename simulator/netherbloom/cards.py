@@ -233,6 +233,27 @@ TILESETS = {
         1: ([4, 5, 6, 7], [FERTILE] * 3 + [STONY] + [SPRING] + [GRAVE] + [FLOWER] + [FROST]),
         2: ([8, 9, 10, 11, 12], [FERTILE] * 3 + [STONY] * 2 + [SPRING] + [GRAVE] * 2 + [EMBER] + [ECHO_ROCK]),
     },
+    # Layout comparison (11/4): V2 tiles with a single Grave in Reach 3
+    ("345", "v2b"): {
+        0: ([2, 3], [FERTILE] * 2 + [STONY] + [SPRING]),
+        1: ([4, 5, 6, 7], [FERTILE] * 3 + [STONY] + [SPRING] + [GRAVE] + [FLOWER] + [FROST]),
+        2: ([8, 9, 10, 11, 12], [FERTILE] * 4 + [STONY] * 2 + [SPRING] + [GRAVE] + [EMBER] + [ECHO_ROCK]),
+    },
+    ("444", "v2b"): {
+        0: ([2, 3, 4], [FERTILE] * 4 + [STONY] + [SPRING]),
+        1: ([5, 6, 7, 8], [FERTILE] * 3 + [STONY] + [SPRING] + [GRAVE] + [FLOWER] + [FROST]),
+        2: ([9, 10, 11, 12], [FERTILE] * 3 + [STONY] + [SPRING] + [GRAVE] + [EMBER] + [ECHO_ROCK]),
+    },
+    ("445", "v2b"): {
+        0: ([2, 3, 4], [FERTILE] * 4 + [STONY] + [SPRING]),
+        1: ([5, 6, 7, 8], [FERTILE] * 3 + [STONY] + [SPRING] + [GRAVE] + [FLOWER] + [FROST]),
+        2: ([9, 10, 11, 12, 13], [FERTILE] * 4 + [STONY] * 2 + [SPRING] + [GRAVE] + [EMBER] + [ECHO_ROCK]),
+    },
+    ("443", "v2b"): {
+        0: ([2, 3, 4], [FERTILE] * 4 + [STONY] + [SPRING]),
+        1: ([5, 6, 7, 8], [FERTILE] * 3 + [STONY] + [SPRING] + [GRAVE] + [FLOWER] + [FROST]),
+        2: ([9, 10, 11], [FERTILE] * 2 + [STONY] + [SPRING] + [GRAVE] + [ECHO_ROCK]),
+    },
     ("443", "v2"): {
         0: ([2, 3, 4], [FERTILE] * 3 + [STONY] + [SPRING] + [FLOWER]),
         1: ([5, 6, 7, 8], [FERTILE] * 3 + [STONY] + [SPRING] + [GRAVE] + [FROST] + [EMBER]),

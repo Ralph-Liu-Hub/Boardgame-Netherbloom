@@ -13,6 +13,8 @@ from .cards import OBS, ACC, OBL, FERTILE, STONY, MEMORY, GRAVE, FLOWER, FROST, 
 LAYOUTS = {
     "443": {"far": 12, "bounds": [(1, 4), (5, 8), (9, 11)]},
     "345": {"far": 13, "bounds": [(1, 3), (4, 7), (8, 12)]},
+    "444": {"far": 13, "bounds": [(1, 4), (5, 8), (9, 12)]},
+    "445": {"far": 14, "bounds": [(1, 4), (5, 8), (9, 13)]},
 }
 FAR = 12            # the Far Shore
 LAST = 11           # the last river space
