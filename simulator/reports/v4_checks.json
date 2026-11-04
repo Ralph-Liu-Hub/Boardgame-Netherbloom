@@ -1,0 +1,182 @@
+{
+ "Garland, no special rule": {
+  "4": {
+   "win": 0.415,
+   "nameless": 0.025
+  },
+  "3": {
+   "win": 0.455,
+   "nameless": 0.015
+  },
+  "2": {
+   "win": 0.44,
+   "nameless": 0.165
+  },
+  "1": {
+   "win": 0.565,
+   "nameless": 0.02
+  }
+ },
+ "Garland, give a flower": {
+  "4": {
+   "win": 0.375,
+   "nameless": 0.035
+  },
+  "3": {
+   "win": 0.41,
+   "nameless": 0.01
+  },
+  "2": {
+   "win": 0.505,
+   "nameless": 0.115
+  },
+  "1": {
+   "win": 0.565,
+   "nameless": 0.02
+  }
+ },
+ "Crossing: no Fracture|child": {
+  "4": {
+   "win": 0.59,
+   "nameless": 0.01
+  },
+  "3": {
+   "win": 0.62,
+   "nameless": 0.01
+  },
+  "2": {
+   "win": 0.67,
+   "nameless": 0.145
+  },
+  "1": {
+   "win": 0.65,
+   "nameless": 0.015
+  }
+ },
+ "Crossing: no Fracture|king": {
+  "4": {
+   "win": 0.5,
+   "nameless": 0.02
+  },
+  "3": {
+   "win": 0.525,
+   "nameless": 0.005
+  },
+  "2": {
+   "win": 0.59,
+   "nameless": 0.085
+  },
+  "1": {
+   "win": 0.525,
+   "nameless": 0.005
+  }
+ },
+ "Crossing: no Fracture|bride": {
+  "4": {
+   "win": 0.495,
+   "nameless": 0.015
+  },
+  "3": {
+   "win": 0.445,
+   "nameless": 0.0
+  },
+  "2": {
+   "win": 0.645,
+   "nameless": 0.075
+  },
+  "1": {
+   "win": 0.535,
+   "nameless": 0.015
+  }
+ },
+ "Crossing: no Fracture|open": {
+  "4": {
+   "win": 0.385,
+   "nameless": 0.025
+  },
+  "3": {
+   "win": 0.515,
+   "nameless": 0.02
+  },
+  "2": {
+   "win": 0.605,
+   "nameless": 0.105
+  },
+  "1": {
+   "win": 0.56,
+   "nameless": 0.025
+  }
+ },
+ "Crossing into the dark: 1 Fracture|child": {
+  "4": {
+   "win": 0.595,
+   "nameless": 0.02
+  },
+  "3": {
+   "win": 0.655,
+   "nameless": 0.01
+  },
+  "2": {
+   "win": 0.675,
+   "nameless": 0.13
+  },
+  "1": {
+   "win": 0.635,
+   "nameless": 0.015
+  }
+ },
+ "Crossing into the dark: 1 Fracture|king": {
+  "4": {
+   "win": 0.525,
+   "nameless": 0.01
+  },
+  "3": {
+   "win": 0.54,
+   "nameless": 0.0
+  },
+  "2": {
+   "win": 0.56,
+   "nameless": 0.075
+  },
+  "1": {
+   "win": 0.515,
+   "nameless": 0.01
+  }
+ },
+ "Crossing into the dark: 1 Fracture|bride": {
+  "4": {
+   "win": 0.49,
+   "nameless": 0.005
+  },
+  "3": {
+   "win": 0.415,
+   "nameless": 0.0
+  },
+  "2": {
+   "win": 0.58,
+   "nameless": 0.055
+  },
+  "1": {
+   "win": 0.515,
+   "nameless": 0.015
+  }
+ },
+ "Crossing into the dark: 1 Fracture|open": {
+  "4": {
+   "win": 0.43,
+   "nameless": 0.02
+  },
+  "3": {
+   "win": 0.58,
+   "nameless": 0.015
+  },
+  "2": {
+   "win": 0.585,
+   "nameless": 0.11
+  },
+  "1": {
+   "win": 0.55,
+   "nameless": 0.02
+  }
+ }
+}

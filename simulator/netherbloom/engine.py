@@ -127,6 +127,8 @@ class Config:
         self.child_shield = "reach"  # the Child ignores her first Fracture each "reach", once per "game", or "none"
         self.child_drift = False     # the Child can drift (V3.2: she never does)
         self.blessing_trigger = "inscribed"  # with book_mode "blessing": a page's memories "inscribed" or "lit"
+        self.garland_gift = False    # V4.0 Garland Girl "give a flower": once per Reach, pass 1 card face down to another player
+        self.cross_fracture = False  # Lightless Crossing into a dark space also costs 1 Fracture (as drifting does)
         self.replace_memories = False  # V2: a new memory may replace an unlit, non-key one (the old one is forgotten)
         self.burn_inscribe = False   # V2: the doubled card of a Burn may be inscribed instead of forgotten
         self.facedown_light = False  # V2: a face-down play with nowhere to root gives 1 Light
@@ -167,7 +169,7 @@ class State:
         "warden_ready", "hold", "shield_until", "weaver_used", "bringer_used", "breaker_used",
         "bride_pulled", "child_shield", "ghost", "result", "cause", "log", "stats", "snaps", "last_mist",
         "lit_mem", "order", "comm", "comm_deck", "redrawn", "frost", "dim", "blind", "cold_until", "thunder",
-        "gaze", "need_plus", "breaker_ready", "harsh_pool", "spare_tiles",
+        "gaze", "need_plus", "breaker_ready", "harsh_pool", "spare_tiles", "gifted",
     )
 
     # ------------------------------------------------------------- setup
@@ -266,6 +268,7 @@ class State:
         s.need_plus = 0
         s.breaker_ready = True
         s.spare_tiles = None
+        s.gifted = [False, False, False]
         s.comm, s.comm_deck, s.redrawn = [], [], [False] * cfg.players
         if cfg.commissions:
             ks = list(range(len(C.COMMISSIONS[cfg.soul])))
@@ -312,6 +315,7 @@ class State:
         s.dim, s.blind, s.cold_until, s.thunder = self.dim, self.blind, self.cold_until, self.thunder
         s.gaze, s.need_plus, s.breaker_ready = self.gaze, self.need_plus, self.breaker_ready
         s.harsh_pool, s.spare_tiles = self.harsh_pool, self.spare_tiles
+        s.gifted = list(self.gifted)
         return s
 
     # ------------------------------------------------------------- helpers
@@ -694,7 +698,10 @@ class State:
             sp = self.soul + 1
             if sp >= FAR or not self.flooded[sp]:
                 self.stats["crossings"] = self.stats.get("crossings", 0) + 1
+                dark = sp < FAR and not self.lit(sp)
                 self.move_soul(1, light=False)
+                if dark and self.cfg.cross_fracture:
+                    self.add_fracture()
         elif kind == "vigil":
             d = self.mist[self.reach]
             top = d[-3:]  # the player puts them back in any order; the bot puts the mildest first
