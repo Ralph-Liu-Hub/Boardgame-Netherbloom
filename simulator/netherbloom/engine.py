@@ -13,6 +13,8 @@ from .cards import OBS, ACC, OBL, FERTILE, STONY, MEMORY, GRAVE, FLOWER, FROST, 
 LAYOUTS = {
     "443": {"far": 12, "bounds": [(1, 4), (5, 8), (9, 11)]},
     "345": {"far": 13, "bounds": [(1, 3), (4, 7), (8, 12)]},
+    "444": {"far": 13, "bounds": [(1, 4), (5, 8), (9, 12)]},
+    "445": {"far": 14, "bounds": [(1, 4), (5, 8), (9, 13)]},
 }
 FAR = 12            # the Far Shore
 LAST = 11           # the last river space
@@ -118,6 +120,7 @@ class Config:
         self.light_memory_cost = 0   # V2: Light to light one inscribed memory (0: lighting is off)
         self.commissions = False     # V2: secret commission cards checked at the Far Shore
         self.commission_need = None  # override the cards.COMMISSION_NEED table
+        self.commission_redraw = True  # each player may redraw their commission once
         self.replace_memories = False  # V2: a new memory may replace an unlit, non-key one (the old one is forgotten)
         self.burn_inscribe = False   # V2: the doubled card of a Burn may be inscribed instead of forgotten
         self.facedown_light = False  # V2: a face-down play with nowhere to root gives 1 Light
