@@ -122,6 +122,10 @@ class Config:
         self.commission_need = None  # override the cards.COMMISSION_NEED table
         self.commission_redraw = True  # each player may redraw their commission once
         self.graves_r3 = None        # with tileset "pool": Graves placed in Reach 3 (None: the pool default)
+        self.graves_r1 = None        # with tileset "pool": Graves placed in Reach 1 (None: the pool default)
+        self.child_harsh = False     # the Child also gets harsh Mist (V3.2: she never does)
+        self.child_shield = "reach"  # the Child ignores her first Fracture each "reach", once per "game", or "none"
+        self.child_drift = False     # the Child can drift (V3.2: she never does)
         self.replace_memories = False  # V2: a new memory may replace an unlit, non-key one (the old one is forgotten)
         self.burn_inscribe = False   # V2: the doubled card of a Burn may be inscribed instead of forgotten
         self.facedown_light = False  # V2: a face-down play with nowhere to root gives 1 Light
@@ -143,9 +147,11 @@ class Config:
             self.start_light = overrides.get("start_light", 1)
         if soul == "child":
             self.start_light = overrides.get("start_light", 3)
-            self.adrift_at = 99
+            if not overrides.get("child_drift"):
+                self.adrift_at = 99
             self.forgotten_limit = overrides.get("forgotten_limit", self.forgotten_limit + 1)
-            self.harsh_per_reach = 0
+            if not overrides.get("child_harsh"):
+                self.harsh_per_reach = 0
 
 
 class GameOver(Exception):
@@ -193,6 +199,8 @@ class State:
             for r, (spaces, pool, graves) in C.TILE_POOLS.items():
                 if r == 2 and cfg.graves_r3 is not None:
                     graves = cfg.graves_r3
+                if r == 0 and cfg.graves_r1 is not None:
+                    graves = cfg.graves_r1
                 need = len(spaces) * 2 - graves
                 tilesets[r] = (spaces, [GRAVE] * graves + s.rng.sample(pool, need))
         else:
@@ -521,7 +529,9 @@ class State:
             self.note("  the Shield holds")
             return
         r = reach_of(max(1, min(LAST, self.soul)))
-        if self.child_shield[r]:
+        if self.cfg.child_shield == "game":
+            r = 0
+        if self.cfg.child_shield != "none" and self.child_shield[r]:
             self.child_shield[r] = False
             self.note("  (Child) the first Fracture this Reach is ignored")
             return

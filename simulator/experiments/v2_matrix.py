@@ -24,16 +24,19 @@ SOULS = ["child", "garland", "king", "bride", "open"]
 
 
 def one(args):
-    soul, players, graves, need, lantern, seed = args
+    soul, players, graves, need, lantern, seed = args[:6]
+    extra = args[6] if len(args) > 6 else {}
     lim, bw, harsh, r3 = LANTERNS[lantern]
-    ex = dict(BASE, graves_r3=graves, commission_need=need, forgotten_limit=lim + (1 if soul == "child" else 0),
-              bw_supply=bw, harsh_per_reach=0 if soul == "child" else harsh, r3_mist_draws=r3)
+    child_bonus = extra.get("child_limit_bonus", 1)
+    ex = dict(BASE, graves_r3=graves, commission_need=need, forgotten_limit=lim + (child_bonus if soul == "child" else 0),
+              bw_supply=bw, harsh_per_reach=harsh, r3_mist_draws=r3)
+    ex.update({k: v for k, v in extra.items() if k != "child_limit_bonus"})
     s = play_game(cfg_for(LAST, soul, 2, players, seed, ex))
     return s.result == "win", s.cause
 
 
-def cell(pool, soul, players, graves, need, lantern, games):
-    rows = pool.map(one, [(soul, players, graves, need, lantern, s) for s in range(games)], chunksize=10)
+def cell(pool, soul, players, graves, need, lantern, games, extra=None):
+    rows = pool.map(one, [(soul, players, graves, need, lantern, s, extra or {}) for s in range(games)], chunksize=10)
     return {"win": sum(r[0] for r in rows) / games,
             "nameless": sum(r[1] == "Nameless" for r in rows) / games}
 
