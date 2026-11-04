@@ -135,6 +135,21 @@ class EchoAgent:
             s.comm[p] = s.comm_deck.pop()
             s.stats["redraws"] = s.stats.get("redraws", 0) + 1
 
+    def maybe_gift(self, s):
+        """V4.0 Garland Girl: once per Reach, the active player passes the card worth least to them to the next
+        player (the giver refills at the end of the turn). The giver cannot know anyone else's secret commission."""
+        if s.n == 1 or s.gifted[s.reach] or len(s.hands[s.cur]) < 2:
+            return
+        mine = s.comm[s.cur] if s.comm else None
+        cands = [c for c in s.hands[s.cur] if mine is None or not s.comm_matches(mine, s.reach, c)]
+        if not cands:
+            return
+        cid = min(cands, key=lambda c: self.card_value(s, c))
+        s.hands[s.cur].remove(cid)
+        s.hands[(s.cur + 1) % s.n].append(cid)
+        s.gifted[s.reach] = True
+        s.stats["gifts"] = s.stats.get("gifts", 0) + 1
+
     def reap(self, s):
         """V2 Reaper: look at the top 2, swap any of them into the hand, the rest go to the bottom."""
         top = []

@@ -50,6 +50,8 @@ def play_game(cfg, agent=None, record=False):
                 agent.maybe_redraw(s)
             if s.cfg.light_memory_cost:
                 agent.maybe_light(s)
+            if s.cfg.garland_gift and s.cfg.soul == "garland":
+                agent.maybe_gift(s)
             if s.cfg.mantles_v2 and s.holder("reaper") == p:
                 agent.reap(s)
             plays = agent.choose(s) or []
