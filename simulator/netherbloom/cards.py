@@ -347,3 +347,12 @@ COMMISSIONS = {
     ],
 }
 COMMISSION_NEED = {1: 1, 2: 2, 3: 2, 4: 3}
+
+# ---------------------------------------------------------------- V2 tile pools (11/4)
+# Playtesters asked for more bank tiles than banks. Each Reach places its Graves (a setup choice, see the
+# setup matrix) and fills the other banks with tiles drawn at random from a larger pool; the rest stay in the box.
+TILE_POOLS = {   # 4/4/5: reach -> (spaces, non-Grave pool, default Graves)
+    0: ([2, 3, 4], [FERTILE] * 4 + [STONY] * 2 + [SPRING] + [FLOWER], 0),
+    1: ([5, 6, 7, 8], [FERTILE] * 3 + [STONY] * 2 + [SPRING] + [FLOWER] + [FROST] + [EMBER], 1),
+    2: ([9, 10, 11, 12, 13], [FERTILE] * 4 + [STONY] * 2 + [SPRING] + [EMBER] + [ECHO_ROCK] + [FLOWER] + [FROST], 2),
+}
