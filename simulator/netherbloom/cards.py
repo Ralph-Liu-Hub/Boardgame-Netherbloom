@@ -288,7 +288,7 @@ MANTLES_V2 = {"weaver": OBS, "warden": OBS, "bringer": ACC, "breaker": OBL, "rea
 # Three Lanterns (V2 §3.13): (black water supply, forgotten limit, harsh cards per reach, Mist draws in Reach 3)
 LANTERN_V2 = {1: (6, 11, 0, 1), 2: (5, 10, 2, 1), 3: (4, 9, 3, 2)}
 
-# Commission cards (V2 §3.2). Condition: page (0-2 or None), tag (OBS/ACC or None), slot (or None),
+# Commission cards (V2 §3.2). Every card is met by at least 5 inscribable memory cards (11/4). Condition: page (0-2 or None), tag (OBS/ACC or None), slot (or None),
 # own (one of the Soul's own eight memories). A lit memory on the Book that matches completes the card.
 def _k(text, page=None, tag=None, slot=None, own=False):
     return {"text": text, "page": page, "tag": tag, "slot": slot, "own": own}
@@ -297,40 +297,40 @@ def _k(text, page=None, tag=None, slot=None, own=False):
 COMMISSIONS = {
     "child": [
         _k("幫我記得那一夜有多冷。", page=0, tag=OBS),
-        _k("我想記得火光裡看見的人。", tag=ACC, slot="Person"),
+        _k("我想記得火光裡看見的人。", slot="Person"),
         _k("告訴我，我是在哪裡睡著的。", page=0, slot="Place"),
         _k("我點亮的那些小小火光，照見了什麼？", own=True),
-        _k("那扇結霜的窗後面，是誰的家？", tag=ACC, slot="Place"),
-        _k("我想知道，我曾經多麼餓。", tag=OBS, slot="Feeling"),
+        _k("那扇結霜的窗後面，是誰的家？", slot="Place"),
+        _k("我想知道，我曾經多麼餓。", slot="Feeling"),
         _k("我做過的事裡，有沒有一件是溫暖的？", page=1, tag=ACC),
         _k("最後，我懷抱著什麼離開？", page=2, slot="Feeling"),
     ],
     "garland": [
         _k("告訴我，我把花送給了誰。", slot="Person"),
         _k("我曾經唱過的那首歌，還在嗎？", page=2, slot="Feeling"),
-        _k("那棵垂柳下的溪水，是在哪裡？", tag=ACC, slot="Place"),
-        _k("我為什麼會恨他？", tag=OBS, slot="Person"),
+        _k("那棵垂柳下的溪水，是在哪裡？", slot="Place"),
+        _k("我為什麼會恨他？", tag=OBS),
         _k("我編過的花，你還記得幾朵？", own=True),
         _k("父親教我認識的那些草藥。", page=0, tag=ACC),
-        _k("我做過最傻的一件事。", tag=OBS, slot="Deed"),
+        _k("我做過最傻的一件事。", slot="Deed"),
         _k("我想帶著一點平靜離開。", page=2, tag=ACC),
     ],
     "king": [
         _k("我最後一場戰役在哪裡？", page=1, slot="Place"),
-        _k("我原諒他們了嗎？", tag=ACC, slot="Deed"),
-        _k("那頂王冠有多重？", tag=OBS, slot="Feeling"),
+        _k("我原諒他們了嗎？", tag=ACC),
+        _k("那頂王冠有多重？", slot="Feeling"),
         _k("告訴我，誰曾經真心待我。", tag=ACC, slot="Person"),
         _k("我借來的那把劍……", own=True),
-        _k("我守住過什麼？", tag=OBS, slot="Deed"),
+        _k("我守住過什麼？", slot="Deed"),
         _k("我年輕時是什麼樣的人？", page=0),
         _k("最後，我放下了嗎？", page=2, tag=ACC),
     ],
     "bride": [
         _k("讓我記住他的臉。", slot="Person"),
         _k("讓我放手。", page=2, tag=ACC),
-        _k("我們在哪裡成婚？", tag=ACC, slot="Place"),
+        _k("我們在哪裡成婚？", tag=ACC),
         _k("那一道窄窄的階梯。", tag=OBS, slot="Place"),
-        _k("我氣他嗎？", tag=OBS, slot="Feeling"),
+        _k("我氣他嗎？", tag=OBS),
         _k("他的手最後的溫度。", own=True),
         _k("我跟著他走過的那條路。", page=1, tag=OBS),
         _k("在婚禮之前，我是誰？", page=0),
@@ -339,9 +339,9 @@ COMMISSIONS = {
         _k("他曾經愛過誰？", slot="Person"),
         _k("他最後放不下的是什麼？", page=2, tag=OBS),
         _k("他從哪裡來？", page=0, slot="Place"),
-        _k("他做過什麼讓自己驕傲的事？", tag=ACC, slot="Deed"),
-        _k("他害怕什麼？", tag=OBS, slot="Feeling"),
-        _k("他在哪裡找到過平靜？", tag=ACC, slot="Place"),
+        _k("他做過什麼讓自己驕傲的事？", slot="Deed"),
+        _k("他害怕什麼？", slot="Feeling"),
+        _k("他在哪裡找到過平靜？", slot="Place"),
         _k("他後悔過嗎？", page=1, tag=OBS),
         _k("他帶著什麼渡河？", page=2, tag=ACC),
     ],
