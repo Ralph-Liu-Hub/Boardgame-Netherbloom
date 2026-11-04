@@ -57,6 +57,21 @@ class Games(unittest.TestCase):
         self.assertGreater(s["win_rate"], 0.38)
         self.assertLess(s["win_rate"], 0.62)
 
+    def test_v2_rules_finish_cleanly(self):
+        v2 = dict(book_mode="none", layout="345", push_through="off", light_memory_cost=2, commissions=True,
+                  replace_memories=True, deck_v2=True, vigil_mode="kindle", transitions=True, burn_inscribe=True,
+                  facedown_light=True, mantles_v2=True, tileset="v2", mist_v2=True, back_rule=True)
+        try:
+            for players in (1, 2, 3, 4):
+                for soul in ("open", "king", "garland", "bride", "child"):
+                    for seed in range(4):
+                        s = play_game(Config(players=players, soul=soul, seed=seed, **v2))
+                        self.assertIn(s.result, ("win", "loss"))
+                        if s.result == "loss":
+                            self.assertIn(s.cause, ("Faded", "Shattered", "Deluge", "Nameless"))
+        finally:
+            play_game(Config(players=3, seed=0))   # put the module back on the V3.2 river
+
     def test_replay_records_each_turn(self):
         s = play_game(Config(players=2, seed=3), record=True)
         self.assertEqual(len(s.snaps), s.turn + 1)

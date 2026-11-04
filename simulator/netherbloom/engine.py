@@ -6,19 +6,33 @@ Bank slots are indexed slot = space * 2 + bank for spaces 1..11 (bank 0 left, 1 
 import random
 
 from . import cards as C
-from .cards import OBS, ACC, OBL, FERTILE, STONY, MEMORY, GRAVE
+from .cards import OBS, ACC, OBL, FERTILE, STONY, MEMORY, GRAVE, FLOWER, FROST, EMBER, ECHO_ROCK, SPRING
 
+# River layout. V3.2 is 4/4/3 (spaces 1-11, Far Shore 12); V2 proposes 3/4/5 (spaces 1-12, Far Shore 13).
+# These module globals are rebound by set_layout() when a game starts (games in one process run one at a time).
+LAYOUTS = {
+    "443": {"far": 12, "bounds": [(1, 4), (5, 8), (9, 11)]},
+    "345": {"far": 13, "bounds": [(1, 3), (4, 7), (8, 12)]},
+}
 FAR = 12            # the Far Shore
-NSLOT = 24          # spaces 0..11 x 2 banks (space 0 unused)
+LAST = 11           # the last river space
+NSLOT = 24          # spaces 0..LAST x 2 banks (space 0 unused)
+BOUNDS = LAYOUTS["443"]["bounds"]
 NONE, ROOT, BLOOM = 0, 1, 2
 
-ALL_CARDS = C.CORE + C.ECHO + [c for pack in C.SOULS.values() for c in pack]
+
+def set_layout(name):
+    global FAR, LAST, NSLOT, BOUNDS
+    lay = LAYOUTS[name]
+    FAR, LAST, NSLOT, BOUNDS = lay["far"], lay["far"] - 1, lay["far"] * 2, lay["bounds"]
+
+ALL_CARDS = C.CORE + C.ECHO + [c for pack in C.SOULS.values() for c in pack] + C.V2_CARDS
 CARD = {i: c for i, c in enumerate(ALL_CARDS)}
 INDEX = {c.cid: i for i, c in CARD.items()}
 
 
 def reach_of(space):
-    return 0 if space <= 4 else 1 if space <= 8 else 2
+    return 0 if space <= BOUNDS[0][1] else 1 if space <= BOUNDS[1][1] else 2
 
 
 class Config:
@@ -30,7 +44,11 @@ class Config:
         self.lantern = lantern
         self.use_book = use_book
         self.seed = seed
-        bw, limit, harsh = C.LANTERN[lantern]
+        if overrides.get("lantern_set") == "v2":
+            bw, limit, harsh, r3 = C.LANTERN_V2[lantern]
+            self.r3_mist_draws = r3
+        else:
+            bw, limit, harsh = C.LANTERN[lantern]
         self.bw_supply = bw
         self.forgotten_limit = limit
         self.harsh_per_reach = harsh
@@ -90,6 +108,23 @@ class Config:
         self.light_action_limit = 99 # times per game
         self.solo_resummon = True    # solo: summon a new Mantle while holding one; the old one is retired; each Mantle once
         self.max_summons = 3         # with solo_resummon: summons per game
+        # ---- V2 proposal switches (docs/design/V2-proposal.zh-TW.md). Defaults reproduce V3.2.
+        self.layout = "443"          # "443" (V3.2) or "345" (V2: Far Shore on space 13)
+        self.tileset = "v32"         # "v32" tile kinds, or "v2" (Memory Spring, Flower Field, Frost, Ember, Echo Rock)
+        self.lantern_set = "v32"     # "v32" (4 Lanterns) or "v2" (3 Lanterns, see cards.LANTERN_V2)
+        self.r3_mist_draws = 1       # Mist cards revealed per turn in Reach 3
+        self.deck_v2 = False         # one Unremember out, Lightless Crossing in
+        self.vigil_mode = "mist"     # "mist" (V3.2 Vigil) or "kindle" (V2: light one memory for 1 Light)
+        self.light_memory_cost = 0   # V2: Light to light one inscribed memory (0: lighting is off)
+        self.commissions = False     # V2: secret commission cards checked at the Far Shore
+        self.commission_need = None  # override the cards.COMMISSION_NEED table
+        self.replace_memories = False  # V2: a new memory may replace an unlit, non-key one (the old one is forgotten)
+        self.burn_inscribe = False   # V2: the doubled card of a Burn may be inscribed instead of forgotten
+        self.facedown_light = False  # V2: a face-down play with nowhere to root gives 1 Light
+        self.transitions = False     # V2: entering a new Reach reshapes it from the last page (content + count)
+        self.mist_v2 = False         # V2: new Mist cards and harsh Mist
+        self.mantles_v2 = False      # V2: Warden "stay", Mist-breaker "see through the mist", the Reaper
+        self.back_rule = False       # V2: the soul never returns to an earlier Reach (the Bride included)
         for k, v in overrides.items():
             if not hasattr(self, k):
                 raise KeyError(f"unknown config option {k}")
@@ -120,6 +155,8 @@ class State:
         "karma", "echo", "mist", "reach", "book", "blessed", "keepsakes", "mantles",
         "warden_ready", "hold", "shield_until", "weaver_used", "bringer_used", "breaker_used",
         "bride_pulled", "child_shield", "ghost", "result", "cause", "log", "stats", "snaps", "last_mist",
+        "lit_mem", "order", "comm", "comm_deck", "redrawn", "frost", "dim", "blind", "cold_until", "thunder",
+        "gaze", "need_plus", "breaker_ready", "harsh_pool", "spare_tiles",
     )
 
     # ------------------------------------------------------------- setup
@@ -127,6 +164,7 @@ class State:
     def new(cls, cfg):
         s = cls()
         s.cfg = cfg
+        set_layout(cfg.layout)
         s.rng = random.Random(cfg.seed)
         s.sim = False
         s.n = cfg.players
@@ -135,6 +173,9 @@ class State:
         deck = [INDEX[c.cid] for c in C.CORE]
         extra = C.ECHO if cfg.soul == "open" else C.SOULS[cfg.soul]
         deck += [INDEX[c.cid] for c in extra]
+        if cfg.deck_v2:
+            deck.remove(INDEX["C27"])            # one Unremember out
+            deck.append(INDEX["C33"])            # Lightless Crossing in
         s.rng.shuffle(deck)
         s.deck = deck
         s.discard, s.forgotten = [], []
@@ -143,7 +184,7 @@ class State:
         s.griev = [False] * NSLOT
         s.tile = [FERTILE] * NSLOT
         s.revealed = [True] * NSLOT
-        for r, (spaces, mix) in C.TILES.items():
+        for r, (spaces, mix) in C.TILESETS[(cfg.layout, cfg.tileset)].items():
             mix = list(mix)
             s.rng.shuffle(mix)
             for i, sp in enumerate(spaces):
@@ -158,14 +199,17 @@ class State:
         s.light = cfg.start_light
         s.karma = [0, 0, 0]
         s.echo = -1
-        harsh = list(range(len(C.HARSH)))
+        harsh_cards = C.HARSH_V2 if cfg.mist_v2 else C.HARSH
+        harsh = list(range(len(harsh_cards)))
         s.rng.shuffle(harsh)
         s.mist = []
         for r in range(3):
             d = list(C.MIST[r])
+            if cfg.mist_v2:
+                d += C.MIST_V2_ADD[r]
             for _ in range(cfg.harsh_per_reach):
                 if harsh:
-                    d.append(C.HARSH[harsh.pop()])
+                    d.append(harsh_cards[harsh.pop()])
             for i in range(cfg.extra_mist):
                 d.append(("Rising Water", [("bw", 2)]) if i % 2 == 0 else ("Shade Drawn Near", [("grv_near",)]))
             s.rng.shuffle(d)
@@ -174,7 +218,8 @@ class State:
         s.book = [dict(), dict(), dict()]
         s.blessed = [False, False, False]
         s.keepsakes = [0, 0, 0]
-        s.mantles = {m: -1 for m in C.MANTLES}
+        s.harsh_pool = [harsh_cards[i] for i in harsh]   # harsh Mist left for Reach transitions
+        s.mantles = {m: -1 for m in (C.MANTLES_V2 if cfg.mantles_v2 else C.MANTLES)}
         s.warden_ready = True
         s.hold = False
         s.shield_until = -1
@@ -190,6 +235,21 @@ class State:
         for p in range(cfg.players):
             for _ in range(cfg.hand):
                 s.hands[p].append(s.deck.pop())
+        s.lit_mem = set()        # V2: lit memories (card ids on the Book)
+        s.order = []             # V2: inscription order, (page, slot)
+        s.frost = [False] * NSLOT
+        s.dim = s.blind = s.thunder = False
+        s.cold_until = -1
+        s.gaze = 0
+        s.need_plus = 0
+        s.breaker_ready = True
+        s.spare_tiles = None
+        s.comm, s.comm_deck, s.redrawn = [], [], [False] * cfg.players
+        if cfg.commissions:
+            ks = list(range(len(C.COMMISSIONS[cfg.soul])))
+            s.rng.shuffle(ks)
+            s.comm = [ks.pop() for _ in range(cfg.players)]
+            s.comm_deck = ks
         s.result = None          # "win" / "loss"
         s.cause = None           # "Faded" / "Shattered" / "Deluge"
         s.log = []
@@ -208,7 +268,7 @@ class State:
         s.hands = [list(h) for h in self.hands]
         s.deck, s.discard, s.forgotten = list(self.deck), list(self.discard), list(self.forgotten)
         s.soul = self.soul
-        s.tok, s.griev, s.tile, s.revealed = list(self.tok), list(self.griev), self.tile, list(self.revealed)
+        s.tok, s.griev, s.tile, s.revealed = list(self.tok), list(self.griev), list(self.tile), list(self.revealed)
         s.flooded = list(self.flooded)
         s.bw_supply, s.fract, s.light = self.bw_supply, self.fract, self.light
         s.karma, s.echo = list(self.karma), self.echo
@@ -224,12 +284,24 @@ class State:
         s.log = None
         s.snaps = None
         s.stats = {k: (list(v) if isinstance(v, list) else v) for k, v in self.stats.items()}
+        s.lit_mem, s.order = set(self.lit_mem), list(self.order)
+        s.comm, s.comm_deck, s.redrawn = list(self.comm), self.comm_deck, list(self.redrawn)
+        s.frost = list(self.frost)
+        s.dim, s.blind, s.cold_until, s.thunder = self.dim, self.blind, self.cold_until, self.thunder
+        s.gaze, s.need_plus, s.breaker_ready = self.gaze, self.need_plus, self.breaker_ready
+        s.harsh_pool, s.spare_tiles = self.harsh_pool, self.spare_tiles
         return s
 
     # ------------------------------------------------------------- helpers
     def note(self, msg):
         if self.log is not None:
             self.log.append(msg)
+
+    def holder(self, m):
+        """Who holds Mantle m (-1: nobody). Blinding Fog switches every Mantle off."""
+        if self.blind:
+            return -1
+        return self.mantles.get(m, -1)
 
     def lit(self, sp):
         if sp >= FAR:
@@ -263,6 +335,11 @@ class State:
         raise GameOver
 
     def win(self):
+        if self.cfg.commissions and self.result is None:
+            done = self.commissions_done()
+            self.stats["comm_done"] = done
+            if done < self.commission_need():
+                self.lose("Nameless")
         if self.result is None:
             self.result = "win"
             self.note("WIN: the soul reaches the Far Shore")
@@ -281,7 +358,7 @@ class State:
                     continue
                 touches = (sp <= self.soul + 1 or self.tok[k ^ 1] != NONE
                            or (sp > 1 and self.tok[(sp - 1) * 2 + b] != NONE)
-                           or (sp < 11 and self.tok[(sp + 1) * 2 + b] != NONE))
+                           or (sp < LAST and self.tok[(sp + 1) * 2 + b] != NONE))
                 if touches:
                     out.append(k)
         return out
@@ -314,7 +391,113 @@ class State:
             if self.tile[k] == GRAVE:
                 return False
         self.tok[k] = ROOT
+        self.tile_effect(k)
         return True
+
+    def tile_effect(self, k):
+        """V2 tiles act when a Root is placed on them."""
+        t = self.tile[k]
+        if t == FLOWER:
+            self.tok[k] = BLOOM
+        elif t == FROST:
+            self.frost[k] = True
+        elif t == EMBER:
+            self.light += 1
+        elif t == ECHO_ROCK:
+            hand = self.hands[self.cur]
+            tags = [CARD[c].tag for c in hand if CARD[c].tag != OBL]
+            if tags:
+                self.echo = max(set(tags), key=tags.count)
+        elif t == SPRING and not self.sim:
+            cands = [c for c in self.hands[self.cur] if self.can_inscribe(c)]
+            if cands and len(self.hands[self.cur]) > 0:
+                cid = self.spring_pick(cands)
+                self.hands[self.cur].remove(cid)
+                if self.inscribe(cid, None):
+                    self.stats["spring_inscribes"] = self.stats.get("spring_inscribes", 0) + 1
+                else:
+                    self.hands[self.cur].append(cid)
+
+    def flip_down(self, k):
+        """A Bloom withers back to a Root, unless Frost protects it."""
+        if self.tok[k] == BLOOM and not self.frost[k]:
+            self.tok[k] = ROOT
+
+    # ------------------------------------------------------------- V2: the Book and the commissions
+    def can_inscribe(self, cid):
+        card = CARD[cid]
+        if card.tag == OBL or not card.slot or not self.cfg.use_book or self.reach >= 3:
+            return False
+        page = self.book[self.reach]
+        if card.slot not in page:
+            return True
+        old = page[card.slot]
+        return self.cfg.replace_memories and old not in self.lit_mem and not CARD[old].key
+
+    def inscribe(self, cid, chooser):
+        """Write a card into the current page. Returns True if it was inscribed."""
+        card = CARD[cid]
+        if not self.can_inscribe(cid):
+            return False
+        page = self.book[self.reach]
+        if card.slot in page:
+            old = page[card.slot]
+            if chooser is not None and hasattr(chooser, "want_replace") and not chooser.want_replace(self, old, cid):
+                return False
+            del page[card.slot]
+            self.order = [o for o in self.order if o != (self.reach, card.slot)]
+            self.stats["replaced"] = self.stats.get("replaced", 0) + 1
+            self.forget_card(old)
+        page[card.slot] = cid
+        self.order.append((self.reach, card.slot))
+        self.stats["inscribed"] += 1
+        self.note(f"  inscribed {card.cid} ({card.slot}): {card.band}")
+        return True
+
+    def commission_need(self):
+        need = self.cfg.commission_need or C.COMMISSION_NEED[self.n]
+        return min(len(self.comm), need + self.need_plus)
+
+    def comm_matches(self, ci, page, cid):
+        k = C.COMMISSIONS[self.cfg.soul][ci]
+        card = CARD[cid]
+        if k["own"]:
+            return card.cid[0] in "KGBL" and card.cid[:1] == {"king": "K", "garland": "G", "bride": "B", "child": "L"}.get(self.cfg.soul, "?")
+        return ((k["page"] is None or k["page"] == page) and (k["tag"] is None or k["tag"] == card.tag)
+                and (k["slot"] is None or k["slot"] == card.slot))
+
+    def lit_memories(self):
+        return [(r, cid) for r in range(3) for cid in self.book[r].values() if cid in self.lit_mem]
+
+    def commissions_done(self, comm=None):
+        """Most commissions the lit memories can complete, each memory used once."""
+        comm = self.comm if comm is None else comm
+        mems = self.lit_memories()
+
+        def best(i, used):
+            if i == len(comm):
+                return 0
+            top = best(i + 1, used)
+            for j, (r, cid) in enumerate(mems):
+                if j not in used and self.comm_matches(comm[i], r, cid):
+                    top = max(top, 1 + best(i + 1, used | {j}))
+            return top
+        return best(0, frozenset())
+
+    def light_one(self, cid, cost):
+        self.light -= cost
+        self.lit_mem.add(cid)
+        self.stats["lit"] = self.stats.get("lit", 0) + 1
+        self.stats["light_on_memories"] = self.stats.get("light_on_memories", 0) + cost
+        self.note(f"  lights {CARD[cid].cid}")
+
+    def spring_pick(self, cands):
+        mine = self.comm[self.cur] if self.comm else None
+        if mine is not None:
+            good = [c for c in cands if self.comm_matches(mine, self.reach, c)]
+            if good:
+                return good[0]
+        return cands[0]
 
     def bloom_targets(self):
         return [k for k in range(2 * max(1, self.soul), NSLOT) if self.tok[k] == ROOT]
@@ -324,7 +507,7 @@ class State:
             self.shield_until = -1
             self.note("  the Shield holds")
             return
-        r = reach_of(max(1, min(11, self.soul)))
+        r = reach_of(max(1, min(LAST, self.soul)))
         if self.child_shield[r]:
             self.child_shield[r] = False
             self.note("  (Child) the first Fracture this Reach is ignored")
@@ -366,7 +549,7 @@ class State:
 
     def place_bw(self, sp):
         # first open river space at or after sp, else nearest behind (never the soul's own space)
-        sp = min(sp, 11)
+        sp = min(sp, LAST)
         cand = [x for x in range(sp, FAR) if not self.flooded[x] and x != self.soul and x >= 1]
         if not cand:
             cand = [x for x in range(sp - 1, self.soul, -1) if not self.flooded[x] and x >= 1]
@@ -379,8 +562,7 @@ class State:
         self.bw_supply -= 1
         self.stats["min_bw_supply"] = min(self.stats["min_bw_supply"], self.bw_supply)
         for b in (0, 1):
-            if self.tok[x * 2 + b] == BLOOM:
-                self.tok[x * 2 + b] = ROOT
+            self.flip_down(x * 2 + b)
         self.note(f"  Black Water on space {x} (supply {self.bw_supply})")
 
     def drain(self, sp):
@@ -390,11 +572,11 @@ class State:
                 self.bw_supply += 1
 
     def place_griev(self, sp, bank):
-        sp = max(1, min(sp, 11))
+        sp = max(1, min(sp, LAST))
         order = [(x, b) for x in range(sp, FAR) for b in ((bank, 1 - bank) if x == sp else (bank, 1 - bank))]
         order = [(x, b) for x, b in order if x >= 1]
         if not order or all(self.griev[x * 2 + b] for x, b in order):
-            order = [(x, b) for x in range(min(sp, 11), max(0, self.soul) - 1, -1) for b in (0, 1) if x >= 1]
+            order = [(x, b) for x in range(min(sp, LAST), max(0, self.soul) - 1, -1) for b in (0, 1) if x >= 1]
         for x, b in order:
             k = x * 2 + b
             if not self.griev[k]:
@@ -435,7 +617,7 @@ class State:
         kind = op[0]
         if kind == "root":
             n, stony = op[1], op[2]
-            holder_weaver = self.mantles["weaver"] == self.cur
+            holder_weaver = self.holder("weaver") == self.cur
             if holder_weaver:
                 stony = True
                 if not self.weaver_used:
@@ -465,6 +647,17 @@ class State:
             if self.passable(self.soul + 1):
                 self.stats["guides"] += 1
                 self.move_soul(1)
+        elif kind == "vigil" and self.cfg.vigil_mode == "kindle":
+            # V2 Vigil: light one memory for 1 Light
+            cid = chooser.light_target(self) if hasattr(chooser, "light_target") else None
+            if cid is not None and self.light >= 1 and not self.dim:
+                self.light_one(cid, 1)
+        elif kind == "cross":
+            # V2 Lightless Crossing: step forward even into the dark or between two Shades (never into Black Water)
+            sp = self.soul + 1
+            if sp >= FAR or not self.flooded[sp]:
+                self.stats["crossings"] = self.stats.get("crossings", 0) + 1
+                self.move_soul(1, light=False)
         elif kind == "vigil":
             d = self.mist[self.reach]
             top = d[-3:]  # the player puts them back in any order; the bot puts the mildest first
@@ -487,8 +680,8 @@ class State:
         elif kind == "light":
             self.light += op[1]
         elif kind == "reveal_reach":
-            spaces = C.TILES[self.reach][0]
-            for sp in spaces:
+            lo, hi = BOUNDS[self.reach]
+            for sp in range(max(2, lo), hi + 1):
                 for b in (0, 1):
                     k = sp * 2 + b
                     if not self.revealed[k]:
@@ -504,7 +697,7 @@ class State:
                 if self.soul >= 1:
                     self.griev[self.soul * 2 + b] = False
         elif kind == "lowtide":
-            lo, hi = {0: (1, 4), 1: (5, 8), 2: (9, 11)}[self.reach]
+            lo, hi = BOUNDS[self.reach]
             for sp in range(lo, hi + 1):
                 self.drain(sp)
         elif kind == "extra_karma":
@@ -647,6 +840,10 @@ class State:
             return False
         if mode == "down":
             self.stats["face_down"] += 1
+            stony = self.holder("weaver") == self.cur
+            if self.cfg.facedown_light and not self.root_targets(stony):
+                self.light += 1
+                self.stats["facedown_light"] = self.stats.get("facedown_light", 0) + 1
             self.do_op(("root", 1, False), chooser)
             self.discard.append(cid)
             return False
@@ -668,7 +865,10 @@ class State:
         self.echo = card.tag
         if mode == "burn":
             self.stats["burns"] += 1
-            self.forget_card(cid)
+            if self.cfg.burn_inscribe and self.can_inscribe(cid) and chooser.want_inscribe(self, cid) and self.inscribe(cid, chooser):
+                self.stats["burn_inscribes"] = self.stats.get("burn_inscribes", 0) + 1
+            else:
+                self.forget_card(cid)
             if fuel is not None:
                 self.stats["joint_burns"] = self.stats.get("joint_burns", 0) + 1
                 self.forget_card(fuel[1])
@@ -677,17 +877,14 @@ class State:
                 self.forget_top(self.cfg.burn_forget - 1)
             return resonated
         if card.tag == OBL:
-            if self.mantles["breaker"] == self.cur and not self.breaker_used:
+            if not self.cfg.mantles_v2 and self.holder("breaker") == self.cur and not self.breaker_used:
                 self.breaker_used = True
                 self.discard.append(cid)
             else:
                 self.forget_card(cid)
             return resonated
-        if ((resonated or (card.key and self.cfg.key_any)) and self.cfg.use_book and card.slot and self.reach < 3
-                and card.slot not in self.book[self.reach] and chooser.want_inscribe(self, cid)):
-            self.book[self.reach][card.slot] = cid
-            self.stats["inscribed"] += 1
-            self.note(f"  inscribed {card.cid} ({card.slot}): {card.band}")
+        if ((resonated or (card.key and self.cfg.key_any)) and self.can_inscribe(cid)
+                and chooser.want_inscribe(self, cid) and self.inscribe(cid, chooser)):
             filled = len(self.book[self.reach])
             if self.cfg.book_mode == "pairs":
                 page = self.book[self.reach]
@@ -698,7 +895,7 @@ class State:
                 if filled == self.cfg.full_page_at:
                     self.stats["blessings"] += 1
                     self.do_ops([(op,) if isinstance(op, str) else op for op in self.cfg.full_page], chooser)
-            elif not self.blessed[self.reach] and filled >= self.cfg.blessing_at:
+            elif self.cfg.book_mode == "blessing" and not self.blessed[self.reach] and filled >= self.cfg.blessing_at:
                 self.blessed[self.reach] = True
                 self.stats["blessings"] += 1
                 self.blessing(chooser)
@@ -731,16 +928,17 @@ class State:
         self.note(f"  P{self.cur + 1} summons the {mantle}")
 
     # ------------------------------------------------------------- soul movement
-    def move_soul(self, steps):
+    def move_soul(self, steps, light=True):
         for _ in range(steps):
             old = self.soul
-            if 1 <= old <= 11:
+            if 1 <= old <= LAST:
                 for b in (0, 1):
                     k = old * 2 + b
-                    if self.tok[k] == BLOOM:
+                    if self.tok[k] == BLOOM and light:
                         self.light += self.cfg.light_per_bloom
                     self.tok[k] = NONE
                     self.griev[k] = False
+                    self.frost[k] = False
             self.soul += 1
             if self.soul >= FAR:
                 self.win()
@@ -749,6 +947,8 @@ class State:
                 self.reach = nr
                 self.karma = [0, 0, 0]
                 self.note(f"  the soul enters Reach {nr + 1}")
+                if self.cfg.transitions and not self.sim:
+                    self.transition(nr)
 
     def soul_step(self):
         if self.result is not None:
@@ -761,12 +961,18 @@ class State:
             self.linger(force=True)
             self.feed()
             return
-        if self.passable(self.soul + 1):
+        if (cfg.mantles_v2 and self.holder("warden") >= 0 and self.warden_ready and self.passable(self.soul + 1)
+                and self.want_stay()):
+            # V2 Spirit Warden "stay": the soul waits where it is, forgetting nothing
+            self.warden_ready = False
+            self.stats["stays"] = self.stats.get("stays", 0) + 1
+            self.note("  the Spirit Warden keeps the soul here a little longer")
+        elif self.passable(self.soul + 1):
             self.move_soul(1)
             if f >= cfg.adrift_at:
                 if self.passable(self.soul + 1):
                     self.move_soul(1)
-                elif self.mantles["warden"] >= 0 and self.warden_ready:
+                elif self.holder("warden") >= 0 and self.warden_ready:
                     self.warden_ready = False
                     self.note("  the Spirit Warden holds the soul back")
                 else:
@@ -782,10 +988,64 @@ class State:
             self.linger()
         self.feed()
 
+    def want_stay(self):
+        """AI rule for the V2 Warden: stay rather than walk into a space a Shade holds, or to light one more memory first."""
+        nxt = self.soul + 1
+        if nxt <= LAST and (self.griev[nxt * 2] or self.griev[nxt * 2 + 1]) and not (
+                self.soul >= 1 and (self.griev[self.soul * 2] or self.griev[self.soul * 2 + 1])):
+            return True
+        if nxt <= LAST and reach_of(nxt) != self.reach and self.reach < 2:
+            # about to leave the Reach: stay one turn if the page is thin
+            return len(self.book[self.reach]) < 2
+        return False
+
+    def transition(self, nr):
+        """V2 §3.5: the page just closed reshapes the Reach the soul enters."""
+        page = self.book[nr - 1]
+        tags = [CARD[c].tag for c in page.values()]
+        obs, acc = tags.count(OBS), tags.count(ACC)
+        n = len(page) - self.gaze
+        self.gaze = 0
+        d = self.mist[nr]
+        adds = []
+        if page:
+            if obs > acc:
+                self.swap_tile(nr, (STONY,), FERTILE)
+                adds.append(("Shade", [("grv", 1, 0)]))
+            elif acc > obs:
+                self.swap_tile(nr, (FERTILE,), FLOWER)
+                adds.append(("Cold Wind", [("forget", 1)]))
+            else:
+                self.swap_tile(nr, None, SPRING)
+        if n <= 0:
+            adds.append(("Undertow Returns", [("back",)]))
+            if self.harsh_pool:
+                adds.append(self.harsh_pool.pop())
+        elif n == 1:
+            if self.harsh_pool:
+                adds.append(self.harsh_pool.pop())
+        elif n >= 3:
+            self.swap_tile(nr, None, SPRING)
+        d.extend(adds)
+        self.rng.shuffle(d)
+        self.stats[f"transition_count_{min(max(n, 0), 3)}"] = self.stats.get(f"transition_count_{min(max(n, 0), 3)}", 0) + 1
+
+    def swap_tile(self, r, kinds, new):
+        """Replace the nearest unrevealed tile of the given kinds (None: any) in Reach r, left bank first; face up."""
+        lo, hi = BOUNDS[r]
+        for sp in range(max(lo, self.soul), hi + 1):
+            for b in (0, 1):
+                k = sp * 2 + b
+                if not self.revealed[k] and (kinds is None or self.tile[k] in kinds):
+                    self.tile[k] = new
+                    self.revealed[k] = True
+                    self.stats["tiles_swapped"] = self.stats.get("tiles_swapped", 0) + 1
+                    return
+
     def blocked_by_grievances(self):
         """The next space is dark only because Shades hold both of its banks."""
         sp = self.soul + 1
-        return (self.cfg.push_through != "off" and 1 <= sp <= 11 and not self.flooded[sp]
+        return (self.cfg.push_through != "off" and 1 <= sp <= LAST and not self.flooded[sp]
                 and self.griev[sp * 2] and self.griev[sp * 2 + 1])
 
     def pushes_in_scope(self):
@@ -817,7 +1077,7 @@ class State:
         if not force and self.hold:
             self.note("  Hold: the soul waits without forgetting")
             return
-        if not force and self.mantles["warden"] >= 0 and self.warden_ready:
+        if not force and self.holder("warden") >= 0 and self.warden_ready:
             self.warden_ready = False
             self.note("  the Spirit Warden steadies the soul")
             return
@@ -827,7 +1087,8 @@ class State:
             self.note("  (beside its own light, the soul waits without forgetting)")
             return
         pulled = any(self.bride_pulled) if self.cfg.bride_once else self.bride_pulled[self.reach]
-        if self.cfg.soul == "bride" and not force and self.soul >= 1 and not pulled:
+        at_reach_start = self.cfg.back_rule and self.soul - 1 < BOUNDS[self.reach][0]
+        if self.cfg.soul == "bride" and not force and self.soul >= 1 and not pulled and not at_reach_start:
             self.bride_pulled[self.reach] = True
             if self.cfg.bride_pullback:
                 self.soul -= 1
@@ -837,12 +1098,33 @@ class State:
         self.forget_top(1)
 
     def feed(self):
-        if 1 <= self.soul <= 11 and (self.griev[self.soul * 2] or self.griev[self.soul * 2 + 1]):
+        if 1 <= self.soul <= LAST and (self.griev[self.soul * 2] or self.griev[self.soul * 2 + 1]):
             self.note("  a Shade feeds on the soul")
             self.add_fracture()
 
     # ------------------------------------------------------------- Mist
     def mist_step(self):
+        self.dim = self.blind = False          # "until the next Mist" effects end here
+        draws = self.cfg.r3_mist_draws if self.reach == 2 else 1
+        if self.thunder:
+            self.thunder = False
+            draws += 1
+        d = self.mist[self.reach]
+        if not d:
+            d.extend(C.MIST[self.reach])
+            self.rng.shuffle(d)
+        if self.cfg.mantles_v2 and self.holder("breaker") >= 0 and self.breaker_ready and d:
+            # V2 Mist-breaker "see through the mist": look at the top card, may put it at the bottom
+            self.breaker_ready = False
+            if mist_severity(d[-1]) >= 3:
+                d.insert(0, d.pop())
+                self.stats["breaker_bottomed"] = self.stats.get("breaker_bottomed", 0) + 1
+        for _ in range(draws):
+            if self.result is not None:
+                return
+            self.mist_card()
+
+    def mist_card(self):
         d = self.mist[self.reach]
         if not d:
             d.extend(C.MIST[self.reach])
@@ -853,34 +1135,78 @@ class State:
         S = self.soul
         for op in ops:
             k = op[0]
-            if k == "bw":
+            if k == "back":
+                if self.soul - 1 >= BOUNDS[self.reach][0]:
+                    self.soul -= 1
+                    self.stats["pushed_back"] = self.stats.get("pushed_back", 0) + 1
+                else:
+                    self.forget_top(1)
+            elif k == "peel":
+                for r, slot in reversed(self.order):
+                    if r == self.reach and slot in self.book[r] and self.book[r][slot] not in self.lit_mem:
+                        cid = self.book[r].pop(slot)
+                        self.order.remove((r, slot))
+                        self.stats["peeled"] = self.stats.get("peeled", 0) + 1
+                        self.forget_card(cid)
+                        break
+            elif k == "flood_page":
+                page = self.book[self.reach]
+                for slot in [sl for sl, c in page.items() if c not in self.lit_mem]:
+                    cid = page.pop(slot)
+                    self.order = [o for o in self.order if o != (self.reach, slot)]
+                    self.stats["peeled"] = self.stats.get("peeled", 0) + 1
+                    self.forget_card(cid)
+            elif k == "dim":
+                self.dim = True
+            elif k == "silence":
+                self.stats["silences"] = self.stats.get("silences", 0) + 1   # the AI never talks; no effect to model
+            elif k == "uproot":
+                for x in range(2 * max(1, S), NSLOT):
+                    if self.tok[x] == ROOT:
+                        self.tok[x] = NONE
+                        break
+            elif k == "gaze":
+                if self.reach == 2:
+                    self.need_plus += 1
+                else:
+                    self.gaze += 1
+            elif k == "blind":
+                self.blind = True
+            elif k == "cold_night":
+                self.cold_until = self.turn + self.n
+            elif k == "thunder":
+                self.thunder = True
+            elif k == "bw_return":
+                removed = self.cfg.bw_supply - self.bw_supply - sum(self.flooded)
+                if removed > 0:
+                    self.bw_supply += 1
+            elif k == "bw":
                 self.place_bw(S + op[1])
             elif k == "grv":
-                if S + op[1] <= 11:
+                if S + op[1] <= LAST:
                     self.place_griev(S + op[1], op[2])
                 else:
-                    self.place_griev(min(11, max(1, S)), op[2])
+                    self.place_griev(min(LAST, max(1, S)), op[2])
             elif k == "grv_near":
                 if S >= 1 and not self.griev[S * 2]:
                     self.place_griev(S, 0)
                 elif S >= 1 and not self.griev[S * 2 + 1]:
                     self.place_griev(S, 1)
                 else:
-                    self.place_griev(min(11, S + 1), 0)
+                    self.place_griev(min(LAST, S + 1), 0)
             elif k == "wither":
                 blooms = [x for x in range(NSLOT - 1, 2 * (S + 1) - 1, -1) if self.tok[x] == BLOOM]
+                blooms = [x for x in blooms if not self.frost[x]]
                 for x in blooms[:op[1]]:
                     self.tok[x] = ROOT
             elif k == "wither_far":
                 for x in range(2 * (S + op[1] + 1), NSLOT):
-                    if self.tok[x] == BLOOM:
-                        self.tok[x] = ROOT
+                    self.flip_down(x)
             elif k == "wither_at":
                 sp = S + op[1]
-                if sp <= 11:
+                if sp <= LAST:
                     for b in (0, 1):
-                        if self.tok[sp * 2 + b] == BLOOM:
-                            self.tok[sp * 2 + b] = ROOT
+                        self.flip_down(sp * 2 + b)
             elif k == "fog":
                 n = op[1]
                 for x in range(NSLOT - 1, 2 * (S + 1) - 1, -1):
@@ -911,12 +1237,13 @@ class State:
         for k in range(2, NSLOT):
             if self.griev[k]:
                 sp, b = k // 2, k % 2
-                if 2 <= sp <= 10 and self.tok[(sp - 1) * 2 + b] == BLOOM and self.tok[(sp + 1) * 2 + b] == BLOOM:
+                if 2 <= sp <= LAST - 1 and self.tok[(sp - 1) * 2 + b] == BLOOM and self.tok[(sp + 1) * 2 + b] == BLOOM:
                     self.griev[k] = False
                     self.note(f"  a Shade dissolves in the light at {sp}")
 
     def draw_up(self, p):
-        while len(self.hands[p]) < self.cfg.hand:
+        limit = self.cfg.hand - (1 if self.turn <= self.cold_until else 0)
+        while len(self.hands[p]) < limit:
             if not self.deck:
                 self.reshuffle()
             if not self.deck:
