@@ -126,7 +126,7 @@ class EchoAgent:
     def maybe_redraw(self, s):
         """Redraw a commission whose page has already closed without it."""
         p = s.cur
-        if s.redrawn[p] or not s.comm_deck:
+        if s.redrawn[p] or not s.comm_deck or not s.cfg.commission_redraw:
             return
         from .cards import COMMISSIONS
         k = COMMISSIONS[s.cfg.soul][s.comm[p]]
