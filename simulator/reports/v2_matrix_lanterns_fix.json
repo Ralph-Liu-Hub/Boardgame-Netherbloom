@@ -1,0 +1,46 @@
+{
+ "Hard|3p|graves2|need2": {
+  "child": {
+   "win": 0.59,
+   "nameless": 0.0
+  },
+  "garland": {
+   "win": 0.315,
+   "nameless": 0.015
+  },
+  "king": {
+   "win": 0.34,
+   "nameless": 0.0
+  },
+  "bride": {
+   "win": 0.35,
+   "nameless": 0.01
+  },
+  "open": {
+   "win": 0.35,
+   "nameless": 0.015
+  }
+ },
+ "Hard2|1p|graves2|need1": {
+  "child": {
+   "win": 0.325,
+   "nameless": 0.01
+  },
+  "garland": {
+   "win": 0.285,
+   "nameless": 0.03
+  },
+  "king": {
+   "win": 0.32,
+   "nameless": 0.005
+  },
+  "bride": {
+   "win": 0.295,
+   "nameless": 0.02
+  },
+  "open": {
+   "win": 0.29,
+   "nameless": 0.01
+  }
+ }
+}

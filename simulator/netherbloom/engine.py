@@ -121,6 +121,7 @@ class Config:
         self.commissions = False     # V2: secret commission cards checked at the Far Shore
         self.commission_need = None  # override the cards.COMMISSION_NEED table
         self.commission_redraw = True  # each player may redraw their commission once
+        self.graves_r3 = None        # with tileset "pool": Graves placed in Reach 3 (None: the pool default)
         self.replace_memories = False  # V2: a new memory may replace an unlit, non-key one (the old one is forgotten)
         self.burn_inscribe = False   # V2: the doubled card of a Burn may be inscribed instead of forgotten
         self.facedown_light = False  # V2: a face-down play with nowhere to root gives 1 Light
@@ -187,7 +188,16 @@ class State:
         s.griev = [False] * NSLOT
         s.tile = [FERTILE] * NSLOT
         s.revealed = [True] * NSLOT
-        for r, (spaces, mix) in C.TILESETS[(cfg.layout, cfg.tileset)].items():
+        if cfg.tileset == "pool":
+            tilesets = {}
+            for r, (spaces, pool, graves) in C.TILE_POOLS.items():
+                if r == 2 and cfg.graves_r3 is not None:
+                    graves = cfg.graves_r3
+                need = len(spaces) * 2 - graves
+                tilesets[r] = (spaces, [GRAVE] * graves + s.rng.sample(pool, need))
+        else:
+            tilesets = C.TILESETS[(cfg.layout, cfg.tileset)]
+        for r, (spaces, mix) in tilesets.items():
             mix = list(mix)
             s.rng.shuffle(mix)
             for i, sp in enumerate(spaces):
