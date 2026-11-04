@@ -12,6 +12,14 @@ def label(cid, mode):
     return f"{CARD[cid].cid} {CARD[cid].name} ({mode})"
 
 
+def _still_held(s, cid, mode):
+    if mode == "burnx":
+        return any(cid in s.hands[p] for p in s.burn_partners()) and s.burn_fuel(cid, "burnx") is not None
+    if cid not in s.hands[s.cur]:
+        return False
+    return mode != "burn" or s.n == 1 or s.cfg.burn_mode == "solo" or s.burn_fuel(cid, "burn") is not None
+
+
 def play_game(cfg, agent=None, record=False):
     agent = agent or EchoAgent(use_book=cfg.use_book)
     s = State.new(cfg)
@@ -30,12 +38,20 @@ def play_game(cfg, agent=None, record=False):
             s.stats["sought"] = 0
             s.stats["pushed"] = 0
             s.stats["burned_turn"] = 0
-            if s.mantles["warden"] == p:
+            if s.mantles.get("warden") == p:
                 s.warden_ready = True
+            if s.mantles.get("breaker") == p:
+                s.breaker_ready = True
             s.stats["turns_in_reach"][s.reach] += 1
             s.note(f"T{s.turn} P{p + 1} soul@{s.soul} forgotten {len(s.forgotten)} fract {s.fract} "
                    f"bw {s.bw_supply} light {s.light} loom {s.karma} echo {s.echo}")
             agent.maybe_summon(s)
+            if s.cfg.commissions:
+                agent.maybe_redraw(s)
+            if s.cfg.light_memory_cost:
+                agent.maybe_light(s)
+            if s.cfg.mantles_v2 and s.holder("reaper") == p:
+                agent.reap(s)
             plays = agent.choose(s) or []
             s.last_mist = None
             plays_txt = [label(cid, mode) for cid, mode in plays]
@@ -50,9 +66,15 @@ def play_game(cfg, agent=None, record=False):
                     s.play(second[0], second[1], agent, first=False)
             else:
                 for i, (cid, mode) in enumerate(plays):
+                    if cid is not None and not _still_held(s, cid, mode):
+                        # a V2 Memory Spring took the planned card into the Book; choose again
+                        alt = agent.choose_second(s)
+                        if not alt:
+                            continue
+                        cid, mode = alt
                     s.note(f"  plays {label(cid, mode)}")
                     s.play(cid, mode, agent, first=(i == 0))
-            if s.mantles["bringer"] == p and not s.bringer_used:
+            if s.holder("bringer") == p and not s.bringer_used:
                 s.bringer_used = True
                 t = agent.bloom_target(s)
                 if t is not None:

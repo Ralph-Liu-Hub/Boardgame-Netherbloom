@@ -7,7 +7,7 @@ player left, and tries to leave an Echo the next player can safely follow.
 """
 from .cards import OBS, ACC, OBL
 from . import engine as E
-from .engine import CARD, GameOver, FAR, BLOOM, ROOT, NONE
+from .engine import CARD, GameOver, BLOOM, ROOT, NONE
 
 
 class Weights:
@@ -25,6 +25,8 @@ class Weights:
         self.karma_hot = 8.0
         self.light = 1.5
         self.inscribe = 3.0
+        self.lit_mem = 3.0         # V2: a lit memory
+        self.own_comm = 10.0       # V2: my own (secret) commission is complete
         self.echo_follow = 2.0     # bonus for answering the Echo
         self.echo_leave = 1.5      # bonus for leaving a safe Echo for the next player
         self.seek_value = 1.0      # expected worth of the unseen card a Seek draws (higher makes the AI over-seek and lose more)
@@ -83,6 +85,77 @@ class EchoAgent:
     def want_inscribe(self, s, cid):
         return self.use_book
 
+    # ------------------------------------------------------------ V2 choices
+    def want_replace(self, s, old, new):
+        """Replace an unlit memory only when the new one serves my commission and the old one does not."""
+        if not s.comm:
+            return False
+        mine = s.comm[s.cur]
+        return s.comm_matches(mine, s.reach, new) and not s.comm_matches(mine, s.reach, old)
+
+    def light_target(self, s):
+        unlit = [(r, cid) for r in range(3) for cid in s.book[r].values() if cid not in s.lit_mem]
+        if not unlit:
+            return None
+        if s.comm:
+            mine = s.comm[s.cur]
+            done = s.commissions_done([mine])
+            for r, cid in unlit:
+                if not done and s.comm_matches(mine, r, cid):
+                    return cid
+        return unlit[0][1]
+
+    def maybe_light(self, s):
+        """Light memories before the Answer. My own commission first; then, with Light to spare, any memory."""
+        cost = s.cfg.light_memory_cost
+        while s.light >= cost and not s.dim:
+            cid = self.light_target(s)
+            if cid is None:
+                return
+            mine = s.comm[s.cur] if s.comm else None
+            serves_me = mine is not None and not s.commissions_done([mine]) and any(
+                s.comm_matches(mine, r, c) for r in range(3) for c in s.book[r].values() if c == cid)
+            # Lighting is only checked at the Far Shore, so keep Light for Recalls until the last Reach,
+            # unless a Mist that peels unlit memories is in play.
+            late = s.reach == 2 or (s.cfg.mist_v2 and serves_me)
+            reserve = 0 if late else 3
+            if s.light - cost < reserve:
+                return
+            s.light_one(cid, cost)
+
+    def maybe_redraw(self, s):
+        """Redraw a commission whose page has already closed without it."""
+        p = s.cur
+        if s.redrawn[p] or not s.comm_deck:
+            return
+        from .cards import COMMISSIONS
+        k = COMMISSIONS[s.cfg.soul][s.comm[p]]
+        if k["page"] is not None and k["page"] < s.reach and not s.commissions_done([s.comm[p]]):
+            s.redrawn[p] = True
+            s.comm[p] = s.comm_deck.pop()
+            s.stats["redraws"] = s.stats.get("redraws", 0) + 1
+
+    def reap(self, s):
+        """V2 Reaper: look at the top 2, swap any of them into the hand, the rest go to the bottom."""
+        top = []
+        for _ in range(2):
+            if not s.deck:
+                s.reshuffle()
+            if s.deck:
+                top.append(s.deck.pop())
+        if not top:
+            return
+        pool = s.hands[s.cur] + top
+        ranked = sorted(pool, key=lambda c: -self.card_value(s, c))
+        keep = ranked[:len(s.hands[s.cur])]
+        back = list(pool)
+        for c in keep:
+            back.remove(c)
+        if set(keep) != set(s.hands[s.cur]):
+            s.stats["reaps"] = s.stats.get("reaps", 0) + 1
+        s.hands[s.cur] = keep
+        s.deck[:0] = back
+
     # ------------------------------------------------------------ playtest choices
     def card_value(self, s, cid):
         """How much good this card would do played now (best of face up / face down), for keeping or giving."""
@@ -114,12 +187,12 @@ class EchoAgent:
             return -1e5
         w, cfg = self.w, s.cfg
         v = s.soul * w.progress
-        for sp in range(s.soul + 1, min(FAR, s.soul + 4)):
+        for sp in range(s.soul + 1, min(E.FAR, s.soul + 4)):
             if s.passable(sp):
                 v += w.path * (1.0 if sp == s.soul + 1 else 0.6)
             else:
                 break
-        for sp in range(s.soul + 1, min(FAR, s.soul + 4)):
+        for sp in range(s.soul + 1, min(E.FAR, s.soul + 4)):
             for b in (0, 1):
                 t = s.tok[sp * 2 + b]
                 if t == ROOT:
@@ -131,9 +204,9 @@ class EchoAgent:
         v -= s.fract * w.fracture + (25 if s.fract >= cfg.fracture_limit - 1 else 0)
         if s.soul >= 1:
             v -= (s.griev[s.soul * 2] + s.griev[s.soul * 2 + 1]) * w.griev_beside
-        if s.soul + 1 <= 11:
+        if s.soul + 1 <= E.LAST:
             v -= (s.griev[(s.soul + 1) * 2] + s.griev[(s.soul + 1) * 2 + 1]) * w.griev_next
-        v -= sum(s.flooded[s.soul + 1:FAR]) * w.flood
+        v -= sum(s.flooded[s.soul + 1:E.FAR]) * w.flood
         if s.bw_supply == 0:
             v -= 40
         elif s.bw_supply == 1:
@@ -147,6 +220,15 @@ class EchoAgent:
             v -= 10
         v += min(s.light, 6) * w.light
         v += s.stats["inscribed"] * w.inscribe
+        if s.cfg.commissions:
+            v += len(s.lit_mem) * w.lit_mem
+            if s.comm and s.commissions_done([s.comm[s.cur]]):
+                v += w.own_comm
+            elif s.comm:
+                # an unlit memory that would complete my commission is half-way there
+                mine = s.comm[s.cur]
+                if any(s.comm_matches(mine, r, c) for r in range(3) for c in s.book[r].values()):
+                    v += w.own_comm / 3
         # Leave the next player an Echo that is safe to follow
         if s.echo >= 0 and s.karma[s.echo] <= cfg.karma_cap - 3:
             v += w.echo_leave
@@ -253,7 +335,9 @@ class EchoAgent:
         order = ["bringer", "weaver", "breaker", "warden"]
         if len(s.forgotten) >= s.cfg.adrift_at - 2:
             order = ["warden", "bringer", "weaver", "breaker"]
-        from .cards import MANTLES
+        if s.cfg.mantles_v2:
+            order = ["bringer", "weaver", "reaper", "breaker", "warden"]
+        from .cards import MANTLES_V2 as MANTLES
         if held:
             # Solo re-summon: trade up only for a Mantle the situation ranks above the one held.
             order = order[:order.index(held)] if held in order else order
