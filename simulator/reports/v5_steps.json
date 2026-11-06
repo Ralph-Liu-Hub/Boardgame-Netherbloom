@@ -1,0 +1,209 @@
+[
+ [
+  "V4.0",
+  {
+   "win": 0.548,
+   "turns": 15.2,
+   "backlash": 1.4,
+   "causes": {
+    "Shattered": 0.203,
+    "Faded": 0.129,
+    "Deluge": 0.082,
+    "Nameless": 0.037
+   }
+  }
+ ],
+ [
+  "＋引發共鳴後點亮",
+  {
+   "win": 0.517,
+   "turns": 15.1,
+   "backlash": 1.33,
+   "causes": {
+    "Shattered": 0.207,
+    "Faded": 0.134,
+    "Deluge": 0.112,
+    "Nameless": 0.031
+   }
+  }
+ ],
+ [
+  "＋奮力駛過改自由行動",
+  {
+   "win": 0.523,
+   "turns": 14.7,
+   "backlash": 1.3,
+   "causes": {
+    "Shattered": 0.207,
+    "Faded": 0.133,
+    "Deluge": 0.102,
+    "Nameless": 0.035
+   }
+  }
+ ],
+ [
+  "＋換牌取代焚燒",
+  {
+   "win": 0.583,
+   "turns": 18.0,
+   "backlash": 2.13,
+   "causes": {
+    "Shattered": 0.185,
+    "Deluge": 0.176,
+    "Nameless": 0.037,
+    "Faded": 0.02
+   }
+  }
+ ],
+ [
+  "＋喚回改為銘刻",
+  {
+   "win": 0.583,
+   "turns": 17.9,
+   "backlash": 2.12,
+   "causes": {
+    "Deluge": 0.182,
+    "Shattered": 0.173,
+    "Faded": 0.041,
+    "Nameless": 0.022
+   }
+  }
+ ],
+ [
+  "＋背面打出加結",
+  {
+   "win": 0.552,
+   "turns": 16.8,
+   "backlash": 4.06,
+   "causes": {
+    "Shattered": 0.206,
+    "Deluge": 0.165,
+    "Faded": 0.056,
+    "Nameless": 0.021
+   }
+  }
+ ],
+ [
+  "＋託付提前翻開",
+  {
+   "win": 0.568,
+   "turns": 16.8,
+   "backlash": 3.35,
+   "causes": {
+    "Shattered": 0.194,
+    "Deluge": 0.169,
+    "Faded": 0.043,
+    "Nameless": 0.026
+   }
+  }
+ ],
+ [
+  "＋根網特性",
+  {
+   "win": 0.568,
+   "turns": 16.8,
+   "backlash": 3.35,
+   "causes": {
+    "Shattered": 0.194,
+    "Deluge": 0.169,
+    "Faded": 0.043,
+    "Nameless": 0.026
+   }
+  }
+ ],
+ [
+  "＋根網所及與斷根",
+  {
+   "win": 0.559,
+   "turns": 16.9,
+   "backlash": 3.39,
+   "causes": {
+    "Shattered": 0.202,
+    "Deluge": 0.169,
+    "Faded": 0.045,
+    "Nameless": 0.025
+   }
+  }
+ ],
+ [
+  "＋怨念推進織機",
+  {
+   "win": 0.301,
+   "turns": 17.5,
+   "backlash": 6.76,
+   "causes": {
+    "Shattered": 0.367,
+    "Deluge": 0.186,
+    "Faded": 0.133,
+    "Nameless": 0.014
+   }
+  }
+ ],
+ [
+  "＋收光／留光（光牆）",
+  {
+   "win": 0.277,
+   "turns": 17.4,
+   "backlash": 6.73,
+   "causes": {
+    "Shattered": 0.378,
+    "Deluge": 0.216,
+    "Faded": 0.12,
+    "Nameless": 0.01
+   }
+  }
+ ],
+ [
+  "＋迷霧深度",
+  {
+   "win": 0.277,
+   "turns": 17.1,
+   "backlash": 6.64,
+   "causes": {
+    "Shattered": 0.375,
+    "Deluge": 0.223,
+    "Faded": 0.108,
+    "Nameless": 0.018
+   }
+  }
+ ],
+ [
+  "＋傷疤、三級反噬、迷霧加結、結跨河段",
+  {
+   "win": 0.0,
+   "turns": 10.6,
+   "backlash": 8.96,
+   "causes": {
+    "Shattered": 0.55,
+    "Deluge": 0.312,
+    "Faded": 0.138
+   }
+  }
+ ],
+ [
+  "＋霧區與籠罩",
+  {
+   "win": 0.001,
+   "turns": 9.9,
+   "backlash": 8.17,
+   "causes": {
+    "Shattered": 0.717,
+    "Deluge": 0.226,
+    "Faded": 0.057
+   }
+  }
+ ],
+ [
+  "＋命運之霧",
+  {
+   "win": 0.0,
+   "turns": 9.0,
+   "backlash": 7.59,
+   "causes": {
+    "Shattered": 0.677,
+    "Deluge": 0.244,
+    "Faded": 0.079
+   }
+  }
+ ]
+]

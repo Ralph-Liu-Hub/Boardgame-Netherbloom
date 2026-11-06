@@ -123,6 +123,19 @@ class EchoAgent:
                 return
             s.light_one(cid, cost)
 
+    def maybe_reveal(self, s):
+        """V5: reveal my commission as soon as a lit memory completes it (untie 2 knots)."""
+        cid = s.reveal_ready(s.cur)
+        if cid is not None:
+            s.reveal(s.cur, cid, self)
+
+    def maybe_push(self, s):
+        """V5: Push Through is free; push whenever Shades hold both banks ahead and it will not shatter the soul."""
+        if (s.cfg.push_action and s.blocked_by_grievances() and not s.stats.get("pushed")
+                and not (s.cfg.push_once_each and s.stats.get(f"pushed_p{s.cur}"))
+                and s.fract < s.cfg.fracture_limit - 1):
+            s.play(None, "push", self, False)
+
     def maybe_redraw(self, s):
         """Redraw a commission whose page has already closed without it."""
         p = s.cur
@@ -226,11 +239,27 @@ class EchoAgent:
             v -= 40
         elif s.bw_supply == 1:
             v -= w.supply_low
-        for k in s.karma:
-            if k >= cfg.karma_cap - 1:
+        for t, k in enumerate(s.karma):
+            cap = s.cap(t)
+            if k >= cap - 1:
                 v -= w.karma_hot
-            elif k == cfg.karma_cap - 2:
+            elif k == cap - 2:
                 v -= 2
+        if cfg.v5_fog or cfg.v5_scars:
+            m = s.front_mist()
+            if m is not None:
+                tag = E.mist_thread(m)
+                if cfg.v5_scars and tag is not None and s.karma[tag] + 1 >= s.cap(tag):
+                    v -= w.karma_hot
+                if cfg.v5_fog and s.soul >= 1:
+                    need = s.fog_need(s.soul)
+                    st = E.mist_strength(m)
+                    if st >= need:
+                        v -= w.fracture + 10
+                    elif st + 1 >= need:
+                        v -= 6
+            if cfg.v5_scars:
+                v -= sum(s.scars) * 3
         if s.stats.get("resignation_pending"):
             v -= 10
         v += min(s.light, 6) * w.light
@@ -245,7 +274,7 @@ class EchoAgent:
                 if any(s.comm_matches(mine, r, c) for r in range(3) for c in s.book[r].values()):
                     v += w.own_comm / 3
         # Leave the next player an Echo that is safe to follow
-        if s.echo >= 0 and s.karma[s.echo] <= cfg.karma_cap - 3:
+        if s.echo >= 0 and s.karma[s.echo] <= s.cap(s.echo) - 3:
             v += w.echo_leave
         return v
 
@@ -260,15 +289,15 @@ class EchoAgent:
     def options(self, s, seek=False):
         hand = s.hands[s.cur]
         seen, out = set(), []
-        if (s.cfg.push_action and not s.stats.get("pushed") and s.blocked_by_grievances()
+        if (s.cfg.push_action and not s.cfg.v5_push_free and not s.stats.get("pushed") and s.blocked_by_grievances()
                 and not (s.cfg.push_once_each and s.stats.get(f"pushed_p{s.cur}"))):
             out.append((None, "push"))
-        if seek:   # only the Answer (first) action may spend Light
+        if seek or s.cfg.v5_recall:   # only the Answer (first) action may spend Light (V5 Recall: either action)
             out += [(None, m) for m in E.light_actions(s)]
         if seek and s.cfg.seek and s.cfg.seek_mode != "off" and not s.stats.get("sought") and len(hand) > 1:
             out += [(cid, "seek") for cid in dict.fromkeys(hand)]
         lim = s.cfg.burn_limit
-        can_burn = self.allow_burn and not (lim == "once" and s.stats.get("burned_turn")) and not (lim in ("turn", "answer") and not seek)
+        can_burn = self.allow_burn and not s.cfg.v5_swap and not (lim == "once" and s.stats.get("burned_turn")) and not (lim in ("turn", "answer") and not seek)
         for cid in hand:
             key = CARD[cid].cid
             if key in seen:
@@ -278,6 +307,11 @@ class EchoAgent:
             out.append((cid, "down"))
             if can_burn and (s.cfg.burn_mode == "solo" or s.n == 1 or s.burn_fuel(cid, "burn")):
                 out.append((cid, "burn"))
+        if s.cfg.v5_swap and s.n > 1 and "swapped" not in s.turn_flags and hand:
+            for p in range(s.n):
+                if p != s.cur:
+                    for cid in dict.fromkeys(s.hands[p]):
+                        out.append((cid, "swapx"))
         if can_burn and s.cfg.burn_mode == "joint_b" and s.n > 1:
             # either card of a joint Burn may be the one that doubles: a partner's card, fuelled by one of yours
             for p in s.burn_partners():
@@ -306,7 +340,7 @@ class EchoAgent:
         n_cards = min(s.cfg.cards_per_turn, len(s.hands[s.cur]))
         if n_cards == 1:
             for sc, cid, mode, c, res, bonus in firsts:
-                if mode not in ("seek", "push", "recall", "mend", "drainl"):
+                if mode not in ("seek", "push", "recall", "mend", "drainl", "recall_ins"):
                     return [(cid, mode)]
         for sc1, cid1, mode1, c1, res, bonus in firsts[:self.beam]:
             if s.cfg.burn_limit == "turn" and mode1 in ("burn", "burnx") and c1.result is None:

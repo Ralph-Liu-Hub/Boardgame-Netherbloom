@@ -1,0 +1,2507 @@
+{
+ "child|1p": {
+  "games": 200,
+  "win": 0.375,
+  "causes": {
+   "Shattered": 0.51,
+   "Deluge": 0.085,
+   "Faded": 0.025,
+   "Nameless": 0.005
+  },
+  "turns": 16.46,
+  "turns_win": 14.81,
+  "reach_turns": [
+   6.17,
+   5.75,
+   4.54
+  ],
+  "face_up": 21.99,
+  "face_down": 9.47,
+  "swaps": 0,
+  "burns": 0,
+  "recalls": 1.44,
+  "pushes": 0.48,
+  "summons": 1.03,
+  "lit": 7.7,
+  "inscribed": 8.31,
+  "reveals": 0.93,
+  "lingers": 6.04,
+  "knots_play": 39.35,
+  "knots_down": 9.47,
+  "knots_mist": 0,
+  "knots_griev": 2.02,
+  "knots_fate": 1.88,
+  "backlash": 1.73,
+  "lv1": 0.55,
+  "lv2": 0.86,
+  "lv3": 0.32,
+  "scars": 1.6,
+  "unties": 0,
+  "fog_flips": 4.47,
+  "fog_reclaimed": 0.97,
+  "walls_kept": 1.46,
+  "wall_absorbed": 2.33,
+  "shrouds": 0.65,
+  "book_scars": 2.97,
+  "scar_covers": 0.12,
+  "scar_fracture": 0.55,
+  "scar_mist": 0.64,
+  "scar_fate": 3,
+  "max_fract": 2.01,
+  "max_forgotten": 7.32,
+  "light_end": 7.28,
+  "shroud_any": 0.41,
+  "shrouds_r": [
+   0.06,
+   0.34,
+   0.26
+  ],
+  "backlash_by": [
+   0.94,
+   0.59,
+   0.19
+  ],
+  "fate_nat": [
+   0.69,
+   0.71,
+   0.81
+  ],
+  "fate_forced": [
+   0.43,
+   0.36,
+   0
+  ],
+  "depth_share": [
+   0.354,
+   0.305,
+   0.341
+  ],
+  "reached_deep": 0.825,
+  "reveal_reach": {
+   "r1": 0.61,
+   "r2": 0.18,
+   "r3": 0.13
+  },
+  "fate_conds": {
+   "linger": 0.56,
+   "fed": 0.48,
+   "lit": 0.46,
+   "inscribed": 0.42,
+   "backlash": 0.34,
+   "shroud": 0.33,
+   "reveal": 0.23,
+   "recall": 0.19
+  },
+  "traits": {
+   "Obsession": 0.71,
+   "Acceptance": 0.44
+  },
+  "comm_done": 0.99,
+  "cracks": {
+   "feed": 1.13,
+   "book_scar": 0.46,
+   "shroud": 0.44,
+   "push_through": 0.33,
+   "backlash": 0.15,
+   "do_op": 0.06,
+   "mist_card": 0.01
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.395,
+   "忘卻結局": 0.25,
+   "執念結局": 0.18,
+   "釋懷結局": 0.17,
+   "清明（沒有霧痕）": 0.005
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.4,
+   "忘卻結局": 0.267,
+   "執念結局": 0.187,
+   "釋懷結局": 0.147
+  },
+  "key_place_win": {
+   "inscribed": 0.453,
+   "unspoken": 0.427,
+   "forgotten": 0.12
+  }
+ },
+ "child|2p": {
+  "games": 200,
+  "win": 0.63,
+  "causes": {
+   "Shattered": 0.23,
+   "Nameless": 0.075,
+   "Deluge": 0.035,
+   "Faded": 0.03
+  },
+  "turns": 15.97,
+  "turns_win": 15.05,
+  "reach_turns": [
+   6.28,
+   5.33,
+   4.37
+  ],
+  "face_up": 23.54,
+  "face_down": 7.11,
+  "swaps": 10.43,
+  "burns": 0,
+  "recalls": 1.12,
+  "pushes": 0.78,
+  "summons": 2,
+  "lit": 7.7,
+  "inscribed": 8.61,
+  "reveals": 1.78,
+  "lingers": 5.07,
+  "knots_play": 25.57,
+  "knots_down": 7.11,
+  "knots_mist": 0,
+  "knots_griev": 1.7,
+  "knots_fate": 1.78,
+  "backlash": 0.42,
+  "lv1": 0.18,
+  "lv2": 0.2,
+  "lv3": 0.04,
+  "scars": 0.42,
+  "unties": 0,
+  "fog_flips": 3.91,
+  "fog_reclaimed": 0.8,
+  "walls_kept": 1.05,
+  "wall_absorbed": 1.59,
+  "shrouds": 0.47,
+  "book_scars": 2.92,
+  "scar_covers": 0.18,
+  "scar_fracture": 0.24,
+  "scar_mist": 0.46,
+  "scar_fate": 2.88,
+  "max_fract": 1.46,
+  "max_forgotten": 7.58,
+  "light_end": 5.83,
+  "shroud_any": 0.28,
+  "shrouds_r": [
+   0.07,
+   0.2,
+   0.2
+  ],
+  "backlash_by": [
+   0.2,
+   0.18,
+   0.04
+  ],
+  "fate_nat": [
+   0.66,
+   0.67,
+   0.7
+  ],
+  "fate_forced": [
+   0.45,
+   0.41,
+   0
+  ],
+  "depth_share": [
+   0.475,
+   0.264,
+   0.261
+  ],
+  "reached_deep": 0.835,
+  "reveal_reach": {
+   "r1": 0.94,
+   "r2": 0.57,
+   "r3": 0.28
+  },
+  "fate_conds": {
+   "linger": 0.56,
+   "inscribed": 0.43,
+   "fed": 0.38,
+   "reveal": 0.38,
+   "shroud": 0.37,
+   "backlash": 0.31,
+   "lit": 0.28,
+   "recall": 0.18
+  },
+  "traits": {
+   "Obsession": 0.57,
+   "Acceptance": 0.47
+  },
+  "comm_done": 1.89,
+  "cracks": {
+   "feed": 0.88,
+   "push_through": 0.45,
+   "shroud": 0.32,
+   "book_scar": 0.2,
+   "do_op": 0.07,
+   "backlash": 0.02,
+   "mist_card": 0.01
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.35,
+   "忘卻結局": 0.25,
+   "執念結局": 0.205,
+   "釋懷結局": 0.195
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.357,
+   "忘卻結局": 0.23,
+   "釋懷結局": 0.214,
+   "執念結局": 0.198
+  },
+  "key_place_win": {
+   "inscribed": 0.563,
+   "unspoken": 0.381,
+   "forgotten": 0.056
+  }
+ },
+ "child|3p": {
+  "games": 200,
+  "win": 0.62,
+  "causes": {
+   "Shattered": 0.245,
+   "Deluge": 0.075,
+   "Faded": 0.05,
+   "Nameless": 0.01
+  },
+  "turns": 16.92,
+  "turns_win": 15.38,
+  "reach_turns": [
+   6.42,
+   5.47,
+   5.03
+  ],
+  "face_up": 25.94,
+  "face_down": 6.82,
+  "swaps": 13.11,
+  "burns": 0,
+  "recalls": 0.86,
+  "pushes": 1.01,
+  "summons": 2.88,
+  "lit": 8.06,
+  "inscribed": 9.15,
+  "reveals": 2.68,
+  "lingers": 5.97,
+  "knots_play": 28.26,
+  "knots_down": 6.82,
+  "knots_mist": 0,
+  "knots_griev": 1.9,
+  "knots_fate": 1.98,
+  "backlash": 0.55,
+  "lv1": 0.14,
+  "lv2": 0.32,
+  "lv3": 0.09,
+  "scars": 0.52,
+  "unties": 0,
+  "fog_flips": 5.25,
+  "fog_reclaimed": 0.98,
+  "walls_kept": 1.2,
+  "wall_absorbed": 1.55,
+  "shrouds": 0.54,
+  "book_scars": 3.12,
+  "scar_covers": 0.18,
+  "scar_fracture": 0.35,
+  "scar_mist": 0.54,
+  "scar_fate": 3.12,
+  "max_fract": 1.61,
+  "max_forgotten": 8.78,
+  "light_end": 4.37,
+  "shroud_any": 0.3,
+  "shrouds_r": [
+   0.06,
+   0.15,
+   0.34
+  ],
+  "backlash_by": [
+   0.28,
+   0.23,
+   0.04
+  ],
+  "fate_nat": [
+   0.78,
+   0.73,
+   0.87
+  ],
+  "fate_forced": [
+   0.37,
+   0.38,
+   0
+  ],
+  "depth_share": [
+   0.429,
+   0.288,
+   0.283
+  ],
+  "reached_deep": 0.88,
+  "reveal_reach": {
+   "r1": 1.28,
+   "r2": 0.85,
+   "r3": 0.55
+  },
+  "fate_conds": {
+   "linger": 0.6,
+   "inscribed": 0.48,
+   "reveal": 0.47,
+   "fed": 0.45,
+   "backlash": 0.34,
+   "lit": 0.33,
+   "shroud": 0.33,
+   "recall": 0.14
+  },
+  "traits": {
+   "Obsession": 0.59,
+   "Acceptance": 0.57
+  },
+  "comm_done": 2.78,
+  "cracks": {
+   "feed": 0.94,
+   "push_through": 0.68,
+   "shroud": 0.43,
+   "book_scar": 0.29,
+   "do_op": 0.09,
+   "mist_card": 0.04,
+   "backlash": 0.03
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.32,
+   "釋懷結局": 0.26,
+   "執念結局": 0.23,
+   "忘卻結局": 0.19
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.306,
+   "釋懷結局": 0.29,
+   "執念結局": 0.242,
+   "忘卻結局": 0.161
+  },
+  "key_place_win": {
+   "inscribed": 0.653,
+   "unspoken": 0.274,
+   "forgotten": 0.073
+  }
+ },
+ "child|4p": {
+  "games": 200,
+  "win": 0.655,
+  "causes": {
+   "Shattered": 0.25,
+   "Deluge": 0.04,
+   "Faded": 0.04,
+   "Nameless": 0.015
+  },
+  "turns": 17.01,
+  "turns_win": 15.4,
+  "reach_turns": [
+   5.91,
+   5.65,
+   5.46
+  ],
+  "face_up": 26.81,
+  "face_down": 6.27,
+  "swaps": 14.4,
+  "burns": 0,
+  "recalls": 0.66,
+  "pushes": 1.05,
+  "summons": 3.47,
+  "lit": 8.23,
+  "inscribed": 9.37,
+  "reveals": 3.35,
+  "lingers": 5.7,
+  "knots_play": 29.31,
+  "knots_down": 6.27,
+  "knots_mist": 0,
+  "knots_griev": 1.58,
+  "knots_fate": 1.95,
+  "backlash": 0.27,
+  "lv1": 0.07,
+  "lv2": 0.16,
+  "lv3": 0.04,
+  "scars": 0.27,
+  "unties": 0,
+  "fog_flips": 4.87,
+  "fog_reclaimed": 0.96,
+  "walls_kept": 1.28,
+  "wall_absorbed": 1.91,
+  "shrouds": 0.59,
+  "book_scars": 3.13,
+  "scar_covers": 0.2,
+  "scar_fracture": 0.35,
+  "scar_mist": 0.59,
+  "scar_fate": 3.09,
+  "max_fract": 1.51,
+  "max_forgotten": 8.93,
+  "light_end": 3.49,
+  "shroud_any": 0.36,
+  "shrouds_r": [
+   0.01,
+   0.17,
+   0.41
+  ],
+  "backlash_by": [
+   0.15,
+   0.1,
+   0.02
+  ],
+  "fate_nat": [
+   0.75,
+   0.66,
+   0.86
+  ],
+  "fate_forced": [
+   0.41,
+   0.42,
+   0
+  ],
+  "depth_share": [
+   0.428,
+   0.281,
+   0.291
+  ],
+  "reached_deep": 0.895,
+  "reveal_reach": {
+   "r1": 1.47,
+   "r2": 1.0,
+   "r3": 0.88
+  },
+  "fate_conds": {
+   "linger": 0.65,
+   "reveal": 0.49,
+   "inscribed": 0.48,
+   "fed": 0.45,
+   "shroud": 0.33,
+   "lit": 0.31,
+   "backlash": 0.3,
+   "recall": 0.1
+  },
+  "traits": {
+   "Acceptance": 0.62,
+   "Obsession": 0.58
+  },
+  "comm_done": 3.52,
+  "cracks": {
+   "push_through": 0.66,
+   "feed": 0.61,
+   "shroud": 0.47,
+   "book_scar": 0.31,
+   "do_op": 0.1,
+   "mist_card": 0.05,
+   "backlash": 0.02
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.35,
+   "忘卻結局": 0.255,
+   "釋懷結局": 0.21,
+   "執念結局": 0.185
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.397,
+   "忘卻結局": 0.214,
+   "執念結局": 0.198,
+   "釋懷結局": 0.191
+  },
+  "key_place_win": {
+   "inscribed": 0.687,
+   "unspoken": 0.252,
+   "forgotten": 0.061
+  }
+ },
+ "garland|1p": {
+  "games": 200,
+  "win": 0.24,
+  "causes": {
+   "Shattered": 0.605,
+   "Deluge": 0.115,
+   "Faded": 0.04
+  },
+  "turns": 15.82,
+  "turns_win": 15.5,
+  "reach_turns": [
+   7.15,
+   5.03,
+   3.65
+  ],
+  "face_up": 21.43,
+  "face_down": 8.97,
+  "swaps": 0,
+  "burns": 0,
+  "recalls": 1.23,
+  "pushes": 0.52,
+  "summons": 1,
+  "lit": 6.93,
+  "inscribed": 8.16,
+  "reveals": 0.84,
+  "lingers": 6.58,
+  "knots_play": 38.1,
+  "knots_down": 8.97,
+  "knots_mist": 0,
+  "knots_griev": 1.62,
+  "knots_fate": 1.66,
+  "backlash": 1.55,
+  "lv1": 0.6,
+  "lv2": 0.66,
+  "lv3": 0.29,
+  "scars": 1.46,
+  "unties": 0,
+  "fog_flips": 4.62,
+  "fog_reclaimed": 0.78,
+  "walls_kept": 1.31,
+  "wall_absorbed": 2.4,
+  "shrouds": 0.43,
+  "book_scars": 2.83,
+  "scar_covers": 0.12,
+  "scar_fracture": 0.29,
+  "scar_mist": 0.42,
+  "scar_fate": 2.81,
+  "max_fract": 2.34,
+  "max_forgotten": 7.22,
+  "light_end": 5.43,
+  "shroud_any": 0.355,
+  "shrouds_r": [
+   0.07,
+   0.17,
+   0.18
+  ],
+  "backlash_by": [
+   0.89,
+   0.49,
+   0.17
+  ],
+  "fate_nat": [
+   0.79,
+   0.63,
+   0.71
+  ],
+  "fate_forced": [
+   0.37,
+   0.32,
+   0
+  ],
+  "depth_share": [
+   0.493,
+   0.238,
+   0.269
+  ],
+  "reached_deep": 0.705,
+  "reveal_reach": {
+   "r1": 0.58,
+   "r2": 0.09,
+   "r3": 0.18
+  },
+  "fate_conds": {
+   "linger": 0.58,
+   "fed": 0.45,
+   "inscribed": 0.41,
+   "lit": 0.34,
+   "backlash": 0.34,
+   "shroud": 0.34,
+   "reveal": 0.21,
+   "recall": 0.15
+  },
+  "traits": {
+   "Obsession": 0.54,
+   "Acceptance": 0.53
+  },
+  "comm_done": 1,
+  "cracks": {
+   "feed": 1.5,
+   "push_through": 0.49,
+   "shroud": 0.33,
+   "book_scar": 0.27,
+   "backlash": 0.13,
+   "soul_step": 0.07,
+   "do_op": 0.04,
+   "mist_card": 0.03
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.41,
+   "忘卻結局": 0.235,
+   "執念結局": 0.18,
+   "釋懷結局": 0.165,
+   "清明（沒有霧痕）": 0.01
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.354,
+   "忘卻結局": 0.271,
+   "執念結局": 0.188,
+   "釋懷結局": 0.188
+  },
+  "key_place_win": {
+   "inscribed": 0.604,
+   "unspoken": 0.333,
+   "forgotten": 0.062
+  }
+ },
+ "garland|2p": {
+  "games": 200,
+  "win": 0.47,
+  "causes": {
+   "Shattered": 0.405,
+   "Deluge": 0.06,
+   "Nameless": 0.045,
+   "Faded": 0.02
+  },
+  "turns": 16.71,
+  "turns_win": 16.87,
+  "reach_turns": [
+   7.68,
+   5.15,
+   3.88
+  ],
+  "face_up": 24.92,
+  "face_down": 7.63,
+  "swaps": 10.98,
+  "burns": 0,
+  "recalls": 0.81,
+  "pushes": 1.01,
+  "summons": 1.9,
+  "lit": 7.12,
+  "inscribed": 8.39,
+  "reveals": 1.71,
+  "lingers": 7.37,
+  "knots_play": 26.91,
+  "knots_down": 7.63,
+  "knots_mist": 0,
+  "knots_griev": 1.33,
+  "knots_fate": 1.68,
+  "backlash": 0.59,
+  "lv1": 0.23,
+  "lv2": 0.29,
+  "lv3": 0.07,
+  "scars": 0.57,
+  "unties": 0,
+  "fog_flips": 5.48,
+  "fog_reclaimed": 1.25,
+  "walls_kept": 0.98,
+  "wall_absorbed": 2.21,
+  "shrouds": 0.55,
+  "book_scars": 2.9,
+  "scar_covers": 0.2,
+  "scar_fracture": 0.28,
+  "scar_mist": 0.54,
+  "scar_fate": 2.85,
+  "max_fract": 2.04,
+  "max_forgotten": 7.94,
+  "light_end": 4.32,
+  "shroud_any": 0.35,
+  "shrouds_r": [
+   0.09,
+   0.24,
+   0.22
+  ],
+  "backlash_by": [
+   0.34,
+   0.21,
+   0.04
+  ],
+  "fate_nat": [
+   0.79,
+   0.66,
+   0.64
+  ],
+  "fate_forced": [
+   0.39,
+   0.38,
+   0
+  ],
+  "depth_share": [
+   0.528,
+   0.258,
+   0.214
+  ],
+  "reached_deep": 0.705,
+  "reveal_reach": {
+   "r1": 0.99,
+   "r2": 0.32,
+   "r3": 0.4
+  },
+  "fate_conds": {
+   "linger": 0.61,
+   "inscribed": 0.41,
+   "shroud": 0.41,
+   "reveal": 0.38,
+   "fed": 0.33,
+   "backlash": 0.28,
+   "lit": 0.28,
+   "recall": 0.14
+  },
+  "traits": {
+   "Acceptance": 0.55,
+   "Obsession": 0.45
+  },
+  "comm_done": 1.9,
+  "cracks": {
+   "feed": 1.01,
+   "push_through": 0.94,
+   "shroud": 0.42,
+   "book_scar": 0.27,
+   "do_op": 0.09,
+   "mist_card": 0.07,
+   "soul_step": 0.06,
+   "backlash": 0.02
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.375,
+   "忘卻結局": 0.245,
+   "執念結局": 0.215,
+   "釋懷結局": 0.16,
+   "清明（沒有霧痕）": 0.005
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.33,
+   "執念結局": 0.255,
+   "忘卻結局": 0.223,
+   "釋懷結局": 0.191
+  },
+  "key_place_win": {
+   "inscribed": 0.777,
+   "unspoken": 0.181,
+   "forgotten": 0.043
+  }
+ },
+ "garland|3p": {
+  "games": 200,
+  "win": 0.55,
+  "causes": {
+   "Shattered": 0.325,
+   "Deluge": 0.065,
+   "Faded": 0.03,
+   "Nameless": 0.03
+  },
+  "turns": 17.11,
+  "turns_win": 16.39,
+  "reach_turns": [
+   7.06,
+   5.77,
+   4.28
+  ],
+  "face_up": 26.89,
+  "face_down": 6.54,
+  "swaps": 13.55,
+  "burns": 0,
+  "recalls": 0.62,
+  "pushes": 1.08,
+  "summons": 2.66,
+  "lit": 7.41,
+  "inscribed": 8.88,
+  "reveals": 2.49,
+  "lingers": 7.17,
+  "knots_play": 29.17,
+  "knots_down": 6.54,
+  "knots_mist": 0,
+  "knots_griev": 1.33,
+  "knots_fate": 1.78,
+  "backlash": 0.51,
+  "lv1": 0.17,
+  "lv2": 0.23,
+  "lv3": 0.1,
+  "scars": 0.48,
+  "unties": 0,
+  "fog_flips": 5.4,
+  "fog_reclaimed": 1.04,
+  "walls_kept": 1.11,
+  "wall_absorbed": 2.2,
+  "shrouds": 0.51,
+  "book_scars": 2.99,
+  "scar_covers": 0.21,
+  "scar_fracture": 0.23,
+  "scar_mist": 0.51,
+  "scar_fate": 2.92,
+  "max_fract": 1.91,
+  "max_forgotten": 8.77,
+  "light_end": 3.42,
+  "shroud_any": 0.335,
+  "shrouds_r": [
+   0.06,
+   0.24,
+   0.2
+  ],
+  "backlash_by": [
+   0.29,
+   0.18,
+   0.04
+  ],
+  "fate_nat": [
+   0.78,
+   0.69,
+   0.76
+  ],
+  "fate_forced": [
+   0.36,
+   0.34,
+   0
+  ],
+  "depth_share": [
+   0.479,
+   0.3,
+   0.221
+  ],
+  "reached_deep": 0.755,
+  "reveal_reach": {
+   "r1": 1.4,
+   "r2": 0.51,
+   "r3": 0.58
+  },
+  "fate_conds": {
+   "linger": 0.67,
+   "inscribed": 0.45,
+   "reveal": 0.45,
+   "fed": 0.38,
+   "lit": 0.32,
+   "shroud": 0.3,
+   "backlash": 0.3,
+   "recall": 0.07
+  },
+  "traits": {
+   "Acceptance": 0.58,
+   "Obsession": 0.43
+  },
+  "comm_done": 2.59,
+  "cracks": {
+   "push_through": 0.98,
+   "feed": 0.94,
+   "shroud": 0.41,
+   "book_scar": 0.21,
+   "soul_step": 0.12,
+   "do_op": 0.11,
+   "mist_card": 0.07,
+   "backlash": 0.03
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.31,
+   "忘卻結局": 0.27,
+   "執念結局": 0.21,
+   "釋懷結局": 0.21
+  },
+  "endings_win": {
+   "忘卻結局": 0.291,
+   "執念結局": 0.245,
+   "釋懷結局": 0.236,
+   "交織（霧痕各半）": 0.227
+  },
+  "key_place_win": {
+   "inscribed": 0.691,
+   "unspoken": 0.255,
+   "forgotten": 0.055
+  }
+ },
+ "garland|4p": {
+  "games": 200,
+  "win": 0.69,
+  "causes": {
+   "Shattered": 0.19,
+   "Nameless": 0.045,
+   "Deluge": 0.04,
+   "Faded": 0.035
+  },
+  "turns": 16.85,
+  "turns_win": 16.46,
+  "reach_turns": [
+   6.65,
+   5.84,
+   4.36
+  ],
+  "face_up": 27.45,
+  "face_down": 5.67,
+  "swaps": 14.5,
+  "burns": 0,
+  "recalls": 0.49,
+  "pushes": 1.07,
+  "summons": 3.04,
+  "lit": 7.97,
+  "inscribed": 9.39,
+  "reveals": 3.33,
+  "lingers": 6.24,
+  "knots_play": 29.95,
+  "knots_down": 5.67,
+  "knots_mist": 0,
+  "knots_griev": 1.28,
+  "knots_fate": 1.8,
+  "backlash": 0.17,
+  "lv1": 0.04,
+  "lv2": 0.1,
+  "lv3": 0.02,
+  "scars": 0.16,
+  "unties": 0,
+  "fog_flips": 5.01,
+  "fog_reclaimed": 0.7,
+  "walls_kept": 1.1,
+  "wall_absorbed": 1.73,
+  "shrouds": 0.4,
+  "book_scars": 3.02,
+  "scar_covers": 0.17,
+  "scar_fracture": 0.17,
+  "scar_mist": 0.4,
+  "scar_fate": 2.98,
+  "max_fract": 1.62,
+  "max_forgotten": 8.8,
+  "light_end": 2.78,
+  "shroud_any": 0.255,
+  "shrouds_r": [
+   0.02,
+   0.22,
+   0.16
+  ],
+  "backlash_by": [
+   0.1,
+   0.06,
+   0.01
+  ],
+  "fate_nat": [
+   0.81,
+   0.69,
+   0.7
+  ],
+  "fate_forced": [
+   0.36,
+   0.41,
+   0
+  ],
+  "depth_share": [
+   0.459,
+   0.316,
+   0.224
+  ],
+  "reached_deep": 0.86,
+  "reveal_reach": {
+   "r1": 1.69,
+   "r2": 0.68,
+   "r3": 0.96
+  },
+  "fate_conds": {
+   "linger": 0.64,
+   "reveal": 0.51,
+   "inscribed": 0.47,
+   "fed": 0.35,
+   "lit": 0.34,
+   "shroud": 0.33,
+   "backlash": 0.27,
+   "recall": 0.08
+  },
+  "traits": {
+   "Acceptance": 0.65,
+   "Obsession": 0.47
+  },
+  "comm_done": 3.61,
+  "cracks": {
+   "push_through": 0.99,
+   "feed": 0.79,
+   "shroud": 0.34,
+   "book_scar": 0.15,
+   "do_op": 0.15,
+   "soul_step": 0.12,
+   "mist_card": 0.09,
+   "backlash": 0.01
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.375,
+   "忘卻結局": 0.23,
+   "釋懷結局": 0.205,
+   "執念結局": 0.19
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.377,
+   "忘卻結局": 0.246,
+   "執念結局": 0.203,
+   "釋懷結局": 0.174
+  },
+  "key_place_win": {
+   "inscribed": 0.681,
+   "unspoken": 0.203,
+   "forgotten": 0.116
+  }
+ },
+ "king|1p": {
+  "games": 200,
+  "win": 0.21,
+  "causes": {
+   "Shattered": 0.66,
+   "Deluge": 0.09,
+   "Faded": 0.025,
+   "Nameless": 0.015
+  },
+  "turns": 15.7,
+  "turns_win": 15.6,
+  "reach_turns": [
+   7.35,
+   5.22,
+   3.13
+  ],
+  "face_up": 20.58,
+  "face_down": 9.78,
+  "swaps": 0,
+  "burns": 0,
+  "recalls": 1.01,
+  "pushes": 0.47,
+  "summons": 2.62,
+  "lit": 6.18,
+  "inscribed": 7.59,
+  "reveals": 0.84,
+  "lingers": 6.93,
+  "knots_play": 37.74,
+  "knots_down": 9.78,
+  "knots_mist": 0,
+  "knots_griev": 1.43,
+  "knots_fate": 1.4,
+  "backlash": 1.89,
+  "lv1": 0.75,
+  "lv2": 0.76,
+  "lv3": 0.38,
+  "scars": 1.76,
+  "unties": 0,
+  "fog_flips": 5,
+  "fog_reclaimed": 1.19,
+  "walls_kept": 1.22,
+  "wall_absorbed": 2.62,
+  "shrouds": 0.71,
+  "book_scars": 2.74,
+  "scar_covers": 0.16,
+  "scar_fracture": 0.33,
+  "scar_mist": 0.71,
+  "scar_fate": 2.52,
+  "max_fract": 2.44,
+  "max_forgotten": 7.23,
+  "light_end": 3.95,
+  "shroud_any": 0.5,
+  "shrouds_r": [
+   0.12,
+   0.29,
+   0.29
+  ],
+  "backlash_by": [
+   1.13,
+   0.55,
+   0.21
+  ],
+  "fate_nat": [
+   0.76,
+   0.6,
+   0.49
+  ],
+  "fate_forced": [
+   0.39,
+   0.29,
+   0
+  ],
+  "depth_share": [
+   0.517,
+   0.25,
+   0.233
+  ],
+  "reached_deep": 0.64,
+  "reveal_reach": {
+   "r1": 0.57,
+   "r2": 0.17,
+   "r3": 0.1
+  },
+  "fate_conds": {
+   "linger": 0.53,
+   "fed": 0.4,
+   "backlash": 0.36,
+   "inscribed": 0.35,
+   "shroud": 0.32,
+   "reveal": 0.24,
+   "lit": 0.22,
+   "recall": 0.12
+  },
+  "traits": {
+   "Obsession": 0.46,
+   "Acceptance": 0.45
+  },
+  "comm_done": 0.93,
+  "cracks": {
+   "feed": 1.29,
+   "shroud": 0.55,
+   "push_through": 0.44,
+   "book_scar": 0.3,
+   "backlash": 0.23,
+   "soul_step": 0.07,
+   "mist_card": 0.07,
+   "do_op": 0.04
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.38,
+   "忘卻結局": 0.28,
+   "執念結局": 0.195,
+   "釋懷結局": 0.135,
+   "清明（沒有霧痕）": 0.01
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.31,
+   "忘卻結局": 0.286,
+   "釋懷結局": 0.262,
+   "執念結局": 0.143
+  },
+  "key_place_win": {
+   "inscribed": 0.595,
+   "unspoken": 0.357,
+   "forgotten": 0.048
+  }
+ },
+ "king|2p": {
+  "games": 200,
+  "win": 0.475,
+  "causes": {
+   "Shattered": 0.4,
+   "Deluge": 0.085,
+   "Faded": 0.035,
+   "Nameless": 0.005
+  },
+  "turns": 17.55,
+  "turns_win": 16.27,
+  "reach_turns": [
+   7.59,
+   6.41,
+   3.56
+  ],
+  "face_up": 25.34,
+  "face_down": 8.8,
+  "swaps": 11.32,
+  "burns": 0,
+  "recalls": 0.84,
+  "pushes": 0.97,
+  "summons": 3.29,
+  "lit": 6.99,
+  "inscribed": 8.6,
+  "reveals": 1.81,
+  "lingers": 7.66,
+  "knots_play": 28.41,
+  "knots_down": 8.8,
+  "knots_mist": 0,
+  "knots_griev": 1.32,
+  "knots_fate": 1.62,
+  "backlash": 0.83,
+  "lv1": 0.33,
+  "lv2": 0.38,
+  "lv3": 0.12,
+  "scars": 0.8,
+  "unties": 0,
+  "fog_flips": 6.04,
+  "fog_reclaimed": 1.58,
+  "walls_kept": 0.97,
+  "wall_absorbed": 2.42,
+  "shrouds": 0.57,
+  "book_scars": 2.94,
+  "scar_covers": 0.2,
+  "scar_fracture": 0.24,
+  "scar_mist": 0.57,
+  "scar_fate": 2.81,
+  "max_fract": 2.01,
+  "max_forgotten": 8.31,
+  "light_end": 3.55,
+  "shroud_any": 0.415,
+  "shrouds_r": [
+   0.07,
+   0.29,
+   0.2
+  ],
+  "backlash_by": [
+   0.47,
+   0.3,
+   0.06
+  ],
+  "fate_nat": [
+   0.81,
+   0.77,
+   0.56
+  ],
+  "fate_forced": [
+   0.38,
+   0.29,
+   0
+  ],
+  "depth_share": [
+   0.535,
+   0.259,
+   0.206
+  ],
+  "reached_deep": 0.715,
+  "reveal_reach": {
+   "r1": 1.05,
+   "r2": 0.46,
+   "r3": 0.31
+  },
+  "fate_conds": {
+   "linger": 0.62,
+   "inscribed": 0.43,
+   "reveal": 0.42,
+   "shroud": 0.4,
+   "fed": 0.34,
+   "backlash": 0.3,
+   "lit": 0.2,
+   "recall": 0.1
+  },
+  "traits": {
+   "Acceptance": 0.71,
+   "Obsession": 0.39
+  },
+  "comm_done": 1.99,
+  "cracks": {
+   "feed": 0.99,
+   "push_through": 0.91,
+   "shroud": 0.45,
+   "book_scar": 0.23,
+   "do_op": 0.12,
+   "soul_step": 0.07,
+   "mist_card": 0.07,
+   "backlash": 0.04
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.35,
+   "忘卻結局": 0.27,
+   "釋懷結局": 0.22,
+   "執念結局": 0.16
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.368,
+   "忘卻結局": 0.263,
+   "釋懷結局": 0.2,
+   "執念結局": 0.168
+  },
+  "key_place_win": {
+   "inscribed": 0.716,
+   "unspoken": 0.221,
+   "forgotten": 0.063
+  }
+ },
+ "king|3p": {
+  "games": 200,
+  "win": 0.485,
+  "causes": {
+   "Shattered": 0.39,
+   "Deluge": 0.08,
+   "Faded": 0.04,
+   "Nameless": 0.005
+  },
+  "turns": 17.32,
+  "turns_win": 15.81,
+  "reach_turns": [
+   6.75,
+   6.33,
+   4.24
+  ],
+  "face_up": 26.35,
+  "face_down": 7.57,
+  "swaps": 13.51,
+  "burns": 0,
+  "recalls": 0.58,
+  "pushes": 1.12,
+  "summons": 3.76,
+  "lit": 7.43,
+  "inscribed": 8.95,
+  "reveals": 2.67,
+  "lingers": 7.16,
+  "knots_play": 29.57,
+  "knots_down": 7.57,
+  "knots_mist": 0,
+  "knots_griev": 1.16,
+  "knots_fate": 1.83,
+  "backlash": 0.62,
+  "lv1": 0.21,
+  "lv2": 0.31,
+  "lv3": 0.1,
+  "scars": 0.58,
+  "unties": 0,
+  "fog_flips": 5.69,
+  "fog_reclaimed": 1.45,
+  "walls_kept": 1.08,
+  "wall_absorbed": 2.17,
+  "shrouds": 0.7,
+  "book_scars": 3.08,
+  "scar_covers": 0.28,
+  "scar_fracture": 0.32,
+  "scar_mist": 0.7,
+  "scar_fate": 2.97,
+  "max_fract": 2.03,
+  "max_forgotten": 8.94,
+  "light_end": 3.08,
+  "shroud_any": 0.4,
+  "shrouds_r": [
+   0.05,
+   0.32,
+   0.34
+  ],
+  "backlash_by": [
+   0.38,
+   0.21,
+   0.04
+  ],
+  "fate_nat": [
+   0.76,
+   0.73,
+   0.71
+  ],
+  "fate_forced": [
+   0.39,
+   0.39,
+   0
+  ],
+  "depth_share": [
+   0.518,
+   0.245,
+   0.237
+  ],
+  "reached_deep": 0.77,
+  "reveal_reach": {
+   "r1": 1.27,
+   "r2": 0.83,
+   "r3": 0.56
+  },
+  "fate_conds": {
+   "linger": 0.65,
+   "reveal": 0.47,
+   "inscribed": 0.45,
+   "fed": 0.41,
+   "backlash": 0.34,
+   "shroud": 0.32,
+   "lit": 0.28,
+   "recall": 0.07
+  },
+  "traits": {
+   "Acceptance": 0.76,
+   "Obsession": 0.35
+  },
+  "comm_done": 2.86,
+  "cracks": {
+   "push_through": 1.02,
+   "feed": 0.81,
+   "shroud": 0.58,
+   "book_scar": 0.29,
+   "do_op": 0.1,
+   "mist_card": 0.09,
+   "soul_step": 0.07,
+   "backlash": 0.01
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.315,
+   "忘卻結局": 0.255,
+   "執念結局": 0.215,
+   "釋懷結局": 0.215
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.381,
+   "釋懷結局": 0.237,
+   "執念結局": 0.206,
+   "忘卻結局": 0.175
+  },
+  "key_place_win": {
+   "inscribed": 0.732,
+   "unspoken": 0.206,
+   "forgotten": 0.062
+  }
+ },
+ "king|4p": {
+  "games": 200,
+  "win": 0.57,
+  "causes": {
+   "Shattered": 0.34,
+   "Deluge": 0.04,
+   "Faded": 0.035,
+   "Nameless": 0.015
+  },
+  "turns": 17.3,
+  "turns_win": 15.78,
+  "reach_turns": [
+   6.57,
+   5.53,
+   5.2
+  ],
+  "face_up": 27.27,
+  "face_down": 6.62,
+  "swaps": 14.82,
+  "burns": 0,
+  "recalls": 0.55,
+  "pushes": 1.15,
+  "summons": 4.31,
+  "lit": 7.87,
+  "inscribed": 9.39,
+  "reveals": 3.45,
+  "lingers": 6.62,
+  "knots_play": 30.66,
+  "knots_down": 6.62,
+  "knots_mist": 0,
+  "knots_griev": 1.17,
+  "knots_fate": 1.91,
+  "backlash": 0.23,
+  "lv1": 0.09,
+  "lv2": 0.13,
+  "lv3": 0.01,
+  "scars": 0.23,
+  "unties": 0,
+  "fog_flips": 5.46,
+  "fog_reclaimed": 0.98,
+  "walls_kept": 1.14,
+  "wall_absorbed": 2.1,
+  "shrouds": 0.66,
+  "book_scars": 3.12,
+  "scar_covers": 0.23,
+  "scar_fracture": 0.35,
+  "scar_mist": 0.66,
+  "scar_fate": 3.04,
+  "max_fract": 1.89,
+  "max_forgotten": 8.7,
+  "light_end": 2.94,
+  "shroud_any": 0.415,
+  "shrouds_r": [
+   0.02,
+   0.22,
+   0.42
+  ],
+  "backlash_by": [
+   0.1,
+   0.11,
+   0.02
+  ],
+  "fate_nat": [
+   0.73,
+   0.68,
+   0.83
+  ],
+  "fate_forced": [
+   0.41,
+   0.39,
+   0
+  ],
+  "depth_share": [
+   0.494,
+   0.253,
+   0.254
+  ],
+  "reached_deep": 0.815,
+  "reveal_reach": {
+   "r1": 1.34,
+   "r2": 1.12,
+   "r3": 0.98
+  },
+  "fate_conds": {
+   "linger": 0.63,
+   "reveal": 0.56,
+   "inscribed": 0.46,
+   "fed": 0.41,
+   "shroud": 0.4,
+   "backlash": 0.28,
+   "lit": 0.27,
+   "recall": 0.07
+  },
+  "traits": {
+   "Acceptance": 0.79,
+   "Obsession": 0.37
+  },
+  "comm_done": 3.66,
+  "cracks": {
+   "push_through": 1.07,
+   "feed": 0.77,
+   "shroud": 0.55,
+   "book_scar": 0.33,
+   "do_op": 0.1,
+   "mist_card": 0.09,
+   "soul_step": 0.07,
+   "backlash": 0.01
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.315,
+   "忘卻結局": 0.255,
+   "釋懷結局": 0.225,
+   "執念結局": 0.205
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.36,
+   "釋懷結局": 0.263,
+   "執念結局": 0.219,
+   "忘卻結局": 0.158
+  },
+  "key_place_win": {
+   "inscribed": 0.754,
+   "unspoken": 0.167,
+   "forgotten": 0.079
+  }
+ },
+ "bride|1p": {
+  "games": 200,
+  "win": 0.29,
+  "causes": {
+   "Shattered": 0.59,
+   "Deluge": 0.1,
+   "Faded": 0.02
+  },
+  "turns": 16.46,
+  "turns_win": 16.07,
+  "reach_turns": [
+   7.54,
+   5.25,
+   3.67
+  ],
+  "face_up": 21.89,
+  "face_down": 9.68,
+  "swaps": 0,
+  "burns": 0,
+  "recalls": 1.32,
+  "pushes": 0.6,
+  "summons": 1.01,
+  "lit": 7.14,
+  "inscribed": 8.16,
+  "reveals": 0.91,
+  "lingers": 7.14,
+  "knots_play": 39.3,
+  "knots_down": 9.68,
+  "knots_mist": 0,
+  "knots_griev": 1.44,
+  "knots_fate": 1.61,
+  "backlash": 1.71,
+  "lv1": 0.72,
+  "lv2": 0.71,
+  "lv3": 0.28,
+  "scars": 1.62,
+  "unties": 0,
+  "fog_flips": 4.76,
+  "fog_reclaimed": 1.04,
+  "walls_kept": 1.29,
+  "wall_absorbed": 2.92,
+  "shrouds": 0.59,
+  "book_scars": 2.83,
+  "scar_covers": 0.13,
+  "scar_fracture": 0.4,
+  "scar_mist": 0.59,
+  "scar_fate": 2.77,
+  "max_fract": 2.33,
+  "max_forgotten": 7.2,
+  "light_end": 5.58,
+  "shroud_any": 0.43,
+  "shrouds_r": [
+   0.09,
+   0.25,
+   0.25
+  ],
+  "backlash_by": [
+   1.0,
+   0.56,
+   0.14
+  ],
+  "fate_nat": [
+   0.74,
+   0.68,
+   0.64
+  ],
+  "fate_forced": [
+   0.42,
+   0.29,
+   0
+  ],
+  "depth_share": [
+   0.473,
+   0.253,
+   0.274
+  ],
+  "reached_deep": 0.74,
+  "reveal_reach": {
+   "r1": 0.59,
+   "r2": 0.19,
+   "r3": 0.12
+  },
+  "fate_conds": {
+   "linger": 0.55,
+   "fed": 0.41,
+   "inscribed": 0.37,
+   "shroud": 0.36,
+   "backlash": 0.35,
+   "lit": 0.34,
+   "reveal": 0.2,
+   "recall": 0.18
+  },
+  "traits": {
+   "Obsession": 0.62,
+   "Acceptance": 0.39
+  },
+  "comm_done": 1,
+  "cracks": {
+   "feed": 1.33,
+   "push_through": 0.58,
+   "shroud": 0.47,
+   "book_scar": 0.35,
+   "backlash": 0.15,
+   "do_op": 0.06,
+   "soul_step": 0.06,
+   "mist_card": 0.03
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.44,
+   "忘卻結局": 0.25,
+   "執念結局": 0.155,
+   "釋懷結局": 0.15,
+   "清明（沒有霧痕）": 0.005
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.379,
+   "忘卻結局": 0.241,
+   "執念結局": 0.224,
+   "釋懷結局": 0.155
+  },
+  "key_place_win": {
+   "inscribed": 0.655,
+   "unspoken": 0.31,
+   "forgotten": 0.034
+  }
+ },
+ "bride|2p": {
+  "games": 200,
+  "win": 0.375,
+  "causes": {
+   "Shattered": 0.51,
+   "Deluge": 0.06,
+   "Nameless": 0.045,
+   "Faded": 0.01
+  },
+  "turns": 16.64,
+  "turns_win": 16.61,
+  "reach_turns": [
+   7.87,
+   5.21,
+   3.55
+  ],
+  "face_up": 24.13,
+  "face_down": 8.18,
+  "swaps": 10.64,
+  "burns": 0,
+  "recalls": 0.9,
+  "pushes": 0.87,
+  "summons": 1.93,
+  "lit": 6.97,
+  "inscribed": 8.42,
+  "reveals": 1.75,
+  "lingers": 7.2,
+  "knots_play": 26.14,
+  "knots_down": 8.18,
+  "knots_mist": 0,
+  "knots_griev": 1.29,
+  "knots_fate": 1.71,
+  "backlash": 0.58,
+  "lv1": 0.24,
+  "lv2": 0.29,
+  "lv3": 0.06,
+  "scars": 0.57,
+  "unties": 0,
+  "fog_flips": 5.57,
+  "fog_reclaimed": 1.42,
+  "walls_kept": 0.97,
+  "wall_absorbed": 2.13,
+  "shrouds": 0.69,
+  "book_scars": 2.96,
+  "scar_covers": 0.23,
+  "scar_fracture": 0.39,
+  "scar_mist": 0.69,
+  "scar_fate": 2.9,
+  "max_fract": 2.16,
+  "max_forgotten": 7.54,
+  "light_end": 4.13,
+  "shroud_any": 0.44,
+  "shrouds_r": [
+   0.09,
+   0.32,
+   0.28
+  ],
+  "backlash_by": [
+   0.34,
+   0.23,
+   0.01
+  ],
+  "fate_nat": [
+   0.85,
+   0.74,
+   0.62
+  ],
+  "fate_forced": [
+   0.33,
+   0.34,
+   0
+  ],
+  "depth_share": [
+   0.544,
+   0.25,
+   0.206
+  ],
+  "reached_deep": 0.675,
+  "reveal_reach": {
+   "r1": 1.08,
+   "r2": 0.42,
+   "r3": 0.26
+  },
+  "fate_conds": {
+   "linger": 0.6,
+   "shroud": 0.43,
+   "reveal": 0.41,
+   "inscribed": 0.41,
+   "fed": 0.34,
+   "backlash": 0.29,
+   "lit": 0.27,
+   "recall": 0.15
+  },
+  "traits": {
+   "Acceptance": 0.6,
+   "Obsession": 0.5
+  },
+  "comm_done": 1.89,
+  "cracks": {
+   "feed": 1.04,
+   "push_through": 0.8,
+   "shroud": 0.54,
+   "book_scar": 0.36,
+   "do_op": 0.07,
+   "mist_card": 0.06,
+   "soul_step": 0.03,
+   "backlash": 0.03
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.355,
+   "忘卻結局": 0.225,
+   "執念結局": 0.21,
+   "釋懷結局": 0.205,
+   "清明（沒有霧痕）": 0.005
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.4,
+   "忘卻結局": 0.213,
+   "執念結局": 0.2,
+   "釋懷結局": 0.187
+  },
+  "key_place_win": {
+   "inscribed": 0.613,
+   "unspoken": 0.307,
+   "forgotten": 0.08
+  }
+ },
+ "bride|3p": {
+  "games": 200,
+  "win": 0.51,
+  "causes": {
+   "Shattered": 0.41,
+   "Deluge": 0.06,
+   "Nameless": 0.01,
+   "Faded": 0.01
+  },
+  "turns": 17.22,
+  "turns_win": 16.44,
+  "reach_turns": [
+   7.08,
+   6.08,
+   4.06
+  ],
+  "face_up": 26.52,
+  "face_down": 7.21,
+  "swaps": 13.61,
+  "burns": 0,
+  "recalls": 0.59,
+  "pushes": 1.09,
+  "summons": 2.73,
+  "lit": 7.24,
+  "inscribed": 8.87,
+  "reveals": 2.64,
+  "lingers": 7.22,
+  "knots_play": 28.76,
+  "knots_down": 7.21,
+  "knots_mist": 0,
+  "knots_griev": 1.25,
+  "knots_fate": 1.69,
+  "backlash": 0.4,
+  "lv1": 0.17,
+  "lv2": 0.22,
+  "lv3": 0.01,
+  "scars": 0.4,
+  "unties": 0,
+  "fog_flips": 5.5,
+  "fog_reclaimed": 1.18,
+  "walls_kept": 1.08,
+  "wall_absorbed": 2.37,
+  "shrouds": 0.69,
+  "book_scars": 2.98,
+  "scar_covers": 0.27,
+  "scar_fracture": 0.26,
+  "scar_mist": 0.69,
+  "scar_fate": 2.82,
+  "max_fract": 2.07,
+  "max_forgotten": 8.41,
+  "light_end": 3.29,
+  "shroud_any": 0.41,
+  "shrouds_r": [
+   0.04,
+   0.4,
+   0.24
+  ],
+  "backlash_by": [
+   0.22,
+   0.17,
+   0.01
+  ],
+  "fate_nat": [
+   0.77,
+   0.69,
+   0.65
+  ],
+  "fate_forced": [
+   0.37,
+   0.34,
+   0
+  ],
+  "depth_share": [
+   0.483,
+   0.308,
+   0.209
+  ],
+  "reached_deep": 0.73,
+  "reveal_reach": {
+   "r1": 1.36,
+   "r2": 0.74,
+   "r3": 0.54
+  },
+  "fate_conds": {
+   "linger": 0.58,
+   "reveal": 0.46,
+   "inscribed": 0.4,
+   "fed": 0.39,
+   "shroud": 0.33,
+   "backlash": 0.28,
+   "lit": 0.28,
+   "recall": 0.1
+  },
+  "traits": {
+   "Obsession": 0.6,
+   "Acceptance": 0.53
+  },
+  "comm_done": 2.81,
+  "cracks": {
+   "push_through": 1.02,
+   "feed": 0.91,
+   "shroud": 0.56,
+   "book_scar": 0.23,
+   "do_op": 0.14,
+   "soul_step": 0.13,
+   "mist_card": 0.09,
+   "backlash": 0.01
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.315,
+   "忘卻結局": 0.255,
+   "執念結局": 0.225,
+   "釋懷結局": 0.205
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.373,
+   "忘卻結局": 0.245,
+   "執念結局": 0.216,
+   "釋懷結局": 0.167
+  },
+  "key_place_win": {
+   "inscribed": 0.608,
+   "unspoken": 0.294,
+   "forgotten": 0.098
+  }
+ },
+ "bride|4p": {
+  "games": 200,
+  "win": 0.525,
+  "causes": {
+   "Shattered": 0.355,
+   "Deluge": 0.065,
+   "Nameless": 0.035,
+   "Faded": 0.02
+  },
+  "turns": 17.5,
+  "turns_win": 16.04,
+  "reach_turns": [
+   6.76,
+   5.96,
+   4.76
+  ],
+  "face_up": 27.41,
+  "face_down": 6.92,
+  "swaps": 14.88,
+  "burns": 0,
+  "recalls": 0.55,
+  "pushes": 1.2,
+  "summons": 3.0,
+  "lit": 7.75,
+  "inscribed": 9.31,
+  "reveals": 3.37,
+  "lingers": 7.11,
+  "knots_play": 29.95,
+  "knots_down": 6.92,
+  "knots_mist": 0,
+  "knots_griev": 1.15,
+  "knots_fate": 1.8,
+  "backlash": 0.26,
+  "lv1": 0.1,
+  "lv2": 0.15,
+  "lv3": 0.01,
+  "scars": 0.26,
+  "unties": 0,
+  "fog_flips": 5.74,
+  "fog_reclaimed": 1.16,
+  "walls_kept": 1.11,
+  "wall_absorbed": 2.14,
+  "shrouds": 0.69,
+  "book_scars": 3.1,
+  "scar_covers": 0.2,
+  "scar_fracture": 0.35,
+  "scar_mist": 0.69,
+  "scar_fate": 2.96,
+  "max_fract": 1.97,
+  "max_forgotten": 8.4,
+  "light_end": 3.04,
+  "shroud_any": 0.385,
+  "shrouds_r": [
+   0.09,
+   0.31,
+   0.3
+  ],
+  "backlash_by": [
+   0.14,
+   0.11,
+   0.01
+  ],
+  "fate_nat": [
+   0.81,
+   0.7,
+   0.73
+  ],
+  "fate_forced": [
+   0.35,
+   0.36,
+   0
+  ],
+  "depth_share": [
+   0.466,
+   0.294,
+   0.24
+  ],
+  "reached_deep": 0.815,
+  "reveal_reach": {
+   "r1": 1.51,
+   "r2": 0.97,
+   "r3": 0.88
+  },
+  "fate_conds": {
+   "linger": 0.64,
+   "reveal": 0.56,
+   "inscribed": 0.41,
+   "fed": 0.36,
+   "shroud": 0.32,
+   "lit": 0.31,
+   "backlash": 0.28,
+   "recall": 0.09
+  },
+  "traits": {
+   "Obsession": 0.55,
+   "Acceptance": 0.5
+  },
+  "comm_done": 3.62,
+  "cracks": {
+   "push_through": 1.09,
+   "feed": 0.83,
+   "shroud": 0.57,
+   "book_scar": 0.31,
+   "do_op": 0.12,
+   "mist_card": 0.09,
+   "soul_step": 0.07,
+   "backlash": 0.01
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.355,
+   "執念結局": 0.25,
+   "忘卻結局": 0.215,
+   "釋懷結局": 0.18
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.429,
+   "執念結局": 0.248,
+   "忘卻結局": 0.181,
+   "釋懷結局": 0.143
+  },
+  "key_place_win": {
+   "inscribed": 0.695,
+   "unspoken": 0.238,
+   "forgotten": 0.067
+  }
+ },
+ "open|1p": {
+  "games": 200,
+  "win": 0.285,
+  "causes": {
+   "Shattered": 0.58,
+   "Deluge": 0.095,
+   "Faded": 0.03,
+   "Nameless": 0.01
+  },
+  "turns": 16.16,
+  "turns_win": 15.47,
+  "reach_turns": [
+   7.35,
+   5.41,
+   3.4
+  ],
+  "face_up": 21.54,
+  "face_down": 9.44,
+  "swaps": 0,
+  "burns": 0,
+  "recalls": 1.34,
+  "pushes": 0.48,
+  "summons": 1.03,
+  "lit": 7.05,
+  "inscribed": 7.7,
+  "reveals": 0.83,
+  "lingers": 6.72,
+  "knots_play": 38.6,
+  "knots_down": 9.44,
+  "knots_mist": 0,
+  "knots_griev": 1.6,
+  "knots_fate": 1.76,
+  "backlash": 1.81,
+  "lv1": 0.68,
+  "lv2": 0.77,
+  "lv3": 0.36,
+  "scars": 1.71,
+  "unties": 0,
+  "fog_flips": 4.7,
+  "fog_reclaimed": 1.08,
+  "walls_kept": 1.35,
+  "wall_absorbed": 2.79,
+  "shrouds": 0.64,
+  "book_scars": 2.9,
+  "scar_covers": 0.14,
+  "scar_fracture": 0.52,
+  "scar_mist": 0.64,
+  "scar_fate": 2.91,
+  "max_fract": 2.29,
+  "max_forgotten": 7.14,
+  "light_end": 6.59,
+  "shroud_any": 0.415,
+  "shrouds_r": [
+   0.09,
+   0.25,
+   0.3
+  ],
+  "backlash_by": [
+   1.02,
+   0.57,
+   0.22
+  ],
+  "fate_nat": [
+   0.72,
+   0.75,
+   0.71
+  ],
+  "fate_forced": [
+   0.43,
+   0.3,
+   0
+  ],
+  "depth_share": [
+   0.425,
+   0.303,
+   0.272
+  ],
+  "reached_deep": 0.72,
+  "reveal_reach": {
+   "r1": 0.41,
+   "r2": 0.23,
+   "r3": 0.19
+  },
+  "fate_conds": {
+   "linger": 0.6,
+   "fed": 0.46,
+   "inscribed": 0.4,
+   "backlash": 0.37,
+   "lit": 0.36,
+   "shroud": 0.33,
+   "reveal": 0.22,
+   "recall": 0.17
+  },
+  "traits": {
+   "Obsession": 0.69,
+   "Acceptance": 0.4
+  },
+  "comm_done": 0.97,
+  "cracks": {
+   "feed": 1.37,
+   "book_scar": 0.47,
+   "shroud": 0.46,
+   "push_through": 0.46,
+   "backlash": 0.22,
+   "soul_step": 0.05,
+   "do_op": 0.04,
+   "mist_card": 0.01
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.325,
+   "忘卻結局": 0.275,
+   "執念結局": 0.225,
+   "釋懷結局": 0.16,
+   "清明（沒有霧痕）": 0.015
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.333,
+   "執念結局": 0.298,
+   "忘卻結局": 0.246,
+   "釋懷結局": 0.123
+  },
+  "key_place_win": {}
+ },
+ "open|2p": {
+  "games": 200,
+  "win": 0.52,
+  "causes": {
+   "Shattered": 0.365,
+   "Deluge": 0.07,
+   "Nameless": 0.04,
+   "Faded": 0.005
+  },
+  "turns": 16.8,
+  "turns_win": 16.46,
+  "reach_turns": [
+   7.24,
+   5.72,
+   3.83
+  ],
+  "face_up": 24.82,
+  "face_down": 7.66,
+  "swaps": 10.64,
+  "burns": 0,
+  "recalls": 1.04,
+  "pushes": 0.87,
+  "summons": 1.98,
+  "lit": 7.43,
+  "inscribed": 8.37,
+  "reveals": 1.73,
+  "lingers": 6.68,
+  "knots_play": 26.99,
+  "knots_down": 7.66,
+  "knots_mist": 0,
+  "knots_griev": 1.33,
+  "knots_fate": 1.74,
+  "backlash": 0.59,
+  "lv1": 0.24,
+  "lv2": 0.29,
+  "lv3": 0.05,
+  "scars": 0.58,
+  "unties": 0,
+  "fog_flips": 5.04,
+  "fog_reclaimed": 1.25,
+  "walls_kept": 1.05,
+  "wall_absorbed": 2.14,
+  "shrouds": 0.68,
+  "book_scars": 2.99,
+  "scar_covers": 0.19,
+  "scar_fracture": 0.38,
+  "scar_mist": 0.68,
+  "scar_fate": 2.88,
+  "max_fract": 1.93,
+  "max_forgotten": 7.92,
+  "light_end": 5.45,
+  "shroud_any": 0.375,
+  "shrouds_r": [
+   0.08,
+   0.33,
+   0.27
+  ],
+  "backlash_by": [
+   0.3,
+   0.23,
+   0.06
+  ],
+  "fate_nat": [
+   0.76,
+   0.68,
+   0.69
+  ],
+  "fate_forced": [
+   0.38,
+   0.38,
+   0
+  ],
+  "depth_share": [
+   0.481,
+   0.274,
+   0.245
+  ],
+  "reached_deep": 0.815,
+  "reveal_reach": {
+   "r1": 0.89,
+   "r2": 0.41,
+   "r3": 0.42
+  },
+  "fate_conds": {
+   "linger": 0.6,
+   "shroud": 0.39,
+   "inscribed": 0.39,
+   "reveal": 0.36,
+   "lit": 0.33,
+   "fed": 0.33,
+   "backlash": 0.29,
+   "recall": 0.19
+  },
+  "traits": {
+   "Acceptance": 0.6,
+   "Obsession": 0.57
+  },
+  "comm_done": 1.93,
+  "cracks": {
+   "feed": 1.05,
+   "push_through": 0.81,
+   "shroud": 0.55,
+   "book_scar": 0.34,
+   "do_op": 0.14,
+   "soul_step": 0.07,
+   "mist_card": 0.01,
+   "backlash": 0.01
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.31,
+   "忘卻結局": 0.275,
+   "執念結局": 0.205,
+   "釋懷結局": 0.205,
+   "清明（沒有霧痕）": 0.005
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.308,
+   "忘卻結局": 0.279,
+   "釋懷結局": 0.231,
+   "執念結局": 0.183
+  },
+  "key_place_win": {}
+ },
+ "open|3p": {
+  "games": 200,
+  "win": 0.58,
+  "causes": {
+   "Shattered": 0.325,
+   "Deluge": 0.06,
+   "Faded": 0.02,
+   "Nameless": 0.015
+  },
+  "turns": 16.57,
+  "turns_win": 15.94,
+  "reach_turns": [
+   6.54,
+   6.02,
+   4.01
+  ],
+  "face_up": 25.74,
+  "face_down": 6.55,
+  "swaps": 12.84,
+  "burns": 0,
+  "recalls": 0.75,
+  "pushes": 1.09,
+  "summons": 2.83,
+  "lit": 7.64,
+  "inscribed": 8.64,
+  "reveals": 2.52,
+  "lingers": 6.09,
+  "knots_play": 28.0,
+  "knots_down": 6.55,
+  "knots_mist": 0,
+  "knots_griev": 1.45,
+  "knots_fate": 1.75,
+  "backlash": 0.38,
+  "lv1": 0.14,
+  "lv2": 0.22,
+  "lv3": 0.03,
+  "scars": 0.38,
+  "unties": 0,
+  "fog_flips": 5.03,
+  "fog_reclaimed": 0.79,
+  "walls_kept": 1.14,
+  "wall_absorbed": 1.73,
+  "shrouds": 0.61,
+  "book_scars": 2.98,
+  "scar_covers": 0.18,
+  "scar_fracture": 0.35,
+  "scar_mist": 0.61,
+  "scar_fate": 2.9,
+  "max_fract": 1.87,
+  "max_forgotten": 8.2,
+  "light_end": 3.93,
+  "shroud_any": 0.365,
+  "shrouds_r": [
+   0.01,
+   0.34,
+   0.27
+  ],
+  "backlash_by": [
+   0.21,
+   0.15,
+   0.02
+  ],
+  "fate_nat": [
+   0.74,
+   0.68,
+   0.67
+  ],
+  "fate_forced": [
+   0.41,
+   0.41,
+   0
+  ],
+  "depth_share": [
+   0.458,
+   0.307,
+   0.235
+  ],
+  "reached_deep": 0.8,
+  "reveal_reach": {
+   "r1": 1.21,
+   "r2": 0.66,
+   "r3": 0.66
+  },
+  "fate_conds": {
+   "linger": 0.6,
+   "fed": 0.41,
+   "inscribed": 0.41,
+   "reveal": 0.41,
+   "backlash": 0.36,
+   "shroud": 0.32,
+   "lit": 0.28,
+   "recall": 0.09
+  },
+  "traits": {
+   "Obsession": 0.58,
+   "Acceptance": 0.56
+  },
+  "comm_done": 2.74,
+  "cracks": {
+   "feed": 1.03,
+   "push_through": 1.02,
+   "shroud": 0.52,
+   "book_scar": 0.32,
+   "do_op": 0.13,
+   "soul_step": 0.07,
+   "mist_card": 0.05,
+   "backlash": 0.01
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.37,
+   "釋懷結局": 0.225,
+   "忘卻結局": 0.225,
+   "執念結局": 0.18
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.362,
+   "忘卻結局": 0.259,
+   "釋懷結局": 0.207,
+   "執念結局": 0.172
+  },
+  "key_place_win": {}
+ },
+ "open|4p": {
+  "games": 200,
+  "win": 0.62,
+  "causes": {
+   "Shattered": 0.27,
+   "Deluge": 0.05,
+   "Nameless": 0.03,
+   "Faded": 0.03
+  },
+  "turns": 17.63,
+  "turns_win": 16.65,
+  "reach_turns": [
+   6.93,
+   6.2,
+   4.5
+  ],
+  "face_up": 28.11,
+  "face_down": 6.38,
+  "swaps": 14.96,
+  "burns": 0,
+  "recalls": 0.64,
+  "pushes": 1.16,
+  "summons": 3.46,
+  "lit": 7.96,
+  "inscribed": 9.1,
+  "reveals": 3.33,
+  "lingers": 6.58,
+  "knots_play": 30.77,
+  "knots_down": 6.38,
+  "knots_mist": 0,
+  "knots_griev": 1.48,
+  "knots_fate": 1.88,
+  "backlash": 0.29,
+  "lv1": 0.09,
+  "lv2": 0.17,
+  "lv3": 0.03,
+  "scars": 0.28,
+  "unties": 0,
+  "fog_flips": 5.96,
+  "fog_reclaimed": 1.16,
+  "walls_kept": 1.14,
+  "wall_absorbed": 1.8,
+  "shrouds": 0.7,
+  "book_scars": 3.08,
+  "scar_covers": 0.24,
+  "scar_fracture": 0.41,
+  "scar_mist": 0.7,
+  "scar_fate": 3.04,
+  "max_fract": 1.78,
+  "max_forgotten": 9.04,
+  "light_end": 3.6,
+  "shroud_any": 0.365,
+  "shrouds_r": [
+   0.07,
+   0.27,
+   0.38
+  ],
+  "backlash_by": [
+   0.12,
+   0.14,
+   0.03
+  ],
+  "fate_nat": [
+   0.85,
+   0.71,
+   0.78
+  ],
+  "fate_forced": [
+   0.3,
+   0.4,
+   0
+  ],
+  "depth_share": [
+   0.409,
+   0.346,
+   0.246
+  ],
+  "reached_deep": 0.865,
+  "reveal_reach": {
+   "r1": 1.54,
+   "r2": 0.94,
+   "r3": 0.84
+  },
+  "fate_conds": {
+   "linger": 0.65,
+   "reveal": 0.53,
+   "inscribed": 0.43,
+   "fed": 0.4,
+   "lit": 0.34,
+   "shroud": 0.28,
+   "backlash": 0.28,
+   "recall": 0.13
+  },
+  "traits": {
+   "Obsession": 0.66,
+   "Acceptance": 0.51
+  },
+  "comm_done": 3.6,
+  "cracks": {
+   "push_through": 1.06,
+   "feed": 1.0,
+   "shroud": 0.58,
+   "book_scar": 0.36,
+   "do_op": 0.14,
+   "soul_step": 0.06,
+   "mist_card": 0.05
+  },
+  "endings_all": {
+   "交織（霧痕各半）": 0.295,
+   "忘卻結局": 0.265,
+   "釋懷結局": 0.225,
+   "執念結局": 0.215
+  },
+  "endings_win": {
+   "交織（霧痕各半）": 0.29,
+   "忘卻結局": 0.25,
+   "執念結局": 0.234,
+   "釋懷結局": 0.226
+  },
+  "key_place_win": {}
+ }
+}

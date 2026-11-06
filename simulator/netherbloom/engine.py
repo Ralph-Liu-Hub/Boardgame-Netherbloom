@@ -4,6 +4,7 @@ The state is plain lists and ints so that the AI can clone it cheaply.
 Bank slots are indexed slot = space * 2 + bank for spaces 1..11 (bank 0 left, 1 right; the left bank is drawn above the river).
 """
 import random
+import sys
 
 from . import cards as C
 from .cards import OBS, ACC, OBL, FERTILE, STONY, MEMORY, GRAVE, FLOWER, FROST, EMBER, ECHO_ROCK, SPRING
@@ -136,6 +137,40 @@ class Config:
         self.mist_v2 = False         # V2: new Mist cards and harsh Mist
         self.mantles_v2 = False      # V2: Warden "stay", Mist-breaker "see through the mist", the Reaper
         self.back_rule = False       # V2: the soul never returns to an earlier Reach (the Bride included)
+        # ---- V5 proposal switches (docs/design/V5-proposal.zh-TW.md). All off by default.
+        self.v5_facedown_knot = False  # a face-down play ties a knot on the card's thread
+        self.v5_keep = False         # leaving a space: harvest (Blooms wither to Roots, gain Light) or keep a Light Wall
+        self.v5_griev_loom = False   # Shades never move; each Shade on the soul's space or the next one ties a knot
+                                     # (left bank Obsession, right bank Acceptance, fogged bank Oblivion); Mist Shades land 3 ahead
+        self.v5_fog = False          # Mist strength flips banks behind the soul back to fog; both banks of the soul's space
+                                     # fogged = shrouded (1 Fracture, the Mist card becomes a mist scar in the Book)
+        self.v5_scars = False        # Backlash leaves a scar (threshold -1, Backlash one level higher); knots carry over
+                                     # between Reaches and each lit memory of the closed page unties one knot
+        self.v5_depth = False        # Mist decks by depth (lit memories 0-2 / 3-5 / 6+) instead of by Reach
+        self.v5_reveal = False       # a completed commission may be revealed early: untie 2 knots
+        self.v5_fate = False         # fate mist: per Reach one river-condition and one book-condition card
+        self.v5_reach = False        # banish / drain / bloom only within reach of the root network connected to the soul
+        self.v5_traits = False       # the closed page's lit-memory majority gives the next Reach a root-network trait
+        self.v5_recall = False       # Recall: an action, 3 Light, inscribe a forgotten memory into an empty slot (unlit)
+        self.v5_push_free = False    # Push Through is a free action
+        self.v5_swap = False         # Swap replaces Burn: trade one card with another player and play it face up at once
+        self.v5_light_after = False  # lighting memories and revealing commissions come after the two actions
+        self.v5_start_knots = 0      # difficulty: knots on each thread at the start
+        self.v5_keep_need = 2        # AI: keep a Light Wall when the fog is this many bank flips (or fewer) away
+        self.v5_scar_max = 2         # tuning: most scars a thread can carry
+        self.v5_feed_range = 1       # tuning: Shades on the soul's space and this many spaces ahead push the Loom
+        self.v5_mist_knot = True     # tuning: each Mist card ties a knot on its thread
+        self.v5_cap_bonus = 0        # tuning: extra knots before a thread fills (V5 has more knot sources than V4)
+        self.v5_fog_scale = 1.0      # tuning: multiplier on printed mist strength
+        self.v5_l3_crack = True      # tuning: a level-3 Obsession Backlash also adds a Fracture
+        self.v5_carry = True         # tuning: knots carry over between Reaches (False: the Loom empties as in V4)
+        self.v5_feed_per_round = False  # tuning: Shades push the Loom once per round (after the last player) instead of every turn
+        self.v5_griev_offset = 3     # tuning: how far ahead Mist Shades land
+        self.v5_fog_on_stall = False  # tuning: the fog advances only on turns the soul did not move forward
+        self.v5_shroud_crack = True  # tuning: being shrouded adds a Fracture (False: only the mist scar)
+        self.v5_fate_power = "strong"  # tuning: fate effects. "strong": river = a Shade 3 ahead + a knot, book = the newest
+                                       # unlit memory is forgotten; "medium": river = a knot, book = forget the top card;
+                                       # "light": as medium, but Reach 1 fate only writes the mist scar
         for k, v in overrides.items():
             if not hasattr(self, k):
                 raise KeyError(f"unknown config option {k}")
@@ -170,6 +205,7 @@ class State:
         "bride_pulled", "child_shield", "ghost", "result", "cause", "log", "stats", "snaps", "last_mist",
         "lit_mem", "order", "comm", "comm_deck", "redrawn", "frost", "dim", "blind", "cold_until", "thunder",
         "gaze", "need_plus", "breaker_ready", "harsh_pool", "spare_tiles", "gifted",
+        "fogged", "scars", "lv_bonus", "bscars", "fate", "comm_rev", "trait", "turn_flags",
     )
 
     # ------------------------------------------------------------- setup
@@ -269,7 +305,19 @@ class State:
         s.breaker_ready = True
         s.spare_tiles = None
         s.gifted = [False, False, False]
+        s.fogged = [False] * NSLOT
+        s.scars = [0, 0, 0]
+        s.lv_bonus = [0, 0, 0]
+        s.bscars = [[], [], []]
+        s.fate = []
+        s.comm_rev = {}
+        s.trait = None
+        s.turn_flags = set()
+        if cfg.v5_start_knots:
+            s.karma = [cfg.v5_start_knots] * 3
         s.comm, s.comm_deck, s.redrawn = [], [], [False] * cfg.players
+        if cfg.v5_fate:
+            s.fate = s.deal_fate(0)
         if cfg.commissions:
             ks = list(range(len(C.COMMISSIONS[cfg.soul])))
             s.rng.shuffle(ks)
@@ -316,6 +364,13 @@ class State:
         s.gaze, s.need_plus, s.breaker_ready = self.gaze, self.need_plus, self.breaker_ready
         s.harsh_pool, s.spare_tiles = self.harsh_pool, self.spare_tiles
         s.gifted = list(self.gifted)
+        s.fogged = list(self.fogged)
+        s.scars, s.lv_bonus = list(self.scars), list(self.lv_bonus)
+        s.bscars = [list(b) for b in self.bscars]
+        s.fate = [dict(f) for f in self.fate]
+        s.comm_rev = dict(self.comm_rev)
+        s.trait = self.trait
+        s.turn_flags = set(self.turn_flags)
         return s
 
     # ------------------------------------------------------------- helpers
@@ -362,7 +417,7 @@ class State:
 
     def win(self):
         if self.cfg.commissions and self.result is None:
-            done = self.commissions_done()
+            done = self.final_commissions()
             self.stats["comm_done"] = done
             if done < self.commission_need():
                 self.lose("Nameless")
@@ -385,6 +440,9 @@ class State:
                 touches = (sp <= self.soul + 1 or self.tok[k ^ 1] != NONE
                            or (sp > 1 and self.tok[(sp - 1) * 2 + b] != NONE)
                            or (sp < LAST and self.tok[(sp + 1) * 2 + b] != NONE))
+                if not touches and self.trait == OBL and self.cfg.v5_traits:
+                    touches = ((sp > 2 and self.tok[(sp - 2) * 2 + b] != NONE)
+                               or (sp < LAST - 1 and self.tok[(sp + 2) * 2 + b] != NONE))
                 if touches:
                     out.append(k)
         return out
@@ -392,6 +450,15 @@ class State:
     # ------------------------------------------------------------- primitive actions
     def place_root(self, k, stony_ok):
         """Returns True if a Root was placed."""
+        if self.fogged[k]:
+            # V5: rooting a fogged bank takes it back from the mist (the tile is already known)
+            self.fogged[k] = False
+            if not self.sim:
+                self.stats["fog_reclaimed"] = self.stats.get("fog_reclaimed", 0) + 1
+            if self.tile[k] in (GRAVE,) or (self.tile[k] == STONY and not stony_ok):
+                return False
+            self.tok[k] = ROOT
+            return True
         if not self.revealed[k]:
             if self.sim:
                 # The AI cannot see under the fog: it assumes Fertile while planning.
@@ -478,6 +545,7 @@ class State:
         self.order.append((self.reach, card.slot))
         self.stats["inscribed"] += 1
         self.note(f"  inscribed {card.cid} ({card.slot}): {card.band}")
+        self.fate_event("inscribed")
         if (self.cfg.book_mode == "blessing" and self.cfg.blessing_trigger == "inscribed"
                 and not self.blessed[self.reach] and len(page) >= self.cfg.blessing_at):
             self.blessed[self.reach] = True
@@ -521,6 +589,7 @@ class State:
         self.stats["lit"] = self.stats.get("lit", 0) + 1
         self.stats["light_on_memories"] = self.stats.get("light_on_memories", 0) + cost
         self.note(f"  lights {CARD[cid].cid}")
+        self.fate_event("lit", cid=cid)
         if self.cfg.book_mode == "blessing" and self.cfg.blessing_trigger == "lit":
             r = next((i for i in range(3) if cid in self.book[i].values()), None)
             if r is not None and not self.blessed[r] and sum(c in self.lit_mem for c in self.book[r].values()) >= self.cfg.blessing_at:
@@ -537,7 +606,11 @@ class State:
         return cands[0]
 
     def bloom_targets(self):
-        return [k for k in range(2 * max(1, self.soul), NSLOT) if self.tok[k] == ROOT]
+        out = [k for k in range(2 * max(1, self.soul), NSLOT) if self.tok[k] == ROOT and not self.fogged[k]]
+        if self.cfg.v5_reach:
+            net = self.network()
+            out = [k for k in out if k in net]
+        return out
 
     def add_fracture(self):
         if self.shield_until >= self.turn:
@@ -553,6 +626,9 @@ class State:
             return
         self.fract += 1
         self.stats["max_fract"] = max(self.stats["max_fract"], self.fract)
+        if not self.sim:
+            src = sys._getframe(1).f_code.co_name
+            self.stats[f"crack_{src}"] = self.stats.get(f"crack_{src}", 0) + 1
         self.note(f"  Fracture ({self.fract}/{self.cfg.fracture_limit})")
         if self.cfg.soul == "king":
             for m, holder in self.mantles.items():
@@ -624,28 +700,56 @@ class State:
                 self.note(f"  Shade at {x}{'ul'[b]}")
                 return
 
-    def tie_knot(self, tag):
-        self.karma[tag] += 1
-        if self.karma[tag] >= self.cfg.karma_cap:
-            self.karma[tag] = 0
-            self.backlash(tag)
+    def cap(self, tag):
+        """Knots that fill a thread (V5: one fewer per scar)."""
+        return max(1, self.cfg.karma_cap + self.cfg.v5_cap_bonus - (self.scars[tag] if self.cfg.v5_scars else 0))
 
-    def backlash(self, tag):
+    def tie_knot(self, tag, src="play"):
+        self.karma[tag] += 1
+        if self.cfg.v5_scars:
+            key = f"knots_{src}"
+            self.stats[key] = self.stats.get(key, 0) + 1
+        if self.karma[tag] >= self.cap(tag):
+            self.karma[tag] = 0
+            level = 1
+            if self.cfg.v5_scars:
+                level = min(3, self.scars[tag] + 1 + self.lv_bonus[tag])
+                self.scars[tag] = min(self.cfg.v5_scar_max, self.scars[tag] + 1)
+            self.backlash(tag, level)
+
+    def backlash(self, tag, level=1):
         self.stats["backlash"][tag] += 1
         self.stats["backlash_by_reach"][self.reach] += 1
-        self.note(f"  BACKLASH: {C.TAG_NAMES[tag]}")
+        if self.cfg.v5_scars:
+            key = f"backlash_lv{level}"
+            self.stats[key] = self.stats.get(key, 0) + 1
+        self.note(f"  BACKLASH: {C.TAG_NAMES[tag]} (level {level})")
+        self.fate_event("backlash")
         if tag == OBS:
-            k0, k1 = self.soul * 2, self.soul * 2 + 1
-            if self.soul >= 1 and not self.griev[k0]:
-                self.place_griev(self.soul, 0)
-            elif self.soul >= 1 and not self.griev[k1]:
-                self.place_griev(self.soul, 1)
+            if level == 1:
+                k0, k1 = self.soul * 2, self.soul * 2 + 1
+                if self.soul >= 1 and not self.griev[k0]:
+                    self.place_griev(self.soul, 0)
+                elif self.soul >= 1 and not self.griev[k1]:
+                    self.place_griev(self.soul, 1)
+                else:
+                    self.place_griev(self.soul + 1, 0)
             else:
-                self.place_griev(self.soul + 1, 0)
+                self.place_griev(self.soul + 3, 0)
+                self.place_griev(self.soul + 3, 1)
+                if level >= 3 and self.cfg.v5_l3_crack:
+                    self.add_fracture()
         elif tag == ACC:
             self.stats["resignation_pending"] = 1
+            self.stats["resign_extra"] = max(self.stats.get("resign_extra", 0), level - 1)
+            if level >= 3:
+                self.fog_advance(2)
         else:
             self.place_bw(self.soul + 1)
+            if level >= 2:
+                self.place_bw(self.soul + 3)
+            if level >= 3:
+                self.forget_top(1)
 
     # ------------------------------------------------------------- card effects
     def do_ops(self, ops, chooser):
@@ -703,7 +807,7 @@ class State:
                 if dark and self.cfg.cross_fracture:
                     self.add_fracture()
         elif kind == "vigil":
-            d = self.mist[self.reach]
+            d = self.mist[self.mist_idx()]
             top = d[-3:]  # the player puts them back in any order; the bot puts the mildest first
             top.sort(key=lambda m: -mist_severity(m))  # worst first in the list, so it is drawn last
             d[-3:] = top
@@ -760,8 +864,9 @@ class State:
 
     def urgent_grievance(self):
         best, bu = None, -1
+        net = self.network() if self.cfg.v5_reach else None
         for k in range(2 * max(1, self.soul), NSLOT):
-            if self.griev[k]:
+            if self.griev[k] and not self.fogged[k] and (net is None or self.near_net(k, net)):
                 u = self.griev_urgency(k)
                 if u > bu:
                     best, bu = k, u
@@ -772,8 +877,9 @@ class State:
         return 10 - min(d, 9) * 2
 
     def urgent_water(self):
+        net = self.network() if self.cfg.v5_reach else None
         for sp in range(self.soul + 1, FAR):
-            if self.flooded[sp]:
+            if self.flooded[sp] and (net is None or self.near_net(sp * 2, net) or self.near_net(sp * 2 + 1, net)):
                 return sp
         return None
 
@@ -805,6 +911,32 @@ class State:
     # ------------------------------------------------------------- playing cards
     def play(self, cid, mode, chooser, first):
         """mode: 'up', 'down' or 'burn'. Returns True if the card Resonated."""
+        if mode == "recall_ins":
+            # V5 Recall: 3 Light, a forgotten memory is inscribed into an empty slot of the current page (unlit)
+            self.light -= self.cfg.light_action_cost
+            self.turn_flags.add("recalled")
+            pick = self.recall_pick()
+            if pick is not None:
+                self.forgotten.remove(pick)
+                if self.inscribe(pick, None):
+                    self.stats["recall_inscribes"] = self.stats.get("recall_inscribes", 0) + 1
+                    self.fate_event("recall")
+                else:
+                    self.forgotten.append(pick)
+            return False
+        if mode == "swapx":
+            # V5 Swap: trade one of my cards for another player's card, then play it face up at once
+            owner = next(p for p in range(self.n) if p != self.cur and cid in self.hands[p])
+            mine = self.hands[self.cur]
+            give = min(mine, key=lambda c: (CARD[c].key, CARD[c].tag == self.echo, CARD[c].tag != OBL)) if mine else None
+            self.hands[owner].remove(cid)
+            if give is not None:
+                mine.remove(give)
+                self.hands[owner].append(give)
+            mine.append(cid)
+            self.turn_flags.add("swapped")
+            self.stats["swaps"] = self.stats.get("swaps", 0) + 1
+            return self.play(cid, "up", chooser, first)
         if mode in ("recall", "mend", "drainl"):
             # Spending Light takes the Answer action and uses no card.
             self.light -= self.cfg.light_action_cost
@@ -890,6 +1022,8 @@ class State:
                 self.stats["facedown_light"] = self.stats.get("facedown_light", 0) + 1
             self.do_op(("root", 1, False), chooser)
             self.discard.append(cid)
+            if self.cfg.v5_facedown_knot:
+                self.tie_knot(card.tag, "down")
             return False
         resonated = first and self.echo == card.tag
         self.stats["plays_up"] += 1
@@ -971,7 +1105,18 @@ class State:
     def move_soul(self, steps, light=True):
         for _ in range(steps):
             old = self.soul
-            if 1 <= old <= LAST:
+            if 1 <= old <= LAST and self.cfg.v5_keep:
+                ks = (old * 2, old * 2 + 1)
+                wall = all(self.tok[k] == BLOOM and not self.fogged[k] for k in ks)
+                if wall and self.want_keep(old):
+                    if not self.sim:
+                        self.stats["walls_kept"] = self.stats.get("walls_kept", 0) + 1
+                else:
+                    for k in ks:
+                        if self.tok[k] == BLOOM and light:
+                            self.light += self.cfg.light_per_bloom
+                            self.tok[k] = ROOT
+            elif 1 <= old <= LAST:
                 for b in (0, 1):
                     k = old * 2 + b
                     if self.tok[k] == BLOOM and light:
@@ -980,12 +1125,32 @@ class State:
                     self.griev[k] = False
                     self.frost[k] = False
             self.soul += 1
+            self.turn_flags.add("moved")
             if self.soul >= FAR:
                 self.win()
             nr = reach_of(self.soul)
             if nr != self.reach:
+                old_reach = self.reach
                 self.reach = nr
-                self.karma = [0, 0, 0]
+                if self.cfg.v5_scars and self.cfg.v5_carry:
+                    for cid in self.book[old_reach].values():
+                        if cid in self.lit_mem and self.karma[CARD[cid].tag] > 0:
+                            self.karma[CARD[cid].tag] -= 1
+                            if not self.sim:
+                                self.stats["unties_transition"] = self.stats.get("unties_transition", 0) + 1
+                else:
+                    self.karma = [0, 0, 0]
+                if self.cfg.v5_traits:
+                    tags = [CARD[c].tag for c in self.book[old_reach].values() if c in self.lit_mem]
+                    o, a = tags.count(OBS), tags.count(ACC)
+                    self.trait = OBS if o > a else ACC if a > o else None
+                    if self.trait is not None and not self.sim:
+                        key = f"trait_{C.TAG_NAMES[self.trait]}"
+                        self.stats[key] = self.stats.get(key, 0) + 1
+                if self.cfg.v5_fate:
+                    if not any(f["fired"] for f in self.fate) and self.fate:
+                        self.fire_fate(self.fate[0], forced=True, at_reach=old_reach)
+                    self.fate = self.deal_fate(nr)
                 self.note(f"  the soul enters Reach {nr + 1}")
                 if self.cfg.transitions and not self.sim:
                     self.transition(nr)
@@ -999,6 +1164,10 @@ class State:
             self.stats["resignation_pending"] = 0
             self.note("  Resignation: the soul sits down")
             self.linger(force=True)
+            extra = self.stats.get("resign_extra", 0)
+            if extra:
+                self.stats["resign_extra"] = 0
+                self.forget_top(extra)
             self.feed()
             return
         if (cfg.mantles_v2 and self.holder("warden") >= 0 and self.warden_ready and self.passable(self.soul + 1)
@@ -1123,6 +1292,7 @@ class State:
             return
         self.stats["lingers"] += 1
         self.note("  the soul Lingers")
+        self.fate_event("linger")
         if self.cfg.linger_rule == "dark" and not force and self.soul >= 1 and self.lit(self.soul):
             self.note("  (beside its own light, the soul waits without forgetting)")
             return
@@ -1142,6 +1312,237 @@ class State:
             self.note("  a Shade feeds on the soul")
             self.add_fracture()
 
+    # ------------------------------------------------------------- V5 helpers
+    def mist_idx(self):
+        """Which Mist deck is drawn: the Reach, or (V5) the depth set by the number of lit memories."""
+        if not self.cfg.v5_depth:
+            return self.reach
+        n = len(self.lit_mem)
+        t = 0 if n <= 2 else 1 if n <= 5 else 2
+        if self.reach == 2:
+            t = max(t, 1)
+        return t
+
+    def front_mist(self):
+        d = self.mist[self.mist_idx()]
+        return d[-1] if d else None
+
+    def fog_need(self, upto):
+        """Bank flips (wall flowers count one each) the fog still needs to cover space `upto` completely."""
+        lo = max(1, BOUNDS[self.reach][0])
+        need = 0
+        for sp in range(lo, min(upto, LAST) + 1):
+            ks = (sp * 2, sp * 2 + 1)
+            if all(self.tok[k] == BLOOM and not self.fogged[k] for k in ks):
+                need += 4          # a wall: two flowers wither, then two banks flip
+            else:
+                need += sum(not self.fogged[k] for k in ks)
+        return need
+
+    def want_keep(self, sp):
+        """Rule for keeping a Light Wall when the soul leaves space sp: keep it if the fog is close behind."""
+        return self.fog_need(sp - 1) <= self.cfg.v5_keep_need
+
+    def fog_advance(self, n):
+        if n <= 0 or not self.cfg.v5_fog or self.soul < 1:
+            return
+        lo = max(1, BOUNDS[self.reach][0])
+        for sp in range(lo, min(self.soul, LAST) + 1):
+            ks = (sp * 2, sp * 2 + 1)
+            if all(self.fogged[k] for k in ks):
+                continue
+            if all(self.tok[k] == BLOOM and not self.fogged[k] for k in ks):
+                for k in ks:
+                    if n <= 0:
+                        return
+                    self.tok[k] = ROOT
+                    n -= 1
+                    if not self.sim:
+                        self.stats["wall_absorbed"] = self.stats.get("wall_absorbed", 0) + 1
+                return
+            for k in ks:
+                if n <= 0:
+                    return
+                if not self.fogged[k]:
+                    self.fogged[k] = True
+                    if not (self.cfg.v5_traits and self.trait == OBS and self.tok[k] == ROOT):
+                        self.tok[k] = NONE
+                    self.frost[k] = False
+                    n -= 1
+                    if not self.sim:
+                        self.stats["fog_flips"] = self.stats.get("fog_flips", 0) + 1
+
+    def shrouded(self):
+        sp = self.soul
+        return 1 <= sp <= LAST and self.fogged[sp * 2] and self.fogged[sp * 2 + 1]
+
+    def shroud(self, tag, mist):
+        self.stats["shrouds"] = self.stats.get("shrouds", 0) + 1
+        self.stats[f"shrouds_r{self.reach}"] = self.stats.get(f"shrouds_r{self.reach}", 0) + 1
+        self.note("  the mist shrouds the soul")
+        self.fate_event("shroud")
+        self.book_scar(tag)
+        if self.cfg.v5_shroud_crack:
+            self.add_fracture()
+
+    def book_scar(self, tag, src="mist"):
+        """A mist scar enters the current page; its thread's Backlash is rewritten (one level harsher)."""
+        r = min(self.reach, 2)
+        self.stats[f"scar_src_{src}"] = self.stats.get(f"scar_src_{src}", 0) + 1
+        if len(self.bscars[r]) < 2:
+            self.bscars[r].append(tag)
+            self.lv_bonus[tag] = 1
+            return
+        page = self.book[r]
+        for rr, slot in reversed(self.order):
+            if rr == r and slot in page and page[slot] not in self.lit_mem:
+                cid = page.pop(slot)
+                self.order.remove((rr, slot))
+                self.stats["scar_covers"] = self.stats.get("scar_covers", 0) + 1
+                self.forget_card(cid)
+                return
+        self.stats["scar_fracture"] = self.stats.get("scar_fracture", 0) + 1
+        self.add_fracture()
+
+    def griev_feed(self):
+        """V5: Shades on the soul's space and the next one push the Loom by their bank."""
+        for sp in range(self.soul, self.soul + 1 + self.cfg.v5_feed_range):
+            if 1 <= sp <= LAST:
+                for b in (0, 1):
+                    k = sp * 2 + b
+                    if self.griev[k]:
+                        tag = OBL if self.fogged[k] else (OBS if b == 0 else ACC)
+                        self.fate_event("fed")
+                        self.tie_knot(tag, "griev")
+                        if self.result is not None:
+                            return
+
+    def network(self):
+        """Banks holding a token connected to the soul's space or the next one."""
+        start = [k for sp in (self.soul, self.soul + 1) if 1 <= sp <= LAST for k in (sp * 2, sp * 2 + 1)
+                 if self.tok[k] != NONE]
+        net, todo = set(start), list(start)
+        gap = self.cfg.v5_traits and self.trait == OBL
+        while todo:
+            k = todo.pop()
+            nbrs = [k ^ 1, k - 2, k + 2] + ([k - 4, k + 4] if gap else [])
+            for nb in nbrs:
+                if 2 <= nb < NSLOT and nb not in net and self.tok[nb] != NONE:
+                    net.add(nb)
+                    todo.append(nb)
+        return net
+
+    def near_net(self, k, net):
+        sp = k // 2
+        if self.soul <= sp <= self.soul + 1:
+            return True
+        return any(nb in net for nb in (k ^ 1, k - 2, k + 2))
+
+    # fate mist
+    RIVER_CONDS = ("linger", "backlash", "shroud", "fed")
+    BOOK_CONDS = ("lit", "reveal", "recall", "inscribed")
+
+    def deal_fate(self, r):
+        cards = []
+        for kind, conds in (("river", self.RIVER_CONDS), ("book", self.BOOK_CONDS)):
+            cond = self.rng.choice(conds)
+            cards.append({"kind": kind, "cond": cond, "slot": self.rng.choice(C.SLOTS),
+                          "tag": self.rng.choice((OBS, ACC, OBL)), "fired": False, "reach": r})
+        return cards
+
+    def fate_event(self, ev, cid=None):
+        if not self.cfg.v5_fate or not self.fate or self.result is not None:
+            return
+        for f in self.fate:
+            if f["fired"] or f["cond"] != ev:
+                continue
+            if ev == "lit" and (cid is None or CARD[cid].slot != f["slot"] or cid not in self.book[min(self.reach, 2)].values()):
+                continue
+            if ev == "inscribed" and len(self.book[min(self.reach, 2)]) < 3:
+                continue
+            self.fire_fate(f)
+
+    def fire_fate(self, f, forced=False, at_reach=None):
+        f["fired"] = True
+        r = f["reach"] if at_reach is None else at_reach
+        if not self.sim:
+            key = f"fate_r{r}_{'forced' if forced else 'natural'}"
+            self.stats[key] = self.stats.get(key, 0) + 1
+            self.stats[f"fate_cond_{f['cond']}"] = self.stats.get(f"fate_cond_{f['cond']}", 0) + 1
+        both = r >= 1
+        river = both or f["kind"] == "river"
+        book = both or f["kind"] == "book"
+        power = self.cfg.v5_fate_power
+        if power == "light" and r == 0:
+            river = book = False
+        if river:
+            if power == "strong":
+                self.place_griev(min(LAST, max(1, self.soul) + 3), 0)
+            self.tie_knot(f["tag"], "fate")
+        if book and self.result is None and power != "strong":
+            self.forget_top(1)
+            book = False
+        if book and self.result is None:
+            page = self.book[min(self.reach, 2)]
+            for rr, slot in reversed(self.order):
+                if rr == min(self.reach, 2) and slot in page and page[slot] not in self.lit_mem:
+                    self.forget_card(page.pop(slot))
+                    self.order.remove((rr, slot))
+                    break
+            else:
+                self.forget_top(1)
+        if self.result is None:
+            self.book_scar(f["tag"], src="fate")
+
+    # commissions: early reveal
+    def reveal_ready(self, p):
+        if p in self.comm_rev or not self.comm:
+            return None
+        used = set(self.comm_rev.values())
+        for r, cid in self.lit_memories():
+            if cid not in used and self.comm_matches(self.comm[p], r, cid):
+                return cid
+        return None
+
+    def reveal(self, p, cid, chooser=None):
+        self.comm_rev[p] = cid
+        self.stats["reveals"] = self.stats.get("reveals", 0) + 1
+        self.stats.setdefault("reveal_reach", []).append(self.reach) if not self.sim else None
+        for _ in range(2):
+            col = max(range(3), key=lambda t: self.karma[t] / self.cap(t))
+            if self.karma[col] > 0:
+                self.karma[col] -= 1
+        self.fate_event("reveal")
+
+    def final_commissions(self):
+        used = set(self.comm_rev.values())
+        done = len(self.comm_rev)
+        rest = [self.comm[p] for p in range(len(self.comm)) if p not in self.comm_rev]
+        mems = [(r, cid) for r, cid in self.lit_memories() if cid not in used]
+
+        def best(i, taken):
+            if i == len(rest):
+                return 0
+            top = best(i + 1, taken)
+            for j, (r, cid) in enumerate(mems):
+                if j not in taken and self.comm_matches(rest[i], r, cid):
+                    top = max(top, 1 + best(i + 1, taken | {j}))
+            return top
+        return done + best(0, frozenset())
+
+    def recall_pick(self):
+        page = self.book[min(self.reach, 2)]
+        cands = [c for c in self.forgotten if CARD[c].tag != OBL and CARD[c].slot and CARD[c].slot not in page
+                 and self.cfg.use_book and self.reach < 3]
+        if not cands:
+            return None
+        mine = self.comm[self.cur] if self.comm else None
+        if mine is not None:
+            good = [c for c in cands if self.comm_matches(mine, self.reach, c)]
+            if good:
+                return good[0]
+        return cands[-1]
+
     # ------------------------------------------------------------- Mist
     def mist_step(self):
         self.dim = self.blind = False          # "until the next Mist" effects end here
@@ -1149,9 +1550,10 @@ class State:
         if self.thunder:
             self.thunder = False
             draws += 1
-        d = self.mist[self.reach]
+        mi = self.mist_idx()
+        d = self.mist[mi]
         if not d:
-            d.extend(C.MIST[self.reach])
+            d.extend(C.MIST[mi])
             self.rng.shuffle(d)
         if self.cfg.mantles_v2 and self.holder("breaker") >= 0 and self.breaker_ready and d:
             # V2 Mist-breaker "see through the mist": look at the top card, may put it at the bottom
@@ -1165,10 +1567,13 @@ class State:
             self.mist_card()
 
     def mist_card(self):
-        d = self.mist[self.reach]
+        mi = self.mist_idx()
+        d = self.mist[mi]
         if not d:
-            d.extend(C.MIST[self.reach])
+            d.extend(C.MIST[mi])
             self.rng.shuffle(d)
+        if self.cfg.v5_depth:
+            self.stats[f"mist_depth{mi}"] = self.stats.get(f"mist_depth{mi}", 0) + 1
         name, ops = d.pop()
         self.last_mist = name
         self.note(f"  Mist: {name}")
@@ -1222,6 +1627,10 @@ class State:
                     self.bw_supply += 1
             elif k == "bw":
                 self.place_bw(S + op[1])
+            elif k == "grv" and self.cfg.v5_griev_loom:
+                self.place_griev(min(LAST, S + self.cfg.v5_griev_offset), op[2])
+            elif k == "grv_near" and self.cfg.v5_griev_loom:
+                self.place_griev(min(LAST, S + self.cfg.v5_griev_offset), 0)
             elif k == "grv":
                 if S + op[1] <= LAST:
                     self.place_griev(S + op[1], op[2])
@@ -1265,6 +1674,17 @@ class State:
                     self.light -= 2
                 else:
                     self.add_fracture()
+        if self.cfg.v5_scars or self.cfg.v5_fog:
+            tag = mist_thread((name, ops))
+            if tag is not None and self.cfg.v5_scars and self.cfg.v5_mist_knot:
+                self.tie_knot(tag, "mist")
+            if self.cfg.v5_fog:
+                n = int(round(mist_strength((name, ops)) * self.cfg.v5_fog_scale))
+                if self.cfg.v5_fog_on_stall and "moved" in self.turn_flags:
+                    n = 0
+                self.fog_advance(n)
+                if n > 0 and self.shrouded():
+                    self.shroud(tag if tag is not None else OBL, (name, ops))
 
     def end_of_turn_checks(self):
         # Roots drink the flood
@@ -1330,9 +1750,42 @@ def mist_severity(m):
     return s
 
 
+def mist_thread(m):
+    """V5: the thread printed on a Mist card's back."""
+    name, ops = m
+    if not ops:
+        return ACC
+    k = ops[0][0]
+    if k == "karma_all":
+        return None
+    return {"bw": OBL, "forget": OBL, "fog": OBL, "back": OBL, "bw_return": OBL, "thunder": OBL,
+            "grv": OBS, "grv_near": OBS, "uproot": OBS, "dark_wind": OBS, "gaze": OBS, "blind": OBS,
+            "wither": ACC, "wither_far": ACC, "wither_at": ACC, "sever": ACC, "peel": ACC, "dim": ACC,
+            "silence": ACC, "flood_page": ACC, "cold_night": ACC}.get(k, OBL)
+
+
+def mist_strength(m):
+    """V5: the mist strength printed on a Mist card's back (0-2)."""
+    name, ops = m
+    if not ops:
+        return 0
+    k = ops[0][0]
+    if k in ("fog", "back", "flood_page", "blind", "thunder", "karma_all", "dark_wind", "wither_far"):
+        return 2
+    if k in ("silence", "dim", "gaze", "cold_night", "bw_return", "sever"):
+        return 1
+    if len(ops) > 1:
+        return 1
+    return 1
+
+
 def light_actions(s):
     """The Light-spending actions open to the current player as their Answer (first) action."""
     cfg = s.cfg
+    if cfg.v5_recall:
+        if s.light >= cfg.light_action_cost and "recalled" not in s.turn_flags and s.recall_pick() is not None:
+            return ["recall_ins"]
+        return []
     if not cfg.light_action or s.light < cfg.light_action_cost or s.stats.get("light_actions", 0) >= cfg.light_action_limit:
         return []
     out = []
