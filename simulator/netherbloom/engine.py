@@ -171,6 +171,19 @@ class Config:
         self.v5_fate_power = "strong"  # tuning: fate effects. "strong": river = a Shade 3 ahead + a knot, book = the newest
                                        # unlit memory is forgotten; "medium": river = a knot, book = forget the top card;
                                        # "light": as medium, but Reach 1 fate only writes the mist scar
+        # ---- V5 revision: story chapters (docs/design/V5-proposal.zh-TW.md, V5-storybooks.zh-TW.md). Off by default.
+        self.v5_chapters = False     # the storybook drives the game: chapter pages are route maps, each chapter's
+                                     # fate-mist turning point forks the route, reaching the page's exit turns the page
+                                     # (deeper Mist deck, next fate cards); the Far Shore opens after chapter 3
+        self.v5_turn_knots = "clear_heal"  # at a page turn: "clear_heal" (knots cleared, every 2 lit memories of the page
+                                     # heal 1 scar), "lit_free" (untie one knot per lit memory; a thread emptied this way
+                                     # heals 1 scar; the rest carry over), "lit_free_base2" (as lit_free after untying 2 per thread)
+        self.v5_wall_mode = "pair"   # light walls: "pair" (both banks bloom; absorbs 2) or "bank" (each bloom absorbs 1 on its bank)
+        self.v5_solo_cap_bonus = 0   # extra knots before a thread fills in solo games
+        self.v5_fog_plus = 0         # difficulty: added to the fog strength whenever the fog advances
+        self.v5_obs_l2_ahead = 3     # where a level-2+ Obsession Backlash puts its two Shades (spaces ahead)
+        self.v5_gate_take = 0.5      # AI: chance to follow a lit gate memory's thread when it differs from the fate card
+        self.v5_reveal_rewrite = 0.0  # chance a revealed commission rewrites the chapter's fork instead of untying 2 knots
         for k, v in overrides.items():
             if not hasattr(self, k):
                 raise KeyError(f"unknown config option {k}")
@@ -206,6 +219,7 @@ class State:
         "lit_mem", "order", "comm", "comm_deck", "redrawn", "frost", "dim", "blind", "cold_until", "thunder",
         "gaze", "need_plus", "breaker_ready", "harsh_pool", "spare_tiles", "gifted",
         "fogged", "scars", "lv_bonus", "bscars", "fate", "comm_rev", "trait", "turn_flags",
+        "ch", "pg", "walk", "shore_open", "chc", "page_turn", "paths", "fates_ch", "rewrite", "agent",
     )
 
     # ------------------------------------------------------------- setup
@@ -316,7 +330,20 @@ class State:
         if cfg.v5_start_knots:
             s.karma = [cfg.v5_start_knots] * 3
         s.comm, s.comm_deck, s.redrawn = [], [], [False] * cfg.players
-        if cfg.v5_fate:
+        s.agent = None
+        s.ch = 0                 # V5 chapters: the current chapter (page)
+        s.pg = [dict(), dict(), dict()]   # per chapter: node id -> card id, or ("mist", tag) on mist slots / covered slots
+        s.walk = [[], [], []]    # per chapter: the route's node ids in order, up to the frontier
+        s.shore_open = not cfg.v5_chapters
+        s.chc = {}               # per-chapter counters for fate conditions
+        s.page_turn = False
+        s.paths = [None, None, None]      # per chapter: (fate tag, path tag) once the turning point forks the route
+        s.fates_ch = []
+        s.rewrite = False
+        if cfg.v5_chapters:
+            s.fates_ch = s.deal_chapter_fates(0)
+            s.start_route(None)
+        elif cfg.v5_fate:
             s.fate = s.deal_fate(0)
         if cfg.commissions:
             ks = list(range(len(C.COMMISSIONS[cfg.soul])))
@@ -371,6 +398,13 @@ class State:
         s.comm_rev = dict(self.comm_rev)
         s.trait = self.trait
         s.turn_flags = set(self.turn_flags)
+        s.ch, s.shore_open, s.page_turn, s.rewrite = self.ch, self.shore_open, self.page_turn, self.rewrite
+        s.agent = self.agent
+        s.pg = [dict(p) for p in self.pg]
+        s.walk = [list(w) for w in self.walk]
+        s.chc = dict(self.chc)
+        s.paths = list(self.paths)
+        s.fates_ch = [dict(f) for f in self.fates_ch]
         return s
 
     # ------------------------------------------------------------- helpers
@@ -392,7 +426,9 @@ class State:
         return self.tok[sp * 2] == BLOOM or self.tok[sp * 2 + 1] == BLOOM
 
     def passable(self, sp):
-        return sp >= FAR or (self.lit(sp) and not self.flooded[sp])
+        if sp >= FAR:
+            return self.shore_open
+        return self.lit(sp) and not self.flooded[sp]
 
     def snapshot(self, plays, mist):
         """A JSON-ready picture of the board, for the replay viewer."""
@@ -470,6 +506,8 @@ class State:
             if t == GRAVE:
                 self.griev[k] = True
                 self.note("  a Shade rises from the Grave")
+                if self.cfg.v5_chapters:
+                    self.ch_event("graves")
                 return False
             if t == STONY and not stony_ok:
                 return False
@@ -518,6 +556,8 @@ class State:
 
     # ------------------------------------------------------------- V2: the Book and the commissions
     def can_inscribe(self, cid):
+        if self.cfg.v5_chapters:
+            return self.ch_can_inscribe(cid)
         card = CARD[cid]
         if card.tag == OBL or not card.slot or not self.cfg.use_book or self.reach >= 3:
             return False
@@ -529,6 +569,8 @@ class State:
 
     def inscribe(self, cid, chooser):
         """Write a card into the current page. Returns True if it was inscribed."""
+        if self.cfg.v5_chapters:
+            return self.ch_inscribe(cid, chooser)
         card = CARD[cid]
         if not self.can_inscribe(cid):
             return False
@@ -600,7 +642,7 @@ class State:
     def spring_pick(self, cands):
         mine = self.comm[self.cur] if self.comm else None
         if mine is not None:
-            good = [c for c in cands if self.comm_matches(mine, self.reach, c)]
+            good = [c for c in cands if self.comm_matches(mine, self.page(), c)]
             if good:
                 return good[0]
         return cands[0]
@@ -626,6 +668,7 @@ class State:
             return
         self.fract += 1
         self.stats["max_fract"] = max(self.stats["max_fract"], self.fract)
+        self.stats["cracks_taken"] = self.stats.get("cracks_taken", 0) + 1
         if not self.sim:
             src = sys._getframe(1).f_code.co_name
             self.stats[f"crack_{src}"] = self.stats.get(f"crack_{src}", 0) + 1
@@ -634,8 +677,11 @@ class State:
             for m, holder in self.mantles.items():
                 if holder == self.cur:
                     self.mantles[m] = -1
+                    self.stats["king_titles_lost"] = self.stats.get("king_titles_lost", 0) + 1
         if self.fract >= self.cfg.fracture_limit:
             self.lose("Shattered")
+        if self.cfg.v5_chapters:
+            self.ch_event("cracks")
 
     def forget_top(self, n=1):
         for _ in range(n):
@@ -698,11 +744,14 @@ class State:
                 self.griev[k] = True
                 self.tok[k] = NONE
                 self.note(f"  Shade at {x}{'ul'[b]}")
+                if self.cfg.v5_chapters and x == self.soul:
+                    self.ch_event("griev_enter")
                 return
 
     def cap(self, tag):
         """Knots that fill a thread (V5: one fewer per scar)."""
-        return max(1, self.cfg.karma_cap + self.cfg.v5_cap_bonus - (self.scars[tag] if self.cfg.v5_scars else 0))
+        solo = self.cfg.v5_solo_cap_bonus if self.n == 1 else 0
+        return max(1, self.cfg.karma_cap + self.cfg.v5_cap_bonus + solo - (self.scars[tag] if self.cfg.v5_scars else 0))
 
     def tie_knot(self, tag, src="play"):
         self.karma[tag] += 1
@@ -724,6 +773,8 @@ class State:
             key = f"backlash_lv{level}"
             self.stats[key] = self.stats.get(key, 0) + 1
         self.note(f"  BACKLASH: {C.TAG_NAMES[tag]} (level {level})")
+        if self.cfg.v5_chapters and tag == OBS:
+            self.chc["backlash_obs"] = self.chc.get("backlash_obs", 0) + 1
         self.fate_event("backlash")
         if tag == OBS:
             if level == 1:
@@ -735,8 +786,9 @@ class State:
                 else:
                     self.place_griev(self.soul + 1, 0)
             else:
-                self.place_griev(self.soul + 3, 0)
-                self.place_griev(self.soul + 3, 1)
+                ahead = self.cfg.v5_obs_l2_ahead
+                self.place_griev(self.soul + ahead, 0)
+                self.place_griev(self.soul + ahead, 1)
                 if level >= 3 and self.cfg.v5_l3_crack:
                     self.add_fracture()
         elif tag == ACC:
@@ -777,6 +829,14 @@ class State:
                 if t is None:
                     break
                 self.tok[t] = BLOOM
+                if self.cfg.v5_traits and self.trait == ACC and "spread" not in self.turn_flags:
+                    self.turn_flags.add("spread")
+                    for nb in (t ^ 1, t - 2, t + 2):
+                        if 2 <= nb < NSLOT and nb // 2 >= self.soul and self.tok[nb] == ROOT and not self.fogged[nb]:
+                            self.tok[nb] = BLOOM
+                            if not self.sim:
+                                self.stats["trait_spreads"] = self.stats.get("trait_spreads", 0) + 1
+                            break
         elif kind == "hold":
             self.hold = True
         elif kind == "shield":
@@ -800,7 +860,7 @@ class State:
         elif kind == "cross":
             # V2 Lightless Crossing: step forward even into the dark or between two Shades (never into Black Water)
             sp = self.soul + 1
-            if sp >= FAR or not self.flooded[sp]:
+            if (sp >= FAR and self.shore_open) or (sp < FAR and not self.flooded[sp]):
                 self.stats["crossings"] = self.stats.get("crossings", 0) + 1
                 dark = sp < FAR and not self.lit(sp)
                 self.move_soul(1, light=False)
@@ -1111,6 +1171,8 @@ class State:
                 if wall and self.want_keep(old):
                     if not self.sim:
                         self.stats["walls_kept"] = self.stats.get("walls_kept", 0) + 1
+                    if self.cfg.v5_chapters:
+                        self.ch_event("walls")
                 else:
                     for k in ks:
                         if self.tok[k] == BLOOM and light:
@@ -1128,6 +1190,11 @@ class State:
             self.turn_flags.add("moved")
             if self.soul >= FAR:
                 self.win()
+            if self.cfg.v5_chapters:
+                self.reach = reach_of(self.soul)
+                if self.soul <= LAST and (self.griev[self.soul * 2] or self.griev[self.soul * 2 + 1]):
+                    self.ch_event("griev_enter")
+                continue
             nr = reach_of(self.soul)
             if nr != self.reach:
                 old_reach = self.reach
@@ -1195,6 +1262,8 @@ class State:
             self.push_through()
         else:
             self.linger()
+            if cfg.v5_chapters and self.soul == LAST and not self.shore_open and self.result is None:
+                self.gate_force()
         self.feed()
 
     def want_stay(self):
@@ -1315,6 +1384,8 @@ class State:
     # ------------------------------------------------------------- V5 helpers
     def mist_idx(self):
         """Which Mist deck is drawn: the Reach, or (V5) the depth set by the number of lit memories."""
+        if self.cfg.v5_chapters:
+            return self.ch
         if not self.cfg.v5_depth:
             return self.reach
         n = len(self.lit_mem)
@@ -1329,7 +1400,7 @@ class State:
 
     def fog_need(self, upto):
         """Bank flips (wall flowers count one each) the fog still needs to cover space `upto` completely."""
-        lo = max(1, BOUNDS[self.reach][0])
+        lo = 1 if self.cfg.v5_chapters else max(1, BOUNDS[self.reach][0])
         need = 0
         for sp in range(lo, min(upto, LAST) + 1):
             ks = (sp * 2, sp * 2 + 1)
@@ -1346,10 +1417,34 @@ class State:
     def fog_advance(self, n):
         if n <= 0 or not self.cfg.v5_fog or self.soul < 1:
             return
-        lo = max(1, BOUNDS[self.reach][0])
+        n += self.cfg.v5_fog_plus
+        lo = 1 if self.cfg.v5_chapters else max(1, BOUNDS[self.reach][0])
         for sp in range(lo, min(self.soul, LAST) + 1):
             ks = (sp * 2, sp * 2 + 1)
             if all(self.fogged[k] for k in ks):
+                continue
+            if self.cfg.v5_wall_mode == "bank":
+                held = False
+                for k in ks:
+                    if n <= 0:
+                        return
+                    if self.fogged[k]:
+                        continue
+                    if self.tok[k] == BLOOM:
+                        self.tok[k] = ROOT
+                        held = True
+                        if not self.sim:
+                            self.stats["wall_absorbed"] = self.stats.get("wall_absorbed", 0) + 1
+                    else:
+                        self.fogged[k] = True
+                        if not (self.cfg.v5_traits and self.trait == OBS and self.tok[k] == ROOT):
+                            self.tok[k] = NONE
+                        self.frost[k] = False
+                        if not self.sim:
+                            self.stats["fog_flips"] = self.stats.get("fog_flips", 0) + 1
+                    n -= 1
+                if held:
+                    return
                 continue
             if all(self.tok[k] == BLOOM and not self.fogged[k] for k in ks):
                 for k in ks:
@@ -1389,6 +1484,9 @@ class State:
         """A mist scar enters the current page; its thread's Backlash is rewritten (one level harsher)."""
         r = min(self.reach, 2)
         self.stats[f"scar_src_{src}"] = self.stats.get(f"scar_src_{src}", 0) + 1
+        if self.cfg.v5_chapters:
+            self.ch_mist_scar(tag)
+            return
         if len(self.bscars[r]) < 2:
             self.bscars[r].append(tag)
             self.lv_bonus[tag] = 1
@@ -1451,6 +1549,13 @@ class State:
         return cards
 
     def fate_event(self, ev, cid=None):
+        if self.cfg.v5_chapters:
+            if self.result is None:
+                key = {"linger": "lingers", "backlash": "backlash", "reveal": "reveals"}.get(ev)
+                if key:
+                    self.chc[key] = self.chc.get(key, 0) + 1
+                self.check_fate()
+            return
         if not self.cfg.v5_fate or not self.fate or self.result is not None:
             return
         for f in self.fate:
@@ -1507,7 +1612,20 @@ class State:
     def reveal(self, p, cid, chooser=None):
         self.comm_rev[p] = cid
         self.stats["reveals"] = self.stats.get("reveals", 0) + 1
-        self.stats.setdefault("reveal_reach", []).append(self.reach) if not self.sim else None
+        self.stats.setdefault("reveal_reach", []).append(self.page()) if not self.sim else None
+        if self.cfg.v5_chapters:
+            mists = list(self.pg[self.ch])
+            near = any(self.karma[t] >= self.cap(t) - 2 for t in range(3))
+            if self.cfg.v5_reveal_rewrite and self.paths[self.ch] is None and self.rng.random() < self.cfg.v5_reveal_rewrite:
+                self.rewrite = True
+                self.stats["reveal_rewrite"] = self.stats.get("reveal_rewrite", 0) + 1
+                self.fate_event("reveal")
+                return
+            if mists and not near:
+                self.pg[self.ch].pop(mists[0])
+                self.stats["reveal_unmist"] = self.stats.get("reveal_unmist", 0) + 1
+                self.fate_event("reveal")
+                return
         for _ in range(2):
             col = max(range(3), key=lambda t: self.karma[t] / self.cap(t))
             if self.karma[col] > 0:
@@ -1531,6 +1649,13 @@ class State:
         return done + best(0, frozenset())
 
     def recall_pick(self):
+        if self.cfg.v5_chapters:
+            cands = [c for c in self.forgotten if self.ch_can_inscribe(c)]
+            if not cands:
+                return None
+            mine = self.comm[self.cur] if self.comm else None
+            good = [c for c in cands if mine is not None and self.comm_matches(mine, self.ch, c)]
+            return (good or cands)[-1]
         page = self.book[min(self.reach, 2)]
         cands = [c for c in self.forgotten if CARD[c].tag != OBL and CARD[c].slot and CARD[c].slot not in page
                  and self.cfg.use_book and self.reach < 3]
@@ -1542,6 +1667,416 @@ class State:
             if good:
                 return good[0]
         return cands[-1]
+
+    # ------------------------------------------------------------- V5 chapters: the storybook drives the game
+    def page(self):
+        """The Book page being written: the chapter (V5 chapters) or the Reach."""
+        return self.ch if self.cfg.v5_chapters else self.reach
+
+    def chapter_def(self):
+        from .story import BOOKS
+        return BOOKS[self.cfg.soul][self.ch]
+
+    def filled(self, nid):
+        return nid in self.book[self.ch] or nid in self.pg[self.ch]
+
+    def start_route(self, prev_tag):
+        d = self.chapter_def()
+        self.walk[self.ch] = [d["starts"].get(prev_tag, d["first"])]
+        self.advance_route()
+
+    def advance_route(self):
+        """Walk the route as far as it goes: past filled memory slots, mist slots and decided forks."""
+        nodes = self.chapter_def()["nodes"]
+        w = self.walk[self.ch]
+        while True:
+            cur = w[-1]
+            nd = nodes[cur]
+            k = nd["kind"]
+            if k in "mg":
+                if not self.filled(cur):
+                    return
+                w.append(nd["next"][0])
+            elif k == "x":
+                w.append(nd["next"][0])
+            elif k == "p":
+                chosen = [b for b in nd["next"] if self.filled(b)] or (
+                    [self.chc[f"pick_{cur}"]] if f"pick_{cur}" in self.chc else [])
+                if not chosen:
+                    return
+                w.append(chosen[0])
+            elif k == "f":
+                fate = self.chc.get("fate")
+                if fate is None:
+                    return
+                if self.paths[self.ch] is None:
+                    path = fate
+                    gate = next((x for x in reversed(w[:-1]) if nodes[x]["kind"] == "g"), None)
+                    gcid = self.book[self.ch].get(gate) if gate else None
+                    if self.rewrite:
+                        path = self.rng.choice((OBS, ACC, fate))
+                    elif gcid is not None and gcid in self.lit_mem and CARD[gcid].tag != fate:
+                        if self.rng.random() < self.cfg.v5_gate_take:
+                            path = CARD[gcid].tag
+                    self.paths[self.ch] = (fate, path)
+                w.append(nd["next"][self.paths[self.ch][1]])
+            else:
+                self.page_turn = True
+                return
+
+    def open_slots(self):
+        """Empty memory slots on the walked route, plus the branches of an undecided pure fork."""
+        nodes = self.chapter_def()["nodes"]
+        w = self.walk[self.ch]
+        out = [x for x in w if nodes[x]["kind"] in "mg" and not self.filled(x)]
+        if nodes[w[-1]]["kind"] == "p":
+            out += [b for b in nodes[w[-1]]["next"] if not self.filled(b)]
+        return out
+
+    def ch_can_inscribe(self, cid):
+        card = CARD[cid]
+        if card.tag == OBL or not card.slot or not self.cfg.use_book or self.page_turn:
+            return False
+        nodes = self.chapter_def()["nodes"]
+        if any(nodes[x]["cat"] == card.slot for x in self.open_slots()):
+            return True
+        return self.cfg.replace_memories and any(
+            nodes[x]["cat"] == card.slot and x in self.book[self.ch] and self.book[self.ch][x] not in self.lit_mem
+            and not CARD[self.book[self.ch][x]].key for x in self.walk[self.ch])
+
+    def ch_inscribe(self, cid, chooser):
+        card = CARD[cid]
+        if not self.ch_can_inscribe(cid):
+            return False
+        nodes = self.chapter_def()["nodes"]
+        page = self.book[self.ch]
+        slot = next((x for x in self.open_slots() if nodes[x]["cat"] == card.slot), None)
+        if slot is None:
+            slot = next(x for x in self.walk[self.ch] if nodes[x]["cat"] == card.slot and x in page
+                        and page[x] not in self.lit_mem and not CARD[page[x]].key)
+            old = page.pop(slot)
+            self.order = [o for o in self.order if o != (self.ch, slot)]
+            self.stats["replaced"] = self.stats.get("replaced", 0) + 1
+            self.forget_card(old)
+        page[slot] = cid
+        self.order.append((self.ch, slot))
+        self.stats["inscribed"] += 1
+        self.note(f"  inscribed {card.cid} ({card.slot}) at {slot}: {card.band}")
+        self.advance_route()
+        self.fate_event("inscribed")
+        return True
+
+    def ch_mist_scar(self, tag):
+        """A mist card enters the route: the first empty mist slot walked or ahead, else it covers a memory slot."""
+        nodes = self.chapter_def()["nodes"]
+        w = self.walk[self.ch]
+        self.bscars[self.ch].append(tag)
+        target = next((x for x in w if nodes[x]["kind"] == "x" and not self.filled(x)), None)
+        if target is None:
+            cur, seen = w[-1], 0
+            while target is None and seen < 12:
+                seen += 1
+                nd = nodes[cur]
+                if nd["kind"] == "x" and not self.filled(cur):
+                    target = cur
+                elif nd["kind"] == "p":
+                    pick = self.chc.get(f"pick_{cur}") or self.rng.choice(nd["next"])
+                    self.chc[f"pick_{cur}"] = pick
+                    cur = pick
+                    continue
+                elif nd["kind"] in "fo":
+                    break
+                cur = nd["next"][0]
+        if target is not None:
+            self.pg[self.ch][target] = tag
+            self.lv_bonus[tag] = 1
+            self.advance_route()
+            return
+        slots = self.open_slots()
+        if slots:
+            pick = slots[0] if nodes[w[-1]]["kind"] != "p" else self.rng.choice(slots)
+            self.pg[self.ch][pick] = tag
+            self.lv_bonus[tag] = 1
+            self.stats["scar_covers"] = self.stats.get("scar_covers", 0) + 1
+            self.advance_route()
+            return
+        page = self.book[self.ch]
+        for rr, slot in reversed(self.order):
+            if rr == self.ch and slot in page and page[slot] not in self.lit_mem:
+                self.forget_card(page.pop(slot))
+                self.order.remove((rr, slot))
+                self.pg[self.ch][slot] = tag
+                self.stats["scar_covers"] = self.stats.get("scar_covers", 0) + 1
+                return
+        self.stats["scar_fracture"] = self.stats.get("scar_fracture", 0) + 1
+        self.add_fracture()
+
+    def deal_chapter_fates(self, ch):
+        from .story import BOOKS
+        defs = BOOKS[self.cfg.soul][ch]["fates"]
+        out = []
+        for kind in ("river", "book"):
+            idx = [i for i, f in enumerate(defs) if f["kind"] == kind]
+            out.append({"i": self.rng.choice(idx), "fired": False})
+        return out
+
+    def cond_met(self, pred, arg):
+        c = self.chc
+        if pred in ("lingers", "griev_enter", "backlash", "backlash_obs", "cracks", "walls", "graves", "reveals"):
+            return c.get(pred, 0) >= arg
+        if pred == "fog_near":
+            sp = self.soul
+            return 1 <= sp <= LAST and (self.fogged[sp * 2] or self.fogged[sp * 2 + 1])
+        page = self.book[self.ch]
+        if pred == "page_lit":
+            return sum(cid in self.lit_mem for cid in page.values()) >= arg
+        if pred in ("gate_insc", "gate_lit"):
+            nodes = self.chapter_def()["nodes"]
+            gates = [x for x in page if nodes[x]["kind"] == "g"]
+            return any(pred == "gate_insc" or page[x] in self.lit_mem for x in gates)
+        if pred == "forgot":
+            return len(self.forgotten) >= arg
+        if pred == "own_lit":
+            pre = {"king": "K", "garland": "G", "bride": "B", "child": "L"}.get(self.cfg.soul, "?")
+            return any(cid in self.lit_mem and CARD[cid].cid[0] == pre for cid in page.values())
+        if pred == "prev_lit":
+            return sum(cid in self.lit_mem for r in (0, 1) for cid in self.book[r].values()) >= arg
+        raise KeyError(pred)
+
+    def check_fate(self):
+        if not self.cfg.v5_chapters or self.result is not None or self.chc.get("fate") is not None:
+            return
+        from .story import BOOKS
+        defs = BOOKS[self.cfg.soul][self.ch]["fates"]
+        ready = [f for f in self.fates_ch if all(self.cond_met(p, a) for p, a in defs[f["i"]]["conds"])]
+        if ready:
+            self.fire_chapter_fate(self.rng.choice(ready))
+
+    def fire_chapter_fate(self, f, forced=False):
+        from .story import BOOKS
+        card = BOOKS[self.cfg.soul][self.ch]["fates"][f["i"]]
+        f["fired"] = True
+        self.chc["fate"] = card["tag"]
+        if not self.sim:
+            key = f"fate_ch{self.ch}_{'forced' if forced else card['kind']}"
+            self.stats[key] = self.stats.get(key, 0) + 1
+            self.stats.setdefault("fate_names", []).append(card["name"])
+            self.stats[f"ch_fate_turn{self.ch}"] = self.turn
+        self.note(f"  TURNING POINT: {card['name']} ({C.TAG_NAMES[card['tag']]})")
+        self.fate_ops(card["ops"])
+        if self.result is None:
+            self.advance_route()
+
+    def fate_ops(self, ops):
+        ag = self.agent
+        for op in ops:
+            if self.result is not None:
+                return
+            k = op[0]
+            S = self.soul
+            if k == "knots":
+                for _ in range(op[2]):
+                    self.tie_knot(op[1], "fate")
+            elif k == "untie":
+                for _ in range(op[1]):
+                    col = max(range(3), key=lambda t: self.karma[t] / self.cap(t))
+                    self.karma[col] = max(0, self.karma[col] - 1)
+            elif k == "untie_all":
+                self.karma[op[1]] = 0
+            elif k == "forget_unlit":
+                page = self.book[self.ch]
+                for rr, slot in reversed(self.order):
+                    if rr == self.ch and slot in page and page[slot] not in self.lit_mem:
+                        self.forget_card(page.pop(slot))
+                        self.order.remove((rr, slot))
+                        break
+                else:
+                    self.forget_top(1)
+            elif k == "light":
+                self.light += op[1]
+            elif k == "root" and ag is not None:
+                self.do_op(("root", op[1], False), ag)
+            elif k == "bloom" and ag is not None:
+                self.do_op(("bloom", op[1]), ag)
+            elif k == "bloom_here":
+                for b in (0, 1):
+                    if 1 <= S <= LAST and self.tok[S * 2 + b] == ROOT:
+                        self.tok[S * 2 + b] = BLOOM
+            elif k == "advance":
+                for _ in range(op[1]):
+                    if self.passable(self.soul + 1):
+                        self.move_soul(1)
+            elif k == "advance_dark":
+                sp = S + 1
+                if (sp < FAR and not self.flooded[sp]) or (sp >= FAR and self.shore_open):
+                    self.move_soul(1, light=False)
+            elif k == "wither":
+                blooms = [x for x in range(NSLOT - 1, 2 * (S + 1) - 1, -1) if self.tok[x] == BLOOM and not self.frost[x]]
+                for x in blooms[:op[1]]:
+                    self.tok[x] = ROOT
+            elif k == "recall_free":
+                cid = self.recall_pick()
+                if cid is not None:
+                    self.forgotten.remove(cid)
+                    self.inscribe(cid, None)
+            elif k == "forget":
+                self.forget_top(op[1])
+            elif k == "light_free":
+                for _ in range(op[1]):
+                    cands = [cid for r in range(3) for cid in self.book[r].values() if cid not in self.lit_mem]
+                    if not cands:
+                        break
+                    good = [c for c in cands if self.comm and any(self.comm_matches(ci, r, c) for ci in self.comm
+                                                                   for r in range(3) if c in self.book[r].values())]
+                    self.light_one((good or cands)[0], 0)
+            elif k == "fog":
+                self.fog_advance(op[1])
+                if self.shrouded():
+                    self.shroud(OBL, None)
+            elif k == "key_insc":
+                for p in range(self.n):
+                    key = next((c for c in self.hands[p] if CARD[c].key), None)
+                    if key is not None and self.can_inscribe(key):
+                        self.hands[p].remove(key)
+                        self.inscribe(key, None)
+                        break
+            elif k == "mend":
+                self.fract = max(0, self.fract - 1)
+            elif k == "unscar":
+                t = max(range(3), key=lambda x: self.scars[x])
+                self.scars[t] = max(0, self.scars[t] - 1)
+            elif k == "griev1":
+                self.place_griev(min(LAST, max(1, S) + 1), 0)
+            elif k == "banish" and ag is not None:
+                self.do_op(("banish",), ag)
+            elif k == "insc_hand":
+                for p in range(self.n):
+                    cid = next((c for c in self.hands[p] if self.can_inscribe(c)), None)
+                    if cid is not None:
+                        self.hands[p].remove(cid)
+                        self.inscribe(cid, None)
+                        break
+            elif k == "bw1":
+                self.place_bw(S + 1)
+            elif k == "lose_title":
+                held = [m for m, h in self.mantles.items() if h >= 0]
+                if held:
+                    self.mantles[held[0]] = -1
+            elif k == "retreat":
+                sp = S - 1
+                if sp >= 1 and not (self.fogged[sp * 2] and self.fogged[sp * 2 + 1]):
+                    self.soul = sp
+                    self.stats["fate_retreats"] = self.stats.get("fate_retreats", 0) + 1
+
+    def ch_event(self, ev):
+        self.chc[ev] = self.chc.get(ev, 0) + 1
+        self.check_fate()
+
+    def gate_force(self):
+        """The soul lingers before the Far Shore while the story is unfinished: fate catches up."""
+        if self.chc.get("fate") is None:
+            self.stats[f"gate_fate_ch{self.ch}"] = self.stats.get(f"gate_fate_ch{self.ch}", 0) + 1
+            self.fire_chapter_fate(self.rng.choice(self.fates_ch), forced=True)
+        elif not self.page_turn:
+            self.stats[f"gate_end_ch{self.ch}"] = self.stats.get(f"gate_end_ch{self.ch}", 0) + 1
+            self.page_turn = True
+
+    def chapter_step(self):
+        """End of turn: fate conditions that watch the board, then the page turn."""
+        if not self.cfg.v5_chapters or self.result is not None:
+            return
+        self.check_fate()
+        if not self.page_turn or self.result is not None:
+            return
+        self.page_turn = False
+        ch = self.ch
+        if not self.sim:
+            self.stats[f"ch_end_turn{ch}"] = self.turn
+        if self.paths[ch] is None:
+            fate = self.chc.get("fate")
+            self.paths[ch] = (fate, fate)
+        lit = [cid for cid in self.book[ch].values() if cid in self.lit_mem]
+        mode = self.cfg.v5_turn_knots
+        if mode == "clear_heal":
+            self.karma = [0, 0, 0]
+            for _ in range(len(lit) // 2):
+                t = max(range(3), key=lambda x: self.scars[x])
+                self.scars[t] = max(0, self.scars[t] - 1)
+        else:
+            if mode == "lit_free_base2":
+                self.karma = [max(0, k - 2) for k in self.karma]
+            budget = len(lit)
+            for t in sorted(range(3), key=lambda x: (-self.scars[x], self.karma[x])):
+                if 0 < self.karma[t] <= budget and self.scars[t] > 0:
+                    budget -= self.karma[t]
+                    self.karma[t] = 0
+                    self.scars[t] -= 1
+                    if not self.sim:
+                        self.stats["turn_heals"] = self.stats.get("turn_heals", 0) + 1
+            while budget > 0 and any(self.karma):
+                col = max(range(3), key=lambda x: self.karma[x])
+                self.karma[col] -= 1
+                budget -= 1
+        if self.cfg.v5_traits:
+            tags = [CARD[c].tag for c in lit]
+            o, a = tags.count(OBS), tags.count(ACC)
+            self.trait = OBS if o > a else ACC if a > o else None
+            if self.trait is not None and not self.sim:
+                key = f"trait_{C.TAG_NAMES[self.trait]}"
+                self.stats[key] = self.stats.get(key, 0) + 1
+        self.lv_bonus = [0, 0, 0]
+        if ch == 2:
+            self.shore_open = True
+            self.note("  the last page closes: the Far Shore appears")
+            return
+        prev = self.paths[ch][1]
+        self.ch = ch + 1
+        self.chc = {}
+        self.rewrite = False
+        self.fates_ch = self.deal_chapter_fates(self.ch)
+        self.note(f"  the page turns: chapter {self.ch + 1}")
+        self.start_route(prev)
+
+    def story_ending(self):
+        """(ending, defied, hidden) for a won game in chapter mode."""
+        from .story import ENDINGS
+        paths = [p for p in self.paths if p is not None]
+        tags = [p[1] for p in paths]
+        top = max(set(tags), key=tags.count) if tags else None
+        ending = ENDINGS[self.cfg.soul][top] if top is not None and tags.count(top) >= 2 else ENDINGS[self.cfg.soul]["交織"]
+        defied = sum(1 for f, p in paths if f is not None and f != p)
+        mist = any(self.pg[r] for r in range(3))
+        key = next((cid for cid, c in CARD.items() if c.key and cid in self.deck + self.discard + self.forgotten
+                    + [x for h in self.hands for x in h] + [x for r in range(3) for x in self.book[r].values()]), None)
+        where = None
+        if key is not None:
+            where = next((r for r in range(3) if key in self.book[r].values()), None)
+        key_lit = key is not None and key in self.lit_mem
+        soul = self.cfg.soul
+        hidden = False
+        if soul == "child":
+            node = next((x for x, c in self.book[2].items() if c == key), None)
+            hidden = key_lit and node is not None and not mist and self.stats.get("cracks_taken", 0) == 0
+        elif soul in ("garland", "king"):
+            nodes = self.chapter_def()["nodes"] if self.ch == 2 else None
+            node = next((x for x, c in self.book[2].items() if c == key), None)
+            gate = node is not None and nodes is not None and nodes[node]["kind"] == "g"
+            hidden = key_lit and gate and not mist and (
+                (soul == "garland" and len(tags) == 3 and tags[2] == ACC) or
+                (soul == "king" and not self.stats.get("king_titles_lost", 0)))
+        elif soul == "bride":
+            hidden = key_lit and self.stats["lingers"] == 0
+        else:
+            from .story import BOOKS
+            full = True
+            for r in range(3):
+                nodes = BOOKS[soul][r]["nodes"]
+                for x in self.walk[r]:
+                    if nodes[x]["kind"] in "mg" and not (x in self.book[r] and self.book[r][x] in self.lit_mem):
+                        full = False
+            hidden = full and not mist
+        place = "inscribed" if where is not None else "forgotten" if key in self.forgotten else "unspoken"
+        return ending, defied, hidden, (place if soul != "open" else None)
 
     # ------------------------------------------------------------- Mist
     def mist_step(self):
@@ -1581,24 +2116,24 @@ class State:
         for op in ops:
             k = op[0]
             if k == "back":
-                if self.soul - 1 >= BOUNDS[self.reach][0]:
+                if self.soul - 1 >= (1 if self.cfg.v5_chapters else BOUNDS[self.reach][0]):
                     self.soul -= 1
                     self.stats["pushed_back"] = self.stats.get("pushed_back", 0) + 1
                 else:
                     self.forget_top(1)
             elif k == "peel":
                 for r, slot in reversed(self.order):
-                    if r == self.reach and slot in self.book[r] and self.book[r][slot] not in self.lit_mem:
+                    if r == self.page() and slot in self.book[r] and self.book[r][slot] not in self.lit_mem:
                         cid = self.book[r].pop(slot)
                         self.order.remove((r, slot))
                         self.stats["peeled"] = self.stats.get("peeled", 0) + 1
                         self.forget_card(cid)
                         break
             elif k == "flood_page":
-                page = self.book[self.reach]
+                page = self.book[self.page()]
                 for slot in [sl for sl, c in page.items() if c not in self.lit_mem]:
                     cid = page.pop(slot)
-                    self.order = [o for o in self.order if o != (self.reach, slot)]
+                    self.order = [o for o in self.order if o != (self.page(), slot)]
                     self.stats["peeled"] = self.stats.get("peeled", 0) + 1
                     self.forget_card(cid)
             elif k == "dim":
@@ -1611,7 +2146,7 @@ class State:
                         self.tok[x] = NONE
                         break
             elif k == "gaze":
-                if self.reach == 2:
+                if self.page() == 2:
                     self.need_plus += 1
                 else:
                     self.gaze += 1
