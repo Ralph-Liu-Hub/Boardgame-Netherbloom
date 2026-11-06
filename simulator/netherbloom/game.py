@@ -7,12 +7,14 @@ TURN_LIMIT = 120
 
 def label(cid, mode):
     if cid is None:
-        return {"push": "Push Through", "recall": "Spend Light: a memory returns", "mend": "Spend Light: mend a Fracture",
+        return {"push": "Push Through", "recall_ins": "Recall: inscribe a forgotten memory", "recall": "Spend Light: a memory returns", "mend": "Spend Light: mend a Fracture",
                 "drainl": "Spend Light: drain Black Water"}[mode]
     return f"{CARD[cid].cid} {CARD[cid].name} ({mode})"
 
 
 def _still_held(s, cid, mode):
+    if mode == "swapx":
+        return any(cid in s.hands[p] for p in range(s.n) if p != s.cur)
     if mode == "burnx":
         return any(cid in s.hands[p] for p in s.burn_partners()) and s.burn_fuel(cid, "burnx") is not None
     if cid not in s.hands[s.cur]:
@@ -38,6 +40,7 @@ def play_game(cfg, agent=None, record=False):
             s.stats["sought"] = 0
             s.stats["pushed"] = 0
             s.stats["burned_turn"] = 0
+            s.turn_flags = set()
             if s.mantles.get("warden") == p:
                 s.warden_ready = True
             if s.mantles.get("breaker") == p:
@@ -48,8 +51,12 @@ def play_game(cfg, agent=None, record=False):
             agent.maybe_summon(s)
             if s.cfg.commissions:
                 agent.maybe_redraw(s)
-            if s.cfg.light_memory_cost:
+            if s.cfg.v5_push_free:
+                agent.maybe_push(s)
+            if s.cfg.light_memory_cost and not s.cfg.v5_light_after:
                 agent.maybe_light(s)
+                if s.cfg.v5_reveal:
+                    agent.maybe_reveal(s)
             if s.cfg.garland_gift and s.cfg.soul == "garland":
                 agent.maybe_gift(s)
             if s.cfg.mantles_v2 and s.holder("reaper") == p:
@@ -76,6 +83,10 @@ def play_game(cfg, agent=None, record=False):
                         cid, mode = alt
                     s.note(f"  plays {label(cid, mode)}")
                     s.play(cid, mode, agent, first=(i == 0))
+            if s.cfg.light_memory_cost and s.cfg.v5_light_after:
+                agent.maybe_light(s)
+                if s.cfg.v5_reveal:
+                    agent.maybe_reveal(s)
             if s.holder("bringer") == p and not s.bringer_used:
                 s.bringer_used = True
                 t = agent.bloom_target(s)
@@ -83,6 +94,8 @@ def play_game(cfg, agent=None, record=False):
                     s.tok[t] = 2
             if s.cfg.step_every == "turn" or p == s.n - 1:
                 s.soul_step()
+            if s.cfg.v5_griev_loom and (not s.cfg.v5_feed_per_round or p == s.n - 1):
+                s.griev_feed()
             s.mist_step()
             s.end_of_turn_checks()
             s.draw_up(p)
