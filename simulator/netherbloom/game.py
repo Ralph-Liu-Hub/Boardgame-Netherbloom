@@ -25,6 +25,7 @@ def _still_held(s, cid, mode):
 def play_game(cfg, agent=None, record=False):
     agent = agent or EchoAgent(use_book=cfg.use_book)
     s = State.new(cfg)
+    s.agent = agent
     if not record:
         s.log = None
     else:
@@ -98,10 +99,12 @@ def play_game(cfg, agent=None, record=False):
                 s.griev_feed()
             s.mist_step()
             s.end_of_turn_checks()
+            s.chapter_step()
             s.draw_up(p)
             if s.n == 1:
                 s.ghost_turn(agent)
                 s.end_of_turn_checks()
+                s.chapter_step()
             if s.snaps is not None:
                 s.snaps.append(s.snapshot(plays_txt, s.last_mist))
             s.cur = (p + 1) % s.n

@@ -1,0 +1,2296 @@
+{
+ "child|1p": {
+  "games": 200,
+  "win": 0.31,
+  "causes": {
+   "Shattered": 0.56,
+   "Deluge": 0.075,
+   "Nameless": 0.03,
+   "Faded": 0.025
+  },
+  "turns": 19.27,
+  "turns_win": 19.32,
+  "face_up": 26.11,
+  "face_down": 10.49,
+  "swaps": 0,
+  "recalls": 1.92,
+  "pushes": 0.49,
+  "summons": 1.03,
+  "lit": 7,
+  "inscribed": 7.76,
+  "reveals": 0.87,
+  "unmist": 0.01,
+  "rewrites": 0,
+  "lingers": 8.3,
+  "backlash": 2.31,
+  "scars_end": 1.01,
+  "heals": 0,
+  "knots_play": 46.55,
+  "knots_down": 10.49,
+  "knots_griev": 3.12,
+  "knots_fate": 0.52,
+  "shrouds": 1.86,
+  "mist_scars": 1.86,
+  "scar_covers": 0.23,
+  "scar_fracture": 0.82,
+  "fog_flips": 13.24,
+  "walls_kept": 1.01,
+  "wall_absorbed": 3.23,
+  "retreats": 0,
+  "spreads": 0.35,
+  "gate_fate": 0.32,
+  "gate_end": 0.28,
+  "max_forgotten": 7.56,
+  "blank_slots": 0,
+  "lv": [
+   1.87,
+   0.38,
+   0.06
+  ],
+  "shroud_any": 0.455,
+  "gate_any": 0.29,
+  "chapter_turns": [
+   7.3,
+   6.9,
+   5.5
+  ],
+  "reached_ch": [
+   1.0,
+   0.96,
+   0.755
+  ],
+  "fate_kind": {
+   "book": 0.45,
+   "river": 0.427,
+   "forced": 0.123
+  },
+  "fate_names": {
+   "第一根火光": 0.38,
+   "聖誕樹": 0.37,
+   "不敢回家": 0.315,
+   "天亮了": 0.305,
+   "整把火光": 0.28,
+   "烤鵝走下桌子": 0.185,
+   "被搶走的鞋": 0.175,
+   "火光熄滅": 0.17,
+   "沒有人停下腳步": 0.13,
+   "流星": 0.13,
+   "奶奶": 0.06,
+   "再也不冷了": 0.055
+  },
+  "path_threads_win": {
+   "執念": 0.505,
+   "釋懷": 0.317,
+   "忘卻": 0.177
+  },
+  "endings_win": {
+   "最後一根火光": 0.516,
+   "火光裡的每一樣東西": 0.194,
+   "回家": 0.194,
+   "溫暖的地方": 0.097
+  },
+  "fate_line_win": {
+   "逆命": 0.065,
+   "違抗 1 次": 0.371
+  },
+  "hidden_win": 0.065,
+  "hidden_all": 0.02,
+  "key_place_win": {
+   "unspoken": 0.629,
+   "inscribed": 0.306,
+   "forgotten": 0.065
+  },
+  "comm_done": 0.91,
+  "cracks": {
+   "feed": 1.94,
+   "ch_mist_scar": 0.74,
+   "push_through": 0.32,
+   "backlash": 0.04,
+   "do_op": 0.04,
+   "mist_card": 0.01
+  },
+  "traits": {
+   "Obsession": 1.33,
+   "Acceptance": 0.74
+  }
+ },
+ "child|2p": {
+  "games": 200,
+  "win": 0.46,
+  "causes": {
+   "Shattered": 0.265,
+   "Nameless": 0.195,
+   "Deluge": 0.05,
+   "Faded": 0.03
+  },
+  "turns": 19.56,
+  "turns_win": 18.91,
+  "face_up": 28.21,
+  "face_down": 8.9,
+  "swaps": 12.01,
+  "recalls": 1.92,
+  "pushes": 0.77,
+  "summons": 2.0,
+  "lit": 7.4,
+  "inscribed": 8.61,
+  "reveals": 1.64,
+  "unmist": 0.03,
+  "rewrites": 0,
+  "lingers": 7.41,
+  "backlash": 1.44,
+  "scars_end": 0.43,
+  "heals": 0,
+  "knots_play": 30.32,
+  "knots_down": 8.9,
+  "knots_griev": 2.62,
+  "knots_fate": 0.76,
+  "shrouds": 1.16,
+  "mist_scars": 1.16,
+  "scar_covers": 0.17,
+  "scar_fracture": 0.46,
+  "fog_flips": 12.49,
+  "walls_kept": 0.97,
+  "wall_absorbed": 3.08,
+  "retreats": 0,
+  "spreads": 0.69,
+  "gate_fate": 0.62,
+  "gate_end": 0.6,
+  "max_forgotten": 8.69,
+  "blank_slots": 0,
+  "lv": [
+   1.25,
+   0.18,
+   0.01
+  ],
+  "shroud_any": 0.295,
+  "gate_any": 0.63,
+  "chapter_turns": [
+   7.7,
+   6.4,
+   4.8
+  ],
+  "reached_ch": [
+   1.0,
+   0.98,
+   0.915
+  ],
+  "fate_kind": {
+   "book": 0.496,
+   "river": 0.285,
+   "forced": 0.22
+  },
+  "fate_names": {
+   "聖誕樹": 0.46,
+   "第一根火光": 0.37,
+   "不敢回家": 0.345,
+   "天亮了": 0.33,
+   "整把火光": 0.25,
+   "流星": 0.24,
+   "奶奶": 0.195,
+   "被搶走的鞋": 0.14,
+   "沒有人停下腳步": 0.14,
+   "火光熄滅": 0.13,
+   "再也不冷了": 0.125,
+   "烤鵝走下桌子": 0.12
+  },
+  "path_threads_win": {
+   "執念": 0.453,
+   "釋懷": 0.373,
+   "忘卻": 0.174
+  },
+  "endings_win": {
+   "最後一根火光": 0.391,
+   "回家": 0.348,
+   "火光裡的每一樣東西": 0.207,
+   "溫暖的地方": 0.054
+  },
+  "fate_line_win": {
+   "逆命": 0.065,
+   "違抗 1 次": 0.435
+  },
+  "hidden_win": 0.054,
+  "hidden_all": 0.025,
+  "key_place_win": {
+   "unspoken": 0.533,
+   "inscribed": 0.402,
+   "forgotten": 0.065
+  },
+  "comm_done": 1.7,
+  "cracks": {
+   "feed": 1.32,
+   "push_through": 0.41,
+   "ch_mist_scar": 0.4,
+   "do_op": 0.04,
+   "backlash": 0.01,
+   "mist_card": 0.01
+  },
+  "traits": {
+   "Obsession": 1.27,
+   "Acceptance": 1.01
+  }
+ },
+ "child|3p": {
+  "games": 200,
+  "win": 0.625,
+  "causes": {
+   "Shattered": 0.21,
+   "Deluge": 0.075,
+   "Nameless": 0.055,
+   "Faded": 0.035
+  },
+  "turns": 19.82,
+  "turns_win": 18.41,
+  "face_up": 30.06,
+  "face_down": 7.76,
+  "swaps": 14.49,
+  "recalls": 1.73,
+  "pushes": 1.07,
+  "summons": 2.96,
+  "lit": 7.78,
+  "inscribed": 9.38,
+  "reveals": 2.35,
+  "unmist": 0.06,
+  "rewrites": 0,
+  "lingers": 7.5,
+  "backlash": 1.19,
+  "scars_end": 0.39,
+  "heals": 0,
+  "knots_play": 32.33,
+  "knots_down": 7.76,
+  "knots_griev": 2.46,
+  "knots_fate": 0.93,
+  "shrouds": 1.32,
+  "mist_scars": 1.32,
+  "scar_covers": 0.15,
+  "scar_fracture": 0.63,
+  "fog_flips": 13.62,
+  "walls_kept": 0.95,
+  "wall_absorbed": 3.29,
+  "retreats": 0,
+  "spreads": 0.84,
+  "gate_fate": 0.56,
+  "gate_end": 0.55,
+  "max_forgotten": 9.77,
+  "blank_slots": 0,
+  "lv": [
+   1.04,
+   0.14,
+   0.01
+  ],
+  "shroud_any": 0.3,
+  "gate_any": 0.56,
+  "chapter_turns": [
+   6.6,
+   6.8,
+   4.8
+  ],
+  "reached_ch": [
+   1.0,
+   0.995,
+   0.96
+  ],
+  "fate_kind": {
+   "book": 0.524,
+   "river": 0.286,
+   "forced": 0.19
+  },
+  "fate_names": {
+   "不敢回家": 0.43,
+   "聖誕樹": 0.415,
+   "天亮了": 0.36,
+   "第一根火光": 0.355,
+   "整把火光": 0.355,
+   "流星": 0.355,
+   "奶奶": 0.155,
+   "烤鵝走下桌子": 0.115,
+   "沒有人停下腳步": 0.11,
+   "被搶走的鞋": 0.105,
+   "火光熄滅": 0.095,
+   "再也不冷了": 0.07
+  },
+  "path_threads_win": {
+   "執念": 0.504,
+   "釋懷": 0.36,
+   "忘卻": 0.136
+  },
+  "endings_win": {
+   "最後一根火光": 0.496,
+   "回家": 0.304,
+   "火光裡的每一樣東西": 0.184,
+   "溫暖的地方": 0.016
+  },
+  "fate_line_win": {
+   "逆命": 0.024,
+   "違抗 1 次": 0.432
+  },
+  "hidden_win": 0.024,
+  "hidden_all": 0.015,
+  "key_place_win": {
+   "unspoken": 0.536,
+   "inscribed": 0.448,
+   "forgotten": 0.016
+  },
+  "comm_done": 2.51,
+  "cracks": {
+   "feed": 1.15,
+   "push_through": 0.72,
+   "ch_mist_scar": 0.56,
+   "mist_card": 0.01,
+   "do_op": 0.01
+  },
+  "traits": {
+   "Obsession": 1.19,
+   "Acceptance": 1.1
+  }
+ },
+ "child|4p": {
+  "games": 200,
+  "win": 0.655,
+  "causes": {
+   "Nameless": 0.15,
+   "Shattered": 0.135,
+   "Faded": 0.04,
+   "Deluge": 0.02
+  },
+  "turns": 19.41,
+  "turns_win": 18.1,
+  "face_up": 30.66,
+  "face_down": 6.71,
+  "swaps": 15.71,
+  "recalls": 1.34,
+  "pushes": 1.01,
+  "summons": 3.92,
+  "lit": 7.94,
+  "inscribed": 9.55,
+  "reveals": 3.07,
+  "unmist": 0.04,
+  "rewrites": 0,
+  "lingers": 6.36,
+  "backlash": 0.58,
+  "scars_end": 0.15,
+  "heals": 0,
+  "knots_play": 33.16,
+  "knots_down": 6.71,
+  "knots_griev": 2.53,
+  "knots_fate": 1.03,
+  "shrouds": 0.99,
+  "mist_scars": 0.99,
+  "scar_covers": 0.08,
+  "scar_fracture": 0.54,
+  "fog_flips": 12.92,
+  "walls_kept": 0.96,
+  "wall_absorbed": 2.69,
+  "retreats": 0,
+  "spreads": 0.65,
+  "gate_fate": 0.54,
+  "gate_end": 0.55,
+  "max_forgotten": 9.72,
+  "blank_slots": 0,
+  "lv": [
+   0.55,
+   0.04,
+   0.01
+  ],
+  "shroud_any": 0.22,
+  "gate_any": 0.625,
+  "chapter_turns": [
+   6.2,
+   6.8,
+   4.8
+  ],
+  "reached_ch": [
+   1.0,
+   1.0,
+   0.995
+  ],
+  "fate_kind": {
+   "book": 0.599,
+   "river": 0.221,
+   "forced": 0.18
+  },
+  "fate_names": {
+   "聖誕樹": 0.455,
+   "不敢回家": 0.45,
+   "流星": 0.43,
+   "第一根火光": 0.375,
+   "天亮了": 0.32,
+   "整把火光": 0.31,
+   "奶奶": 0.195,
+   "再也不冷了": 0.145,
+   "被搶走的鞋": 0.09,
+   "沒有人停下腳步": 0.085,
+   "烤鵝走下桌子": 0.06,
+   "火光熄滅": 0.05
+  },
+  "path_threads_win": {
+   "執念": 0.463,
+   "釋懷": 0.394,
+   "忘卻": 0.142
+  },
+  "endings_win": {
+   "最後一根火光": 0.45,
+   "回家": 0.351,
+   "火光裡的每一樣東西": 0.16,
+   "溫暖的地方": 0.038
+  },
+  "fate_line_win": {
+   "逆命": 0.076,
+   "違抗 1 次": 0.397
+  },
+  "hidden_win": 0.038,
+  "hidden_all": 0.025,
+  "key_place_win": {
+   "inscribed": 0.519,
+   "unspoken": 0.389,
+   "forgotten": 0.092
+  },
+  "comm_done": 3.2,
+  "cracks": {
+   "feed": 0.92,
+   "push_through": 0.61,
+   "ch_mist_scar": 0.49,
+   "do_op": 0.06,
+   "mist_card": 0.01
+  },
+  "traits": {
+   "Obsession": 1.23,
+   "Acceptance": 1.09
+  }
+ },
+ "garland|1p": {
+  "games": 200,
+  "win": 0.385,
+  "causes": {
+   "Shattered": 0.515,
+   "Deluge": 0.07,
+   "Nameless": 0.02,
+   "Faded": 0.01
+  },
+  "turns": 18.42,
+  "turns_win": 20.17,
+  "face_up": 25.61,
+  "face_down": 9.51,
+  "swaps": 0,
+  "recalls": 1.71,
+  "pushes": 0.56,
+  "summons": 1.0,
+  "lit": 6.37,
+  "inscribed": 7.54,
+  "reveals": 0.85,
+  "unmist": 0.01,
+  "rewrites": 0,
+  "lingers": 8.29,
+  "backlash": 2.0,
+  "scars_end": 0.91,
+  "heals": 0,
+  "knots_play": 45.12,
+  "knots_down": 9.51,
+  "knots_griev": 1.96,
+  "knots_fate": 0.15,
+  "shrouds": 1.55,
+  "mist_scars": 1.55,
+  "scar_covers": 0.28,
+  "scar_fracture": 0.55,
+  "fog_flips": 12.49,
+  "walls_kept": 0.96,
+  "wall_absorbed": 3.54,
+  "retreats": 0.08,
+  "spreads": 0.47,
+  "gate_fate": 0.27,
+  "gate_end": 0.27,
+  "max_forgotten": 8.02,
+  "blank_slots": 0,
+  "lv": [
+   1.65,
+   0.32,
+   0.03
+  ],
+  "shroud_any": 0.47,
+  "gate_any": 0.275,
+  "chapter_turns": [
+   7.7,
+   7.0,
+   4.9
+  ],
+  "reached_ch": [
+   1.0,
+   0.95,
+   0.705
+  ],
+  "fate_kind": {
+   "river": 0.535,
+   "book": 0.357,
+   "forced": 0.109
+  },
+  "fate_names": {
+   "迷迭香": 0.365,
+   "被踩碎的花": 0.32,
+   "父親的墳": 0.315,
+   "最後的花環": 0.25,
+   "一首停不下來的歌": 0.245,
+   "草藥的名字": 0.225,
+   "他說不認識我": 0.195,
+   "溪水漫過裙擺": 0.145,
+   "留給自己的那朵": 0.135,
+   "折斷的柳枝": 0.09,
+   "沒有名字的花": 0.08,
+   "分花": 0.075
+  },
+  "path_threads_win": {
+   "執念": 0.539,
+   "釋懷": 0.347,
+   "忘卻": 0.114
+  },
+  "endings_win": {
+   "沒唱完的歌": 0.532,
+   "花環": 0.273,
+   "每個人一朵花": 0.156,
+   "溪水": 0.039
+  },
+  "fate_line_win": {
+   "逆命": 0.052,
+   "違抗 1 次": 0.26
+  },
+  "hidden_win": 0.065,
+  "hidden_all": 0.025,
+  "key_place_win": {
+   "inscribed": 0.519,
+   "unspoken": 0.403,
+   "forgotten": 0.078
+  },
+  "comm_done": 0.95,
+  "cracks": {
+   "feed": 1.63,
+   "push_through": 0.53,
+   "ch_mist_scar": 0.52,
+   "soul_step": 0.1,
+   "do_op": 0.07,
+   "mist_card": 0.03,
+   "backlash": 0.02
+  },
+  "traits": {
+   "Obsession": 1.01,
+   "Acceptance": 0.69
+  }
+ },
+ "garland|2p": {
+  "games": 200,
+  "win": 0.42,
+  "causes": {
+   "Shattered": 0.405,
+   "Nameless": 0.085,
+   "Deluge": 0.045,
+   "Faded": 0.045
+  },
+  "turns": 18.93,
+  "turns_win": 18.64,
+  "face_up": 27.95,
+  "face_down": 8.4,
+  "swaps": 11.96,
+  "recalls": 1.47,
+  "pushes": 0.89,
+  "summons": 1.94,
+  "lit": 6.78,
+  "inscribed": 8.22,
+  "reveals": 1.69,
+  "unmist": 0.07,
+  "rewrites": 0,
+  "lingers": 8.62,
+  "backlash": 1.25,
+  "scars_end": 0.45,
+  "heals": 0,
+  "knots_play": 30.0,
+  "knots_down": 8.4,
+  "knots_griev": 1.66,
+  "knots_fate": 0.32,
+  "shrouds": 1.57,
+  "mist_scars": 1.57,
+  "scar_covers": 0.26,
+  "scar_fracture": 0.51,
+  "fog_flips": 13.22,
+  "walls_kept": 0.89,
+  "wall_absorbed": 3.58,
+  "retreats": 0.1,
+  "spreads": 0.99,
+  "gate_fate": 0.35,
+  "gate_end": 0.43,
+  "max_forgotten": 8.88,
+  "blank_slots": 0,
+  "lv": [
+   1.09,
+   0.15,
+   0.01
+  ],
+  "shroud_any": 0.415,
+  "gate_any": 0.41,
+  "chapter_turns": [
+   7.6,
+   7.2,
+   4.2
+  ],
+  "reached_ch": [
+   1.0,
+   0.965,
+   0.795
+  ],
+  "fate_kind": {
+   "river": 0.438,
+   "book": 0.426,
+   "forced": 0.136
+  },
+  "fate_names": {
+   "迷迭香": 0.32,
+   "最後的花環": 0.32,
+   "被踩碎的花": 0.3,
+   "草藥的名字": 0.28,
+   "父親的墳": 0.275,
+   "一首停不下來的歌": 0.265,
+   "他說不認識我": 0.185,
+   "留給自己的那朵": 0.175,
+   "分花": 0.16,
+   "溪水漫過裙擺": 0.135,
+   "折斷的柳枝": 0.105,
+   "沒有名字的花": 0.095
+  },
+  "path_threads_win": {
+   "執念": 0.51,
+   "釋懷": 0.412,
+   "忘卻": 0.078
+  },
+  "endings_win": {
+   "沒唱完的歌": 0.536,
+   "花環": 0.321,
+   "每個人一朵花": 0.107,
+   "溪水": 0.036
+  },
+  "fate_line_win": {
+   "逆命": 0.06,
+   "違抗 1 次": 0.298
+  },
+  "hidden_win": 0.107,
+  "hidden_all": 0.045,
+  "key_place_win": {
+   "inscribed": 0.571,
+   "unspoken": 0.357,
+   "forgotten": 0.071
+  },
+  "comm_done": 1.81,
+  "cracks": {
+   "feed": 1.25,
+   "push_through": 0.81,
+   "ch_mist_scar": 0.46,
+   "soul_step": 0.11,
+   "mist_card": 0.06,
+   "do_op": 0.04,
+   "backlash": 0.01
+  },
+  "traits": {
+   "Acceptance": 0.9,
+   "Obsession": 0.86
+  }
+ },
+ "garland|3p": {
+  "games": 200,
+  "win": 0.625,
+  "causes": {
+   "Shattered": 0.27,
+   "Deluge": 0.05,
+   "Faded": 0.04,
+   "Nameless": 0.015
+  },
+  "turns": 18.8,
+  "turns_win": 18.78,
+  "face_up": 29.41,
+  "face_down": 7,
+  "swaps": 14.41,
+  "recalls": 1.16,
+  "pushes": 1.18,
+  "summons": 2.75,
+  "lit": 7.04,
+  "inscribed": 8.45,
+  "reveals": 2.48,
+  "unmist": 0.06,
+  "rewrites": 0,
+  "lingers": 8.06,
+  "backlash": 1.15,
+  "scars_end": 0.5,
+  "heals": 0,
+  "knots_play": 31.88,
+  "knots_down": 7,
+  "knots_griev": 1.74,
+  "knots_fate": 0.37,
+  "shrouds": 1.12,
+  "mist_scars": 1.12,
+  "scar_covers": 0.14,
+  "scar_fracture": 0.4,
+  "fog_flips": 12.96,
+  "walls_kept": 0.92,
+  "wall_absorbed": 3.38,
+  "retreats": 0.06,
+  "spreads": 1.01,
+  "gate_fate": 0.33,
+  "gate_end": 0.36,
+  "max_forgotten": 9.65,
+  "blank_slots": 0,
+  "lv": [
+   1.02,
+   0.12,
+   0.01
+  ],
+  "shroud_any": 0.345,
+  "gate_any": 0.37,
+  "chapter_turns": [
+   6.8,
+   7.1,
+   4.7
+  ],
+  "reached_ch": [
+   1.0,
+   0.965,
+   0.84
+  ],
+  "fate_kind": {
+   "book": 0.46,
+   "river": 0.416,
+   "forced": 0.124
+  },
+  "fate_names": {
+   "迷迭香": 0.37,
+   "最後的花環": 0.325,
+   "父親的墳": 0.32,
+   "一首停不下來的歌": 0.32,
+   "草藥的名字": 0.3,
+   "被踩碎的花": 0.27,
+   "分花": 0.185,
+   "留給自己的那朵": 0.175,
+   "溪水漫過裙擺": 0.125,
+   "他說不認識我": 0.105,
+   "折斷的柳枝": 0.065,
+   "沒有名字的花": 0.06
+  },
+  "path_threads_win": {
+   "執念": 0.528,
+   "釋懷": 0.397,
+   "忘卻": 0.075
+  },
+  "endings_win": {
+   "沒唱完的歌": 0.48,
+   "花環": 0.28,
+   "每個人一朵花": 0.232,
+   "溪水": 0.008
+  },
+  "fate_line_win": {
+   "逆命": 0.04,
+   "違抗 1 次": 0.288
+  },
+  "hidden_win": 0.056,
+  "hidden_all": 0.035,
+  "key_place_win": {
+   "inscribed": 0.64,
+   "unspoken": 0.32,
+   "forgotten": 0.04
+  },
+  "comm_done": 2.73,
+  "cracks": {
+   "feed": 1.13,
+   "push_through": 1.07,
+   "ch_mist_scar": 0.37,
+   "soul_step": 0.1,
+   "mist_card": 0.07,
+   "do_op": 0.03,
+   "backlash": 0.01
+  },
+  "traits": {
+   "Acceptance": 0.96,
+   "Obsession": 0.83
+  }
+ },
+ "garland|4p": {
+  "games": 200,
+  "win": 0.705,
+  "causes": {
+   "Shattered": 0.17,
+   "Faded": 0.045,
+   "Deluge": 0.04,
+   "Nameless": 0.04
+  },
+  "turns": 19.62,
+  "turns_win": 18.7,
+  "face_up": 31.45,
+  "face_down": 6.82,
+  "swaps": 16.58,
+  "recalls": 0.95,
+  "pushes": 1.14,
+  "summons": 3.63,
+  "lit": 7.69,
+  "inscribed": 9.39,
+  "reveals": 3.3,
+  "unmist": 0.1,
+  "rewrites": 0,
+  "lingers": 7.93,
+  "backlash": 0.66,
+  "scars_end": 0.24,
+  "heals": 0,
+  "knots_play": 34.06,
+  "knots_down": 6.82,
+  "knots_griev": 1.72,
+  "knots_fate": 0.48,
+  "shrouds": 0.93,
+  "mist_scars": 0.92,
+  "scar_covers": 0.09,
+  "scar_fracture": 0.31,
+  "fog_flips": 13.47,
+  "walls_kept": 0.94,
+  "wall_absorbed": 3.76,
+  "retreats": 0.12,
+  "spreads": 1.08,
+  "gate_fate": 0.35,
+  "gate_end": 0.34,
+  "max_forgotten": 9.98,
+  "blank_slots": 0,
+  "lv": [
+   0.6,
+   0.04,
+   0.01
+  ],
+  "shroud_any": 0.33,
+  "gate_any": 0.45,
+  "chapter_turns": [
+   6.1,
+   6.9,
+   5.2
+  ],
+  "reached_ch": [
+   1.0,
+   0.995,
+   0.945
+  ],
+  "fate_kind": {
+   "book": 0.495,
+   "river": 0.381,
+   "forced": 0.124
+  },
+  "fate_names": {
+   "最後的花環": 0.38,
+   "迷迭香": 0.37,
+   "父親的墳": 0.355,
+   "一首停不下來的歌": 0.34,
+   "草藥的名字": 0.295,
+   "被踩碎的花": 0.25,
+   "分花": 0.24,
+   "留給自己的那朵": 0.2,
+   "溪水漫過裙擺": 0.16,
+   "折斷的柳枝": 0.135,
+   "沒有名字的花": 0.085,
+   "他說不認識我": 0.05
+  },
+  "path_threads_win": {
+   "執念": 0.506,
+   "釋懷": 0.414,
+   "忘卻": 0.08
+  },
+  "endings_win": {
+   "沒唱完的歌": 0.496,
+   "花環": 0.34,
+   "每個人一朵花": 0.128,
+   "溪水": 0.035
+  },
+  "fate_line_win": {
+   "逆命": 0.028,
+   "違抗 1 次": 0.291
+  },
+  "hidden_win": 0.092,
+  "hidden_all": 0.065,
+  "key_place_win": {
+   "inscribed": 0.624,
+   "unspoken": 0.305,
+   "forgotten": 0.071
+  },
+  "comm_done": 3.54,
+  "cracks": {
+   "push_through": 1.04,
+   "feed": 0.98,
+   "ch_mist_scar": 0.29,
+   "soul_step": 0.15,
+   "mist_card": 0.09,
+   "do_op": 0.06
+  },
+  "traits": {
+   "Acceptance": 1.03,
+   "Obsession": 0.99
+  }
+ },
+ "king|1p": {
+  "games": 200,
+  "win": 0.175,
+  "causes": {
+   "Shattered": 0.62,
+   "Deluge": 0.09,
+   "Faded": 0.09,
+   "Nameless": 0.025
+  },
+  "turns": 18.8,
+  "turns_win": 20.31,
+  "face_up": 24.66,
+  "face_down": 11.38,
+  "swaps": 0,
+  "recalls": 1.51,
+  "pushes": 0.62,
+  "summons": 3.25,
+  "lit": 5.37,
+  "inscribed": 6.87,
+  "reveals": 0.74,
+  "unmist": 0.03,
+  "rewrites": 0,
+  "lingers": 9.35,
+  "backlash": 2.47,
+  "scars_end": 1.36,
+  "heals": 0,
+  "knots_play": 45.24,
+  "knots_down": 11.38,
+  "knots_griev": 2.08,
+  "knots_fate": 0.23,
+  "shrouds": 2.38,
+  "mist_scars": 2.38,
+  "scar_covers": 0.65,
+  "scar_fracture": 0.67,
+  "fog_flips": 13.31,
+  "walls_kept": 0.95,
+  "wall_absorbed": 3.98,
+  "retreats": 0.07,
+  "spreads": 0.28,
+  "gate_fate": 0.12,
+  "gate_end": 0.16,
+  "max_forgotten": 8.74,
+  "blank_slots": 0,
+  "lv": [
+   1.91,
+   0.49,
+   0.07
+  ],
+  "shroud_any": 0.57,
+  "gate_any": 0.13,
+  "chapter_turns": [
+   9.3,
+   6.6,
+   5.4
+  ],
+  "reached_ch": [
+   1.0,
+   0.86,
+   0.615
+  ],
+  "fate_kind": {
+   "river": 0.535,
+   "book": 0.412,
+   "forced": 0.053
+  },
+  "fate_names": {
+   "烏鴉": 0.34,
+   "守住防線": 0.34,
+   "沉重的王冠": 0.27,
+   "王后的戒指": 0.265,
+   "黑色的渡船": 0.215,
+   "誠實的朋友": 0.195,
+   "燒掉的信": 0.165,
+   "湖中之手": 0.155,
+   "藏起來的劍": 0.12,
+   "圓桌的裂縫": 0.105,
+   "將來的王": 0.05,
+   "最後的命令": 0.04
+  },
+  "path_threads_win": {
+   "執念": 0.515,
+   "釋懷": 0.32,
+   "忘卻": 0.165
+  },
+  "endings_win": {
+   "將來的王": 0.514,
+   "劍歸湖中": 0.257,
+   "圓桌": 0.143,
+   "一個騎士": 0.086
+  },
+  "fate_line_win": {
+   "逆命": 0.114,
+   "違抗 1 次": 0.2
+  },
+  "hidden_win": 0.057,
+  "hidden_all": 0.01,
+  "key_place_win": {
+   "unspoken": 0.543,
+   "inscribed": 0.4,
+   "forgotten": 0.057
+  },
+  "comm_done": 0.88,
+  "cracks": {
+   "feed": 1.84,
+   "ch_mist_scar": 0.64,
+   "push_through": 0.58,
+   "soul_step": 0.14,
+   "mist_card": 0.06,
+   "do_op": 0.06,
+   "backlash": 0.04
+  },
+  "traits": {
+   "Obsession": 0.97,
+   "Acceptance": 0.56
+  }
+ },
+ "king|2p": {
+  "games": 200,
+  "win": 0.365,
+  "causes": {
+   "Shattered": 0.335,
+   "Nameless": 0.105,
+   "Faded": 0.1,
+   "Deluge": 0.095
+  },
+  "turns": 20.59,
+  "turns_win": 19.79,
+  "face_up": 29.68,
+  "face_down": 9.98,
+  "swaps": 12.98,
+  "recalls": 1.46,
+  "pushes": 1.16,
+  "summons": 3.9,
+  "lit": 6.01,
+  "inscribed": 7.79,
+  "reveals": 1.57,
+  "unmist": 0.09,
+  "rewrites": 0,
+  "lingers": 10.2,
+  "backlash": 1.79,
+  "scars_end": 0.72,
+  "heals": 0,
+  "knots_play": 32.65,
+  "knots_down": 9.98,
+  "knots_griev": 1.87,
+  "knots_fate": 0.65,
+  "shrouds": 2.6,
+  "mist_scars": 2.6,
+  "scar_covers": 0.7,
+  "scar_fracture": 0.65,
+  "fog_flips": 15.12,
+  "walls_kept": 0.81,
+  "wall_absorbed": 3.98,
+  "retreats": 0.12,
+  "spreads": 0.66,
+  "gate_fate": 0.47,
+  "gate_end": 0.54,
+  "max_forgotten": 10.01,
+  "blank_slots": 0,
+  "lv": [
+   1.35,
+   0.39,
+   0.05
+  ],
+  "shroud_any": 0.57,
+  "gate_any": 0.44,
+  "chapter_turns": [
+   10.3,
+   6.5,
+   4.1
+  ],
+  "reached_ch": [
+   1.0,
+   0.94,
+   0.81
+  ],
+  "fate_kind": {
+   "river": 0.465,
+   "book": 0.358,
+   "forced": 0.177
+  },
+  "fate_names": {
+   "烏鴉": 0.365,
+   "守住防線": 0.315,
+   "王后的戒指": 0.28,
+   "誠實的朋友": 0.265,
+   "藏起來的劍": 0.21,
+   "沉重的王冠": 0.205,
+   "湖中之手": 0.205,
+   "燒掉的信": 0.2,
+   "黑色的渡船": 0.2,
+   "將來的王": 0.155,
+   "圓桌的裂縫": 0.135,
+   "最後的命令": 0.09
+  },
+  "path_threads_win": {
+   "執念": 0.471,
+   "釋懷": 0.3,
+   "忘卻": 0.229
+  },
+  "endings_win": {
+   "將來的王": 0.493,
+   "圓桌": 0.219,
+   "劍歸湖中": 0.178,
+   "一個騎士": 0.11
+  },
+  "fate_line_win": {
+   "逆命": 0.068,
+   "違抗 1 次": 0.26
+  },
+  "hidden_win": 0.027,
+  "hidden_all": 0.01,
+  "key_place_win": {
+   "inscribed": 0.507,
+   "unspoken": 0.438,
+   "forgotten": 0.055
+  },
+  "comm_done": 1.77,
+  "cracks": {
+   "feed": 1.28,
+   "push_through": 1.05,
+   "ch_mist_scar": 0.61,
+   "mist_card": 0.07,
+   "soul_step": 0.07,
+   "do_op": 0.05,
+   "backlash": 0.01
+  },
+  "traits": {
+   "Obsession": 1.05,
+   "Acceptance": 0.81
+  }
+ },
+ "king|3p": {
+  "games": 200,
+  "win": 0.485,
+  "causes": {
+   "Shattered": 0.35,
+   "Deluge": 0.105,
+   "Faded": 0.055,
+   "Nameless": 0.005
+  },
+  "turns": 20.68,
+  "turns_win": 19.6,
+  "face_up": 30.93,
+  "face_down": 9.22,
+  "swaps": 16.02,
+  "recalls": 1.16,
+  "pushes": 1.36,
+  "summons": 4.67,
+  "lit": 6.5,
+  "inscribed": 8.32,
+  "reveals": 2.32,
+  "unmist": 0.11,
+  "rewrites": 0,
+  "lingers": 9.44,
+  "backlash": 1.61,
+  "scars_end": 0.64,
+  "heals": 0,
+  "knots_play": 34.17,
+  "knots_down": 9.22,
+  "knots_griev": 1.8,
+  "knots_fate": 0.85,
+  "shrouds": 2.08,
+  "mist_scars": 2.08,
+  "scar_covers": 0.41,
+  "scar_fracture": 0.69,
+  "fog_flips": 14.82,
+  "walls_kept": 0.93,
+  "wall_absorbed": 4.05,
+  "retreats": 0.17,
+  "spreads": 0.92,
+  "gate_fate": 0.34,
+  "gate_end": 0.4,
+  "max_forgotten": 10.05,
+  "blank_slots": 0,
+  "lv": [
+   1.32,
+   0.26,
+   0.04
+  ],
+  "shroud_any": 0.46,
+  "gate_any": 0.355,
+  "chapter_turns": [
+   9.4,
+   7.2,
+   4.2
+  ],
+  "reached_ch": [
+   1.0,
+   0.965,
+   0.79
+  ],
+  "fate_kind": {
+   "book": 0.516,
+   "river": 0.355,
+   "forced": 0.129
+  },
+  "fate_names": {
+   "誠實的朋友": 0.345,
+   "沉重的王冠": 0.33,
+   "烏鴉": 0.28,
+   "王后的戒指": 0.265,
+   "藏起來的劍": 0.22,
+   "湖中之手": 0.2,
+   "最後的命令": 0.2,
+   "守住防線": 0.18,
+   "黑色的渡船": 0.17,
+   "將來的王": 0.15,
+   "圓桌的裂縫": 0.14,
+   "燒掉的信": 0.125
+  },
+  "path_threads_win": {
+   "執念": 0.485,
+   "釋懷": 0.366,
+   "忘卻": 0.149
+  },
+  "endings_win": {
+   "將來的王": 0.412,
+   "圓桌": 0.278,
+   "劍歸湖中": 0.258,
+   "一個騎士": 0.052
+  },
+  "fate_line_win": {
+   "逆命": 0.041,
+   "違抗 1 次": 0.33
+  },
+  "hidden_win": 0.0,
+  "hidden_all": 0.0,
+  "key_place_win": {
+   "inscribed": 0.526,
+   "unspoken": 0.412,
+   "forgotten": 0.062
+  },
+  "comm_done": 2.64,
+  "cracks": {
+   "push_through": 1.26,
+   "feed": 1.13,
+   "ch_mist_scar": 0.62,
+   "soul_step": 0.12,
+   "mist_card": 0.1,
+   "do_op": 0.06,
+   "backlash": 0.01
+  },
+  "traits": {
+   "Obsession": 1.05,
+   "Acceptance": 0.92
+  }
+ },
+ "king|4p": {
+  "games": 200,
+  "win": 0.585,
+  "causes": {
+   "Shattered": 0.21,
+   "Nameless": 0.09,
+   "Deluge": 0.08,
+   "Faded": 0.035
+  },
+  "turns": 20.75,
+  "turns_win": 19.65,
+  "face_up": 32.26,
+  "face_down": 8.16,
+  "swaps": 17.36,
+  "recalls": 1.05,
+  "pushes": 1.35,
+  "summons": 5.34,
+  "lit": 7.03,
+  "inscribed": 8.95,
+  "reveals": 3.15,
+  "unmist": 0.09,
+  "rewrites": 0,
+  "lingers": 8.41,
+  "backlash": 0.97,
+  "scars_end": 0.28,
+  "heals": 0,
+  "knots_play": 35.78,
+  "knots_down": 8.16,
+  "knots_griev": 1.83,
+  "knots_fate": 1.26,
+  "shrouds": 1.42,
+  "mist_scars": 1.42,
+  "scar_covers": 0.21,
+  "scar_fracture": 0.49,
+  "fog_flips": 14.38,
+  "walls_kept": 0.94,
+  "wall_absorbed": 3.92,
+  "retreats": 0.14,
+  "spreads": 0.92,
+  "gate_fate": 0.58,
+  "gate_end": 0.57,
+  "max_forgotten": 9.74,
+  "blank_slots": 0,
+  "lv": [
+   0.89,
+   0.07,
+   0.02
+  ],
+  "shroud_any": 0.385,
+  "gate_any": 0.555,
+  "chapter_turns": [
+   8.7,
+   7.3,
+   4.0
+  ],
+  "reached_ch": [
+   1.0,
+   0.99,
+   0.89
+  ],
+  "fate_kind": {
+   "book": 0.524,
+   "river": 0.266,
+   "forced": 0.21
+  },
+  "fate_names": {
+   "誠實的朋友": 0.39,
+   "沉重的王冠": 0.335,
+   "王后的戒指": 0.305,
+   "湖中之手": 0.27,
+   "最後的命令": 0.27,
+   "將來的王": 0.24,
+   "烏鴉": 0.225,
+   "藏起來的劍": 0.185,
+   "守住防線": 0.16,
+   "燒掉的信": 0.16,
+   "黑色的渡船": 0.16,
+   "圓桌的裂縫": 0.085
+  },
+  "path_threads_win": {
+   "執念": 0.466,
+   "釋懷": 0.398,
+   "忘卻": 0.136
+  },
+  "endings_win": {
+   "將來的王": 0.47,
+   "劍歸湖中": 0.316,
+   "圓桌": 0.171,
+   "一個騎士": 0.043
+  },
+  "fate_line_win": {
+   "逆命": 0.111,
+   "違抗 1 次": 0.316
+  },
+  "hidden_win": 0.0,
+  "hidden_all": 0.0,
+  "key_place_win": {
+   "inscribed": 0.479,
+   "unspoken": 0.402,
+   "forgotten": 0.12
+  },
+  "comm_done": 3.38,
+  "cracks": {
+   "push_through": 1.25,
+   "feed": 1.1,
+   "ch_mist_scar": 0.45,
+   "mist_card": 0.1,
+   "soul_step": 0.09,
+   "do_op": 0.06,
+   "backlash": 0.01
+  },
+  "traits": {
+   "Obsession": 1.12,
+   "Acceptance": 0.96
+  }
+ },
+ "bride|1p": {
+  "games": 200,
+  "win": 0.225,
+  "causes": {
+   "Shattered": 0.645,
+   "Deluge": 0.11,
+   "Nameless": 0.02
+  },
+  "turns": 19.07,
+  "turns_win": 19.58,
+  "face_up": 26.18,
+  "face_down": 10.74,
+  "swaps": 0,
+  "recalls": 1.2,
+  "pushes": 0.56,
+  "summons": 1.02,
+  "lit": 5.62,
+  "inscribed": 6.38,
+  "reveals": 0.84,
+  "unmist": 0.01,
+  "rewrites": 0,
+  "lingers": 8.73,
+  "backlash": 2.15,
+  "scars_end": 1.17,
+  "heals": 0,
+  "knots_play": 46.58,
+  "knots_down": 10.74,
+  "knots_griev": 2.02,
+  "knots_fate": 0.55,
+  "shrouds": 1.93,
+  "mist_scars": 1.93,
+  "scar_covers": 0.23,
+  "scar_fracture": 0.9,
+  "fog_flips": 13.54,
+  "walls_kept": 0.98,
+  "wall_absorbed": 4.12,
+  "retreats": 0.11,
+  "spreads": 0.41,
+  "gate_fate": 0.2,
+  "gate_end": 0.17,
+  "max_forgotten": 7.22,
+  "blank_slots": 0,
+  "lv": [
+   1.68,
+   0.38,
+   0.1
+  ],
+  "shroud_any": 0.585,
+  "gate_any": 0.19,
+  "chapter_turns": [
+   7.5,
+   6.0,
+   6.5
+  ],
+  "reached_ch": [
+   1.0,
+   0.945,
+   0.685
+  ],
+  "fate_kind": {
+   "book": 0.531,
+   "river": 0.382,
+   "forced": 0.087
+  },
+  "fate_names": {
+   "正午的誓言": 0.365,
+   "最後一眼": 0.315,
+   "冥王的條件": 0.305,
+   "窄梯": 0.285,
+   "鬆開的手": 0.17,
+   "沒跳完的舞": 0.17,
+   "第二次死去": 0.165,
+   "草裡的蛇": 0.145,
+   "墜落": 0.115,
+   "差點得救的憤怒": 0.105,
+   "他的臉": 0.06,
+   "他的歌聲": 0.04
+  },
+  "path_threads_win": {
+   "釋懷": 0.489,
+   "執念": 0.308,
+   "忘卻": 0.203
+  },
+  "endings_win": {
+   "放手": 0.511,
+   "他的臉": 0.222,
+   "最後一階": 0.133,
+   "陌生人": 0.133
+  },
+  "fate_line_win": {
+   "逆命": 0.022,
+   "違抗 1 次": 0.156
+  },
+  "hidden_win": 0.0,
+  "hidden_all": 0.0,
+  "key_place_win": {
+   "inscribed": 0.444,
+   "unspoken": 0.422,
+   "forgotten": 0.133
+  },
+  "comm_done": 0.92,
+  "cracks": {
+   "feed": 1.81,
+   "ch_mist_scar": 0.82,
+   "push_through": 0.53,
+   "do_op": 0.05,
+   "soul_step": 0.04,
+   "backlash": 0.04,
+   "mist_card": 0.03
+  },
+  "traits": {
+   "Obsession": 0.98,
+   "Acceptance": 0.65
+  }
+ },
+ "bride|2p": {
+  "games": 200,
+  "win": 0.35,
+  "causes": {
+   "Shattered": 0.48,
+   "Nameless": 0.115,
+   "Deluge": 0.035,
+   "Faded": 0.02
+  },
+  "turns": 19.45,
+  "turns_win": 19.94,
+  "face_up": 28.32,
+  "face_down": 9.33,
+  "swaps": 11.81,
+  "recalls": 1.21,
+  "pushes": 0.92,
+  "summons": 1.92,
+  "lit": 5.91,
+  "inscribed": 6.98,
+  "reveals": 1.65,
+  "unmist": 0.06,
+  "rewrites": 0,
+  "lingers": 8.58,
+  "backlash": 1.42,
+  "scars_end": 0.61,
+  "heals": 0,
+  "knots_play": 30.46,
+  "knots_down": 9.33,
+  "knots_griev": 1.97,
+  "knots_fate": 0.57,
+  "shrouds": 1.96,
+  "mist_scars": 1.96,
+  "scar_covers": 0.27,
+  "scar_fracture": 0.92,
+  "fog_flips": 13.97,
+  "walls_kept": 0.88,
+  "wall_absorbed": 3.6,
+  "retreats": 0.1,
+  "spreads": 0.96,
+  "gate_fate": 0.39,
+  "gate_end": 0.32,
+  "max_forgotten": 8.24,
+  "blank_slots": 0,
+  "lv": [
+   1.21,
+   0.18,
+   0.03
+  ],
+  "shroud_any": 0.5,
+  "gate_any": 0.41,
+  "chapter_turns": [
+   7.8,
+   7.0,
+   4.5
+  ],
+  "reached_ch": [
+   1.0,
+   0.96,
+   0.795
+  ],
+  "fate_kind": {
+   "book": 0.546,
+   "river": 0.302,
+   "forced": 0.152
+  },
+  "fate_names": {
+   "正午的誓言": 0.395,
+   "冥王的條件": 0.36,
+   "最後一眼": 0.33,
+   "鬆開的手": 0.305,
+   "窄梯": 0.3,
+   "沒跳完的舞": 0.17,
+   "第二次死去": 0.145,
+   "墜落": 0.12,
+   "他的臉": 0.12,
+   "差點得救的憤怒": 0.115,
+   "草裡的蛇": 0.09,
+   "他的歌聲": 0.085
+  },
+  "path_threads_win": {
+   "釋懷": 0.522,
+   "執念": 0.312,
+   "忘卻": 0.166
+  },
+  "endings_win": {
+   "放手": 0.486,
+   "他的臉": 0.257,
+   "最後一階": 0.171,
+   "陌生人": 0.086
+  },
+  "fate_line_win": {
+   "逆命": 0.0,
+   "違抗 1 次": 0.357
+  },
+  "hidden_win": 0.0,
+  "hidden_all": 0.0,
+  "key_place_win": {
+   "inscribed": 0.543,
+   "unspoken": 0.386,
+   "forgotten": 0.071
+  },
+  "comm_done": 1.74,
+  "cracks": {
+   "feed": 1.45,
+   "push_through": 0.87,
+   "ch_mist_scar": 0.8,
+   "do_op": 0.06,
+   "soul_step": 0.04,
+   "mist_card": 0.04,
+   "backlash": 0.01
+  },
+  "traits": {
+   "Obsession": 0.86,
+   "Acceptance": 0.82
+  }
+ },
+ "bride|3p": {
+  "games": 200,
+  "win": 0.425,
+  "causes": {
+   "Shattered": 0.475,
+   "Deluge": 0.055,
+   "Faded": 0.03,
+   "Nameless": 0.015
+  },
+  "turns": 20.15,
+  "turns_win": 18.95,
+  "face_up": 30.69,
+  "face_down": 8.69,
+  "swaps": 14.61,
+  "recalls": 0.88,
+  "pushes": 1.19,
+  "summons": 2.85,
+  "lit": 6.24,
+  "inscribed": 7.24,
+  "reveals": 2.46,
+  "unmist": 0.06,
+  "rewrites": 0,
+  "lingers": 8.65,
+  "backlash": 1.25,
+  "scars_end": 0.63,
+  "heals": 0,
+  "knots_play": 33.15,
+  "knots_down": 8.69,
+  "knots_griev": 1.82,
+  "knots_fate": 0.38,
+  "shrouds": 1.97,
+  "mist_scars": 1.97,
+  "scar_covers": 0.23,
+  "scar_fracture": 1.0,
+  "fog_flips": 14.68,
+  "walls_kept": 0.97,
+  "wall_absorbed": 3.86,
+  "retreats": 0.1,
+  "spreads": 1.03,
+  "gate_fate": 0.35,
+  "gate_end": 0.3,
+  "max_forgotten": 9.09,
+  "blank_slots": 0,
+  "lv": [
+   1.08,
+   0.15,
+   0.01
+  ],
+  "shroud_any": 0.49,
+  "gate_any": 0.335,
+  "chapter_turns": [
+   6.5,
+   7.0,
+   5.8
+  ],
+  "reached_ch": [
+   1.0,
+   1.0,
+   0.82
+  ],
+  "fate_kind": {
+   "book": 0.582,
+   "river": 0.282,
+   "forced": 0.136
+  },
+  "fate_names": {
+   "正午的誓言": 0.46,
+   "最後一眼": 0.42,
+   "冥王的條件": 0.375,
+   "窄梯": 0.305,
+   "鬆開的手": 0.29,
+   "第二次死去": 0.2,
+   "墜落": 0.13,
+   "他的臉": 0.115,
+   "差點得救的憤怒": 0.1,
+   "他的歌聲": 0.09,
+   "沒跳完的舞": 0.09,
+   "草裡的蛇": 0.03
+  },
+  "path_threads_win": {
+   "釋懷": 0.557,
+   "執念": 0.311,
+   "忘卻": 0.131
+  },
+  "endings_win": {
+   "放手": 0.529,
+   "他的臉": 0.235,
+   "最後一階": 0.2,
+   "陌生人": 0.035
+  },
+  "fate_line_win": {
+   "逆命": 0.0,
+   "違抗 1 次": 0.318
+  },
+  "hidden_win": 0.0,
+  "hidden_all": 0.0,
+  "key_place_win": {
+   "inscribed": 0.494,
+   "unspoken": 0.471,
+   "forgotten": 0.035
+  },
+  "comm_done": 2.69,
+  "cracks": {
+   "feed": 1.3,
+   "push_through": 1.06,
+   "ch_mist_scar": 0.9,
+   "soul_step": 0.07,
+   "do_op": 0.06,
+   "mist_card": 0.01,
+   "backlash": 0.01
+  },
+  "traits": {
+   "Obsession": 0.94,
+   "Acceptance": 0.79
+  }
+ },
+ "bride|4p": {
+  "games": 200,
+  "win": 0.55,
+  "causes": {
+   "Shattered": 0.33,
+   "Nameless": 0.065,
+   "Deluge": 0.05,
+   "Faded": 0.005
+  },
+  "turns": 20.14,
+  "turns_win": 18.67,
+  "face_up": 31.58,
+  "face_down": 7.79,
+  "swaps": 16.36,
+  "recalls": 0.87,
+  "pushes": 1.18,
+  "summons": 3.66,
+  "lit": 6.57,
+  "inscribed": 7.65,
+  "reveals": 3.15,
+  "unmist": 0.09,
+  "rewrites": 0,
+  "lingers": 8.11,
+  "backlash": 0.76,
+  "scars_end": 0.38,
+  "heals": 0,
+  "knots_play": 34.17,
+  "knots_down": 7.79,
+  "knots_griev": 1.66,
+  "knots_fate": 0.34,
+  "shrouds": 1.62,
+  "mist_scars": 1.62,
+  "scar_covers": 0.14,
+  "scar_fracture": 0.99,
+  "fog_flips": 14.42,
+  "walls_kept": 0.96,
+  "wall_absorbed": 3.87,
+  "retreats": 0.12,
+  "spreads": 1.04,
+  "gate_fate": 0.39,
+  "gate_end": 0.38,
+  "max_forgotten": 8.85,
+  "blank_slots": 0,
+  "lv": [
+   0.67,
+   0.09,
+   0.01
+  ],
+  "shroud_any": 0.345,
+  "gate_any": 0.45,
+  "chapter_turns": [
+   5.6,
+   7.3,
+   5.5
+  ],
+  "reached_ch": [
+   1.0,
+   1.0,
+   0.895
+  ],
+  "fate_kind": {
+   "book": 0.617,
+   "river": 0.24,
+   "forced": 0.142
+  },
+  "fate_names": {
+   "正午的誓言": 0.475,
+   "最後一眼": 0.445,
+   "鬆開的手": 0.44,
+   "冥王的條件": 0.405,
+   "窄梯": 0.33,
+   "第二次死去": 0.15,
+   "墜落": 0.135,
+   "差點得救的憤怒": 0.12,
+   "他的臉": 0.1,
+   "他的歌聲": 0.065,
+   "沒跳完的舞": 0.05,
+   "草裡的蛇": 0.03
+  },
+  "path_threads_win": {
+   "釋懷": 0.526,
+   "執念": 0.354,
+   "忘卻": 0.12
+  },
+  "endings_win": {
+   "放手": 0.545,
+   "他的臉": 0.273,
+   "最後一階": 0.173,
+   "陌生人": 0.009
+  },
+  "fate_line_win": {
+   "逆命": 0.009,
+   "違抗 1 次": 0.282
+  },
+  "hidden_win": 0.0,
+  "hidden_all": 0.0,
+  "key_place_win": {
+   "inscribed": 0.5,
+   "unspoken": 0.455,
+   "forgotten": 0.045
+  },
+  "comm_done": 3.33,
+  "cracks": {
+   "feed": 1.04,
+   "push_through": 1.01,
+   "ch_mist_scar": 0.88,
+   "soul_step": 0.07,
+   "do_op": 0.07,
+   "mist_card": 0.04,
+   "backlash": 0.01
+  },
+  "traits": {
+   "Obsession": 1.02,
+   "Acceptance": 0.81
+  }
+ },
+ "open|1p": {
+  "games": 200,
+  "win": 0.23,
+  "causes": {
+   "Shattered": 0.65,
+   "Deluge": 0.095,
+   "Nameless": 0.02,
+   "Faded": 0.005
+  },
+  "turns": 18.2,
+  "turns_win": 20.74,
+  "face_up": 25.27,
+  "face_down": 9.63,
+  "swaps": 0,
+  "recalls": 1.5,
+  "pushes": 0.49,
+  "summons": 1.0,
+  "lit": 5.71,
+  "inscribed": 6.37,
+  "reveals": 0.77,
+  "unmist": 0.04,
+  "rewrites": 0,
+  "lingers": 8.47,
+  "backlash": 2.48,
+  "scars_end": 1.19,
+  "heals": 0,
+  "knots_play": 44.55,
+  "knots_down": 9.63,
+  "knots_griev": 2.54,
+  "knots_fate": 1.37,
+  "shrouds": 2.12,
+  "mist_scars": 2.12,
+  "scar_covers": 0.39,
+  "scar_fracture": 0.86,
+  "fog_flips": 12.62,
+  "walls_kept": 0.91,
+  "wall_absorbed": 3.71,
+  "retreats": 0,
+  "spreads": 0.26,
+  "gate_fate": 0.25,
+  "gate_end": 0.24,
+  "max_forgotten": 6.92,
+  "blank_slots": 0,
+  "lv": [
+   1.94,
+   0.43,
+   0.1
+  ],
+  "shroud_any": 0.51,
+  "gate_any": 0.21,
+  "chapter_turns": [
+   8.4,
+   7.0,
+   4.8
+  ],
+  "reached_ch": [
+   1.0,
+   0.895,
+   0.575
+  ],
+  "fate_kind": {
+   "book": 0.564,
+   "river": 0.324,
+   "forced": 0.112
+  },
+  "fate_names": {
+   "窗邊的燈": 0.36,
+   "雪中的栗子": 0.34,
+   "愛過的人": 0.325,
+   "不肯收錢的擺渡人": 0.25,
+   "每天走過的橋": 0.18,
+   "彼岸的燈火": 0.175,
+   "寫下的一生": 0.155,
+   "一個名字": 0.12,
+   "空白的一頁": 0.105,
+   "欠下的債": 0.095,
+   "挑水": 0.065,
+   "消失的腳印": 0.055
+  },
+  "path_threads_win": {
+   "釋懷": 0.5,
+   "執念": 0.41,
+   "忘卻": 0.09
+  },
+  "endings_win": {
+   "夠了": 0.5,
+   "這就是我": 0.37,
+   "別人的故事": 0.109,
+   "河水": 0.022
+  },
+  "fate_line_win": {
+   "逆命": 0.109,
+   "違抗 1 次": 0.261
+  },
+  "hidden_win": 0.326,
+  "hidden_all": 0.075,
+  "key_place_win": {},
+  "comm_done": 0.92,
+  "cracks": {
+   "feed": 2.17,
+   "ch_mist_scar": 0.8,
+   "push_through": 0.47,
+   "backlash": 0.05,
+   "do_op": 0.05,
+   "soul_step": 0.04,
+   "mist_card": 0.01
+  },
+  "traits": {
+   "Obsession": 1.08,
+   "Acceptance": 0.59
+  }
+ },
+ "open|2p": {
+  "games": 200,
+  "win": 0.37,
+  "causes": {
+   "Shattered": 0.405,
+   "Deluge": 0.125,
+   "Nameless": 0.08,
+   "Faded": 0.02
+  },
+  "turns": 19.68,
+  "turns_win": 19.78,
+  "face_up": 29.22,
+  "face_down": 8.72,
+  "swaps": 12.38,
+  "recalls": 1.39,
+  "pushes": 0.88,
+  "summons": 1.97,
+  "lit": 6.45,
+  "inscribed": 7.33,
+  "reveals": 1.61,
+  "unmist": 0.07,
+  "rewrites": 0,
+  "lingers": 8.71,
+  "backlash": 1.99,
+  "scars_end": 0.84,
+  "heals": 0,
+  "knots_play": 31.43,
+  "knots_down": 8.72,
+  "knots_griev": 2.63,
+  "knots_fate": 1.69,
+  "shrouds": 1.95,
+  "mist_scars": 1.95,
+  "scar_covers": 0.34,
+  "scar_fracture": 0.73,
+  "fog_flips": 14.15,
+  "walls_kept": 0.91,
+  "wall_absorbed": 3.68,
+  "retreats": 0,
+  "spreads": 0.9,
+  "gate_fate": 0.39,
+  "gate_end": 0.51,
+  "max_forgotten": 8.19,
+  "blank_slots": 0,
+  "lv": [
+   1.54,
+   0.38,
+   0.06
+  ],
+  "shroud_any": 0.475,
+  "gate_any": 0.415,
+  "chapter_turns": [
+   8.5,
+   7.0,
+   3.9
+  ],
+  "reached_ch": [
+   1.0,
+   0.965,
+   0.76
+  ],
+  "fate_kind": {
+   "book": 0.555,
+   "river": 0.292,
+   "forced": 0.152
+  },
+  "fate_names": {
+   "雪中的栗子": 0.46,
+   "窗邊的燈": 0.405,
+   "不肯收錢的擺渡人": 0.265,
+   "愛過的人": 0.255,
+   "一個名字": 0.22,
+   "彼岸的燈火": 0.195,
+   "寫下的一生": 0.195,
+   "每天走過的橋": 0.14,
+   "欠下的債": 0.12,
+   "空白的一頁": 0.105,
+   "挑水": 0.105,
+   "消失的腳印": 0.065
+  },
+  "path_threads_win": {
+   "釋懷": 0.468,
+   "執念": 0.41,
+   "忘卻": 0.122
+  },
+  "endings_win": {
+   "夠了": 0.446,
+   "這就是我": 0.324,
+   "別人的故事": 0.203,
+   "河水": 0.027
+  },
+  "fate_line_win": {
+   "逆命": 0.041,
+   "違抗 1 次": 0.392
+  },
+  "hidden_win": 0.203,
+  "hidden_all": 0.075,
+  "key_place_win": {},
+  "comm_done": 1.82,
+  "cracks": {
+   "feed": 1.79,
+   "push_through": 0.81,
+   "ch_mist_scar": 0.68,
+   "soul_step": 0.05,
+   "do_op": 0.04,
+   "backlash": 0.02,
+   "mist_card": 0.01
+  },
+  "traits": {
+   "Obsession": 1.18,
+   "Acceptance": 0.79
+  }
+ },
+ "open|3p": {
+  "games": 200,
+  "win": 0.54,
+  "causes": {
+   "Shattered": 0.295,
+   "Deluge": 0.135,
+   "Faded": 0.025,
+   "Nameless": 0.005
+  },
+  "turns": 20.29,
+  "turns_win": 19.47,
+  "face_up": 31.24,
+  "face_down": 8.02,
+  "swaps": 15.36,
+  "recalls": 1.27,
+  "pushes": 1.08,
+  "summons": 2.94,
+  "lit": 7.22,
+  "inscribed": 8.51,
+  "reveals": 2.46,
+  "unmist": 0.1,
+  "rewrites": 0,
+  "lingers": 8.44,
+  "backlash": 1.58,
+  "scars_end": 0.53,
+  "heals": 0,
+  "knots_play": 33.55,
+  "knots_down": 8.02,
+  "knots_griev": 2.42,
+  "knots_fate": 1.92,
+  "shrouds": 1.75,
+  "mist_scars": 1.75,
+  "scar_covers": 0.27,
+  "scar_fracture": 0.7,
+  "fog_flips": 14.53,
+  "walls_kept": 0.93,
+  "wall_absorbed": 3.6,
+  "retreats": 0,
+  "spreads": 0.77,
+  "gate_fate": 0.36,
+  "gate_end": 0.45,
+  "max_forgotten": 9.36,
+  "blank_slots": 0,
+  "lv": [
+   1.33,
+   0.22,
+   0.03
+  ],
+  "shroud_any": 0.45,
+  "gate_any": 0.385,
+  "chapter_turns": [
+   7.9,
+   7.4,
+   4.3
+  ],
+  "reached_ch": [
+   1.0,
+   0.98,
+   0.895
+  ],
+  "fate_kind": {
+   "book": 0.644,
+   "river": 0.225,
+   "forced": 0.131
+  },
+  "fate_names": {
+   "雪中的栗子": 0.475,
+   "窗邊的燈": 0.435,
+   "愛過的人": 0.295,
+   "欠下的債": 0.265,
+   "寫下的一生": 0.265,
+   "不肯收錢的擺渡人": 0.22,
+   "一個名字": 0.205,
+   "彼岸的燈火": 0.2,
+   "空白的一頁": 0.185,
+   "每天走過的橋": 0.115,
+   "挑水": 0.075,
+   "消失的腳印": 0.045
+  },
+  "path_threads_win": {
+   "釋懷": 0.452,
+   "執念": 0.449,
+   "忘卻": 0.1
+  },
+  "endings_win": {
+   "夠了": 0.444,
+   "這就是我": 0.389,
+   "別人的故事": 0.13,
+   "河水": 0.037
+  },
+  "fate_line_win": {
+   "逆命": 0.056,
+   "違抗 1 次": 0.361
+  },
+  "hidden_win": 0.315,
+  "hidden_all": 0.17,
+  "key_place_win": {},
+  "comm_done": 2.67,
+  "cracks": {
+   "feed": 1.47,
+   "push_through": 0.97,
+   "ch_mist_scar": 0.62,
+   "soul_step": 0.07,
+   "do_op": 0.06,
+   "mist_card": 0.03
+  },
+  "traits": {
+   "Obsession": 1.43,
+   "Acceptance": 0.83
+  }
+ },
+ "open|4p": {
+  "games": 200,
+  "win": 0.63,
+  "causes": {
+   "Shattered": 0.215,
+   "Deluge": 0.07,
+   "Nameless": 0.055,
+   "Faded": 0.03
+  },
+  "turns": 20.11,
+  "turns_win": 18.9,
+  "face_up": 32.12,
+  "face_down": 7.01,
+  "swaps": 16.59,
+  "recalls": 1.01,
+  "pushes": 1.19,
+  "summons": 3.82,
+  "lit": 7.64,
+  "inscribed": 9.08,
+  "reveals": 3.31,
+  "unmist": 0.15,
+  "rewrites": 0,
+  "lingers": 7.54,
+  "backlash": 0.82,
+  "scars_end": 0.21,
+  "heals": 0,
+  "knots_play": 34.71,
+  "knots_down": 7.01,
+  "knots_griev": 2.0,
+  "knots_fate": 2.07,
+  "shrouds": 1.54,
+  "mist_scars": 1.54,
+  "scar_covers": 0.18,
+  "scar_fracture": 0.72,
+  "fog_flips": 13.94,
+  "walls_kept": 0.93,
+  "wall_absorbed": 3.23,
+  "retreats": 0,
+  "spreads": 0.97,
+  "gate_fate": 0.4,
+  "gate_end": 0.47,
+  "max_forgotten": 9.29,
+  "blank_slots": 0,
+  "lv": [
+   0.76,
+   0.07,
+   0
+  ],
+  "shroud_any": 0.355,
+  "gate_any": 0.455,
+  "chapter_turns": [
+   6.8,
+   7.3,
+   4.4
+  ],
+  "reached_ch": [
+   1.0,
+   1.0,
+   0.96
+  ],
+  "fate_kind": {
+   "book": 0.678,
+   "river": 0.185,
+   "forced": 0.137
+  },
+  "fate_names": {
+   "雪中的栗子": 0.485,
+   "窗邊的燈": 0.455,
+   "欠下的債": 0.38,
+   "愛過的人": 0.34,
+   "寫下的一生": 0.31,
+   "一個名字": 0.225,
+   "空白的一頁": 0.2,
+   "彼岸的燈火": 0.175,
+   "不肯收錢的擺渡人": 0.17,
+   "每天走過的橋": 0.075,
+   "挑水": 0.04,
+   "消失的腳印": 0.035
+  },
+  "path_threads_win": {
+   "執念": 0.48,
+   "釋懷": 0.431,
+   "忘卻": 0.089
+  },
+  "endings_win": {
+   "這就是我": 0.437,
+   "夠了": 0.381,
+   "別人的故事": 0.151,
+   "河水": 0.032
+  },
+  "fate_line_win": {
+   "逆命": 0.071,
+   "違抗 1 次": 0.349
+  },
+  "hidden_win": 0.381,
+  "hidden_all": 0.24,
+  "key_place_win": {},
+  "comm_done": 3.47,
+  "cracks": {
+   "feed": 1.1,
+   "push_through": 1.08,
+   "ch_mist_scar": 0.65,
+   "do_op": 0.06,
+   "soul_step": 0.05,
+   "mist_card": 0.04
+  },
+  "traits": {
+   "Obsession": 1.38,
+   "Acceptance": 0.95
+  }
+ }
+}

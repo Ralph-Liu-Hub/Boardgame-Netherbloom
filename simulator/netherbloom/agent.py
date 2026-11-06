@@ -91,7 +91,7 @@ class EchoAgent:
         if not s.comm:
             return False
         mine = s.comm[s.cur]
-        return s.comm_matches(mine, s.reach, new) and not s.comm_matches(mine, s.reach, old)
+        return s.comm_matches(mine, s.page(), new) and not s.comm_matches(mine, s.page(), old)
 
     def light_target(self, s):
         unlit = [(r, cid) for r in range(3) for cid in s.book[r].values() if cid not in s.lit_mem]
@@ -117,7 +117,7 @@ class EchoAgent:
                 s.comm_matches(mine, r, c) for r in range(3) for c in s.book[r].values() if c == cid)
             # Lighting is only checked at the Far Shore, so keep Light for Recalls until the last Reach,
             # unless a Mist that peels unlit memories is in play.
-            late = s.reach == 2 or (s.cfg.mist_v2 and serves_me)
+            late = s.page() == 2 or (s.cfg.mist_v2 and serves_me)
             reserve = 0 if late else 3
             if s.light - cost < reserve:
                 return
@@ -143,7 +143,7 @@ class EchoAgent:
             return
         from .cards import COMMISSIONS
         k = COMMISSIONS[s.cfg.soul][s.comm[p]]
-        if k["page"] is not None and k["page"] < s.reach and not s.commissions_done([s.comm[p]]):
+        if k["page"] is not None and k["page"] < s.page() and not s.commissions_done([s.comm[p]]):
             s.redrawn[p] = True
             s.comm[p] = s.comm_deck.pop()
             s.stats["redraws"] = s.stats.get("redraws", 0) + 1
@@ -154,7 +154,7 @@ class EchoAgent:
         if s.n == 1 or s.gifted[s.reach] or len(s.hands[s.cur]) < 2:
             return
         mine = s.comm[s.cur] if s.comm else None
-        cands = [c for c in s.hands[s.cur] if mine is None or not s.comm_matches(mine, s.reach, c)]
+        cands = [c for c in s.hands[s.cur] if mine is None or not s.comm_matches(mine, s.page(), c)]
         if not cands:
             return
         cid = min(cands, key=lambda c: self.card_value(s, c))
