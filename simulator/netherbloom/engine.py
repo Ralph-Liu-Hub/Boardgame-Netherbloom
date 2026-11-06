@@ -184,6 +184,12 @@ class Config:
         self.v5_obs_l2_ahead = 3     # where a level-2+ Obsession Backlash puts its two Shades (spaces ahead)
         self.v5_gate_take = 0.5      # AI: chance to follow a lit gate memory's thread when it differs from the fate card
         self.v5_reveal_rewrite = 0.0  # chance a revealed commission rewrites the chapter's fork instead of untying 2 knots
+        self.v5_insc_echo = False    # a face-up card whose thread matches the Echo may be inscribed in either action
+        self.v5_fate_skip = False    # when the turning point forks the route, empty slots before it are washed away
+        self.v5_fork_eot = True      # the turning point's fork is taken at the end of the turn (so the gate can be lit first)
+        self.v5_linger_blank = False  # a Linger that forgets also washes away the next empty memory slot on the route
+        self.v5_fog_moving = 0       # fog strength on turns the soul moved forward (from chapter v5_fog_moving_from)
+        self.v5_fog_moving_from = 1
         for k, v in overrides.items():
             if not hasattr(self, k):
                 raise KeyError(f"unknown config option {k}")
@@ -1085,6 +1091,7 @@ class State:
             if self.cfg.v5_facedown_knot:
                 self.tie_knot(card.tag, "down")
             return False
+        echo_before = self.echo
         resonated = first and self.echo == card.tag
         self.stats["plays_up"] += 1
         if card.tag == OBL:
@@ -1121,7 +1128,8 @@ class State:
             else:
                 self.forget_card(cid)
             return resonated
-        if ((resonated or (card.key and self.cfg.key_any)) and self.can_inscribe(cid)
+        echo_match = self.cfg.v5_insc_echo and echo_before == card.tag
+        if ((resonated or echo_match or (card.key and self.cfg.key_any)) and self.can_inscribe(cid)
                 and chooser.want_inscribe(self, cid) and self.inscribe(cid, chooser)):
             filled = len(self.book[self.reach])
             if self.cfg.book_mode == "pairs":
@@ -1365,7 +1373,7 @@ class State:
         if self.cfg.linger_rule == "dark" and not force and self.soul >= 1 and self.lit(self.soul):
             self.note("  (beside its own light, the soul waits without forgetting)")
             return
-        pulled = any(self.bride_pulled) if self.cfg.bride_once else self.bride_pulled[self.reach]
+        pulled = any(self.bride_pulled) if self.cfg.bride_once else self.bride_pulled[self.page()]
         at_reach_start = self.cfg.back_rule and self.soul - 1 < BOUNDS[self.reach][0]
         if self.cfg.soul == "bride" and not force and self.soul >= 1 and not pulled and not at_reach_start:
             self.bride_pulled[self.reach] = True
@@ -1375,6 +1383,12 @@ class State:
             if not self.cfg.bride_forgets:
                 return
         self.forget_top(1)
+        if self.cfg.v5_chapters and self.cfg.v5_linger_blank and not self.page_turn:
+            slots = self.open_slots()
+            if slots:
+                self.pg[self.ch][slots[0]] = -1
+                self.stats["blank_slots"] = self.stats.get("blank_slots", 0) + 1
+                self.advance_route()
 
     def feed(self):
         if 1 <= self.soul <= LAST and (self.griev[self.soul * 2] or self.griev[self.soul * 2 + 1]):
@@ -1614,7 +1628,7 @@ class State:
         self.stats["reveals"] = self.stats.get("reveals", 0) + 1
         self.stats.setdefault("reveal_reach", []).append(self.page()) if not self.sim else None
         if self.cfg.v5_chapters:
-            mists = list(self.pg[self.ch])
+            mists = [x for x, v in self.pg[self.ch].items() if v != -1]
             near = any(self.karma[t] >= self.cap(t) - 2 for t in range(3))
             if self.cfg.v5_reveal_rewrite and self.paths[self.ch] is None and self.rng.random() < self.cfg.v5_reveal_rewrite:
                 self.rewrite = True
@@ -1707,7 +1721,7 @@ class State:
                 w.append(chosen[0])
             elif k == "f":
                 fate = self.chc.get("fate")
-                if fate is None:
+                if fate is None or (self.cfg.v5_fork_eot and not self.chc.get("fork_ok")):
                     return
                 if self.paths[self.ch] is None:
                     path = fate
@@ -1864,6 +1878,20 @@ class State:
             self.stats[f"ch_fate_turn{self.ch}"] = self.turn
         self.note(f"  TURNING POINT: {card['name']} ({C.TAG_NAMES[card['tag']]})")
         self.fate_ops(card["ops"])
+        if self.cfg.v5_fate_skip and self.result is None:
+            nodes = self.chapter_def()["nodes"]
+            for _ in range(12):
+                w = self.walk[self.ch]
+                cur = nodes[w[-1]]
+                if cur["kind"] in "fo":
+                    break
+                slots = self.open_slots()
+                if not slots:
+                    break
+                pick = slots[0] if cur["kind"] != "p" else self.rng.choice(slots)
+                self.pg[self.ch][pick] = -1
+                self.stats["blank_slots"] = self.stats.get("blank_slots", 0) + 1
+                self.advance_route()
         if self.result is None:
             self.advance_route()
 
@@ -1986,6 +2014,9 @@ class State:
         if not self.cfg.v5_chapters or self.result is not None:
             return
         self.check_fate()
+        if self.chc.get("fate") is not None and not self.chc.get("fork_ok"):
+            self.chc["fork_ok"] = True
+            self.advance_route()
         if not self.page_turn or self.result is not None:
             return
         self.page_turn = False
@@ -2045,7 +2076,7 @@ class State:
         top = max(set(tags), key=tags.count) if tags else None
         ending = ENDINGS[self.cfg.soul][top] if top is not None and tags.count(top) >= 2 else ENDINGS[self.cfg.soul]["交織"]
         defied = sum(1 for f, p in paths if f is not None and f != p)
-        mist = any(self.pg[r] for r in range(3))
+        mist = any(v != -1 for r in range(3) for v in self.pg[r].values())
         key = next((cid for cid, c in CARD.items() if c.key and cid in self.deck + self.discard + self.forgotten
                     + [x for h in self.hands for x in h] + [x for r in range(3) for x in self.book[r].values()]), None)
         where = None
@@ -2216,7 +2247,7 @@ class State:
             if self.cfg.v5_fog:
                 n = int(round(mist_strength((name, ops)) * self.cfg.v5_fog_scale))
                 if self.cfg.v5_fog_on_stall and "moved" in self.turn_flags:
-                    n = 0
+                    n = self.cfg.v5_fog_moving if (self.cfg.v5_chapters and self.ch >= self.cfg.v5_fog_moving_from) else 0
                 self.fog_advance(n)
                 if n > 0 and self.shrouded():
                     self.shroud(tag if tag is not None else OBL, (name, ops))

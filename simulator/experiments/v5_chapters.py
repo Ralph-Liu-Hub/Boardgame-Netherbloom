@@ -28,20 +28,35 @@ CH = {"v5_chapters": True, "v5_fate": False, "v5_depth": False, "v5_carry": Fals
 LEVELS = {"Gentle": {"v5_shroud_crack": False, "v5_start_knots": 0},
           "Standard": {"v5_start_knots": 0},
           "Hard": {"v5_fog_plus": 1, "v5_start_knots": 1}}
-VARIANTS = [
-    ("基準（修訂提案）", {}),
+VARIANTS = [   # each on top of BASE_EXTRA (the calibrated Standard)
+    ("基準（校準版）", {}),
     ("翻頁解結 A：依點亮數解結，清空的絲線治傷", {"v5_turn_knots": "lit_free"}),
     ("翻頁解結 B：先每條解 2，再依點亮數", {"v5_turn_knots": "lit_free_base2"}),
     ("光牆每個河岸各自算", {"v5_wall_mode": "bank"}),
     ("消散門檻 14", {"dissolve": -2}),
-    ("織機門檻 +1（5／6／7）", {"v5_cap_bonus": 1}),
-    ("織機門檻 +3（7／8／9）", {"v5_cap_bonus": 3}),
+    ("織機門檻 +2（6／7／8）", {"v5_cap_bonus": 2}),
+    ("織機門檻 +4（8／9／10）", {"v5_cap_bonus": 4}),
+    ("籠罩加 1 道裂痕", {"v5_shroud_crack": True}),
+    ("拿掉迴響銘刻", {"v5_insc_echo": False}),
+    ("加上轉折洗掉空格", {"v5_fate_skip": True}),
     ("託付可改寫分岔（一半的翻開選它）", {"v5_reveal_rewrite": 0.5}),
     ("拿掉根網特性", {"v5_traits": False}),
 ]
+# Calibration (see the report): pacing and fog knobs on top of the proposal as written.
+CALIB = []
+PACING = {"無": {}, "迴響銘刻": {"v5_insc_echo": True}, "轉折洗掉空格": {"v5_fate_skip": True},
+          "兩者": {"v5_insc_echo": True, "v5_fate_skip": True}}
+for pname in ("迴響銘刻", "兩者"):
+    for cap in (3, 4):
+        for crack in (True, False):
+            CALIB.append((f"{pname} cap+{cap} fog+1 籠罩裂痕={int(crack)}",
+                          dict(PACING[pname], v5_cap_bonus=cap, v5_fog_plus=1, v5_shroud_crack=crack)))
+# The calibrated Standard (report §3): Echo inscription, threshold +3, fog +1, a shroud leaves a mist scar but no crack.
+BASE_EXTRA = {"v5_insc_echo": True, "v5_cap_bonus": 3, "v5_fog_plus": 1, "v5_shroud_crack": False}
+TUNED_LEVELS = {"Gentle": {"v5_fog_plus": 0}, "Standard": {}, "Hard": {"v5_shroud_crack": True, "v5_start_knots": 1}}
 LEVEL_SETS = {
     "同門檻": {"Gentle": {}, "Standard": {}, "Hard": {}},
-    "難度也調門檻": {"Gentle": {"v5_cap_bonus": 3}, "Standard": {}, "Hard": {"v5_cap_bonus": 1}},
+    "難度也調門檻": {"Gentle": {"v5_cap_bonus": 4}, "Standard": {}, "Hard": {"v5_cap_bonus": 2}},
 }
 
 
@@ -82,7 +97,7 @@ def one(args):
         "wall_absorbed": g("wall_absorbed"), "retreats": g("fate_retreats"), "spreads": g("trait_spreads"),
         "traits": {k[6:]: v for k, v in st.items() if k.startswith("trait_") and k != "trait_spreads"},
         "cracks": {k[6:]: v for k, v in st.items() if k.startswith("crack_")},
-        "max_forgotten": st["max_forgotten"],
+        "max_forgotten": st["max_forgotten"], "blank_slots": g("blank_slots"),
     }
     if row["win"]:
         ending, defied, hidden, place = s.story_ending()
@@ -104,7 +119,7 @@ def summarize(rows):
     for k in ("face_up", "face_down", "swaps", "recalls", "pushes", "summons", "lit", "inscribed", "reveals", "unmist",
               "rewrites", "lingers", "backlash", "scars_end", "heals", "knots_play", "knots_down", "knots_griev",
               "knots_fate", "shrouds", "mist_scars", "scar_covers", "scar_fracture", "fog_flips", "walls_kept",
-              "wall_absorbed", "retreats", "spreads", "gate_fate", "gate_end", "max_forgotten"):
+              "wall_absorbed", "retreats", "spreads", "gate_fate", "gate_end", "max_forgotten", "blank_slots"):
         out[k] = avg(k)
     out["lv"] = [round(mean(r["lv"][i] for r in rows), 2) for i in range(3)]
     out["shroud_any"] = pct(sum(r["shrouds"] > 0 for r in rows), n)
@@ -163,7 +178,7 @@ def run(pool, cells, games):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--games", type=int, default=200)
-    ap.add_argument("--part", default="base", choices=["base", "variants", "difficulty", "smoke"])
+    ap.add_argument("--part", default="base", choices=["base", "tuned", "calib", "variants", "difficulty", "smoke"])
     ap.add_argument("--procs", type=int, default=4)
     a = ap.parse_args()
     cells = []
@@ -171,11 +186,16 @@ def main():
         cells = [(f"{s}|{p}p", s, p, "Standard", None) for s in ("king", "child") for p in (1, 3)]
     elif a.part == "base":
         cells = [(f"{s}|{p}p", s, p, "Standard", None) for s in SOULS for p in (1, 2, 3, 4)]
+    elif a.part == "tuned":
+        cells = [(f"{s}|{p}p", s, p, "Standard", BASE_EXTRA) for s in SOULS for p in (1, 2, 3, 4)]
+    elif a.part == "calib":
+        cells = [(f"{name}|{s}|{p}p", s, p, "Standard", extra) for name, extra in CALIB for s in SOULS for p in (1, 2, 3, 4)]
     elif a.part == "variants":
-        cells = [(f"{name}|{p}p", s, p, "Standard", extra) for name, extra in VARIANTS for p in (1, 2, 3, 4)
-                 for s in SOULS]
+        cells = [(f"{name}|{s}|{p}p", s, p, "Standard", dict(BASE_EXTRA, **extra)) for name, extra in VARIANTS
+                 for p in (1, 2, 3, 4) for s in SOULS]
     elif a.part == "difficulty":
-        cells = [(f"{setname}|{lv}|{s}|{p}p", s, p, lv, sets[lv]) for setname, sets in LEVEL_SETS.items()
+        cells = [(f"{setname}|{lv}|{s}|{p}p", s, p, "Standard", dict(BASE_EXTRA, **TUNED_LEVELS[lv], **sets[lv]))
+                 for setname, sets in LEVEL_SETS.items()
                  for lv in ("Gentle", "Hard") for s in SOULS for p in (1, 2, 3, 4)]
     with Pool(a.procs) as pool:
         res = run(pool, cells, a.games)
