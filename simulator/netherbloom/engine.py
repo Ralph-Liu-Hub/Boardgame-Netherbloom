@@ -2029,16 +2029,20 @@ class State:
             fate = self.chc.get("fate")
             self.paths[ch] = (fate, fate)
         lit = [cid for cid in self.book[ch].values() if cid in self.lit_mem]
+        if not self.sim:
+            self.stats.setdefault("turn_lit", []).append(len(lit))
         mode = self.cfg.v5_turn_knots
         if mode == "clear_heal":
             self.karma = [0, 0, 0]
             for _ in range(len(lit) // 2):
                 t = max(range(3), key=lambda x: self.scars[x])
                 self.scars[t] = max(0, self.scars[t] - 1)
-        elif mode in ("lit_x2", "lit_x3", "lit_exp"):
+        elif mode in ("lit_x2", "lit_x3", "lit_exp", "lit_tri"):
             # no healing; untie several knots per lit memory of the page (free choice); the rest carry over
             n = len(lit)
-            budget = 2 * n if mode == "lit_x2" else 3 * n if mode == "lit_x3" else (2 ** n if n else 0)
+            tri = (0, 3, 6, 10, 15, 21, 28)
+            budget = (2 * n if mode == "lit_x2" else 3 * n if mode == "lit_x3"
+                      else tri[min(n, 6)] if mode == "lit_tri" else (2 ** n if n else 0))
             for _ in range(budget):
                 if not any(self.karma):
                     break
