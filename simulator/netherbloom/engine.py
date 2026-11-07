@@ -2035,6 +2035,15 @@ class State:
             for _ in range(len(lit) // 2):
                 t = max(range(3), key=lambda x: self.scars[x])
                 self.scars[t] = max(0, self.scars[t] - 1)
+        elif mode in ("lit_x2", "lit_x3", "lit_exp"):
+            # no healing; untie several knots per lit memory of the page (free choice); the rest carry over
+            n = len(lit)
+            budget = 2 * n if mode == "lit_x2" else 3 * n if mode == "lit_x3" else (2 ** n if n else 0)
+            for _ in range(budget):
+                if not any(self.karma):
+                    break
+                col = max(range(3), key=lambda x: self.karma[x] / self.cap(x))
+                self.karma[col] -= 1
         elif mode in ("scar1_lit_free", "scarN_lit_free", "scarN_clear"):
             # heal scars (one, or by chapter from v5_turn_heals), then untie knots: one per lit memory of the page
             # (free choice, the rest carry over) or all of them ("scarN_clear")
