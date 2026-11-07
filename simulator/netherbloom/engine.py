@@ -180,6 +180,7 @@ class Config:
                                      # heals 1 scar; the rest carry over), "lit_free_base2" (as lit_free after untying 2 per thread),
                                      # "scar1_lit_free" (heal 1 scar, then untie one knot per lit memory; the rest carry over)
         self.v5_wall_mode = "pair"   # light walls: "pair" (both banks bloom; absorbs 2) or "bank" (each bloom absorbs 1 on its bank)
+        self.v5_light_reserve = 3    # AI: Light kept back (for Recalls) before lighting memories, until the last page
         self.v5_turn_heals = (1, 2, 0)  # with v5_turn_knots "scarN_*": scars healed when chapter 1 / 2 / 3 closes
         self.v5_solo_cap_bonus = 0   # extra knots before a thread fills in solo games
         self.v5_fog_plus = 0         # difficulty: added to the fog strength whenever the fog advances
