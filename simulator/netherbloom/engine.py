@@ -180,6 +180,7 @@ class Config:
                                      # heals 1 scar; the rest carry over), "lit_free_base2" (as lit_free after untying 2 per thread),
                                      # "scar1_lit_free" (heal 1 scar, then untie one knot per lit memory; the rest carry over)
         self.v5_wall_mode = "pair"   # light walls: "pair" (both banks bloom; absorbs 2) or "bank" (each bloom absorbs 1 on its bank)
+        self.v5_turn_heals = (1, 2, 0)  # with v5_turn_knots "scarN_*": scars healed when chapter 1 / 2 / 3 closes
         self.v5_solo_cap_bonus = 0   # extra knots before a thread fills in solo games
         self.v5_fog_plus = 0         # difficulty: added to the fog strength whenever the fog advances
         self.v5_obs_l2_ahead = 3     # where a level-2+ Obsession Backlash puts its two Shades (spaces ahead)
@@ -2034,11 +2035,16 @@ class State:
             for _ in range(len(lit) // 2):
                 t = max(range(3), key=lambda x: self.scars[x])
                 self.scars[t] = max(0, self.scars[t] - 1)
-        elif mode == "scar1_lit_free":
-            # heal one scar, then untie one knot per lit memory of the page (free choice); the rest carry over
-            t = max(range(3), key=lambda x: self.scars[x])
-            self.scars[t] = max(0, self.scars[t] - 1)
-            for _ in range(len(lit)):
+        elif mode in ("scar1_lit_free", "scarN_lit_free", "scarN_clear"):
+            # heal scars (one, or by chapter from v5_turn_heals), then untie knots: one per lit memory of the page
+            # (free choice, the rest carry over) or all of them ("scarN_clear")
+            heals = 1 if mode == "scar1_lit_free" else self.cfg.v5_turn_heals[ch]
+            for _ in range(heals):
+                t = max(range(3), key=lambda x: self.scars[x])
+                self.scars[t] = max(0, self.scars[t] - 1)
+            if mode == "scarN_clear":
+                self.karma = [0, 0, 0]
+            for _ in range(0 if mode == "scarN_clear" else len(lit)):
                 if not any(self.karma):
                     break
                 col = max(range(3), key=lambda x: self.karma[x] / self.cap(x))
