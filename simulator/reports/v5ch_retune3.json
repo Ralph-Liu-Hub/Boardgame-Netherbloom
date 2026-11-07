@@ -1,0 +1,29 @@
+[
+ {
+  "label": "S loom+2 F3 BW6",
+  "level": "Standard",
+  "loom": 2,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.41,
+  "by_players": {
+   "1": 0.2,
+   "2": 0.48,
+   "3": 0.44,
+   "4": 0.52
+  },
+  "backlash": 0.75,
+  "ending_thread": {
+   "執念": 0.268,
+   "交織": 0.244,
+   "釋懷": 0.244,
+   "忘卻": 0.244
+  },
+  "loss_causes": {
+   "Shattered": 0.34,
+   "Deluge": 0.12,
+   "Faded": 0.11,
+   "Nameless": 0.02
+  }
+ }
+]
