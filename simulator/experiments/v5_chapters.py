@@ -52,7 +52,7 @@ for pname in ("迴響銘刻", "兩者"):
             CALIB.append((f"{pname} cap+{cap} fog+1 籠罩裂痕={int(crack)}",
                           dict(PACING[pname], v5_cap_bonus=cap, v5_fog_plus=1, v5_shroud_crack=crack)))
 # The calibrated Standard (report §3): Echo inscription, threshold +3, fog +1, a shroud leaves a mist scar but no crack.
-BASE_EXTRA = {"v5_insc_echo": True, "v5_cap_bonus": 3, "v5_fog_plus": 1, "v5_shroud_crack": False}
+BASE_EXTRA = {"v5_insc_echo": True, "v5_cap_bonus": 3, "v5_fog_plus": 1, "v5_shroud_crack": False, "v5_light_reserve": 0}
 TUNED_LEVELS = {"Gentle": {"v5_fog_plus": 0}, "Standard": {}, "Hard": {"v5_shroud_crack": True, "v5_start_knots": 1}}
 LEVEL_SETS = {
     "同門檻": {"Gentle": {}, "Standard": {}, "Hard": {}},

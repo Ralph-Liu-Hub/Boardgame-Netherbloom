@@ -179,7 +179,8 @@ class Config:
                                      # heal 1 scar), "lit_free" (untie one knot per lit memory; a thread emptied this way
                                      # heals 1 scar; the rest carry over), "lit_free_base2" (as lit_free after untying 2 per thread),
                                      # "scar1_lit_free" (heal 1 scar, then untie one knot per lit memory; the rest carry over)
-        self.v5_wall_mode = "pair"   # light walls: "pair" (both banks bloom; absorbs 2) or "bank" (each bloom absorbs 1 on its bank)
+        self.v5_wall_mode = "pair"   # light walls: "pair" (both banks bloom; absorbs 2), "bank" (each bloom absorbs 1 on its bank)
+                                     # or "block" (each bank has its own fog line; a Bloom stops it and is not harmed)
         self.v5_light_reserve = 3    # AI: Light kept back (for Recalls) before lighting memories, until the last page
         self.v5_turn_heals = (1, 2, 0)  # with v5_turn_knots "scarN_*": scars healed when chapter 1 / 2 / 3 closes
         self.v5_solo_cap_bonus = 0   # extra knots before a thread fills in solo games
@@ -1436,6 +1437,29 @@ class State:
             return
         n += self.cfg.v5_fog_plus
         lo = 1 if self.cfg.v5_chapters else max(1, BOUNDS[self.reach][0])
+        if self.cfg.v5_wall_mode == "block":
+            # each bank has its own fog line; a Bloom stops the line on its bank (and is not harmed)
+            blocked = [False, False]
+            for sp in range(lo, min(self.soul, LAST) + 1):
+                for b in (0, 1):
+                    k = sp * 2 + b
+                    if n <= 0:
+                        return
+                    if blocked[b] or self.fogged[k]:
+                        continue
+                    if self.tok[k] == BLOOM:
+                        blocked[b] = True
+                        if not self.sim:
+                            self.stats["wall_absorbed"] = self.stats.get("wall_absorbed", 0) + 1
+                        continue
+                    self.fogged[k] = True
+                    if not (self.cfg.v5_traits and self.trait == OBS and self.tok[k] == ROOT):
+                        self.tok[k] = NONE
+                    self.frost[k] = False
+                    n -= 1
+                    if not self.sim:
+                        self.stats["fog_flips"] = self.stats.get("fog_flips", 0) + 1
+            return
         for sp in range(lo, min(self.soul, LAST) + 1):
             ks = (sp * 2, sp * 2 + 1)
             if all(self.fogged[k] for k in ks):

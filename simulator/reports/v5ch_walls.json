@@ -1,0 +1,54 @@
+[
+ {
+  "label": "兩岸都是花才是光牆（目前）",
+  "win": 0.401,
+  "shroud_any": 0.455,
+  "fog_flips": 13.5,
+  "walls_kept": 0.93,
+  "causes": {
+   "Shattered": 0.34,
+   "Faded": 0.122,
+   "Deluge": 0.085,
+   "Nameless": 0.052
+  }
+ },
+ {
+  "label": "每朵花擋 1 點後凋零（各自算）",
+  "win": 0.416,
+  "shroud_any": 0.343,
+  "fog_flips": 12.9,
+  "walls_kept": 0.94,
+  "causes": {
+   "Shattered": 0.26,
+   "Faded": 0.154,
+   "Deluge": 0.116,
+   "Nameless": 0.054
+  }
+ },
+ {
+  "label": "有花的河岸霧不能覆蓋，霧只走沒花的那岸（11/7 定義）",
+  "win": 0.441,
+  "shroud_any": 0.001,
+  "fog_flips": 0.1,
+  "walls_kept": 1.0,
+  "causes": {
+   "Shattered": 0.215,
+   "Deluge": 0.148,
+   "Faded": 0.144,
+   "Nameless": 0.052
+  }
+ },
+ {
+  "label": "同上，霧勢 +2",
+  "win": 0.441,
+  "shroud_any": 0.001,
+  "fog_flips": 0.1,
+  "walls_kept": 1.0,
+  "causes": {
+   "Shattered": 0.215,
+   "Deluge": 0.148,
+   "Faded": 0.144,
+   "Nameless": 0.052
+  }
+ }
+]
