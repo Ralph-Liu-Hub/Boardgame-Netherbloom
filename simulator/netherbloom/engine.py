@@ -191,6 +191,7 @@ class Config:
         self.v5_gate_take = 0.5      # AI: chance to follow a lit gate memory's thread when it differs from the fate card
         self.v5_reveal_rewrite = 0.0  # chance a revealed commission rewrites the chapter's fork instead of untying 2 knots
         self.v5_insc_echo = False    # a face-up card whose thread matches the Echo may be inscribed in either action
+        self.v5_fate_pay = 0         # >0: when the route waits at the turning point, pay this much Light at end of turn to turn one of the two fate cards now
         self.v5_fate_skip = False    # when the turning point forks the route, empty slots before it are washed away
         self.v5_fork_eot = True      # the turning point's fork is taken at the end of the turn (so the gate can be lit first)
         self.v5_linger_blank = False  # a Linger that forgets also washes away the next empty memory slot on the route
@@ -2052,6 +2053,12 @@ class State:
         if not self.cfg.v5_chapters or self.result is not None:
             return
         self.check_fate()
+        if (self.cfg.v5_fate_pay and self.chc.get("fate") is None and not self.page_turn and self.result is None
+                and self.chapter_def()["nodes"][self.walk[self.ch][-1]]["kind"] == "f"
+                and self.light >= self.cfg.v5_fate_pay):
+            self.light -= self.cfg.v5_fate_pay
+            self.stats["fate_paid"] = self.stats.get("fate_paid", 0) + 1
+            self.fire_chapter_fate(self.rng.choice([f for f in self.fates_ch if not f["fired"]] or self.fates_ch))
         if self.chc.get("fate") is not None and not self.chc.get("fork_ok"):
             self.chc["fork_ok"] = True
             self.advance_route()
