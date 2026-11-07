@@ -2062,15 +2062,16 @@ class State:
             for _ in range(len(lit) // 2):
                 t = max(range(3), key=lambda x: self.scars[x])
                 self.scars[t] = max(0, self.scars[t] - 1)
-        elif mode in ("base2_tri", "base2_tri_heal"):
+        elif mode in ("base2_tri", "base2_tri_heal", "base2_exp", "base2_exp_heal"):
             # untie 2 per thread, then 3 / 6 / 10 more for 1 / 2 / 3 lit memories (free choice); the rest carry over.
             # "_heal": also heal up to v5_turn_heals[chapter] scars, one per lit memory
             self.karma = [max(0, k - 2) for k in self.karma]
-            if mode == "base2_tri_heal":
+            if mode.endswith("_heal"):
                 for _ in range(min(self.cfg.v5_turn_heals[ch], len(lit))):
                     t = max(range(3), key=lambda x: self.scars[x])
                     self.scars[t] = max(0, self.scars[t] - 1)
-            for _ in range((0, 3, 6, 10, 15, 21, 28)[min(len(lit), 6)]):
+            table = (0, 2, 4, 8, 16, 32, 64) if "exp" in mode else (0, 3, 6, 10, 15, 21, 28)
+            for _ in range(table[min(len(lit), 6)]):
                 if not any(self.karma):
                     break
                 col = max(range(3), key=lambda x: self.karma[x] / self.cap(x))
