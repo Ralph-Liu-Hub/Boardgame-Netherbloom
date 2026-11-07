@@ -1,0 +1,83 @@
+[
+ {
+  "label": "溫和：裂痕 4 道＋織機 +1＋黑水 7",
+  "level": "Gentle",
+  "cap": 1,
+  "dissolve": 0,
+  "fracture_limit": 4,
+  "bw": 7,
+  "win": 0.57,
+  "by_players": {
+   "1": 0.496,
+   "2": 0.54,
+   "3": 0.62,
+   "4": 0.622
+  },
+  "ending_thread": {
+   "忘卻": 0.271,
+   "執念": 0.267,
+   "交織": 0.258,
+   "釋懷": 0.204
+  },
+  "loss_causes": {
+   "Shattered": 0.149,
+   "Faded": 0.106,
+   "Deluge": 0.102,
+   "Nameless": 0.073
+  }
+ },
+ {
+  "label": "溫和：裂痕 4 道＋織機 +1＋黑水 8",
+  "level": "Gentle",
+  "cap": 1,
+  "dissolve": 0,
+  "fracture_limit": 4,
+  "bw": 8,
+  "win": 0.574,
+  "by_players": {
+   "1": 0.504,
+   "2": 0.546,
+   "3": 0.62,
+   "4": 0.626
+  },
+  "ending_thread": {
+   "忘卻": 0.271,
+   "執念": 0.269,
+   "交織": 0.257,
+   "釋懷": 0.203
+  },
+  "loss_causes": {
+   "Shattered": 0.167,
+   "Faded": 0.127,
+   "Nameless": 0.073,
+   "Deluge": 0.059
+  }
+ },
+ {
+  "label": "溫和：裂痕 4 道＋織機 +1＋黑水 8＋消散 16",
+  "level": "Gentle",
+  "cap": 1,
+  "dissolve": 2,
+  "fracture_limit": 4,
+  "bw": 8,
+  "win": 0.582,
+  "by_players": {
+   "1": 0.506,
+   "2": 0.554,
+   "3": 0.636,
+   "4": 0.63
+  },
+  "ending_thread": {
+   "忘卻": 0.274,
+   "執念": 0.267,
+   "交織": 0.256,
+   "釋懷": 0.202
+  },
+  "loss_causes": {
+   "Shattered": 0.186,
+   "Faded": 0.094,
+   "Nameless": 0.074,
+   "Deluge": 0.064
+  }
+ }
+]

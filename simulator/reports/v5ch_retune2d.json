@@ -1,0 +1,29 @@
+[
+ {
+  "label": "溫和：裂痕 5 道＋織機 +1＋黑水 7",
+  "level": "Gentle",
+  "cap": 1,
+  "dissolve": 0,
+  "fracture_limit": 5,
+  "bw": 7,
+  "win": 0.591,
+  "by_players": {
+   "1": 0.526,
+   "2": 0.56,
+   "3": 0.64,
+   "4": 0.636
+  },
+  "ending_thread": {
+   "忘卻": 0.273,
+   "執念": 0.268,
+   "交織": 0.257,
+   "釋懷": 0.202
+  },
+  "loss_causes": {
+   "Faded": 0.132,
+   "Deluge": 0.107,
+   "Shattered": 0.095,
+   "Nameless": 0.075
+  }
+ }
+]

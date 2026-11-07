@@ -137,7 +137,7 @@ function newTable(opts) {
   if (opts.players === 1) addStack("ghost", { x: FATE.x + 560, y: FATE.y + 40, label: ["幽靈牌庫", "Ghost deck"], accepts: "card", showBack: true });
   const binX = i => SUPPLY.x + 20 + (i % 6) * 112, binY = i => SUPPLY.y + 190 + Math.floor(i / 6) * 124;
   const bins = [["root", ["根／花", "Root / Bloom"], 24], ["shade", ["怨念", "Shade"], 8], ["fog", ["霧標記", "Fog marker"], 6],
-    ["crack", ["裂痕", "Fracture"], 3], ["hold", ["堅守", "Hold Fast"], 1], ["shield", ["護盾", "Shield"], 1],
+    ["crack", ["裂痕", "Fracture"], D.LEVELS[opts.level].fractures], ["hold", ["堅守", "Hold Fast"], 1], ["shield", ["護盾", "Shield"], 1],
     ["resign", ["認命", "Resignation"], 1], ["oar", ["船槳", "Oar"], 1]];
   bins.forEach(([tk, label, n], i) => {
     addStack("bin_" + tk, { x: binX(i), y: binY(i), label, accepts: "tok:" + tk, faceUp: true, bin: true });
@@ -186,7 +186,7 @@ function newTable(opts) {
     addItem("tok", { tk: "knot" + t }, snapPos(`knot${t}_0`));
     addItem("tok", { tk: "scar" + t }, snapPos(`scar${t}_0`));
   }
-  for (let i = 0; i < 6; i++) addItem("tok", { tk: "bw" }, snapPos(i < 5 ? `bwsup${i}` : null) || { stack: "box" });
+  for (let i = 0; i < D.LEVELS[opts.level].bw; i++) addItem("tok", { tk: "bw" }, snapPos(`bwsup${i}`));
   for (let p = 0; p < opts.players; p++) addItem("tok", { tk: "push", face: 1 }, snapPos(`mat${p}push`));
   S.log.push({ t: Date.now(), who: -1, m: tr("新的一局", "New game") });
 }
@@ -215,15 +215,15 @@ function buildSnaps(players) {
   // loom
   for (let t = 0; t < 3; t++) {
     const y = LOOM.y + 60 + t * 88;
-    for (let k = 0; k <= 9; k++) snap(`knot${t}_${k}`, LOOM.x + 120 + k * 44, y, 40, 40, ["tok"]);
-    for (let k = 0; k <= 2; k++) snap(`scar${t}_${k}`, LOOM.x + 580 + k * 40, y, 36, 40, ["tok"]);
+    for (let k = 0; k <= 12; k++) snap(`knot${t}_${k}`, LOOM.x + 110 + k * 38, y, 36, 40, ["tok"]);
+    for (let k = 0; k <= 2; k++) snap(`scar${t}_${k}`, LOOM.x + 610 + k * 32, y, 30, 40, ["tok"]);
     snap(`echo${t}`, LOOM.x + 84, y + 2, 32, 36, ["tok"]);
   }
   snap("echoS", LOOM.x + 20, LOOM.y + 300, 40, 32, ["tok"]);
   // ledger
   for (let k = 0; k <= 12; k++) snap(`light${k}`, LEDGER.x + 300 + k * 46, LEDGER.y + 50, 42, 42, ["tok"]);
-  for (let k = 0; k < 3; k++) snap(`crack${k}`, LEDGER.x + 300 + k * 60, LEDGER.y + 150, 50, 50, ["tok"]);
-  for (let k = 0; k < 5; k++) snap(`bwsup${k}`, LEDGER.x + 520 + k * 56, LEDGER.y + 150, 50, 50, ["tok"]);
+  for (let k = 0; k < 5; k++) snap(`crack${k}`, LEDGER.x + 300 + k * 44, LEDGER.y + 150, 40, 40, ["tok"]);
+  for (let k = 0; k < 7; k++) snap(`bwsup${k}`, LEDGER.x + 530 + k * 44, LEDGER.y + 150, 40, 40, ["tok"]);
   // mantle row, fate slots
   // the Mantle row sits along the top of the supply panel
   D.MANTLES.forEach((_, i) => snap(`mantle${i}`, SUPPLY.x + 20 + i * 92, SUPPLY.y + 50, CW + 8, CH + 8, ["card"]));
@@ -417,16 +417,16 @@ function boardsHtml() {
   h += `<div class="board mista" data-region="mist" style="left:${MISTA.x}px;top:${MISTA.y}px;width:${MISTA.w}px;height:${MISTA.h}px">
     <div class="btitle">${tr("迷霧", "Mist")}</div><div class="lab" style="left:110px;top:186px">${tr("前方的霧", "Mist ahead")}</div></div>`;
   // loom
-  const th = S.players === 1 ? D.THRESHOLDS.solo : D.THRESHOLDS.multi;
+  const th = D.thresholds(S.level, S.players);
   h += `<div class="board loom" data-region="loom" style="left:${LOOM.x}px;top:${LOOM.y}px;width:${LOOM.w}px;height:${LOOM.h}px">
     <div class="btitle">${tr("命運織機", "Loom of the Fates")}</div>
-    <div class="lab" style="left:120px;top:36px">${tr("結", "Knots")}</div><div class="lab" style="left:580px;top:36px">${tr("傷疤", "Scars")}</div>
-    <div class="lab" style="left:700px;top:36px">${tr("反噬（第一／二／三級）", "Backlash (I / II / III)")}</div>`;
+    <div class="lab" style="left:110px;top:36px">${tr("結", "Knots")}</div><div class="lab" style="left:610px;top:36px">${tr("傷疤", "Scars")}</div>
+    <div class="lab" style="left:714px;top:36px">${tr("反噬（第一／二／三級）", "Backlash (I / II / III)")}</div>`;
   for (let t = 0; t < 3; t++) {
     const y = 60 + t * 88;
     h += `<div class="thread th${t}" style="top:${y}px">${icon(D.THREADS[t].icon)}${tr(D.THREADS[t].zh, D.THREADS[t].en)}</div>`;
-    for (let k = 0; k <= 9; k++) h += `<div class="cell${th.includes(k) ? " lim" : ""}" style="left:${120 + k * 44}px;top:${y}px">${k}${k === th[0] ? `<i>${th[0]}</i>` : ""}</div>`;
-    for (let k = 0; k <= 2; k++) h += `<div class="cell scar" style="left:${580 + k * 40}px;top:${y}px;width:36px">${k}</div>`;
+    for (let k = 0; k <= 12; k++) h += `<div class="cell${th.includes(k) ? " lim" : ""}" style="left:${110 + k * 38}px;top:${y}px;width:36px">${k}${k === th[0] ? `<i>${th[0]}</i>` : ""}</div>`;
+    for (let k = 0; k <= 2; k++) h += `<div class="cell scar" style="left:${610 + k * 32}px;top:${y}px;width:30px">${k}</div>`;
     h += `<div class="blash" style="top:${y - 4}px">${D.BACKLASH[t].map((s, i) => `<div><b>${"ⅠⅡⅢ"[i]}</b>${esc(s)}</div>`).join("")}</div>`;
   }
   h += `<div class="lab" style="left:20px;top:284px">${tr("沉默格", "Silent")}</div>
@@ -438,10 +438,10 @@ function boardsHtml() {
     <div class="btitle">${tr("渡帳", "Ledger")}</div>
     <div class="lab" style="left:300px;top:30px">${tr("光", "Light")}</div>`;
   for (let k = 0; k <= 12; k++) h += `<div class="cell round" style="left:${300 + k * 46}px;top:50px;width:42px;height:42px">${k}</div>`;
-  h += `<div class="lab" style="left:300px;top:130px">${tr("裂痕（3 道破碎）", "Fractures (3 = Shattered)")}</div>`;
-  for (let k = 0; k < 3; k++) h += `<div class="cell round crack" style="left:${300 + k * 60}px;top:150px;width:50px;height:50px">${k + 1}</div>`;
-  h += `<div class="lab" style="left:520px;top:130px">${tr("黑水供應", "Black Water supply")}</div>`;
-  for (let k = 0; k < 5; k++) h += `<div class="cell round" style="left:${520 + k * 56}px;top:150px;width:50px;height:50px"></div>`;
+  h += `<div class="lab" style="left:300px;top:130px">${tr(`裂痕（${lv.fractures} 道破碎）`, `Fractures (${lv.fractures} = Shattered)`)}</div>`;
+  for (let k = 0; k < lv.fractures; k++) h += `<div class="cell round crack" style="left:${300 + k * 44}px;top:150px;width:40px;height:40px">${k + 1}</div>`;
+  h += `<div class="lab" style="left:530px;top:130px">${tr(`黑水供應（${lv.bw} 個）`, `Black Water supply (${lv.bw})`)}</div>`;
+  for (let k = 0; k < lv.bw; k++) h += `<div class="cell round" style="left:${530 + k * 44}px;top:150px;width:40px;height:40px"></div>`;
   h += `<div class="note" style="left:20px;top:250px">${tr(`消散門檻：遺忘 ${lv.dissolve} 張。輕如灰燼 6、漂離 9。忘川的拉力：第一／二／三章 ${PULL.join("／")} 張。`, `Faded at ${lv.dissolve} forgotten. Light as Ash 6, Adrift 9. Pull of Lethe: ${PULL.join(" / ")}.`)}</div></div>`;
   // fate area
   h += `<div class="board fatea" data-region="fate" style="left:${FATE.x}px;top:${FATE.y}px;width:${FATE.w}px;height:${FATE.h}px">
@@ -946,7 +946,7 @@ function renderHint() {
   const i = Math.max(0, Math.min(STEPS.length - 1, S.hint || 0));
   const step = STEPS[i];
   const ctx = { players: S.players, level: D.LEVELS[S.level], soul: S.soul, ch: S.chapter, light: D.START_LIGHT[S.soul], pull: PULL[S.chapter],
-    th: S.players === 1 ? D.THRESHOLDS.solo : D.THRESHOLDS.multi, hand: S.players === 1 ? 5 : 3, need: D.SETUP_TABLE[S.players].need, graves: D.SETUP_TABLE[S.players].graves };
+    th: D.thresholds(S.level, S.players), hand: S.players === 1 ? 5 : 3, need: D.SETUP_TABLE[S.players].need, graves: D.SETUP_TABLE[S.players].graves };
   const body = typeof step.body === "function" ? step.body(ctx, LANG) : step.body;
   elHint.innerHTML = `
     <div class="hh">${tr("下一步提示", "Next step")}<button class="hclose" title="${tr("關閉", "Close")}">✕</button></div>

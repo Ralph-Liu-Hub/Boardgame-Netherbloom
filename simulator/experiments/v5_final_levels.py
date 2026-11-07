@@ -10,7 +10,7 @@ from multiprocessing import Pool
 from statistics import mean
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from experiments.v5_chapters import cfg, BASE_EXTRA, SOULS, DECIDED, PLAYER_DECIDED, TUNED_LEVELS  # noqa: E402
+from experiments.v5_chapters import cfg, BASE_EXTRA, SOULS, DECIDED, PLAYER_DECIDED, TUNED_LEVELS, RETUNED  # noqa: E402
 from netherbloom.game import play_game  # noqa: E402
 from netherbloom.storybook_data import SOULS as SD  # noqa: E402
 
@@ -23,7 +23,14 @@ def run(a):
     extra = dict(BASE_EXTRA, **DECIDED)
     extra.update(TUNED_LEVELS[level])
     extra.update(PLAYER_DECIDED.get(p, {}))
-    extra["dissolve"] = DISSOLVE[level]
+    if os.environ.get("RETUNED"):
+        rt = dict(RETUNED[level])
+        loom = rt.pop("loom")
+        extra["v5_cap_bonus"] = extra.get("v5_cap_bonus", 3) + loom   # 4 players keep their own -1 (PLAYER_DECIDED)
+        extra.update(rt)
+        extra["dissolve"] = -2                                           # 14 at every difficulty
+    else:
+        extra["dissolve"] = DISSOLVE[level]
     s = play_game(cfg(soul, p, "Standard", sd, extra))
     st = s.stats
     row = {"soul": soul, "p": p, "win": s.result == "win", "cause": s.cause,
@@ -60,5 +67,5 @@ if __name__ == "__main__":
                "loss_causes": {k: pct(v, n) for k, v in Counter(r["cause"] for r in rows if not r["win"]).most_common()}}
         print(json.dumps(res, ensure_ascii=False), flush=True)
         out.append(res)
-    json.dump(out, open(os.path.join(os.path.dirname(__file__), "..", "reports", "v5ch_final_levels.json"), "w"),
+    json.dump(out, open(os.path.join(os.path.dirname(__file__), "..", "reports", os.environ.get("OUT", "v5ch_final_levels.json")), "w"),
               ensure_ascii=False, indent=1)

@@ -93,16 +93,17 @@ export const GHOST = [
   { th: 2, zh: "不採取行動", en: "No action" },
 ];
 
-export const LEVELS = [
-  { zh: "溫和", en: "Gentle", fog: 0, crack: false, knots: 0, dissolve: 14 },
-  { zh: "標準", en: "Standard", fog: 1, crack: false, knots: 0, dissolve: 12 },
-  { zh: "困難", en: "Hard", fog: 1, crack: true, knots: 1, dissolve: 12 },
+export const LEVELS = [   // 11/7 retune: about 60 / 50 / 40 % in simulation
+  { zh: "溫和", en: "Gentle", fog: 0, crack: false, knots: 0, dissolve: 14, loom: 8, fractures: 5, bw: 7 },
+  { zh: "標準", en: "Standard", fog: 1, crack: false, knots: 0, dissolve: 14, loom: 9, fractures: 3, bw: 6 },
+  { zh: "困難", en: "Hard", fog: 1, crack: true, knots: 1, dissolve: 14, loom: 8, fractures: 3, bw: 6 },
 ];
 export const SETUP_TABLE = { 1: { graves: 2, need: 1 }, 2: { graves: 1, need: 2 }, 3: { graves: 2, need: 2 }, 4: { graves: 2, need: 3 } };
 export const START_LIGHT = { child: 3, garland: 0, king: 0, bride: 1, open: 2 };
 export const SOUL_ART = { open: "soul-nameless", child: "soul-child", garland: "soul-garland", king: "soul-king", bride: "soul-bride" };
 export const SOUL_ORDER = ["child", "garland", "king", "bride", "open"];
-export const THRESHOLDS = { multi: [6, 5, 4], solo: [9, 8, 7] };
+// Loom threshold with 0 / 1 / 2 scars: the level's base for 2-4 players, +3 solo
+export const thresholds = (level, players) => { const b = LEVELS[level].loom + (players === 1 ? 3 : 0); return [b, b - 1, b - 2]; };
 export const BACKLASH = [
   ["亡魂所在格放 1 個怨念", "前方第 1 格兩岸各放 1 個怨念", "同第二級，再承受 1 道裂痕"],
   ["認命（下次亡魂行動不動，遺忘 1 張）", "認命，那次共遺忘 2 張", "認命，共遺忘 3 張；霧推進 2"],
