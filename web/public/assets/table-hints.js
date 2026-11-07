@@ -73,7 +73,7 @@ export const STEPS = [
   { phase: "page", zh: "根網特性", en: "Root-network trait", focus: ["book"],
     body: z("看剛結束那一頁的點亮記憶：執念較多 → 根深（霧翻回霧面時根留下）；釋懷較多 → 花開蔓延（每回合第一次綻放時，相鄰的 1 個根也綻放）；一樣多 → 沒有。", "Count this page's lit memories: more Obsession → Deep Roots (Roots stay when the fog takes a bank); more Acceptance → Spreading Bloom (your first Bloom each turn may also bloom a neighbouring Root); a tie → none.") },
   { phase: "page", zh: "下一章的命運之霧", en: "The next chapter's fates", focus: ["fate"],
-    body: z("從下一章的河流條件與書上條件各拖出 1 張，條件面朝上。按書上的「翻到這章」，朗讀依上一章走的絲線的入口句。", "Drag one card each from the next chapter's River and Book piles, condition up. Press “Turn to this” on the next page and read the entry for the thread you took.") },
+    body: z("從下一章的河流條件與書上條件各拖出 1 張，條件面朝上。在書的分頁按下一章，再按「把這章設為目前的章節」，朗讀依上一章走的絲線的入口句。", "Drag one card each from the next chapter's River and Book piles, condition up. Open the next chapter's tab, press “Make this the chapter in play”, and read the entry for the thread you took.") },
   { phase: "page", zh: "第三章寫完時", en: "When chapter 3 is done", focus: ["river"], loop: 7,
     body: z("第三章沒有下一頁：彼岸出現，第 13 格的下一格恢復正常。亡魂在第 13 格徘徊、而書還沒寫完時：本章還沒轉折就強制轉折；已轉折就直接結束本章並翻頁。", "Chapter 3 has no next page: the Far Shore opens. If the soul lingers on space 13 before the book is done: force the turning point if it has not happened, otherwise end the chapter and turn the page.") },
   // ---- far shore

@@ -44,16 +44,29 @@ const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.f
 
 // ---------------------------------------------------------------- layout (world coordinates)
 const CW = 72, CH = 100;                  // card size
-const RIVER = { x: 60, y: 60, sp: 94, bank: 82 };
-const RIVER_W = 15 * RIVER.sp + 20, RIVER_H = 340;
-const MISTA = { x: RIVER.x + RIVER_W + 40, y: 60, w: 300, h: 340 };
-const LOOM = { x: MISTA.x + MISTA.w + 40, y: 60, w: 1000, h: 340 };
-const BOOK = { x: 60, y: 450, pw: 900, ph: 500, gap: 24 };
-const LEDGER = { x: 60, y: 1000, w: 1380, h: 300 };
-const FATE = { x: 1480, y: 1000, w: 640, h: 300 };
-const SUPPLY = { x: 2160, y: 1000, w: 700, h: 440 };
-const MATS = { x: 60, y: 1480, w: 690, h: 250, gap: 20 };
-const WORLD = { w: Math.max(LOOM.x + LOOM.w, SUPPLY.x + SUPPLY.w, BOOK.x + 3 * (BOOK.pw + BOOK.gap)) + 60, h: 1780 };
+// The River is a square board: three rows of five spaces that wind down the board with two turns
+// (0–4 left to right, 5–9 right to left, 10–14 left to right).
+const RIVER = { x: 60, y: 60, w: 900, h: 960, colW: 152, rowH: 310, bank: 82, lane: 92 };
+const BOOK = { x: 1000, y: 60, w: 1700, h: 600 };
+const LOOM = { x: 1000, y: 700, w: 1000, h: 340 };
+const MISTA = { x: 2040, y: 700, w: 300, h: 340 };
+const LEDGER = { x: 60, y: 1070, w: 1380, h: 300 };
+const FATE = { x: 1480, y: 1070, w: 640, h: 300 };
+const SUPPLY = { x: 2160, y: 1070, w: 700, h: 440 };
+const MATS = { x: 60, y: 1550, w: 690, h: 250, gap: 20 };
+const WORLD = { w: Math.max(BOOK.x + BOOK.w, SUPPLY.x + SUPPLY.w, MISTA.x + MISTA.w) + 60, h: 1860 };
+// where a space sits on the square board, and which way the river flows through it
+function spaceGeo(sp) {
+  const row = Math.floor(sp / 5), i = sp % 5;
+  const east = row % 2 === 0;
+  const col = east ? i : 4 - i;
+  const x = RIVER.x + 74 + col * RIVER.colW;
+  const top = RIVER.y + 40 + row * RIVER.rowH;
+  const laneY = top + RIVER.bank + 8;
+  const north = { x: x + 8, y: top }, south = { x: x + 8, y: laneY + RIVER.lane + 8 };
+  // facing downstream: flowing east, the left bank is the north one; flowing west, it is the south one
+  return { row, col, east, x, top, laneY, left: east ? north : south, right: east ? south : north };
+}
 
 // ---------------------------------------------------------------- state
 let S = null;            // the shared table
@@ -61,7 +74,7 @@ let ME = 0;              // my seat
 let mode = "local";      // local | host | guest
 let link = null;         // net handle
 let hist = [], fut = [];
-const LS = "nb-table-v5";
+const LS = "nb-table-v5b";   // the square River changed every position on the table
 const saveLocal = () => { if (mode !== "guest") try { localStorage.setItem(LS, JSON.stringify(S)); } catch { /* full */ } };
 
 const uid = (() => { let n = 0; return p => `${p}${(++n).toString(36)}${Math.floor(Math.random() * 1296).toString(36)}`; })();
@@ -168,13 +181,13 @@ function buildSnaps(players) {
   for (const k in snapById) delete snapById[k];
   const R = RIVER;
   for (let sp = 0; sp <= 14; sp++) {
-    const x = R.x + 10 + sp * R.sp;
+    const g = spaceGeo(sp);
     if (sp >= 1 && sp <= 13) {
-      snap(`bank${sp}L`, x + 6, R.y + 40, R.bank, R.bank, ["tile", "tok"]);
-      snap(`bank${sp}R`, x + 6, R.y + 40 + R.bank + 92, R.bank, R.bank, ["tile", "tok"]);
+      snap(`bank${sp}L`, g.left.x, g.left.y, R.bank, R.bank, ["tile", "tok"]);
+      snap(`bank${sp}R`, g.right.x, g.right.y, R.bank, R.bank, ["tile", "tok"]);
     }
-    snap(`soul${sp}`, x + 16, R.y + 40 + R.bank + 4, 60, 40, ["tok"]);
-    snap(`water${sp}`, x + 16, R.y + 40 + R.bank + 46, 60, 42, ["tok"]);
+    snap(`soul${sp}`, g.x + 4, g.laneY + 2, 52, R.lane - 4, ["tok"]);
+    snap(`water${sp}`, g.x + 60, g.laneY + 2, 52, R.lane - 4, ["tok"]);
   }
   // mist front
   snap("mistfront", MISTA.x + 110, MISTA.y + 200, CW + 8, CH + 8, ["card"]);
@@ -225,12 +238,12 @@ function bookLayout(soul, ch) {
   const cols = {};
   for (const n of page.nodes) (cols[depth[n.id] ?? 0] ||= []).push(n);
   const ncol = Math.max(...Object.keys(cols).map(Number)) + 1;
-  const px = BOOK.x + ch * (BOOK.pw + BOOK.gap), py = BOOK.y;
-  const colW = Math.min(118, (BOOK.pw - 150) / ncol);
+  const px = BOOK.x, py = BOOK.y;   // one open page at a time: every chapter uses the same spot
+  const colW = Math.min(150, (BOOK.w - 260) / ncol);
   const out = [];
   for (const [d, list] of Object.entries(cols)) {
-    const rowH = (BOOK.ph - 90) / list.length;
-    list.forEach((n, i) => out.push({ ...n, x: px + 130 + d * colW, y: py + 60 + i * rowH + (rowH - CH - 8) / 2 }));
+    const rowH = (BOOK.h - 100) / list.length;
+    list.forEach((n, i) => out.push({ ...n, x: px + 230 + d * colW, y: py + 70 + i * rowH + (rowH - CH - 8) / 2 }));
   }
   layoutCache[key] = out;
   return out;
@@ -349,19 +362,35 @@ function boardsHtml() {
   const R = RIVER, soul = S.soul;
   const lv = D.LEVELS[S.level];
   let h = "";
-  // river
-  h += `<div class="board river" data-region="river" style="left:${R.x}px;top:${R.y}px;width:${RIVER_W}px;height:${RIVER_H}px">`;
-  for (let sp = 0; sp <= 14; sp++) {
-    const x = 10 + sp * R.sp;
-    const reach = sp <= 4 ? 0 : sp <= 8 ? 1 : 2;
-    h += `<div class="space${sp === 0 || sp === 14 ? " shore" : ""} reach${reach}" style="left:${x}px;width:${R.sp - 4}px">
-      <div class="spn">${sp === 0 ? tr("此岸", "Near") : sp === 14 ? tr("彼岸", "Far Shore") : sp}</div>
-      ${sp === 5 ? `<div class="hintmark">${tr("故事應該寫到第二章", "Story: chapter 2")}</div>` : ""}
-      ${sp === 9 ? `<div class="hintmark">${tr("故事應該寫到第三章", "Story: chapter 3")}</div>` : ""}
-      ${sp === 13 ? `<div class="gate">${tr("彼岸的門", "Gate")}</div>` : ""}</div>`;
+  // river: a square board, three rows of five spaces joined by two turns
+  h += `<div class="board river" data-region="river" style="left:${R.x}px;top:${R.y}px;width:${R.w}px;height:${R.h}px">`;
+  let water = "";
+  for (let row = 0; row < 3; row++) {
+    const g0 = spaceGeo(row * 5), y = g0.laneY - R.y + R.lane / 2;
+    water += `<path d="M${74 - 20},${y} H${74 + 5 * R.colW - 22}"/>`;
+    if (row < 2) {   // the turn: down the right side after row 0, down the left side after row 1
+      const y2 = spaceGeo((row + 1) * 5).laneY - R.y + R.lane / 2;
+      const xe = row === 0 ? 74 + 5 * R.colW - 22 : 54;
+      const bulge = row === 0 ? 70 : -40;
+      water += `<path d="M${xe},${y} C${xe + bulge},${y} ${xe + bulge},${y2} ${xe},${y2}"/>`;
+    }
   }
-  h += `<div class="banklabel l">${tr("左岸", "Left bank")}</div><div class="banklabel r">${tr("右岸", "Right bank")}</div>`;
-  h += [0, 1, 2].map(r => `<div class="reachname" style="left:${10 + [1, 5, 9][r] * R.sp}px">${tr(D.REACHES[r].zh, D.REACHES[r].en)}</div>`).join("");
+  h += `<svg class="riverwater" width="${R.w}" height="${R.h}"><g>${water}</g></svg>`;
+  for (let sp = 0; sp <= 14; sp++) {
+    const g = spaceGeo(sp);
+    const reach = sp <= 4 ? 0 : sp <= 8 ? 1 : 2;
+    const lx = g.x - R.x, ly = g.laneY - R.y;
+    h += `<div class="lane reach${reach}${sp === 0 || sp === 14 ? " shore" : ""}" style="left:${lx}px;top:${ly}px;width:${R.colW - 34}px;height:${R.lane}px">
+      <span class="spn">${sp === 0 ? tr("此岸 0", "Near 0") : sp === 14 ? tr("彼岸 14", "Far 14") : sp}</span><span class="flow">${g.east ? "→" : "←"}</span>
+      ${sp === 5 ? `<span class="hintmark">${tr("故事應該寫到第二章", "Story: ch. 2")}</span>` : ""}
+      ${sp === 9 ? `<span class="hintmark">${tr("故事應該寫到第三章", "Story: ch. 3")}</span>` : ""}
+      ${sp === 13 ? `<span class="gate">${tr("彼岸的門", "Gate")}</span>` : ""}</div>`;
+    if (sp >= 1 && sp <= 13) for (const side of ["left", "right"]) {
+      const b = g[side];
+      h += `<div class="bankslot" style="left:${b.x - R.x}px;top:${b.y - R.y}px;width:${R.bank}px;height:${R.bank}px"><i>${side === "left" ? tr("左", "L") : tr("右", "R")}</i></div>`;
+    }
+  }
+  h += [[1, 0], [5, 1], [10, 2]].map(([sp, r]) => { const g = spaceGeo(sp); return `<div class="reachname" style="left:${g.x - R.x}px;top:${g.top - R.y - 22}px">${tr(`第${"一二三"[r]}河段・${D.REACHES[r].zh}`, `Reach ${r + 1} · ${D.REACHES[r].en}`)}${r === 1 ? tr("（第 5–8 格）", " (5–8)") : r === 2 ? tr("（第 9–13 格）", " (9–13)") : ""}</div>`; }).join("");
   h += `</div>`;
   // mist area
   h += `<div class="board mista" data-region="mist" style="left:${MISTA.x}px;top:${MISTA.y}px;width:${MISTA.w}px;height:${MISTA.h}px">
@@ -381,8 +410,8 @@ function boardsHtml() {
   }
   h += `<div class="lab" style="left:20px;top:284px">${tr("沉默格", "Silent")}</div>
     <div class="note" style="left:120px;top:300px">${tr(`門檻 ${th[0]}／${th[1]}／${th[2]}（0／1／2 道傷疤）。霧痕：同絲線反噬升一級。`, `Threshold ${th.join(" / ")} (0 / 1 / 2 scars). Mist scars raise that thread's Backlash one level.`)}</div></div>`;
-  // book
-  for (let ch = 0; ch < 3; ch++) h += bookPageHtml(ch);
+  // book: one open page; tabs flip through the chapters
+  h += `<div class="board bookp" data-region="book" id="tt-book" style="left:${BOOK.x}px;top:${BOOK.y}px;width:${BOOK.w}px;height:${BOOK.h}px"></div>`;
   // ledger
   h += `<div class="board ledger" data-region="ledger" style="left:${LEDGER.x}px;top:${LEDGER.y}px;width:${LEDGER.w}px;height:${LEDGER.h}px">
     <div class="btitle">${tr("渡帳", "Ledger")}</div>
@@ -415,10 +444,10 @@ function boardsHtml() {
 
 function bookPageHtml(ch) {
   const page = STORY[S.soul].chapters[ch];
-  const px = BOOK.x + ch * (BOOK.pw + BOOK.gap);
+  const px = BOOK.x;
   const nodes = bookLayout(S.soul, ch);
   const pos = Object.fromEntries(nodes.map(n => [n.id, n]));
-  const entry = typeof page.entry === "string" ? page.entry : Object.entries(page.entry).map(([t, s]) => `<b class="th${t}">${tr(D.THREADS[t].zh, D.THREADS[t].en)}</b> ${esc(s)}`).join("<br>");
+  const entry = typeof page.entry === "string" ? esc(page.entry) : Object.entries(page.entry).map(([t, s]) => `<b class="th${t}">${tr(D.THREADS[t].zh, D.THREADS[t].en)}</b> ${esc(s)}`).join("<br>");
   let lines = "";
   const ctr = n => [n.x - px + (CW + 8) / 2, n.y - BOOK.y + (CH + 8) / 2];
   for (const n of nodes) {
@@ -441,11 +470,29 @@ function bookPageHtml(ch) {
     if (n.k === "f") return `<div class="node turn" style="left:${l}px;top:${t}px"><span>◆</span><div class="ntext">${tr("轉折", "Turning point")}<br>${tr("忘川的拉力", "Pull")} ${PULL[ch]}</div></div>`;
     return `<div class="node exitn" style="left:${l}px;top:${t + 10}px" title="${esc(n.text)}"><div class="ntext">⬭ ${esc(n.text)}</div></div>`;
   }).join("");
-  return `<div class="board bookp${S.chapter === ch ? " current" : ""}" data-region="book${ch}" style="left:${px}px;top:${BOOK.y}px;width:${BOOK.pw}px;height:${BOOK.ph}px">
-    <div class="btitle">${tr(`第${"一二三"[ch]}章・`, `Chapter ${ch + 1} · `)}${esc(page.title)} <button class="chbtn" data-ch="${ch}">${S.chapter === ch ? tr("目前章節", "Current") : tr("翻到這章", "Turn to this")}</button></div>
+  const tabs = STORY[S.soul].chapters.map((c, i) => `<button class="booktab${i === ch ? " on" : ""}" data-view="${i}">${S.chapter === i ? "★ " : ""}${tr(`第${"一二三"[i]}章`, `Chapter ${i + 1}`)}・${esc(c.title)}</button>`).join("");
+  const here = S.chapter === ch
+    ? `<span class="curnote">★ ${tr("目前的章節", "The chapter in play")}</span>`
+    : `<button class="chbtn" data-ch="${ch}">${tr("把這章設為目前的章節（翻頁）", "Make this the chapter in play (turn the page)")}</button>`;
+  return `<div class="btitle">${tr("憶念之書", "Book of Remembrance")} <span class="booktabs">${tabs}</span> ${here}</div>
+    ${S.chapter !== ch ? `<div class="browse">${tr("你正在翻閱其他章節；放在這頁的牌只會在這頁顯示。", "You are browsing another chapter; cards placed here only show on this page.")}</div>` : ""}
     <div class="entry">${entry}</div>
-    <svg class="arrows" width="${BOOK.pw}" height="${BOOK.ph}"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9a948c"/></marker></defs>${lines}</svg>
-    ${cells}</div>`;
+    <svg class="arrows" width="${BOOK.w}" height="${BOOK.h}"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9a948c"/></marker></defs>${lines}</svg>
+    ${cells}`;
+}
+
+let bookView = 0, lastChapter = 0;
+function renderBook() {
+  const el = $("#tt-book");
+  if (!el) return;
+  if (S.chapter !== lastChapter) { lastChapter = S.chapter; bookView = S.chapter; }
+  const sig = `${bookView}|${S.chapter}|${LANG}`;
+  if (el._sig === sig) return;
+  el._sig = sig;
+  el.innerHTML = bookPageHtml(bookView);
+  el.classList.toggle("current", bookView === S.chapter);
+  el.querySelectorAll(".booktab").forEach(b => b.onclick = () => { bookView = +b.dataset.view; render(); });
+  el.querySelectorAll(".chbtn").forEach(b => b.onclick = () => commit(tr(`${who()} 把第${"一二三"[+b.dataset.ch]}章設為目前的章節`, `${who()} turned to chapter ${+b.dataset.ch + 1}`), () => { S.chapter = +b.dataset.ch; }));
 }
 
 function buildTable() {
@@ -477,6 +524,7 @@ function buildTable() {
   for (const k in els) delete els[k];
   for (const k in stackEls) delete stackEls[k];
   buildSnaps(S.players);
+  bookView = lastChapter = S.chapter;
   $("#tt-boards").innerHTML = boardsHtml();
   bindTable();
   let hintsOn = false;
@@ -504,6 +552,7 @@ function render() {
       const r = itemHtml(it, hidden);
       el.className = "piece " + r.cls; el.innerHTML = r.html; el.title = r.title; el._sig = sig;
     }
+    el.style.display = it.pg !== undefined && it.pg !== bookView ? "none" : "";
     const w = it.kind === "card" ? CW : it.kind === "tile" ? RIVER.bank - 6 : 36;
     const hgt = it.kind === "card" ? CH : it.kind === "tile" ? RIVER.bank - 6 : 36;
     el.style.width = w + "px"; el.style.height = hgt + "px";
@@ -541,8 +590,7 @@ function render() {
   // seats & counts
   elSeats.innerHTML = S.names.map((n, i) => `<button class="seat${i === ME ? " me" : ""}" data-seat="${i}" title="${tr("手牌", "Hand")} ${S.hands[i].length}">${esc(n || tr(`擺渡人 ${i + 1}`, `Ferryman ${i + 1}`))} <b>${S.hands[i].length}</b></button>`).join("");
   document.querySelectorAll("[data-hc]").forEach(e => { const p = +e.dataset.hc; e.textContent = tr(`手牌 ${S.hands[p].length} 張`, `${S.hands[p].length} cards in hand`); });
-  document.querySelectorAll(".bookp").forEach((e, i) => e.classList.toggle("current", S.chapter === i));
-  document.querySelectorAll(".chbtn").forEach(b => { b.textContent = S.chapter === +b.dataset.ch ? tr("目前章節", "Current") : tr("翻到這章", "Turn to this"); });
+  renderBook();
   renderHint();
 }
 
@@ -571,6 +619,7 @@ function undo() { if (!hist.length) return; fut.push(JSON.stringify(S)); S = JSO
 function redo() { if (!fut.length) return; hist.push(JSON.stringify(S)); S = JSON.parse(fut.pop()); S.rev = Date.now(); changed(); }
 
 function detach(id) {
+  delete S.items[id].pg;
   const w = S.where[id];
   if (!w) return;
   if (w.startsWith("s:")) { const st = S.stacks[w.slice(2)]; st.items = st.items.filter(x => x !== id); }
@@ -630,7 +679,6 @@ function bindTable() {
   $("#tt-menu").onclick = () => showMenuScreen();
   $("#tt-hints").onchange = e => { try { localStorage.setItem("nb-hints", e.target.checked ? "1" : "0"); } catch { /* */ } elHint.classList.toggle("hidden", !e.target.checked); renderHint(); };
   elSeats.onclick = e => { const b = e.target.closest("[data-seat]"); if (b && mode === "local") switchSeat(+b.dataset.seat); };
-  document.querySelectorAll(".chbtn").forEach(b => b.onclick = () => commit(tr(`翻到第${"一二三"[+b.dataset.ch]}章`, `turned to chapter ${+b.dataset.ch + 1}`), () => { S.chapter = +b.dataset.ch; }));
   window.onkeydown = e => {
     if (e.target.closest("input,textarea")) return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); e.shiftKey ? redo() : undo(); }
@@ -722,6 +770,7 @@ function onUp(e) {
     } else {
       const sn = snapAt(pt, it);
       if (sn) { it.x = sn.x + sn.w / 2; it.y = sn.y + sn.h / 2; }
+      if (sn && sn.id.startsWith("node")) it.pg = bookView; else delete it.pg;
       if (d.from === "hand") msg = tr(`${who()} 打出 ${nameOf(d.id)}`, `${who()} played ${nameOf(d.id)}`);
       else if (d.from.startsWith("stack:")) msg = tr(`${who()} 從${tr(...S.stacks[d.from.slice(6)].label)}拿出 ${nameOf(d.id)}`, `${who()} took ${nameOf(d.id)} from ${tr(...S.stacks[d.from.slice(6)].label)}`);
     }
@@ -747,6 +796,7 @@ function snapAt(pt, it) {
   let best = null, bd = 1e9;
   for (const s of SNAPS) {
     if (!s.accept.includes(it.kind) || !s.w) continue;
+    if (s.id.startsWith("node") && !s.id.startsWith(`node${bookView}_`)) continue;
     const cx = s.x + s.w / 2, cy = s.y + s.h / 2;
     const d = Math.hypot(pt.x - cx, pt.y - cy);
     const lim = Math.max(s.w, s.h) * 0.7;
@@ -884,7 +934,7 @@ function focusRegions() {
   document.querySelectorAll(".board.focus").forEach(e => e.classList.remove("focus"));
   if (!elHint || elHint.classList.contains("hidden")) return;
   const step = STEPS[S.hint || 0];
-  for (const r of step.focus || []) document.querySelectorAll(`[data-region="${r === "book" ? "book" + S.chapter : r}"]`).forEach(e => e.classList.add("focus"));
+  for (const r of step.focus || []) document.querySelectorAll(`[data-region="${r}"]`).forEach(e => e.classList.add("focus"));
 }
 
 // ---------------------------------------------------------------- drawers: rules and log
