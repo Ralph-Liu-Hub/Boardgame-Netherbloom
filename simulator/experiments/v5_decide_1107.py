@@ -41,7 +41,10 @@ def run(a):
     extra.update(ex)
     if ex.get("_pp"):
         extra.update(PLAYERS.get(p, {}))
-    extra.pop("_pp", None)
+    if ex.get("_solo_hand") and p == 1:
+        extra["hand"] = ex["_solo_hand"]
+    for k in ("_pp", "_solo_hand"):
+        extra.pop(k, None)
     if level == "Gentle":
         extra["dissolve"] = -2
     c = cfg(soul, p, "Standard", sd, extra)
@@ -94,6 +97,21 @@ def summarize(label, rows):
 
 if __name__ == "__main__":
     SEEDS = int(os.environ.get("SEEDS", 100))
+    if os.environ.get("ROUND") == "2":   # 11/7 second round: Oblivion pull and a 5-card solo hand
+        runs = [("基準（含人數門檻）", {"_pp": True}, "Standard", False),
+                ("忘川的拉力 3／6／9", {"_pp": True, "v5_obl_pull": (3, 6, 9)}, "Standard", False),
+                ("忘川的拉力 4／7／10", {"_pp": True, "v5_obl_pull": (4, 7, 10)}, "Standard", False),
+                ("單人手牌 5 張", {"_pp": True, "_solo_hand": 5}, "Standard", False)]
+        out = []
+        for label, ex, level, old in runs:
+            ps = (1,) if ex.get("_solo_hand") else (1, 2, 3, 4)
+            args = [(s, p, sd, ex, level, old) for s in SOULS for p in ps for sd in range(SEEDS)]
+            with Pool(4) as pool:
+                rows = pool.map(run, args, chunksize=10)
+            out.append(summarize(label, rows))
+        json.dump(out, open(os.path.join(os.path.dirname(__file__), "..", "reports", "v5ch_decide_1107b.json"), "w"),
+                  ensure_ascii=False, indent=1)
+        sys.exit()
     runs = [("新規則（第一章 2 格）", {}, "Standard", False),
             ("新規則＋人數門檻", {"_pp": True}, "Standard", False)]
     if OLD:

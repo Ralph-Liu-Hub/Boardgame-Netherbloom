@@ -191,6 +191,7 @@ class Config:
         self.v5_gate_take = 0.5      # AI: chance to follow a lit gate memory's thread when it differs from the fate card
         self.v5_reveal_rewrite = 0.0  # chance a revealed commission rewrites the chapter's fork instead of untying 2 knots
         self.v5_insc_echo = False    # a face-up card whose thread matches the Echo may be inscribed in either action
+        self.v5_obl_pull = None      # (n1, n2, n3): at a turning point with no lit gate memory, a forgotten pile of n or more pulls the path to Oblivion
         self.v5_fate_pay = 0         # >0: when the route waits at the turning point, pay this much Light at end of turn to turn one of the two fate cards now
         self.v5_fate_skip = False    # when the turning point forks the route, empty slots before it are washed away
         self.v5_fork_eot = True      # the turning point's fork is taken at the end of the turn (so the gate can be lit first)
@@ -1767,6 +1768,11 @@ class State:
                     path = fate
                     gate = next((x for x in reversed(w[:-1]) if nodes[x]["kind"] == "g"), None)
                     gcid = self.book[self.ch].get(gate) if gate else None
+                    pull = self.cfg.v5_obl_pull
+                    gate_lit = gcid is not None and gcid in self.lit_mem
+                    if pull and not gate_lit and len(self.forgotten) >= pull[self.ch]:
+                        fate = path = OBL
+                        self.stats["obl_pull"] = self.stats.get("obl_pull", 0) + 1
                     if self.rewrite:
                         path = self.rng.choice((OBS, ACC, fate))
                     elif gcid is not None and gcid in self.lit_mem and CARD[gcid].tag != fate:
