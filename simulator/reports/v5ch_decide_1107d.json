@@ -1,0 +1,102 @@
+[
+ {
+  "label": "忘川的拉力 3／5／7，關口也拉不回",
+  "win": 0.417,
+  "chapter_turns": [
+   5.1,
+   6.2,
+   6.1
+  ],
+  "forced": 0.287,
+  "by_players": {
+   "1": 0.347,
+   "2": 0.397,
+   "3": 0.47,
+   "4": 0.453
+  },
+  "by_soul": {
+   "child": 0.521,
+   "garland": 0.408,
+   "king": 0.321,
+   "bride": 0.379,
+   "open": 0.454
+  },
+  "ending_thread": {
+   "忘卻": 0.286,
+   "執念": 0.256,
+   "交織": 0.244,
+   "釋懷": 0.214
+  },
+  "obl_by_soul": {
+   "child": 0.24,
+   "garland": 0.327,
+   "king": 0.429,
+   "bride": 0.352,
+   "open": 0.147
+  },
+  "defied_1plus": 0.454,
+  "hidden_by_soul": {
+   "child": 0.032,
+   "garland": 0.02,
+   "king": 0.039,
+   "bride": 0.154,
+   "open": 0.376
+  },
+  "peak_tokens": {
+   "mean": 14.5,
+   "max": 24,
+   "over_24": 0.0,
+   "p95": 20
+  }
+ },
+ {
+  "label": "忘川的拉力 2／4／6，關口也拉不回",
+  "win": 0.411,
+  "chapter_turns": [
+   5.1,
+   6.2,
+   6.2
+  ],
+  "forced": 0.282,
+  "by_players": {
+   "1": 0.337,
+   "2": 0.387,
+   "3": 0.447,
+   "4": 0.473
+  },
+  "by_soul": {
+   "child": 0.521,
+   "garland": 0.396,
+   "king": 0.312,
+   "bride": 0.388,
+   "open": 0.438
+  },
+  "ending_thread": {
+   "忘卻": 0.432,
+   "交織": 0.233,
+   "執念": 0.172,
+   "釋懷": 0.162
+  },
+  "obl_by_soul": {
+   "child": 0.424,
+   "garland": 0.526,
+   "king": 0.613,
+   "bride": 0.441,
+   "open": 0.219
+  },
+  "defied_1plus": 0.369,
+  "hidden_by_soul": {
+   "child": 0.04,
+   "garland": 0.021,
+   "king": 0.04,
+   "bride": 0.161,
+   "open": 0.314
+  },
+  "peak_tokens": {
+   "mean": 14.5,
+   "max": 24,
+   "over_24": 0.0,
+   "p95": 20
+  }
+ }
+]

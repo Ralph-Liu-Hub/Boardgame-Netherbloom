@@ -191,6 +191,8 @@ class Config:
         self.v5_gate_take = 0.5      # AI: chance to follow a lit gate memory's thread when it differs from the fate card
         self.v5_reveal_rewrite = 0.0  # chance a revealed commission rewrites the chapter's fork instead of untying 2 knots
         self.v5_insc_echo = False    # a face-up card whose thread matches the Echo may be inscribed in either action
+        self.v5_obl_pull = None      # (n1, n2, n3): at a turning point with no lit gate memory, a forgotten pile of n or more pulls the path to Oblivion
+        self.v5_obl_pull_hard = False  # the pull also beats a lit gate memory
         self.v5_fate_pay = 0         # >0: when the route waits at the turning point, pay this much Light at end of turn to turn one of the two fate cards now
         self.v5_fate_skip = False    # when the turning point forks the route, empty slots before it are washed away
         self.v5_fork_eot = True      # the turning point's fork is taken at the end of the turn (so the gate can be lit first)
@@ -1389,6 +1391,7 @@ class State:
             self.note("  (Bride) she is pulled one space back")
             if not self.cfg.bride_forgets:
                 return
+        self.stats["linger_forgets"] = self.stats.get("linger_forgets", 0) + 1
         self.forget_top(1)
         if self.cfg.v5_chapters and self.cfg.v5_linger_blank and not self.page_turn:
             slots = self.open_slots()
@@ -1766,6 +1769,13 @@ class State:
                     path = fate
                     gate = next((x for x in reversed(w[:-1]) if nodes[x]["kind"] == "g"), None)
                     gcid = self.book[self.ch].get(gate) if gate else None
+                    pull = self.cfg.v5_obl_pull
+                    gate_lit = gcid is not None and gcid in self.lit_mem
+                    if pull and (self.cfg.v5_obl_pull_hard or not gate_lit) and len(self.forgotten) >= pull[self.ch]:
+                        fate = path = OBL
+                        if self.cfg.v5_obl_pull_hard:
+                            gcid = None   # the gate memory cannot pull her back
+                        self.stats["obl_pull"] = self.stats.get("obl_pull", 0) + 1
                     if self.rewrite:
                         path = self.rng.choice((OBS, ACC, fate))
                     elif gcid is not None and gcid in self.lit_mem and CARD[gcid].tag != fate:
@@ -2195,7 +2205,7 @@ class State:
                 (soul == "garland" and len(tags) == 3 and tags[2] == ACC) or
                 (soul == "king" and not self.stats.get("king_titles_lost", 0)))
         elif soul == "bride":
-            hidden = key_lit and self.stats["lingers"] == 0
+            hidden = key_lit and not self.stats.get("linger_forgets", 0)   # 11/7: no card forgotten by lingering
         else:
             from .story import BOOKS
             full = True
@@ -2204,7 +2214,7 @@ class State:
                 for x in self.walk[r]:
                     if nodes[x]["kind"] in "mg" and not (x in self.book[r] and self.book[r][x] in self.lit_mem):
                         full = False
-            hidden = full and not mist
+            hidden = full and not mist and defied >= 1   # 11/7: at least one chapter defied fate
         place = "inscribed" if where is not None else "forgotten" if key in self.forgotten else "unspoken"
         return ending, defied, hidden, (place if soul != "open" else None)
 

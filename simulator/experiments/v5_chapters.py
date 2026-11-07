@@ -54,7 +54,11 @@ for pname in ("迴響銘刻", "兩者"):
 # The calibrated Standard (report §3): Echo inscription, threshold +3, fog +1, a shroud leaves a mist scar but no crack.
 BASE_EXTRA = {"v5_insc_echo": True, "v5_cap_bonus": 3, "v5_fog_plus": 1, "v5_shroud_crack": False, "v5_light_reserve": 0}
 # The page turn decided on 11/7: untie 3 / 6 / 9 knots for 1 / 2 / 3 lit memories, no scar healing.
-DECIDED = {"v5_turn_knots": "table", "v5_turn_table": (0, 3, 6, 9)}
+DECIDED = {"v5_turn_knots": "table", "v5_turn_table": (0, 3, 6, 9),
+           # 11/7: the pull of Lethe at 3 / 5 / 7 forgotten cards, which a lit gate cannot override
+           "v5_obl_pull": (3, 5, 7), "v5_obl_pull_hard": True}
+# 11/7 player counts: solo hand 5 and loom +1; 4 players loom -1 (apply per player count).
+PLAYER_DECIDED = {1: {"hand": 5, "v5_solo_cap_bonus": 2}, 4: {"v5_cap_bonus": 2}}
 TUNED_LEVELS = {"Gentle": {"v5_fog_plus": 0}, "Standard": {}, "Hard": {"v5_shroud_crack": True, "v5_start_knots": 1}}
 LEVEL_SETS = {
     "同門檻": {"Gentle": {}, "Standard": {}, "Hard": {}},
@@ -146,8 +150,8 @@ def summarize(rows):
     paths = Counter(p[1] for r in wins for p in r["paths"] if p)
     out["path_threads_win"] = {k: pct(v, sum(paths.values())) for k, v in paths.most_common()}
     out["endings_win"] = {k: pct(v, len(wins)) for k, v in Counter(r["ending"] for r in wins).most_common()}
-    out["fate_line_win"] = {"逆命": pct(sum(r["defied"] >= 2 for r in wins), len(wins)),
-                            "違抗 1 次": pct(sum(r["defied"] == 1 for r in wins), len(wins))}
+    out["fate_line_win"] = {"逆命": pct(sum(r["defied"] >= 1 for r in wins), len(wins)),   # 11/7: defy once or more
+                            "違抗 2 次以上": pct(sum(r["defied"] >= 2 for r in wins), len(wins))}
     out["hidden_win"] = pct(sum(r["hidden"] for r in wins), len(wins))
     out["hidden_all"] = pct(sum(r["hidden"] for r in wins), n)
     kp = [r["key_place"] for r in wins if r.get("key_place")]

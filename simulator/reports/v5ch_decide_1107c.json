@@ -1,0 +1,152 @@
+[
+ {
+  "label": "基準（人數門檻＋單人 5 張）",
+  "win": 0.39,
+  "chapter_turns": [
+   5.2,
+   6.2,
+   6.2
+  ],
+  "forced": 0.275,
+  "by_players": {
+   "1": 0.338,
+   "2": 0.33,
+   "3": 0.434,
+   "4": 0.456
+  },
+  "by_soul": {
+   "child": 0.487,
+   "garland": 0.385,
+   "king": 0.33,
+   "bride": 0.347,
+   "open": 0.398
+  },
+  "ending_thread": {
+   "執念": 0.379,
+   "釋懷": 0.347,
+   "交織": 0.207,
+   "忘卻": 0.068
+  },
+  "obl_by_soul": {
+   "child": 0.097,
+   "garland": 0.058,
+   "king": 0.091,
+   "bride": 0.043,
+   "open": 0.044
+  },
+  "defied_1plus": 0.576,
+  "hidden_by_soul": {
+   "child": 0.026,
+   "garland": 0.058,
+   "king": 0.023,
+   "bride": 0.165,
+   "open": 0.346
+  },
+  "peak_tokens": {
+   "mean": 14.2,
+   "max": 24,
+   "over_24": 0.0,
+   "p95": 20
+  }
+ },
+ {
+  "label": "忘川的拉力 4／7／10，關口也拉不回",
+  "win": 0.391,
+  "chapter_turns": [
+   5.1,
+   6.3,
+   6.2
+  ],
+  "forced": 0.276,
+  "by_players": {
+   "1": 0.336,
+   "2": 0.326,
+   "3": 0.434,
+   "4": 0.466
+  },
+  "by_soul": {
+   "child": 0.492,
+   "garland": 0.39,
+   "king": 0.315,
+   "bride": 0.352,
+   "open": 0.403
+  },
+  "ending_thread": {
+   "執念": 0.35,
+   "釋懷": 0.328,
+   "交織": 0.213,
+   "忘卻": 0.11
+  },
+  "obl_by_soul": {
+   "child": 0.112,
+   "garland": 0.103,
+   "king": 0.159,
+   "bride": 0.121,
+   "open": 0.068
+  },
+  "defied_1plus": 0.557,
+  "hidden_by_soul": {
+   "child": 0.025,
+   "garland": 0.058,
+   "king": 0.024,
+   "bride": 0.163,
+   "open": 0.354
+  },
+  "peak_tokens": {
+   "mean": 14.2,
+   "max": 24,
+   "over_24": 0.0,
+   "p95": 20
+  }
+ },
+ {
+  "label": "忘川的拉力 5／8／11，關口也拉不回",
+  "win": 0.392,
+  "chapter_turns": [
+   5.2,
+   6.2,
+   6.2
+  ],
+  "forced": 0.277,
+  "by_players": {
+   "1": 0.336,
+   "2": 0.332,
+   "3": 0.434,
+   "4": 0.464
+  },
+  "by_soul": {
+   "child": 0.49,
+   "garland": 0.388,
+   "king": 0.33,
+   "bride": 0.35,
+   "open": 0.4
+  },
+  "ending_thread": {
+   "執念": 0.36,
+   "釋懷": 0.34,
+   "交織": 0.209,
+   "忘卻": 0.091
+  },
+  "obl_by_soul": {
+   "child": 0.107,
+   "garland": 0.071,
+   "king": 0.144,
+   "bride": 0.079,
+   "open": 0.056
+  },
+  "defied_1plus": 0.567,
+  "hidden_by_soul": {
+   "child": 0.026,
+   "garland": 0.058,
+   "king": 0.023,
+   "bride": 0.164,
+   "open": 0.35
+  },
+  "peak_tokens": {
+   "mean": 14.2,
+   "max": 24,
+   "over_24": 0.0,
+   "p95": 20
+  }
+ }
+]
