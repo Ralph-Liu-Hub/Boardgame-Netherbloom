@@ -1103,6 +1103,14 @@ function openDrawer(kind) {
   d.dataset.kind = kind;
   if (kind === "rules") {
     d.innerHTML = `<div class="hh">${tr("規則書 V5", "Rulebook V5")}<input id="rq" placeholder="${tr("搜尋…", "Search…")}"><button class="hclose">✕</button></div><div class="rules">${RULES_HTML}</div>`;
+    // the rulebook's own links (its table of contents) scroll the drawer only, never the page behind it
+    d.querySelector(".rules").onclick = e => {
+      const a = e.target.closest('a[href^="#"]');
+      if (!a) return;
+      e.preventDefault();
+      const t = d.querySelector(`[id="${CSS.escape(decodeURIComponent(a.getAttribute("href").slice(1)))}"]`);
+      if (t) d.scrollTop += t.getBoundingClientRect().top - d.getBoundingClientRect().top - 48;
+    };
     $("#rq").oninput = e => {
       const q = e.target.value.trim();
       d.querySelectorAll(".rules > *").forEach(el => { el.style.display = !q || el.textContent.includes(q) ? "" : "none"; });

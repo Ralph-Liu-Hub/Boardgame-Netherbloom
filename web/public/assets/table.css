@@ -191,7 +191,9 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .hloop { width: 100%; margin-top: 8px; }
 .rules { font-size: 14px; }
 .rules h1 { font-size: 20px; } .rules h2 { font-size: 18px; color: var(--bone); border-bottom: 1px solid var(--line); padding-bottom: 3px; } .rules h3 { font-size: 15px; color: var(--bone); }
-.rules table { border-collapse: collapse; font-size: 12.5px; margin: 6px 0; }
+.rules table { border-collapse: collapse; font-size: 12.5px; margin: 6px 0; display: block; overflow-x: auto; max-width: 100%; }
+.rules td:first-child, .rules th:first-child { white-space: nowrap; }
+.rules td, .rules th { min-width: 3.2em; }
 .rules td, .rules th { border: 1px solid var(--line); padding: 3px 6px; vertical-align: top; }
 .rules blockquote { margin: 6px 0; padding: 4px 10px; border-left: 3px solid var(--gold); color: var(--mist); }
 /* flavour text: a paragraph that is all italics is set small (TPE02: 風味文字用斜體小字) */
