@@ -73,7 +73,7 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .reachname { position: absolute; top: 4px; font-size: 11px; color: var(--mist); font-family: var(--serif); }
 
 .loom .thread { position: absolute; left: 14px; width: 70px; font-size: 13px; display: flex; gap: 4px; align-items: center; height: 40px; }
-.loom .blash { position: absolute; left: 720px; width: 270px; font-size: 11px; color: var(--mist); line-height: 1.35; }
+.loom .blash { position: absolute; left: 700px; width: 230px; font-size: 11px; color: var(--mist); line-height: 1.35; }
 .loom .blash b { color: var(--bone); margin-right: 4px; }
 .bookp { background: linear-gradient(180deg, #221d18, #18141a); }
 .bookp.current { border-color: var(--bone); }
@@ -234,3 +234,9 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .booktab.on { border-color: var(--bone); background: #3a2f22; }
 .curnote { font-size: 12px; color: var(--gold); font-family: var(--sans); }
 .browse { position: absolute; right: 16px; top: 44px; font-size: 12px; color: var(--cyan); }
+
+/* the table itself */
+.felt { position: absolute; inset: 0; border-radius: 120px; background: radial-gradient(ellipse at 50% 45%, #2a2219 0%, #1d1812 55%, #120f0c 100%); box-shadow: inset 0 0 0 14px #3a2b1c, inset 0 0 0 18px #20170f, 0 30px 80px rgba(0, 0, 0, .7); }
+.board.mat { transform-origin: 50% 50%; background: rgba(36, 30, 24, .92); }
+.playarea { border-style: dashed; background: rgba(0, 0, 0, .12); }
+.handcount { position: absolute; right: 14px; top: 8px; font-size: 12px; color: var(--gold); }
