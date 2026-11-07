@@ -140,7 +140,7 @@ function newTable(opts) {
   addStack("ending", { x: FATE.x + 40 + 4 * SW, y: FATE.y + 44, label: ["結局牌", "Endings"], accepts: "card" });
   if (opts.players === 1) addStack("ghost", { x: MISTA.x + 140, y: MISTA.y + 200, label: ["幽靈牌庫", "Ghost deck"], accepts: "card", showBack: true });
   const binX = i => SUPPLY.x + 20 + (i % 8) * 116, binY = i => SUPPLY.y + 240 + Math.floor(i / 8) * 130;
-  const bins = [["root", ["根／花", "Root / Bloom"], 24], ["shade", ["怨念", "Shade"], 8], ["fog", ["霧標記", "Fog marker"], 6],
+  const bins = [["root", ["根／花", "Root / Bloom"], 24], ["shade", ["怨念", "Shade"], 8], ["fog", ["霧標記", "Fog marker"], 2],
     ["hold", ["堅守", "Hold Fast"], 1], ["shield", ["護盾", "Shield"], 1],
     ["resign", ["認命", "Resignation"], 1], ["oar", ["船槳", "Oar"], 1]];
   bins.forEach(([tk, label, n], i) => {
