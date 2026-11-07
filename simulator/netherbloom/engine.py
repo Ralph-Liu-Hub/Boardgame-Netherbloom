@@ -177,7 +177,8 @@ class Config:
                                      # (deeper Mist deck, next fate cards); the Far Shore opens after chapter 3
         self.v5_turn_knots = "clear_heal"  # at a page turn: "clear_heal" (knots cleared, every 2 lit memories of the page
                                      # heal 1 scar), "lit_free" (untie one knot per lit memory; a thread emptied this way
-                                     # heals 1 scar; the rest carry over), "lit_free_base2" (as lit_free after untying 2 per thread)
+                                     # heals 1 scar; the rest carry over), "lit_free_base2" (as lit_free after untying 2 per thread),
+                                     # "scar1_lit_free" (heal 1 scar, then untie one knot per lit memory; the rest carry over)
         self.v5_wall_mode = "pair"   # light walls: "pair" (both banks bloom; absorbs 2) or "bank" (each bloom absorbs 1 on its bank)
         self.v5_solo_cap_bonus = 0   # extra knots before a thread fills in solo games
         self.v5_fog_plus = 0         # difficulty: added to the fog strength whenever the fog advances
@@ -2033,6 +2034,15 @@ class State:
             for _ in range(len(lit) // 2):
                 t = max(range(3), key=lambda x: self.scars[x])
                 self.scars[t] = max(0, self.scars[t] - 1)
+        elif mode == "scar1_lit_free":
+            # heal one scar, then untie one knot per lit memory of the page (free choice); the rest carry over
+            t = max(range(3), key=lambda x: self.scars[x])
+            self.scars[t] = max(0, self.scars[t] - 1)
+            for _ in range(len(lit)):
+                if not any(self.karma):
+                    break
+                col = max(range(3), key=lambda x: self.karma[x] / self.cap(x))
+                self.karma[col] -= 1
         else:
             if mode == "lit_free_base2":
                 self.karma = [max(0, k - 2) for k in self.karma]

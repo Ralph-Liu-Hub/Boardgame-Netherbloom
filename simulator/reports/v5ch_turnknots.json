@@ -1,0 +1,70 @@
+[
+ {
+  "label": "清空＋每 2 段點亮治 1 傷疤（目前）",
+  "win": 0.384,
+  "backlash": 1.49,
+  "scars_end": 0.69,
+  "lv": [
+   1.24,
+   0.22,
+   0.03
+  ],
+  "causes": {
+   "Shattered": 0.345,
+   "Faded": 0.143,
+   "Deluge": 0.073,
+   "Nameless": 0.055
+  }
+ },
+ {
+  "label": "先每條解 2，再依點亮數（B）",
+  "win": 0.363,
+  "backlash": 1.88,
+  "scars_end": 1.19,
+  "lv": [
+   1.47,
+   0.35,
+   0.06
+  ],
+  "causes": {
+   "Shattered": 0.343,
+   "Faded": 0.165,
+   "Deluge": 0.079,
+   "Nameless": 0.05
+  }
+ },
+ {
+  "label": "依點亮數，清空的絲線治傷（A）",
+  "win": 0.267,
+  "backlash": 2.88,
+  "scars_end": 1.95,
+  "lv": [
+   2.06,
+   0.67,
+   0.15
+  ],
+  "causes": {
+   "Shattered": 0.363,
+   "Faded": 0.234,
+   "Deluge": 0.097,
+   "Nameless": 0.039
+  }
+ },
+ {
+  "label": "先治 1 傷疤，再依點亮數自由解結（新）",
+  "win": 0.299,
+  "backlash": 2.72,
+  "scars_end": 1.22,
+  "lv": [
+   2.27,
+   0.41,
+   0.05
+  ],
+  "causes": {
+   "Shattered": 0.347,
+   "Faded": 0.221,
+   "Deluge": 0.092,
+   "Nameless": 0.041
+  }
+ }
+]
