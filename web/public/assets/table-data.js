@@ -81,7 +81,7 @@ export const MANTLES = [
   { key: "warden", th: 0, zh: "守魂者", en: "Spirit Warden", tz: "駐足：每輪一次，亡魂行動時，你可以讓亡魂留在原格，不遺忘任何牌。", te: "Stay: once a round, keep the soul where it is during its step, forgetting nothing." },
   { key: "bringer", th: 1, zh: "引花人", en: "Bloombringer", tz: "你的每個回合結束時，可以免費使 1 個根綻放。", te: "At the end of each of your turns, one Root may Bloom for free." },
   { key: "breaker", th: 2, zh: "破霧者", en: "Mistbreaker", tz: "看穿迷霧：每輪一次，在迷霧步驟之前，查看迷霧牌庫頂的 1 張，可以放到牌庫底。", te: "See through: once a round, before the Mist, look at the top Mist card and you may put it on the bottom." },
-  { key: "reaper", th: 2, zh: "收割者", en: "Reaper", tz: "在你的回合、引發共鳴之前，查看記憶牌庫頂的 2 張，可以替換你的手牌。", te: "Before your first action, look at the top 2 memory cards and swap any of them into your hand." },
+  { key: "reaper", th: 2, zh: "收割者", en: "Reaper", tz: "在你的回合、第一個行動之前，查看記憶牌庫頂的 2 張，可以替換你的手牌。", te: "Before your first action, look at the top 2 memory cards and swap any of them into your hand." },
 ];
 
 export const GHOST = [

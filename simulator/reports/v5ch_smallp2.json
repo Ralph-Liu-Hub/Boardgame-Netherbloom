@@ -1,0 +1,410 @@
+[
+ {
+  "level": "Gentle",
+  "label": "現行",
+  "1": {
+   "win": 0.454,
+   "backlash": 3.26,
+   "loss": {
+    "Shattered": 0.194,
+    "Faded": 0.15,
+    "Deluge": 0.148,
+    "Nameless": 0.054
+   }
+  },
+  "2": {
+   "win": 0.501,
+   "backlash": 2.27,
+   "loss": {
+    "Nameless": 0.157,
+    "Shattered": 0.123,
+    "Faded": 0.114,
+    "Deluge": 0.106
+   }
+  }
+ },
+ {
+  "level": "Gentle",
+  "label": "2 人：託付只需 1",
+  "2": {
+   "win": 0.644,
+   "backlash": 2.26,
+   "loss": {
+    "Shattered": 0.121,
+    "Faded": 0.112,
+    "Deluge": 0.106,
+    "Nameless": 0.018
+   }
+  }
+ },
+ {
+  "level": "Gentle",
+  "label": "2 人：手牌 4",
+  "2": {
+   "win": 0.609,
+   "backlash": 1.82,
+   "loss": {
+    "Nameless": 0.176,
+    "Faded": 0.082,
+    "Deluge": 0.068,
+    "Shattered": 0.066
+   }
+  }
+ },
+ {
+  "level": "Gentle",
+  "label": "單人：手牌 6",
+  "1": {
+   "win": 0.508,
+   "backlash": 3.09,
+   "loss": {
+    "Faded": 0.161,
+    "Shattered": 0.145,
+    "Deluge": 0.136,
+    "Nameless": 0.05
+   }
+  }
+ },
+ {
+  "level": "Gentle",
+  "label": "單人：手牌 6＋織機 +1",
+  "1": {
+   "win": 0.53,
+   "backlash": 2.72,
+   "loss": {
+    "Faded": 0.154,
+    "Shattered": 0.141,
+    "Deluge": 0.118,
+    "Nameless": 0.057
+   }
+  }
+ },
+ {
+  "level": "Gentle",
+  "label": "單人：手牌 6＋破碎 +1",
+  "1": {
+   "win": 0.515,
+   "backlash": 3.17,
+   "loss": {
+    "Faded": 0.179,
+    "Deluge": 0.143,
+    "Shattered": 0.112,
+    "Nameless": 0.05
+   }
+  }
+ },
+ {
+  "level": "Gentle",
+  "label": "單人：手牌 6＋織機 +1＋破碎 +1",
+  "1": {
+   "win": 0.536,
+   "backlash": 2.79,
+   "loss": {
+    "Faded": 0.17,
+    "Deluge": 0.126,
+    "Shattered": 0.11,
+    "Nameless": 0.058
+   }
+  }
+ },
+ {
+  "level": "Gentle",
+  "label": "單人：手牌 6＋織機 +2",
+  "1": {
+   "win": 0.558,
+   "backlash": 2.29,
+   "loss": {
+    "Shattered": 0.134,
+    "Faded": 0.132,
+    "Deluge": 0.117,
+    "Nameless": 0.06
+   }
+  }
+ },
+ {
+  "level": "Gentle",
+  "label": "2 人：手牌 4＋起始光 +1",
+  "2": {
+   "win": 0.618,
+   "backlash": 1.78,
+   "loss": {
+    "Nameless": 0.169,
+    "Faded": 0.087,
+    "Shattered": 0.066,
+    "Deluge": 0.059
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "現行",
+  "1": {
+   "win": 0.387,
+   "backlash": 2.51,
+   "loss": {
+    "Shattered": 0.336,
+    "Deluge": 0.137,
+    "Faded": 0.089,
+    "Nameless": 0.051
+   }
+  },
+  "2": {
+   "win": 0.426,
+   "backlash": 1.84,
+   "loss": {
+    "Shattered": 0.235,
+    "Nameless": 0.135,
+    "Faded": 0.11,
+    "Deluge": 0.094
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "2 人：託付只需 1",
+  "2": {
+   "win": 0.55,
+   "backlash": 1.82,
+   "loss": {
+    "Shattered": 0.233,
+    "Faded": 0.108,
+    "Deluge": 0.094,
+    "Nameless": 0.016
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "2 人：手牌 4",
+  "2": {
+   "win": 0.524,
+   "backlash": 1.55,
+   "loss": {
+    "Nameless": 0.167,
+    "Shattered": 0.147,
+    "Deluge": 0.082,
+    "Faded": 0.08
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "單人：手牌 6",
+  "1": {
+   "win": 0.431,
+   "backlash": 2.4,
+   "loss": {
+    "Shattered": 0.282,
+    "Deluge": 0.131,
+    "Faded": 0.105,
+    "Nameless": 0.05
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "單人：手牌 6＋織機 +1",
+  "1": {
+   "win": 0.454,
+   "backlash": 1.98,
+   "loss": {
+    "Shattered": 0.3,
+    "Deluge": 0.118,
+    "Faded": 0.075,
+    "Nameless": 0.053
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "單人：手牌 6＋破碎 +1",
+  "1": {
+   "win": 0.457,
+   "backlash": 2.49,
+   "loss": {
+    "Shattered": 0.213,
+    "Deluge": 0.146,
+    "Faded": 0.13,
+    "Nameless": 0.054
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "單人：手牌 6＋織機 +1＋破碎 +1",
+  "1": {
+   "win": 0.478,
+   "backlash": 2.08,
+   "loss": {
+    "Shattered": 0.234,
+    "Deluge": 0.134,
+    "Faded": 0.098,
+    "Nameless": 0.054
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "單人：手牌 6＋織機 +2",
+  "1": {
+   "win": 0.488,
+   "backlash": 1.66,
+   "loss": {
+    "Shattered": 0.271,
+    "Deluge": 0.113,
+    "Faded": 0.074,
+    "Nameless": 0.054
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "2 人：手牌 4＋起始光 +1",
+  "2": {
+   "win": 0.537,
+   "backlash": 1.5,
+   "loss": {
+    "Nameless": 0.165,
+    "Shattered": 0.152,
+    "Deluge": 0.081,
+    "Faded": 0.066
+   }
+  }
+ },
+ {
+  "level": "Hard",
+  "label": "現行",
+  "1": {
+   "win": 0.323,
+   "backlash": 2.16,
+   "loss": {
+    "Shattered": 0.546,
+    "Deluge": 0.072,
+    "Nameless": 0.031,
+    "Faded": 0.027
+   }
+  },
+  "2": {
+   "win": 0.302,
+   "backlash": 1.75,
+   "loss": {
+    "Shattered": 0.51,
+    "Nameless": 0.097,
+    "Deluge": 0.062,
+    "Faded": 0.029
+   }
+  }
+ },
+ {
+  "level": "Hard",
+  "label": "2 人：託付只需 1",
+  "2": {
+   "win": 0.398,
+   "backlash": 1.74,
+   "loss": {
+    "Shattered": 0.505,
+    "Deluge": 0.062,
+    "Faded": 0.027,
+    "Nameless": 0.007
+   }
+  }
+ },
+ {
+  "level": "Hard",
+  "label": "2 人：手牌 4",
+  "2": {
+   "win": 0.43,
+   "backlash": 1.52,
+   "loss": {
+    "Shattered": 0.388,
+    "Nameless": 0.107,
+    "Deluge": 0.048,
+    "Faded": 0.027
+   }
+  }
+ },
+ {
+  "level": "Hard",
+  "label": "單人：手牌 6",
+  "1": {
+   "win": 0.348,
+   "backlash": 2.2,
+   "loss": {
+    "Shattered": 0.504,
+    "Deluge": 0.073,
+    "Faded": 0.041,
+    "Nameless": 0.034
+   }
+  }
+ },
+ {
+  "level": "Hard",
+  "label": "單人：手牌 6＋織機 +1",
+  "1": {
+   "win": 0.37,
+   "backlash": 1.84,
+   "loss": {
+    "Shattered": 0.477,
+    "Deluge": 0.074,
+    "Nameless": 0.046,
+    "Faded": 0.034
+   }
+  }
+ },
+ {
+  "level": "Hard",
+  "label": "單人：手牌 6＋破碎 +1",
+  "1": {
+   "win": 0.406,
+   "backlash": 2.38,
+   "loss": {
+    "Shattered": 0.413,
+    "Deluge": 0.086,
+    "Faded": 0.054,
+    "Nameless": 0.042
+   }
+  }
+ },
+ {
+  "level": "Hard",
+  "label": "單人：手牌 6＋織機 +1＋破碎 +1",
+  "1": {
+   "win": 0.424,
+   "backlash": 1.99,
+   "loss": {
+    "Shattered": 0.396,
+    "Deluge": 0.09,
+    "Nameless": 0.049,
+    "Faded": 0.041
+   }
+  }
+ },
+ {
+  "level": "Hard",
+  "label": "單人：手牌 6＋織機 +2",
+  "1": {
+   "win": 0.382,
+   "backlash": 1.56,
+   "loss": {
+    "Shattered": 0.477,
+    "Deluge": 0.065,
+    "Nameless": 0.046,
+    "Faded": 0.03
+   }
+  }
+ },
+ {
+  "level": "Hard",
+  "label": "2 人：手牌 4＋起始光 +1",
+  "2": {
+   "win": 0.45,
+   "backlash": 1.5,
+   "loss": {
+    "Shattered": 0.342,
+    "Nameless": 0.138,
+    "Deluge": 0.049,
+    "Faded": 0.021
+   }
+  }
+ }
+]

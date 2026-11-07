@@ -29,6 +29,8 @@ A **manual virtual table** for Netherbloom V5, for publisher previews, hosted on
 ```bash
 cd web
 npm test                                           # component data and storybook routes, login and play-log checks
+npm run test:e2e                                   # browser tests (Playwright + Chromium): every soul / level / player count,
+                                                   # drag and drop, piles, tracks, hints, lobby, phone, touch, pinch, online play
 python3 -m http.server 8765 --directory public     # local play without login
 python3 tools/build_table_data.py                  # after changing simulator/netherbloom/storybook_data.py
 python3 tools/build_rules.py                       # after changing the V5 rulebook
