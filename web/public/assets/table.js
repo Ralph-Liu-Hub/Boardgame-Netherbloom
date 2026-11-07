@@ -1015,7 +1015,7 @@ function renderHint() {
   const i = Math.max(0, Math.min(STEPS.length - 1, S.hint || 0));
   const step = STEPS[i];
   const ctx = { players: S.players, level: D.LEVELS[S.level], soul: S.soul, ch: S.chapter, light: D.START_LIGHT[S.soul], pull: PULL[S.chapter],
-    th: D.thresholds(S.level, S.players), hand: S.players === 1 ? 5 : 3, need: D.SETUP_TABLE[S.players].need, graves: D.SETUP_TABLE[S.players].graves };
+    th: D.thresholds(S.level, S.players), hand: S.players === 1 ? 6 : S.players === 2 ? 4 : 3, need: D.SETUP_TABLE[S.players].need, graves: D.SETUP_TABLE[S.players].graves };
   const body = typeof step.body === "function" ? step.body(ctx, LANG) : step.body;
   elHint.innerHTML = `
     <div class="hh">${tr("下一步提示", "Next step")}<button class="hclose" title="${tr("關閉", "Close")}">✕</button></div>
