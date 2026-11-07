@@ -1389,6 +1389,7 @@ class State:
             self.note("  (Bride) she is pulled one space back")
             if not self.cfg.bride_forgets:
                 return
+        self.stats["linger_forgets"] = self.stats.get("linger_forgets", 0) + 1
         self.forget_top(1)
         if self.cfg.v5_chapters and self.cfg.v5_linger_blank and not self.page_turn:
             slots = self.open_slots()
@@ -2195,7 +2196,7 @@ class State:
                 (soul == "garland" and len(tags) == 3 and tags[2] == ACC) or
                 (soul == "king" and not self.stats.get("king_titles_lost", 0)))
         elif soul == "bride":
-            hidden = key_lit and self.stats["lingers"] == 0
+            hidden = key_lit and not self.stats.get("linger_forgets", 0)   # 11/7: no card forgotten by lingering
         else:
             from .story import BOOKS
             full = True
@@ -2204,7 +2205,7 @@ class State:
                 for x in self.walk[r]:
                     if nodes[x]["kind"] in "mg" and not (x in self.book[r] and self.book[r][x] in self.lit_mem):
                         full = False
-            hidden = full and not mist
+            hidden = full and not mist and defied >= 1   # 11/7: at least one chapter defied fate
         place = "inscribed" if where is not None else "forgotten" if key in self.forgotten else "unspoken"
         return ending, defied, hidden, (place if soul != "open" else None)
 

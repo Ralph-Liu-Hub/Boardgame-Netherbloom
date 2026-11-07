@@ -146,8 +146,8 @@ def summarize(rows):
     paths = Counter(p[1] for r in wins for p in r["paths"] if p)
     out["path_threads_win"] = {k: pct(v, sum(paths.values())) for k, v in paths.most_common()}
     out["endings_win"] = {k: pct(v, len(wins)) for k, v in Counter(r["ending"] for r in wins).most_common()}
-    out["fate_line_win"] = {"逆命": pct(sum(r["defied"] >= 2 for r in wins), len(wins)),
-                            "違抗 1 次": pct(sum(r["defied"] == 1 for r in wins), len(wins))}
+    out["fate_line_win"] = {"逆命": pct(sum(r["defied"] >= 1 for r in wins), len(wins)),   # 11/7: defy once or more
+                            "違抗 2 次以上": pct(sum(r["defied"] >= 2 for r in wins), len(wins))}
     out["hidden_win"] = pct(sum(r["hidden"] for r in wins), len(wins))
     out["hidden_all"] = pct(sum(r["hidden"] for r in wins), n)
     kp = [r["key_place"] for r in wins if r.get("key_place")]
