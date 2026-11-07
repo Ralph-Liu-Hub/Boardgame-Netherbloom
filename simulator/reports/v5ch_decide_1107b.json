@@ -1,0 +1,202 @@
+[
+ {
+  "label": "基準（含人數門檻）",
+  "win": 0.356,
+  "chapter_turns": [
+   5.3,
+   6.2,
+   6.3
+  ],
+  "forced": 0.256,
+  "by_players": {
+   "1": 0.206,
+   "2": 0.33,
+   "3": 0.434,
+   "4": 0.456
+  },
+  "by_soul": {
+   "child": 0.443,
+   "garland": 0.345,
+   "king": 0.31,
+   "bride": 0.328,
+   "open": 0.357
+  },
+  "ending_thread": {
+   "執念": 0.377,
+   "釋懷": 0.33,
+   "交織": 0.219,
+   "忘卻": 0.074
+  },
+  "obl_by_soul": {
+   "child": 0.107,
+   "garland": 0.08,
+   "king": 0.089,
+   "bride": 0.031,
+   "open": 0.056
+  },
+  "defied_1plus": 0.568,
+  "hidden_by_soul": {
+   "child": 0.04,
+   "garland": 0.036,
+   "king": 0.016,
+   "bride": 0.168,
+   "open": 0.329
+  },
+  "peak_tokens": {
+   "mean": 14.0,
+   "max": 24,
+   "over_24": 0.0,
+   "p95": 20
+  }
+ },
+ {
+  "label": "忘川的拉力 3／6／9",
+  "win": 0.357,
+  "chapter_turns": [
+   5.3,
+   6.2,
+   6.3
+  ],
+  "forced": 0.255,
+  "by_players": {
+   "1": 0.206,
+   "2": 0.328,
+   "3": 0.438,
+   "4": 0.458
+  },
+  "by_soul": {
+   "child": 0.443,
+   "garland": 0.347,
+   "king": 0.307,
+   "bride": 0.333,
+   "open": 0.357
+  },
+  "ending_thread": {
+   "執念": 0.364,
+   "釋懷": 0.316,
+   "交織": 0.228,
+   "忘卻": 0.092
+  },
+  "obl_by_soul": {
+   "child": 0.107,
+   "garland": 0.086,
+   "king": 0.122,
+   "bride": 0.083,
+   "open": 0.063
+  },
+  "defied_1plus": 0.569,
+  "hidden_by_soul": {
+   "child": 0.04,
+   "garland": 0.036,
+   "king": 0.016,
+   "bride": 0.173,
+   "open": 0.329
+  },
+  "peak_tokens": {
+   "mean": 14.1,
+   "max": 24,
+   "over_24": 0.0,
+   "p95": 20
+  }
+ },
+ {
+  "label": "忘川的拉力 4／7／10",
+  "win": 0.355,
+  "chapter_turns": [
+   5.3,
+   6.2,
+   6.3
+  ],
+  "forced": 0.254,
+  "by_players": {
+   "1": 0.206,
+   "2": 0.326,
+   "3": 0.434,
+   "4": 0.456
+  },
+  "by_soul": {
+   "child": 0.443,
+   "garland": 0.343,
+   "king": 0.31,
+   "bride": 0.325,
+   "open": 0.357
+  },
+  "ending_thread": {
+   "執念": 0.371,
+   "釋懷": 0.326,
+   "交織": 0.218,
+   "忘卻": 0.084
+  },
+  "obl_by_soul": {
+   "child": 0.107,
+   "garland": 0.08,
+   "king": 0.121,
+   "bride": 0.054,
+   "open": 0.056
+  },
+  "defied_1plus": 0.57,
+  "hidden_by_soul": {
+   "child": 0.04,
+   "garland": 0.036,
+   "king": 0.016,
+   "bride": 0.169,
+   "open": 0.329
+  },
+  "peak_tokens": {
+   "mean": 14.0,
+   "max": 24,
+   "over_24": 0.0,
+   "p95": 20
+  }
+ },
+ {
+  "label": "單人手牌 5 張",
+  "win": 0.338,
+  "chapter_turns": [
+   5.1,
+   6.2,
+   6.0
+  ],
+  "forced": 0.232,
+  "by_players": {
+   "1": 0.338,
+   "2": null,
+   "3": null,
+   "4": null
+  },
+  "by_soul": {
+   "child": 0.44,
+   "garland": 0.39,
+   "king": 0.25,
+   "bride": 0.25,
+   "open": 0.36
+  },
+  "ending_thread": {
+   "執念": 0.396,
+   "釋懷": 0.355,
+   "交織": 0.172,
+   "忘卻": 0.077
+  },
+  "obl_by_soul": {
+   "child": 0.045,
+   "garland": 0.077,
+   "king": 0.16,
+   "bride": 0.12,
+   "open": 0.028
+  },
+  "defied_1plus": 0.592,
+  "hidden_by_soul": {
+   "child": 0.0,
+   "garland": 0.103,
+   "king": 0.04,
+   "bride": 0.12,
+   "open": 0.333
+  },
+  "peak_tokens": {
+   "mean": 14.4,
+   "max": 23,
+   "over_24": 0.0,
+   "p95": 21
+  }
+ }
+]

@@ -102,14 +102,18 @@ if __name__ == "__main__":
                 ("忘川的拉力 3／6／9", {"_pp": True, "v5_obl_pull": (3, 6, 9)}, "Standard", False),
                 ("忘川的拉力 4／7／10", {"_pp": True, "v5_obl_pull": (4, 7, 10)}, "Standard", False),
                 ("單人手牌 5 張", {"_pp": True, "_solo_hand": 5}, "Standard", False)]
+        if os.environ.get("HARD_PULL"):
+            runs = [(f"忘川的拉力 {a}／{b}／{c}，關口也拉不回", {"_pp": True, "_solo_hand": 5, "v5_obl_pull": (a, b, c),
+                     "v5_obl_pull_hard": True}, "Standard", False) for a, b, c in ((4, 7, 10), (5, 8, 11))]
+            runs.insert(0, ("基準（人數門檻＋單人 5 張）", {"_pp": True, "_solo_hand": 5}, "Standard", False))
         out = []
         for label, ex, level, old in runs:
-            ps = (1,) if ex.get("_solo_hand") else (1, 2, 3, 4)
+            ps = (1,) if ex.get("_solo_hand") and not os.environ.get("HARD_PULL") else (1, 2, 3, 4)
             args = [(s, p, sd, ex, level, old) for s in SOULS for p in ps for sd in range(SEEDS)]
             with Pool(4) as pool:
                 rows = pool.map(run, args, chunksize=10)
             out.append(summarize(label, rows))
-        json.dump(out, open(os.path.join(os.path.dirname(__file__), "..", "reports", "v5ch_decide_1107b.json"), "w"),
+        json.dump(out, open(os.path.join(os.path.dirname(__file__), "..", "reports", os.environ.get("OUT", "v5ch_decide_1107b.json")), "w"),
                   ensure_ascii=False, indent=1)
         sys.exit()
     runs = [("新規則（第一章 2 格）", {}, "Standard", False),
