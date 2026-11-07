@@ -182,7 +182,8 @@ class Config:
         self.v5_wall_mode = "pair"   # light walls: "pair" (both banks bloom; absorbs 2), "bank" (each bloom absorbs 1 on its bank)
                                      # or "block" (each bank has its own fog line; a Bloom stops it and is not harmed)
         self.v5_light_reserve = 3    # AI: Light kept back (for Recalls) before lighting memories, until the last page
-        self.v5_turn_heals = (1, 2, 0)  # with v5_turn_knots "scarN_*": scars healed when chapter 1 / 2 / 3 closes
+        self.v5_turn_heals = (1, 2, 0)
+        self.v5_turn_table = (0, 4, 6, 10)  # with v5_turn_knots "table*": knots untied for 0 / 1 / 2 / 3 lit memories  # with v5_turn_knots "scarN_*": scars healed when chapter 1 / 2 / 3 closes
         self.v5_solo_cap_bonus = 0   # extra knots before a thread fills in solo games
         self.v5_fog_plus = 0         # difficulty: added to the fog strength whenever the fog advances
         self.v5_obs_l2_ahead = 3     # where a level-2+ Obsession Backlash puts its two Shades (spaces ahead)
@@ -2062,6 +2063,19 @@ class State:
             for _ in range(len(lit) // 2):
                 t = max(range(3), key=lambda x: self.scars[x])
                 self.scars[t] = max(0, self.scars[t] - 1)
+        elif mode in ("table", "table_heal"):
+            # untie v5_turn_table[lit memories] knots (free choice), no base; "_heal": heal up to
+            # v5_turn_heals[chapter] scars, one per lit memory; the rest carry over
+            if mode == "table_heal":
+                for _ in range(min(self.cfg.v5_turn_heals[ch], len(lit))):
+                    t = max(range(3), key=lambda x: self.scars[x])
+                    self.scars[t] = max(0, self.scars[t] - 1)
+            table = self.cfg.v5_turn_table
+            for _ in range(table[min(len(lit), len(table) - 1)]):
+                if not any(self.karma):
+                    break
+                col = max(range(3), key=lambda x: self.karma[x] / self.cap(x))
+                self.karma[col] -= 1
         elif mode in ("base2_tri", "base2_tri_heal", "base2_exp", "base2_exp_heal"):
             # untie 2 per thread, then 3 / 6 / 10 more for 1 / 2 / 3 lit memories (free choice); the rest carry over.
             # "_heal": also heal up to v5_turn_heals[chapter] scars, one per lit memory
