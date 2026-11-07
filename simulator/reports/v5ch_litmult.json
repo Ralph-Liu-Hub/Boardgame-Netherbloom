@@ -1,0 +1,53 @@
+[
+ {
+  "label": "不治傷疤，每段點亮解 2 結",
+  "win": 0.302,
+  "backlash": 2.5,
+  "scars_end": 2.24,
+  "lv": [
+   1.72,
+   0.63,
+   0.15
+  ],
+  "causes": {
+   "Shattered": 0.352,
+   "Faded": 0.212,
+   "Deluge": 0.092,
+   "Nameless": 0.041
+  }
+ },
+ {
+  "label": "不治傷疤，每段點亮解 3 結",
+  "win": 0.333,
+  "backlash": 2.21,
+  "scars_end": 1.99,
+  "lv": [
+   1.58,
+   0.51,
+   0.12
+  ],
+  "causes": {
+   "Shattered": 0.352,
+   "Faded": 0.198,
+   "Deluge": 0.076,
+   "Nameless": 0.041
+  }
+ },
+ {
+  "label": "不治傷疤，點亮 1／2／3／4 段解 2／4／8／16 結",
+  "win": 0.313,
+  "backlash": 2.4,
+  "scars_end": 2.16,
+  "lv": [
+   1.68,
+   0.58,
+   0.14
+  ],
+  "causes": {
+   "Shattered": 0.35,
+   "Faded": 0.208,
+   "Deluge": 0.088,
+   "Nameless": 0.041
+  }
+ }
+]

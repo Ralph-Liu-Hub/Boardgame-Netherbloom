@@ -177,14 +177,21 @@ class Config:
                                      # (deeper Mist deck, next fate cards); the Far Shore opens after chapter 3
         self.v5_turn_knots = "clear_heal"  # at a page turn: "clear_heal" (knots cleared, every 2 lit memories of the page
                                      # heal 1 scar), "lit_free" (untie one knot per lit memory; a thread emptied this way
-                                     # heals 1 scar; the rest carry over), "lit_free_base2" (as lit_free after untying 2 per thread)
-        self.v5_wall_mode = "pair"   # light walls: "pair" (both banks bloom; absorbs 2) or "bank" (each bloom absorbs 1 on its bank)
+                                     # heals 1 scar; the rest carry over), "lit_free_base2" (as lit_free after untying 2 per thread),
+                                     # "scar1_lit_free" (heal 1 scar, then untie one knot per lit memory; the rest carry over)
+        self.v5_wall_mode = "pair"   # light walls: "pair" (both banks bloom; absorbs 2), "bank" (each bloom absorbs 1 on its bank)
+                                     # or "block" (each bank has its own fog line; a Bloom stops it and is not harmed)
+        self.v5_light_reserve = 3    # AI: Light kept back (for Recalls) before lighting memories, until the last page
+        self.v5_ch_skip = (0, 0, 0)  # tuning: memory slots removed from the start of each chapter's route (plain slots only)
+        self.v5_turn_heals = (1, 2, 0)
+        self.v5_turn_table = (0, 4, 6, 10)  # with v5_turn_knots "table*": knots untied for 0 / 1 / 2 / 3 lit memories  # with v5_turn_knots "scarN_*": scars healed when chapter 1 / 2 / 3 closes
         self.v5_solo_cap_bonus = 0   # extra knots before a thread fills in solo games
         self.v5_fog_plus = 0         # difficulty: added to the fog strength whenever the fog advances
         self.v5_obs_l2_ahead = 3     # where a level-2+ Obsession Backlash puts its two Shades (spaces ahead)
         self.v5_gate_take = 0.5      # AI: chance to follow a lit gate memory's thread when it differs from the fate card
         self.v5_reveal_rewrite = 0.0  # chance a revealed commission rewrites the chapter's fork instead of untying 2 knots
         self.v5_insc_echo = False    # a face-up card whose thread matches the Echo may be inscribed in either action
+        self.v5_fate_pay = 0         # >0: when the route waits at the turning point, pay this much Light at end of turn to turn one of the two fate cards now
         self.v5_fate_skip = False    # when the turning point forks the route, empty slots before it are washed away
         self.v5_fork_eot = True      # the turning point's fork is taken at the end of the turn (so the gate can be lit first)
         self.v5_linger_blank = False  # a Linger that forgets also washes away the next empty memory slot on the route
@@ -1433,6 +1440,29 @@ class State:
             return
         n += self.cfg.v5_fog_plus
         lo = 1 if self.cfg.v5_chapters else max(1, BOUNDS[self.reach][0])
+        if self.cfg.v5_wall_mode == "block":
+            # each bank has its own fog line; a Bloom stops the line on its bank (and is not harmed)
+            blocked = [False, False]
+            for sp in range(lo, min(self.soul, LAST) + 1):
+                for b in (0, 1):
+                    k = sp * 2 + b
+                    if n <= 0:
+                        return
+                    if blocked[b] or self.fogged[k]:
+                        continue
+                    if self.tok[k] == BLOOM:
+                        blocked[b] = True
+                        if not self.sim:
+                            self.stats["wall_absorbed"] = self.stats.get("wall_absorbed", 0) + 1
+                        continue
+                    self.fogged[k] = True
+                    if not (self.cfg.v5_traits and self.trait == OBS and self.tok[k] == ROOT):
+                        self.tok[k] = NONE
+                    self.frost[k] = False
+                    n -= 1
+                    if not self.sim:
+                        self.stats["fog_flips"] = self.stats.get("fog_flips", 0) + 1
+            return
         for sp in range(lo, min(self.soul, LAST) + 1):
             ks = (sp * 2, sp * 2 + 1)
             if all(self.fogged[k] for k in ks):
@@ -1628,7 +1658,7 @@ class State:
         self.stats["reveals"] = self.stats.get("reveals", 0) + 1
         self.stats.setdefault("reveal_reach", []).append(self.page()) if not self.sim else None
         if self.cfg.v5_chapters:
-            mists = [x for x, v in self.pg[self.ch].items() if v != -1]
+            mists = [x for x, v in self.pg[self.ch].items() if v not in (-1, -2)]
             near = any(self.karma[t] >= self.cap(t) - 2 for t in range(3))
             if self.cfg.v5_reveal_rewrite and self.paths[self.ch] is None and self.rng.random() < self.cfg.v5_reveal_rewrite:
                 self.rewrite = True
@@ -1698,6 +1728,15 @@ class State:
         d = self.chapter_def()
         self.walk[self.ch] = [d["starts"].get(prev_tag, d["first"])]
         self.advance_route()
+        # tuning: a shorter page (the first N memory slots of the route do not exist)
+        for _ in range(self.cfg.v5_ch_skip[self.ch]):
+            nodes = d["nodes"]
+            cur = self.walk[self.ch][-1]
+            if nodes[cur]["kind"] == "m":
+                self.pg[self.ch][cur] = -2
+                self.advance_route()
+            else:
+                break
 
     def advance_route(self):
         """Walk the route as far as it goes: past filled memory slots, mist slots and decided forks."""
@@ -2014,6 +2053,12 @@ class State:
         if not self.cfg.v5_chapters or self.result is not None:
             return
         self.check_fate()
+        if (self.cfg.v5_fate_pay and self.chc.get("fate") is None and not self.page_turn and self.result is None
+                and self.chapter_def()["nodes"][self.walk[self.ch][-1]]["kind"] == "f"
+                and self.light >= self.cfg.v5_fate_pay):
+            self.light -= self.cfg.v5_fate_pay
+            self.stats["fate_paid"] = self.stats.get("fate_paid", 0) + 1
+            self.fire_chapter_fate(self.rng.choice([f for f in self.fates_ch if not f["fired"]] or self.fates_ch))
         if self.chc.get("fate") is not None and not self.chc.get("fork_ok"):
             self.chc["fork_ok"] = True
             self.advance_route()
@@ -2027,12 +2072,66 @@ class State:
             fate = self.chc.get("fate")
             self.paths[ch] = (fate, fate)
         lit = [cid for cid in self.book[ch].values() if cid in self.lit_mem]
+        if not self.sim:
+            self.stats.setdefault("turn_lit", []).append(len(lit))
         mode = self.cfg.v5_turn_knots
         if mode == "clear_heal":
             self.karma = [0, 0, 0]
             for _ in range(len(lit) // 2):
                 t = max(range(3), key=lambda x: self.scars[x])
                 self.scars[t] = max(0, self.scars[t] - 1)
+        elif mode in ("table", "table_heal"):
+            # untie v5_turn_table[lit memories] knots (free choice), no base; "_heal": heal up to
+            # v5_turn_heals[chapter] scars, one per lit memory; the rest carry over
+            if mode == "table_heal":
+                for _ in range(min(self.cfg.v5_turn_heals[ch], len(lit))):
+                    t = max(range(3), key=lambda x: self.scars[x])
+                    self.scars[t] = max(0, self.scars[t] - 1)
+            table = self.cfg.v5_turn_table
+            for _ in range(table[min(len(lit), len(table) - 1)]):
+                if not any(self.karma):
+                    break
+                col = max(range(3), key=lambda x: self.karma[x] / self.cap(x))
+                self.karma[col] -= 1
+        elif mode in ("base2_tri", "base2_tri_heal", "base2_exp", "base2_exp_heal"):
+            # untie 2 per thread, then 3 / 6 / 10 more for 1 / 2 / 3 lit memories (free choice); the rest carry over.
+            # "_heal": also heal up to v5_turn_heals[chapter] scars, one per lit memory
+            self.karma = [max(0, k - 2) for k in self.karma]
+            if mode.endswith("_heal"):
+                for _ in range(min(self.cfg.v5_turn_heals[ch], len(lit))):
+                    t = max(range(3), key=lambda x: self.scars[x])
+                    self.scars[t] = max(0, self.scars[t] - 1)
+            table = (0, 2, 4, 8, 16, 32, 64) if "exp" in mode else (0, 3, 6, 10, 15, 21, 28)
+            for _ in range(table[min(len(lit), 6)]):
+                if not any(self.karma):
+                    break
+                col = max(range(3), key=lambda x: self.karma[x] / self.cap(x))
+                self.karma[col] -= 1
+        elif mode in ("lit_x2", "lit_x3", "lit_exp", "lit_tri"):
+            # no healing; untie several knots per lit memory of the page (free choice); the rest carry over
+            n = len(lit)
+            tri = (0, 3, 6, 10, 15, 21, 28)
+            budget = (2 * n if mode == "lit_x2" else 3 * n if mode == "lit_x3"
+                      else tri[min(n, 6)] if mode == "lit_tri" else (2 ** n if n else 0))
+            for _ in range(budget):
+                if not any(self.karma):
+                    break
+                col = max(range(3), key=lambda x: self.karma[x] / self.cap(x))
+                self.karma[col] -= 1
+        elif mode in ("scar1_lit_free", "scarN_lit_free", "scarN_clear"):
+            # heal scars (one, or by chapter from v5_turn_heals), then untie knots: one per lit memory of the page
+            # (free choice, the rest carry over) or all of them ("scarN_clear")
+            heals = 1 if mode == "scar1_lit_free" else self.cfg.v5_turn_heals[ch]
+            for _ in range(heals):
+                t = max(range(3), key=lambda x: self.scars[x])
+                self.scars[t] = max(0, self.scars[t] - 1)
+            if mode == "scarN_clear":
+                self.karma = [0, 0, 0]
+            for _ in range(0 if mode == "scarN_clear" else len(lit)):
+                if not any(self.karma):
+                    break
+                col = max(range(3), key=lambda x: self.karma[x] / self.cap(x))
+                self.karma[col] -= 1
         else:
             if mode == "lit_free_base2":
                 self.karma = [max(0, k - 2) for k in self.karma]
@@ -2076,7 +2175,7 @@ class State:
         top = max(set(tags), key=tags.count) if tags else None
         ending = ENDINGS[self.cfg.soul][top] if top is not None and tags.count(top) >= 2 else ENDINGS[self.cfg.soul]["交織"]
         defied = sum(1 for f, p in paths if f is not None and f != p)
-        mist = any(v != -1 for r in range(3) for v in self.pg[r].values())
+        mist = any(v not in (-1, -2) for r in range(3) for v in self.pg[r].values())
         key = next((cid for cid, c in CARD.items() if c.key and cid in self.deck + self.discard + self.forgotten
                     + [x for h in self.hands for x in h] + [x for r in range(3) for x in self.book[r].values()]), None)
         where = None

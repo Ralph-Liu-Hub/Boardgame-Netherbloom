@@ -118,7 +118,7 @@ class EchoAgent:
             # Lighting is only checked at the Far Shore, so keep Light for Recalls until the last Reach,
             # unless a Mist that peels unlit memories is in play.
             late = s.page() == 2 or (s.cfg.mist_v2 and serves_me)
-            reserve = 0 if late else 3
+            reserve = 0 if late else s.cfg.v5_light_reserve
             if s.light - cost < reserve:
                 return
             s.light_one(cid, cost)

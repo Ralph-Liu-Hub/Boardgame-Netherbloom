@@ -1,0 +1,36 @@
+[
+ {
+  "label": "清空所有結＋完全不治傷疤",
+  "win": 0.376,
+  "backlash": 1.53,
+  "scars_end": 1.38,
+  "lv": [
+   1.17,
+   0.3,
+   0.06
+  ],
+  "causes": {
+   "Shattered": 0.355,
+   "Faded": 0.142,
+   "Deluge": 0.072,
+   "Nameless": 0.055
+  }
+ },
+ {
+  "label": "依點亮數自由解結＋完全不治傷疤",
+  "win": 0.263,
+  "backlash": 2.9,
+  "scars_end": 2.58,
+  "lv": [
+   1.92,
+   0.77,
+   0.21
+  ],
+  "causes": {
+   "Shattered": 0.36,
+   "Faded": 0.251,
+   "Deluge": 0.087,
+   "Nameless": 0.038
+  }
+ }
+]

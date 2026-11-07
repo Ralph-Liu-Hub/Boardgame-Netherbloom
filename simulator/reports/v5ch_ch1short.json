@@ -1,0 +1,42 @@
+[
+ {
+  "label": "新版第一章 2 格（2／3／3），3／6／9 不治傷疤",
+  "win": 0.359,
+  "chapter_turns": [
+   5.4,
+   6.5,
+   6.3
+  ],
+  "turns": 18.9,
+  "backlash": 1.77,
+  "gate_any": 0.28,
+  "reached_ch3": 0.875,
+  "per_soul": {
+   "child": 0.415,
+   "garland": 0.365,
+   "king": 0.333,
+   "bride": 0.331,
+   "open": 0.352
+  }
+ },
+ {
+  "label": "同上，翻頁清空所有結（對照）",
+  "win": 0.403,
+  "chapter_turns": [
+   5.4,
+   6.4,
+   6.3
+  ],
+  "turns": 18.9,
+  "backlash": 1.37,
+  "gate_any": 0.308,
+  "reached_ch3": 0.882,
+  "per_soul": {
+   "child": 0.473,
+   "garland": 0.406,
+   "king": 0.383,
+   "bride": 0.338,
+   "open": 0.415
+  }
+ }
+]

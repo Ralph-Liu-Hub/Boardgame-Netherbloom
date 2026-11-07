@@ -1,0 +1,59 @@
+[
+ {
+  "limit": 16,
+  "win": 0.44,
+  "per_players": {
+   "1": 0.233,
+   "2": 0.385,
+   "3": 0.528,
+   "4": 0.613
+  },
+  "causes": {
+   "Shattered": 0.389,
+   "Deluge": 0.082,
+   "Nameless": 0.055,
+   "Faded": 0.033
+  },
+  "max_forgotten": 8.9,
+  "recalls": 1.29,
+  "turns": 19.6
+ },
+ {
+  "limit": 14,
+  "win": 0.43,
+  "per_players": {
+   "1": 0.232,
+   "2": 0.385,
+   "3": 0.515,
+   "4": 0.59
+  },
+  "causes": {
+   "Shattered": 0.376,
+   "Deluge": 0.079,
+   "Faded": 0.06,
+   "Nameless": 0.055
+  },
+  "max_forgotten": 8.7,
+  "recalls": 1.3,
+  "turns": 19.5
+ },
+ {
+  "limit": 12,
+  "win": 0.396,
+  "per_players": {
+   "1": 0.218,
+   "2": 0.352,
+   "3": 0.467,
+   "4": 0.548
+  },
+  "causes": {
+   "Shattered": 0.346,
+   "Faded": 0.137,
+   "Deluge": 0.069,
+   "Nameless": 0.052
+  },
+  "max_forgotten": 8.4,
+  "recalls": 1.31,
+  "turns": 19.4
+ }
+]
