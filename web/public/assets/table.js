@@ -97,7 +97,7 @@ let ME = 0;              // my seat
 let mode = "local";      // local | host | guest
 let link = null;         // net handle
 let hist = [], fut = [];
-const LS = "nb-table-v5c";   // the table layout changed: older saved tables do not fit it
+const LS = "nb-table-v5d";   // the table layout changed: older saved tables do not fit it
 const saveLocal = () => { if (mode !== "guest") try { localStorage.setItem(LS, JSON.stringify(S)); } catch { /* full */ } };
 
 const uid = (() => { let n = 0; return p => `${p}${(++n).toString(36)}${Math.floor(Math.random() * 1296).toString(36)}`; })();
@@ -107,6 +107,8 @@ function blankState(opts) {
     v: 1, rev: 0, soul: opts.soul, level: opts.level, players: opts.players, names: opts.names,
     items: {}, stacks: {}, hands: Array.from({ length: opts.players }, () => []), where: {}, z: 10,
     chapter: 0, hint: 0, log: [],
+    // counters are slider tracks: one marker pushed along a groove (Light, Fractures, knots and scars)
+    tracks: { light: 0, crack: 0, knot0: 0, knot1: 0, knot2: 0, scar0: 0, scar1: 0, scar2: 0 },
   };
 }
 function addItem(kind, props, place) {
@@ -139,7 +141,7 @@ function newTable(opts) {
   if (opts.players === 1) addStack("ghost", { x: MISTA.x + 140, y: MISTA.y + 200, label: ["幽靈牌庫", "Ghost deck"], accepts: "card", showBack: true });
   const binX = i => SUPPLY.x + 20 + (i % 8) * 116, binY = i => SUPPLY.y + 240 + Math.floor(i / 8) * 130;
   const bins = [["root", ["根／花", "Root / Bloom"], 24], ["shade", ["怨念", "Shade"], 8], ["fog", ["霧標記", "Fog marker"], 6],
-    ["crack", ["裂痕", "Fracture"], D.LEVELS[opts.level].fractures], ["hold", ["堅守", "Hold Fast"], 1], ["shield", ["護盾", "Shield"], 1],
+    ["hold", ["堅守", "Hold Fast"], 1], ["shield", ["護盾", "Shield"], 1],
     ["resign", ["認命", "Resignation"], 1], ["oar", ["船槳", "Oar"], 1]];
   bins.forEach(([tk, label, n], i) => {
     addStack("bin_" + tk, { x: binX(i), y: binY(i), label, accepts: "tok:" + tk, faceUp: true, bin: true });
@@ -182,11 +184,8 @@ function newTable(opts) {
   Object.entries(D.SPARE_TILES).forEach(([k, n]) => { for (let i = 0; i < n; i++) addItem("tile", { tk: k, face: 1 }, { stack: "spare" }); });
   // markers that start on a board
   addItem("tok", { tk: "soul" }, snapPos("soul0"));
-  addItem("tok", { tk: "light" }, snapPos("light0"));
   addItem("tok", { tk: "echo" }, snapPos("echoS"));
   for (let t = 0; t < 3; t++) {
-    addItem("tok", { tk: "knot" + t }, snapPos(`knot${t}_0`));
-    addItem("tok", { tk: "scar" + t }, snapPos(`scar${t}_0`));
   }
   for (let i = 0; i < D.LEVELS[opts.level].bw; i++) addItem("tok", { tk: "bw" }, snapPos(`bwsup${i}`));
   for (let p = 0; p < opts.players; p++) addItem("tok", { tk: "push", face: 1 }, snapPos(`mat${p}push`));
@@ -217,15 +216,15 @@ function buildSnaps(players) {
   // loom
   for (let t = 0; t < 3; t++) {
     const y = LOOM.y + 60 + t * 88;
-    for (let k = 0; k <= 12; k++) snap(`knot${t}_${k}`, LOOM.x + 110 + k * 38, y, 36, 40, ["tok"]);
-    for (let k = 0; k <= 2; k++) snap(`scar${t}_${k}`, LOOM.x + 610 + k * 32, y, 30, 40, ["tok"]);
+    for (let k = 0; k <= 12; k++) snap(`knot${t}_${k}`, LOOM.x + 110 + k * 38, y, 36, 40, []);
+    for (let k = 0; k <= 2; k++) snap(`scar${t}_${k}`, LOOM.x + 610 + k * 32, y, 30, 40, []);
     snap(`echo${t}`, LOOM.x + 84, y + 2, 32, 36, ["tok"]);
   }
   snap("echoS", LOOM.x + 20, LOOM.y + 300, 40, 32, ["tok"]);
   // ledger
-  for (let k = 0; k <= 12; k++) snap(`light${k}`, LEDGER.x + 352 + k * 46, LEDGER.y + 56, 44, 44, ["tok"]);
-  for (let k = 0; k < 5; k++) snap(`crack${k}`, LEDGER.x + 352 + k * 48, LEDGER.y + 160, 44, 44, ["tok"]);
-  for (let k = 0; k < 7; k++) snap(`bwsup${k}`, LEDGER.x + 600 + k * 48, LEDGER.y + 160, 44, 44, ["tok"]);
+  for (let k = 0; k <= 12; k++) snap(`light${k}`, LEDGER.x + 352 + k * 46, LEDGER.y + 56, 44, 44, []);
+  for (let k = 0; k <= 5; k++) snap(`crack${k}`, LEDGER.x + 352 + k * 48, LEDGER.y + 156, 44, 44, []);
+  for (let k = 0; k < 7; k++) snap(`bwsup${k}`, LEDGER.x + 352 + k * 48, LEDGER.y + 240, 44, 44, ["tok"]);
   // mantle row, fate slots
   // the Mantle row sits along the top of the supply panel
   D.MANTLES.forEach((_, i) => snap(`mantle${i}`, SUPPLY.x + 20 + i * (SW + 12), SUPPLY.y + 56, SW, SH, ["card"]));
@@ -343,7 +342,7 @@ const TOKENS = {
   crack: () => ({ cls: "tk crack", ic: "nb-fracture", t: tr("裂痕", "Fracture") }),
   bw: () => ({ cls: "tk bw", ic: "nb-blackwater", t: tr("黑水", "Black Water") }),
   soul: () => ({ cls: "tk soulp", ic: "nb-soul", t: tr("亡魂", "Soul") }),
-  light: () => ({ cls: "tk lightm", ic: "nb-light", t: tr("光", "Light") }),
+  light: () => ({ cls: "tk lightm", ic: "nb-rays", t: tr("光", "Light") }),
   echo: () => ({ cls: "tk echom", ic: "nb-echo", t: tr("迴響", "Echo") }),
   hold: () => ({ cls: "tk misc", ic: "nb-tok-hold", t: tr("堅守", "Hold Fast") }),
   shield: () => ({ cls: "tk misc", ic: "nb-tok-shield", t: tr("護盾", "Shield") }),
@@ -426,8 +425,10 @@ function boardsHtml() {
   for (let t = 0; t < 3; t++) {
     const y = 60 + t * 88;
     h += `<div class="thread th${t}" style="top:${y}px">${icon(D.THREADS[t].icon)}${tr(D.THREADS[t].zh, D.THREADS[t].en)}</div>`;
-    for (let k = 0; k <= 12; k++) h += `<div class="cell${th.includes(k) ? " lim" : ""}" style="left:${110 + k * 38}px;top:${y}px;width:36px">${k}${k === th[0] ? `<i>${th[0]}</i>` : ""}</div>`;
-    for (let k = 0; k <= 2; k++) h += `<div class="cell scar" style="left:${610 + k * 32}px;top:${y}px;width:30px">${k}</div>`;
+    h += `<div class="groove" style="left:110px;top:${y + 17}px;width:${12 * 38 + 36}px"></div>`;
+    for (let k = 0; k <= 12; k++) h += `<div class="cell tcell${th.includes(k) ? " lim" : ""}" data-track="knot${t}" data-val="${k}" style="left:${110 + k * 38}px;top:${y}px;width:36px">${k}${k === th[0] ? `<i>${th[0]}</i>` : ""}</div>`;
+    h += `<div class="groove" style="left:610px;top:${y + 17}px;width:94px"></div>`;
+    for (let k = 0; k <= 2; k++) h += `<div class="cell scar tcell" data-track="scar${t}" data-val="${k}" style="left:${610 + k * 32}px;top:${y}px;width:30px">${k}</div>`;
     h += `<div class="blash" style="top:${y - 4}px">${D.BACKLASH[t].map((s, i) => `<div><b>${"ⅠⅡⅢ"[i]}</b>${esc(s)}</div>`).join("")}</div>`;
   }
   h += `<div class="lab" style="left:20px;top:284px">${tr("沉默格", "Silent")}</div>
@@ -437,12 +438,14 @@ function boardsHtml() {
   // ledger
   h += `<div class="board ledger" data-region="ledger" style="left:${LEDGER.x}px;top:${LEDGER.y}px;width:${LEDGER.w}px;height:${LEDGER.h}px">${zoomBtn("ledger")}
     <div class="btitle">${tr("渡帳", "Ledger")}</div>
-    <div class="lab" style="left:352px;top:34px">${tr("光", "Light")}</div>`;
-  for (let k = 0; k <= 12; k++) h += `<div class="cell round" style="left:${352 + k * 46}px;top:56px;width:44px;height:44px">${k}</div>`;
-  h += `<div class="lab" style="left:352px;top:138px">${tr(`裂痕（${lv.fractures} 道破碎）`, `Fractures (${lv.fractures} = Shattered)`)}</div>`;
-  for (let k = 0; k < lv.fractures; k++) h += `<div class="cell round crack" style="left:${352 + k * 48}px;top:160px;width:44px;height:44px">${k + 1}</div>`;
-  h += `<div class="lab" style="left:600px;top:138px">${tr(`黑水供應（${lv.bw} 個）`, `Black Water supply (${lv.bw})`)}</div>`;
-  for (let k = 0; k < lv.bw; k++) h += `<div class="cell round" style="left:${600 + k * 48}px;top:160px;width:44px;height:44px"></div>`;
+    <div class="lab" style="left:352px;top:34px">${icon("nb-rays")} ${tr("光（推動或點選格子）", "Light (push the marker or click a cell)")}</div>
+    <div class="groove" style="left:352px;top:76px;width:${12 * 46 + 44}px"></div>`;
+  for (let k = 0; k <= 12; k++) h += `<div class="cell round tcell" data-track="light" data-val="${k}" style="left:${352 + k * 46}px;top:56px;width:44px;height:44px">${k}</div>`;
+  h += `<div class="lab" style="left:352px;top:134px">${tr(`裂痕（${lv.fractures} 道破碎）`, `Fractures (${lv.fractures} = Shattered)`)}</div>
+    <div class="groove" style="left:352px;top:176px;width:${lv.fractures * 48 + 44}px"></div>`;
+  for (let k = 0; k <= lv.fractures; k++) h += `<div class="cell round tcell crack${k === lv.fractures ? " lim" : ""}" data-track="crack" data-val="${k}" style="left:${352 + k * 48}px;top:156px;width:44px;height:44px">${k === lv.fractures ? tr("碎", "✕") : k}</div>`;
+  h += `<div class="lab" style="left:352px;top:218px">${tr(`黑水供應（${lv.bw} 個）`, `Black Water supply (${lv.bw})`)}</div>`;
+  for (let k = 0; k < lv.bw; k++) h += `<div class="cell round" style="left:${352 + k * 48}px;top:240px;width:44px;height:44px"></div>`;
   h += `<div class="note" style="left:140px;top:300px;right:20px">${tr(`消散門檻：遺忘 ${lv.dissolve} 張。輕如灰燼 6、漂離 9。忘川的拉力：第一／二／三章 ${PULL.join("／")} 張。`, `Faded at ${lv.dissolve} forgotten. Light as Ash 6, Adrift 9. Pull of Lethe: ${PULL.join(" / ")}.`)}</div></div>`;
   // fate area
   h += `<div class="board fatea" data-region="fate" style="left:${FATE.x}px;top:${FATE.y}px;width:${FATE.w}px;height:${FATE.h}px">${zoomBtn("fate")}
@@ -622,6 +625,7 @@ function render() {
       el._sig = sig;
     }
   }
+  renderTracks();
   // hand
   renderHand();
   // seats & counts
@@ -629,6 +633,49 @@ function render() {
   document.querySelectorAll("[data-hc]").forEach(e => { const p = +e.dataset.hc; e.textContent = tr(`手牌 ${S.hands[p].length} 張`, `${S.hands[p].length} cards in hand`); });
   renderBook();
   renderHint();
+}
+
+// ---------------------------------------------------------------- slider tracks
+const TRACK_ICON = { light: ["nb-rays", "lightm"], crack: ["nb-fracture", "crack"] };
+const trackMax = id => (id === "light" ? 12 : id === "crack" ? D.LEVELS[S.level].fractures : id.startsWith("scar") ? 2 : 12);
+const trackSnap = (id, v) => snapById[id.startsWith("knot") || id.startsWith("scar") ? `${id}_${v}` : `${id}${v}`];
+const trackName = id => (id === "light" ? tr("光", "Light") : id === "crack" ? tr("裂痕", "Fractures")
+  : `${tr(id.startsWith("knot") ? "結" : "傷疤", id.startsWith("knot") ? "Knots" : "Scars")}（${tr(D.THREADS[+id.slice(-1)].zh, D.THREADS[+id.slice(-1)].en)}）`);
+const markerEls = {};
+function renderTracks() {
+  S.tracks ||= { light: 0, crack: 0, knot0: 0, knot1: 0, knot2: 0, scar0: 0, scar1: 0, scar2: 0 };
+  for (const id in S.tracks) {
+    let el = markerEls[id];
+    if (!el || !el.isConnected) {
+      el = document.createElement("div");
+      const [ic, cls] = TRACK_ICON[id] || (id.startsWith("knot") ? ["nb-knot", `knotm th${id.slice(-1)}`] : ["nb-fracture", `scarm th${id.slice(-1)}`]);
+      el.className = `piece tk tmarker ${cls}`; el.dataset.track = id; el.innerHTML = icon(ic);
+      elTable.appendChild(el); markerEls[id] = el;
+    }
+    if (drag?.track === id) continue;
+    const sn = trackSnap(id, Math.min(S.tracks[id], trackMax(id)));
+    if (!sn) continue;
+    el.title = `${trackName(id)}：${S.tracks[id]}`;
+    el.style.width = el.style.height = TK + "px";
+    el.style.transform = `translate(${sn.x + sn.w / 2 - TK / 2}px,${sn.y + sn.h / 2 - TK / 2}px)`;
+    el.style.zIndex = 8000;
+  }
+}
+function setTrack(id, v) {
+  v = Math.max(0, Math.min(trackMax(id), v));
+  if (S.tracks[id] === v) return render();
+  const old = S.tracks[id];
+  commit(tr(`${who()}：${trackName(id)} ${old} → ${v}`, `${who()}: ${trackName(id)} ${old} → ${v}`), () => { S.tracks[id] = v; });
+}
+function nearestTrackValue(id, pt) {
+  let best = 0, bd = 1e9;
+  for (let v = 0; v <= trackMax(id); v++) {
+    const sn = trackSnap(id, v);
+    if (!sn) continue;
+    const d = Math.hypot(pt.x - (sn.x + sn.w / 2), pt.y - (sn.y + sn.h / 2));
+    if (d < bd) { bd = d; best = v; }
+  }
+  return best;
 }
 
 function renderHand() {
@@ -739,6 +786,10 @@ let hover = null;
 function onDown(e) {
   if (e.button !== 0) return;
   closeMenus();
+  const mk = e.target.closest(".tmarker");
+  if (mk) { e.preventDefault(); drag = { track: mk.dataset.track, el: mk }; mk.classList.add("dragging"); return; }
+  const tc = e.target.closest(".tcell");
+  if (tc) { setTrack(tc.dataset.track, +tc.dataset.val); return; }
   const p = e.target.closest(".piece[data-id]");
   if (p) return startDrag(e, p.dataset.id, "table");
   const s = e.target.closest(".stack");
@@ -771,6 +822,12 @@ function startDrag(e, id, from) {
 }
 function onMove(e) {
   if (!drag) return;
+  if (drag.track) {
+    const v = nearestTrackValue(drag.track, worldPt(e)), sn = trackSnap(drag.track, v);
+    drag.val = v;
+    drag.el.style.transform = `translate(${sn.x + sn.w / 2 - TK / 2}px,${sn.y + sn.h / 2 - TK / 2}px)`;
+    return;
+  }
   if (drag.pan) { view.x = drag.ox + e.clientX - drag.sx; view.y = drag.oy + e.clientY - drag.sy; applyView(); return; }
   if (drag.stackMove) {
     const st = S.stacks[drag.stackMove];
@@ -796,6 +853,7 @@ function onUp(e) {
   if (!drag) return;
   const d = drag; drag = null;
   elHand.classList.remove("drop");
+  if (d.track) { d.el.classList.remove("dragging"); if (d.val !== undefined) setTrack(d.track, d.val); else render(); return; }
   if (d.pan) return;
   if (d.stackMove) { hist.push(d.snapshot); fut = []; S.rev++; changed(); return; }
   const it = S.items[d.id];
@@ -1118,7 +1176,10 @@ function toast(m) {
 async function boot() {
   try {
     const svg = await (await fetch("/assets/symbols.svg")).text();
-    const holder = document.createElement("div"); holder.style.display = "none"; holder.innerHTML = svg; document.body.prepend(holder);
+    const rays = `<symbol id="nb-rays" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">${
+      Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6, r1 = i % 2 ? 7 : 6.6, r2 = i % 2 ? 9.6 : 11.4;
+        return `<line x1="${(12 + r1 * Math.cos(a)).toFixed(2)}" y1="${(12 + r1 * Math.sin(a)).toFixed(2)}" x2="${(12 + r2 * Math.cos(a)).toFixed(2)}" y2="${(12 + r2 * Math.sin(a)).toFixed(2)}"/>`; }).join("")}</g></symbol>`;
+    const holder = document.createElement("div"); holder.style.display = "none"; holder.innerHTML = svg.replace("</svg>", rays + "</svg>"); document.body.prepend(holder);
   } catch { /* icons are optional */ }
   const lb = $("#btn-lang");
   if (lb) {

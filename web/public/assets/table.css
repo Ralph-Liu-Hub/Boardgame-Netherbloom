@@ -256,3 +256,12 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .zoombtn { position: absolute; right: 8px; top: 6px; z-index: 5; width: 34px; height: 34px; padding: 0; font-size: 20px; line-height: 1; border-radius: 50%; background: rgba(42, 37, 48, .9); }
 .zoombtn:hover { background: #3b2f1c; }
 .slotbox { position: absolute; border: 1px dashed rgba(201, 164, 92, .45); border-radius: 9px; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 13px; color: var(--mist); padding: 8px; }
+
+/* slider tracks */
+.groove { position: absolute; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #0c0a0e, #2a2430); box-shadow: inset 0 1px 2px #000; }
+.tcell { cursor: pointer; z-index: 1; }
+.tcell:hover { border-color: var(--gold); color: var(--paper); }
+.tmarker { cursor: ew-resize; transition: transform .12s ease-out; }
+.tmarker.dragging { transition: none; }
+.tk.lightm { background: radial-gradient(circle, #ffe9a8 0%, #e0b84f 55%, #9a6c12 100%); color: #fff8dc; box-shadow: 0 0 14px rgba(255, 210, 110, .85); }
+.cell.crack.lim { border-color: var(--crimson); color: var(--crimson); font-weight: 700; }
