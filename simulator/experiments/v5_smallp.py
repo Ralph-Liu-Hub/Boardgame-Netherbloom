@@ -28,6 +28,13 @@ CANDIDATES = {
     "2 人：手牌 4": {2: ({}, {"hand": 1})},
     "單人：手牌 6": {1: ({}, {"hand": 1})},
     "2 人：墳墓 2": {2: ({}, {"graves": 1})},
+    # combinations (round 2)
+    "單人：手牌 6＋織機 +1": {1: ({}, {"hand": 1, "v5_solo_cap_bonus": 1})},
+    "單人：手牌 6＋破碎 +1": {1: ({}, {"hand": 1, "fracture_limit": 1})},
+    "單人：手牌 6＋織機 +1＋破碎 +1": {1: ({}, {"hand": 1, "v5_solo_cap_bonus": 1, "fracture_limit": 1})},
+    "單人：手牌 6＋織機 +2": {1: ({}, {"hand": 1, "v5_solo_cap_bonus": 2})},
+    "單人：織機 +1＋破碎 +1": {1: ({}, {"v5_solo_cap_bonus": 1, "fracture_limit": 1})},
+    "2 人：手牌 4＋起始光 +1": {2: ({}, {"hand": 1, "start_light": 1})},
 }
 
 

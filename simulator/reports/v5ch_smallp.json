@@ -3,18 +3,233 @@
   "level": "Standard",
   "label": "現行",
   "1": {
-   "win": 0.6,
-   "backlash": 2.13,
+   "win": 0.387,
+   "backlash": 2.51,
    "loss": {
-    "Shattered": 0.4
+    "Shattered": 0.336,
+    "Deluge": 0.137,
+    "Faded": 0.089,
+    "Nameless": 0.051
    }
   },
   "2": {
-   "win": 0.6,
-   "backlash": 1.33,
+   "win": 0.426,
+   "backlash": 1.84,
    "loss": {
-    "Shattered": 0.333,
-    "Faded": 0.067
+    "Shattered": 0.235,
+    "Nameless": 0.135,
+    "Faded": 0.11,
+    "Deluge": 0.094
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "起始光 +1",
+  "1": {
+   "win": 0.378,
+   "backlash": 2.56,
+   "loss": {
+    "Shattered": 0.351,
+    "Deluge": 0.139,
+    "Faded": 0.089,
+    "Nameless": 0.043
+   }
+  },
+  "2": {
+   "win": 0.462,
+   "backlash": 1.8,
+   "loss": {
+    "Shattered": 0.21,
+    "Nameless": 0.151,
+    "Deluge": 0.099,
+    "Faded": 0.078
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "起始光 +2",
+  "1": {
+   "win": 0.386,
+   "backlash": 2.52,
+   "loss": {
+    "Shattered": 0.353,
+    "Deluge": 0.136,
+    "Faded": 0.081,
+    "Nameless": 0.045
+   }
+  },
+  "2": {
+   "win": 0.478,
+   "backlash": 1.69,
+   "loss": {
+    "Shattered": 0.194,
+    "Nameless": 0.153,
+    "Deluge": 0.099,
+    "Faded": 0.077
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "織機 +1",
+  "1": {
+   "win": 0.428,
+   "backlash": 2.07,
+   "loss": {
+    "Shattered": 0.313,
+    "Deluge": 0.135,
+    "Faded": 0.08,
+    "Nameless": 0.044
+   }
+  },
+  "2": {
+   "win": 0.439,
+   "backlash": 1.36,
+   "loss": {
+    "Shattered": 0.21,
+    "Nameless": 0.152,
+    "Deluge": 0.101,
+    "Faded": 0.098
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "破碎 +1",
+  "1": {
+   "win": 0.415,
+   "backlash": 2.64,
+   "loss": {
+    "Shattered": 0.264,
+    "Deluge": 0.153,
+    "Faded": 0.112,
+    "Nameless": 0.056
+   }
+  },
+  "2": {
+   "win": 0.439,
+   "backlash": 1.94,
+   "loss": {
+    "Shattered": 0.171,
+    "Nameless": 0.142,
+    "Faded": 0.138,
+    "Deluge": 0.11
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "黑水 +1",
+  "1": {
+   "win": 0.396,
+   "backlash": 2.6,
+   "loss": {
+    "Shattered": 0.388,
+    "Faded": 0.099,
+    "Deluge": 0.067,
+    "Nameless": 0.05
+   }
+  },
+  "2": {
+   "win": 0.432,
+   "backlash": 1.9,
+   "loss": {
+    "Shattered": 0.255,
+    "Nameless": 0.138,
+    "Faded": 0.134,
+    "Deluge": 0.041
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "消散 +1",
+  "1": {
+   "win": 0.395,
+   "backlash": 2.51,
+   "loss": {
+    "Shattered": 0.351,
+    "Deluge": 0.144,
+    "Faded": 0.058,
+    "Nameless": 0.051
+   }
+  },
+  "2": {
+   "win": 0.437,
+   "backlash": 1.82,
+   "loss": {
+    "Shattered": 0.253,
+    "Nameless": 0.142,
+    "Deluge": 0.097,
+    "Faded": 0.071
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "消散 +2",
+  "1": {
+   "win": 0.406,
+   "backlash": 2.51,
+   "loss": {
+    "Shattered": 0.362,
+    "Deluge": 0.146,
+    "Nameless": 0.051,
+    "Faded": 0.035
+   }
+  },
+  "2": {
+   "win": 0.44,
+   "backlash": 1.85,
+   "loss": {
+    "Shattered": 0.266,
+    "Nameless": 0.144,
+    "Deluge": 0.103,
+    "Faded": 0.047
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "2 人：託付只需 1",
+  "2": {
+   "win": 0.55,
+   "backlash": 1.82,
+   "loss": {
+    "Shattered": 0.233,
+    "Faded": 0.108,
+    "Deluge": 0.094,
+    "Nameless": 0.016
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "2 人：手牌 4",
+  "2": {
+   "win": 0.524,
+   "backlash": 1.55,
+   "loss": {
+    "Nameless": 0.167,
+    "Shattered": 0.147,
+    "Deluge": 0.082,
+    "Faded": 0.08
+   }
+  }
+ },
+ {
+  "level": "Standard",
+  "label": "單人：手牌 6",
+  "1": {
+   "win": 0.431,
+   "backlash": 2.4,
+   "loss": {
+    "Shattered": 0.282,
+    "Deluge": 0.131,
+    "Faded": 0.105,
+    "Nameless": 0.05
    }
   }
  },
@@ -22,12 +237,13 @@
   "level": "Standard",
   "label": "2 人：墳墓 2",
   "2": {
-   "win": 0.4,
-   "backlash": 1.33,
+   "win": 0.268,
+   "backlash": 1.97,
    "loss": {
-    "Shattered": 0.4,
-    "Deluge": 0.133,
-    "Faded": 0.067
+    "Shattered": 0.362,
+    "Faded": 0.134,
+    "Deluge": 0.13,
+    "Nameless": 0.106
    }
   }
  }
