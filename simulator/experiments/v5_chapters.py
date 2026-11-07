@@ -56,7 +56,8 @@ BASE_EXTRA = {"v5_insc_echo": True, "v5_cap_bonus": 3, "v5_fog_plus": 1, "v5_shr
 # The page turn decided on 11/7: untie 3 / 6 / 9 knots for 1 / 2 / 3 lit memories, no scar healing.
 DECIDED = {"v5_turn_knots": "table", "v5_turn_table": (0, 3, 6, 9),
            # 11/7: the pull of Lethe at 3 / 5 / 7 forgotten cards, which a lit gate cannot override
-           "v5_obl_pull": (3, 5, 7), "v5_obl_pull_hard": True}
+           "v5_obl_pull": (3, 5, 7), "v5_obl_pull_hard": True,
+           "v5_obl_pull_take": 2, "v5_obl_pull_take_to": "box"}   # the river takes 2 forgotten cards for good
 # 11/7 player counts: solo hand 5 and loom +1; 4 players loom -1 (apply per player count).
 PLAYER_DECIDED = {1: {"hand": 5, "v5_solo_cap_bonus": 2}, 4: {"v5_cap_bonus": 2}}
 TUNED_LEVELS = {"Gentle": {"v5_fog_plus": 0}, "Standard": {}, "Hard": {"v5_shroud_crack": True, "v5_start_knots": 1}}

@@ -24,7 +24,10 @@ VARIANTS = [
     ("選項 1：只算本章遺忘 3／3／4", {"v5_obl_pull_mode": "chapter", "v5_obl_pull": (3, 3, 4)}),
     ("選項 2：河水帶走 3 張（移出遊戲）3／5／7", {"v5_obl_pull_take": 3, "v5_obl_pull_take_to": "box"}),
     ("選項 2：河水帶走 3 張（回棄牌堆）3／5／7", {"v5_obl_pull_take": 3, "v5_obl_pull_take_to": "discard"}),
+    ("選項 2：河水帶走 2 張（移出遊戲）3／5／7（11/7 決定）", {"v5_obl_pull_take": 2, "v5_obl_pull_take_to": "box"}),
 ]
+if os.environ.get("ONLY"):
+    VARIANTS = [v for v in VARIANTS if os.environ["ONLY"] in v[0]]
 
 
 def run(a):
@@ -64,7 +67,7 @@ def summarize(label, rows):
            "ch2_pulled_otherwise": pct(sum(r["pull"][1] for r in rest), len(rest)),
            "ch2_obl_after_ch1": pct(sum(r["obl"][1] for r in c1r2), len(c1r2)),
            "obl_ending_after_ch1_pull": pct(sum(r["thread"] == "忘卻" for r in c1w), len(c1w)),
-           "loss_causes": {k: pct(v, n) for k, v in Counter(r["cause"] for r in rows if not r["win"]).most_common()}}
+           "taken_per_game": round(mean(r["taken"] for r in rows), 2), "loss_causes": {k: pct(v, n) for k, v in Counter(r["cause"] for r in rows if not r["win"]).most_common()}}
     print(json.dumps(out, ensure_ascii=False), flush=True)
     return out
 
@@ -77,5 +80,5 @@ if __name__ == "__main__":
         with Pool(4) as pool:
             rows = pool.map(run, args, chunksize=10)
         out.append(summarize(label, rows))
-    json.dump(out, open(os.path.join(os.path.dirname(__file__), "..", "reports", "v5ch_pull_options.json"), "w"),
+    json.dump(out, open(os.path.join(os.path.dirname(__file__), "..", "reports", os.environ.get("OUT", "v5ch_pull_options.json")), "w"),
               ensure_ascii=False, indent=1)
