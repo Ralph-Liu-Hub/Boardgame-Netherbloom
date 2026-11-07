@@ -1,0 +1,176 @@
+[
+ {
+  "label": "現行：整個遺忘堆 3／5／7",
+  "win": 0.395,
+  "by_players": {
+   "1": 0.328,
+   "2": 0.336,
+   "3": 0.444,
+   "4": 0.472
+  },
+  "ending_thread": {
+   "忘卻": 0.294,
+   "執念": 0.253,
+   "交織": 0.242,
+   "釋懷": 0.211
+  },
+  "defied_1plus": 0.482,
+  "pulled_any": 0.537,
+  "ch1_pulled": 0.077,
+  "ch2_pulled_after_ch1": 0.738,
+  "ch2_pulled_otherwise": 0.222,
+  "ch2_obl_after_ch1": 0.828,
+  "obl_ending_after_ch1_pull": 0.891,
+  "loss_causes": {
+   "Shattered": 0.293,
+   "Faded": 0.155,
+   "Deluge": 0.092,
+   "Nameless": 0.065
+  }
+ },
+ {
+  "label": "選項 1：只算本章遺忘 2／2／3",
+  "win": 0.389,
+  "by_players": {
+   "1": 0.308,
+   "2": 0.324,
+   "3": 0.436,
+   "4": 0.486
+  },
+  "ending_thread": {
+   "忘卻": 0.39,
+   "交織": 0.234,
+   "執念": 0.194,
+   "釋懷": 0.181
+  },
+  "defied_1plus": 0.436,
+  "pulled_any": 0.683,
+  "ch1_pulled": 0.164,
+  "ch2_pulled_after_ch1": 0.536,
+  "ch2_pulled_otherwise": 0.424,
+  "ch2_obl_after_ch1": 0.662,
+  "obl_ending_after_ch1_pull": 0.856,
+  "loss_causes": {
+   "Shattered": 0.289,
+   "Faded": 0.163,
+   "Deluge": 0.095,
+   "Nameless": 0.065
+  }
+ },
+ {
+  "label": "選項 1：只算本章遺忘 2／3／3",
+  "win": 0.388,
+  "by_players": {
+   "1": 0.324,
+   "2": 0.324,
+   "3": 0.422,
+   "4": 0.482
+  },
+  "ending_thread": {
+   "忘卻": 0.289,
+   "交織": 0.264,
+   "執念": 0.232,
+   "釋懷": 0.215
+  },
+  "defied_1plus": 0.472,
+  "pulled_any": 0.585,
+  "ch1_pulled": 0.164,
+  "ch2_pulled_after_ch1": 0.299,
+  "ch2_pulled_otherwise": 0.223,
+  "ch2_obl_after_ch1": 0.49,
+  "obl_ending_after_ch1_pull": 0.731,
+  "loss_causes": {
+   "Shattered": 0.291,
+   "Faded": 0.167,
+   "Deluge": 0.092,
+   "Nameless": 0.061
+  }
+ },
+ {
+  "label": "選項 1：只算本章遺忘 3／3／4",
+  "win": 0.391,
+  "by_players": {
+   "1": 0.334,
+   "2": 0.316,
+   "3": 0.434,
+   "4": 0.48
+  },
+  "ending_thread": {
+   "執念": 0.271,
+   "交織": 0.27,
+   "釋懷": 0.265,
+   "忘卻": 0.194
+  },
+  "defied_1plus": 0.513,
+  "pulled_any": 0.441,
+  "ch1_pulled": 0.077,
+  "ch2_pulled_after_ch1": 0.248,
+  "ch2_pulled_otherwise": 0.228,
+  "ch2_obl_after_ch1": 0.462,
+  "obl_ending_after_ch1_pull": 0.578,
+  "loss_causes": {
+   "Shattered": 0.298,
+   "Faded": 0.159,
+   "Deluge": 0.089,
+   "Nameless": 0.064
+  }
+ },
+ {
+  "label": "選項 2：河水帶走 3 張（移出遊戲）3／5／7",
+  "win": 0.417,
+  "by_players": {
+   "1": 0.332,
+   "2": 0.346,
+   "3": 0.476,
+   "4": 0.516
+  },
+  "ending_thread": {
+   "忘卻": 0.262,
+   "執念": 0.26,
+   "交織": 0.256,
+   "釋懷": 0.222
+  },
+  "defied_1plus": 0.497,
+  "pulled_any": 0.539,
+  "ch1_pulled": 0.078,
+  "ch2_pulled_after_ch1": 0.315,
+  "ch2_pulled_otherwise": 0.225,
+  "ch2_obl_after_ch1": 0.527,
+  "obl_ending_after_ch1_pull": 0.615,
+  "loss_causes": {
+   "Shattered": 0.324,
+   "Deluge": 0.11,
+   "Faded": 0.08,
+   "Nameless": 0.069
+  }
+ },
+ {
+  "label": "選項 2：河水帶走 3 張（回棄牌堆）3／5／7",
+  "win": 0.435,
+  "by_players": {
+   "1": 0.346,
+   "2": 0.358,
+   "3": 0.494,
+   "4": 0.544
+  },
+  "ending_thread": {
+   "忘卻": 0.266,
+   "執念": 0.262,
+   "交織": 0.255,
+   "釋懷": 0.217
+  },
+  "defied_1plus": 0.487,
+  "pulled_any": 0.539,
+  "ch1_pulled": 0.078,
+  "ch2_pulled_after_ch1": 0.303,
+  "ch2_pulled_otherwise": 0.225,
+  "ch2_obl_after_ch1": 0.503,
+  "obl_ending_after_ch1_pull": 0.656,
+  "loss_causes": {
+   "Shattered": 0.308,
+   "Deluge": 0.11,
+   "Faded": 0.078,
+   "Nameless": 0.069
+  }
+ }
+]
