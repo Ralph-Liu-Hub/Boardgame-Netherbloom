@@ -93,10 +93,10 @@ export const GHOST = [
   { th: 2, zh: "不採取行動", en: "No action" },
 ];
 
-export const LEVELS = [   // 11/7 retune: about 60 / 50 / 40 % in simulation
-  { zh: "溫和", en: "Gentle", fog: 0, crack: false, knots: 0, dissolve: 14, loom: 8, fractures: 5, bw: 7 },
-  { zh: "標準", en: "Standard", fog: 1, crack: false, knots: 0, dissolve: 14, loom: 9, fractures: 3, bw: 6 },
-  { zh: "困難", en: "Hard", fog: 1, crack: true, knots: 1, dissolve: 14, loom: 8, fractures: 3, bw: 6 },
+export const LEVELS = [   // 11/7 retune round 3: about 60 / 50 / 40 % (+-5) in simulation, a tighter Loom at every level
+  { zh: "溫和", en: "Gentle", fog: 0, crack: false, knots: 0, dissolve: 14, loom: 7, fractures: 5, bw: 7 },
+  { zh: "標準", en: "Standard", fog: 1, crack: false, knots: 0, dissolve: 12, loom: 7, fractures: 4, bw: 6 },
+  { zh: "困難", en: "Hard", fog: 1, crack: true, knots: 1, dissolve: 12, loom: 7, fractures: 3, bw: 6 },
 ];
 export const SETUP_TABLE = { 1: { graves: 2, need: 1 }, 2: { graves: 1, need: 2 }, 3: { graves: 2, need: 2 }, 4: { graves: 2, need: 3 } };
 export const START_LIGHT = { child: 3, garland: 0, king: 0, bride: 1, open: 2 };

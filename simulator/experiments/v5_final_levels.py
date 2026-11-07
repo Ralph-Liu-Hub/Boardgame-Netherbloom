@@ -28,9 +28,7 @@ def run(a):
         loom = rt.pop("loom")
         extra["v5_cap_bonus"] = extra.get("v5_cap_bonus", 3) + loom   # 4 players keep their own -1 (PLAYER_DECIDED)
         extra.update(rt)
-        extra["dissolve"] = -2                                           # 14 at every difficulty
-    else:
-        extra["dissolve"] = DISSOLVE[level]
+    extra["dissolve"] = DISSOLVE[level]                                  # 14 / 12 / 12
     s = play_game(cfg(soul, p, "Standard", sd, extra))
     st = s.stats
     row = {"soul": soul, "p": p, "win": s.result == "win", "cause": s.cause,
