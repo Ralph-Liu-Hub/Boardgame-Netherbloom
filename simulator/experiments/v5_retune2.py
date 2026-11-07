@@ -14,8 +14,9 @@ from experiments.v5_chapters import SOULS  # noqa: E402
 
 D0 = dict(F.DISSOLVE)
 CANDIDATES = [   # (label, level, loom +, dissolve +, fractures to shatter)
-    ("溫和：裂痕 4 道＋織機 +1＋黑水 6", "Gentle", 1, 0, 4, 6),
-    ("溫和：裂痕 4 道＋織機 +2＋黑水 6", "Gentle", 2, 0, 4, 6),
+    ("溫和：裂痕 4 道＋織機 +1＋黑水 7", "Gentle", 1, 0, 4, 7),
+    ("溫和：裂痕 4 道＋織機 +1＋黑水 8", "Gentle", 1, 0, 4, 8),
+    ("溫和：裂痕 4 道＋織機 +1＋黑水 8＋消散 16", "Gentle", 1, 2, 4, 8),
     ("溫和：裂痕 4 道才破碎", "Gentle", 0, 0, 4),
     ("溫和：裂痕 4 道＋織機 +1", "Gentle", 1, 0, 4),
     ("標準：織機 +1、消散 14", "Standard", 1, 2, 3),
