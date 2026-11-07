@@ -1,0 +1,131 @@
+[
+ {
+  "level": "Gentle",
+  "win": 0.593,
+  "turns": 21.0,
+  "chapter_turns": [
+   5.0,
+   6.4,
+   6.2
+  ],
+  "by_players": {
+   "1": 0.508,
+   "2": 0.609,
+   "3": 0.626,
+   "4": 0.627
+  },
+  "by_soul": {
+   "child": 0.604,
+   "garland": 0.671,
+   "king": 0.516,
+   "bride": 0.604,
+   "open": 0.568
+  },
+  "ending_thread": {
+   "忘卻": 0.294,
+   "交織": 0.251,
+   "執念": 0.243,
+   "釋懷": 0.212
+  },
+  "defied_1plus": 0.436,
+  "hidden_by_soul": {
+   "child": 0.045,
+   "garland": 0.039,
+   "king": 0.021,
+   "bride": 0.141,
+   "open": 0.347
+  },
+  "loss_causes": {
+   "Faded": 0.14,
+   "Deluge": 0.094,
+   "Nameless": 0.09,
+   "Shattered": 0.083
+  }
+ },
+ {
+  "level": "Standard",
+  "win": 0.515,
+  "turns": 19.6,
+  "chapter_turns": [
+   5.0,
+   6.3,
+   6.2
+  ],
+  "by_players": {
+   "1": 0.431,
+   "2": 0.524,
+   "3": 0.548,
+   "4": 0.556
+  },
+  "by_soul": {
+   "child": 0.552,
+   "garland": 0.557,
+   "king": 0.444,
+   "bride": 0.51,
+   "open": 0.511
+  },
+  "ending_thread": {
+   "忘卻": 0.3,
+   "執念": 0.242,
+   "交織": 0.24,
+   "釋懷": 0.217
+  },
+  "defied_1plus": 0.428,
+  "hidden_by_soul": {
+   "child": 0.045,
+   "garland": 0.036,
+   "king": 0.027,
+   "bride": 0.151,
+   "open": 0.288
+  },
+  "loss_causes": {
+   "Shattered": 0.183,
+   "Faded": 0.114,
+   "Deluge": 0.104,
+   "Nameless": 0.085
+  }
+ },
+ {
+  "level": "Hard",
+  "win": 0.419,
+  "turns": 17.6,
+  "chapter_turns": [
+   4.9,
+   6.2,
+   6.0
+  ],
+  "by_players": {
+   "1": 0.348,
+   "2": 0.43,
+   "3": 0.424,
+   "4": 0.474
+  },
+  "by_soul": {
+   "child": 0.534,
+   "garland": 0.429,
+   "king": 0.33,
+   "bride": 0.377,
+   "open": 0.425
+  },
+  "ending_thread": {
+   "忘卻": 0.278,
+   "交織": 0.254,
+   "執念": 0.236,
+   "釋懷": 0.232
+  },
+  "defied_1plus": 0.418,
+  "hidden_by_soul": {
+   "child": 0.06,
+   "garland": 0.051,
+   "king": 0.042,
+   "bride": 0.135,
+   "open": 0.287
+  },
+  "loss_causes": {
+   "Shattered": 0.417,
+   "Nameless": 0.064,
+   "Deluge": 0.061,
+   "Faded": 0.04
+  }
+ }
+]
