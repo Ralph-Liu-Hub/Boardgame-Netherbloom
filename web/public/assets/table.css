@@ -171,6 +171,8 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .hand-cards { display: flex; gap: 10px; margin-top: 4px; overflow-x: auto; height: 152px; transform-origin: 0 0; }
 .hand-cards .piece { position: relative; flex: none; transform: scale(.82); transform-origin: 0 0; margin-right: -18px; font-size: 11px; }
 .hand-cards .empty { padding: 20px; }
+/* on a touch screen a sideways swipe scrolls the hand; pulling a card upwards drags it onto the table */
+.hand-cards .hcard { touch-action: pan-x; }
 
 /* side panels */
 .tt-hint, .tt-drawer { position: absolute; top: 50px; right: 10px; bottom: 160px; width: 360px; background: rgba(20, 17, 24, .97); border: 1px solid var(--line); border-radius: 12px; z-index: 25; padding: 10px 12px; overflow: auto; font-size: 14px; line-height: 1.55; }
@@ -200,17 +202,21 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .tt-menu button:hover:not(:disabled) { background: #3b2f1c; }
 .tt-modal, .tt-cover { position: fixed; inset: 0; background: rgba(0, 0, 0, .7); z-index: 70; display: flex; align-items: center; justify-content: center; }
 .tt-cover { background: #0b0a0d; }
-.mbox { position: relative; background: var(--ink2); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; max-width: min(92vw, 900px); max-height: 86vh; overflow: auto; }
+.mbox { position: relative; background: var(--ink2); border: 1px solid var(--line); border-radius: 12px; padding: 44px 18px 16px; max-width: min(92vw, 900px); max-height: 86vh; overflow: auto; }
 .mbox h3 { font-family: var(--serif); color: var(--bone); margin: 0 0 8px; }
-.mclose { position: absolute; right: 8px; top: 8px; }
+.mclose { position: absolute; right: 8px; top: 8px; z-index: 5; }
 .slist { display: flex; flex-wrap: wrap; gap: 8px; }
 .slist .piece { position: relative; cursor: pointer; font-size: 11px; }
 .piece.big { position: relative; width: 260px; height: 360px; font-size: 15px; padding: 14px; margin: 0 auto; }
 .piece.big .c-top { font-size: 18px; } .piece.big .c-slot, .piece.big .c-res { font-size: 14px; }
 .toasts { position: fixed; left: 50%; transform: translateX(-50%); bottom: 170px; z-index: 80; display: flex; flex-direction: column; gap: 6px; align-items: center; }
 .toast { background: var(--ink2); border: 1px solid var(--gold); padding: 6px 14px; border-radius: 8px; font-size: 14px; }
+.tt-bar > * { flex-shrink: 0; white-space: nowrap; }
+.tt-bar .sp { flex-shrink: 1; min-width: 0; }
 @media (max-width: 760px) {
-  .tt-bar { overflow-x: auto; }
+  .tt-bar { overflow-x: auto; overflow-y: hidden; gap: 6px; scrollbar-width: thin; }
+  .tt-bar .brand, .tt-bar > .muted:not(#tt-code) { display: none; }
+  .tt-bar button, .seat, .switch { padding: 3px 7px; font-size: 13px; }
   .tt-hint, .tt-drawer { left: 10px; right: 10px; width: auto; }
 }
 

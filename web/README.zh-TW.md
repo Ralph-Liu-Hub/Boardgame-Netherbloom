@@ -17,6 +17,7 @@ Netherbloom V5 的**手動虛擬桌面**，供出版商試玩預覽，託管於 
 ```bash
 cd web
 npm test                                           # 元件資料與故事書路線、登入與遊玩紀錄的檢查
+npm run test:e2e                                   # 瀏覽器測試（Playwright＋Chromium）：每位亡魂／難度／人數、拖放、牌堆、推軌、提示、大廳、手機、觸控、雙指縮放、線上遊戲
 python3 -m http.server 8765 --directory public     # 本機遊玩（不需登入）
 python3 tools/build_table_data.py                  # 修改 simulator/netherbloom/storybook_data.py 之後
 python3 tools/build_rules.py                       # 修改 V5 規則書之後

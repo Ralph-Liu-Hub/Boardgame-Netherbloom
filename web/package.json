@@ -3,9 +3,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tests/table.test.js && node tests/auth.test.js && node tests/playlog.test.js"
+    "test": "node tests/table.test.js && node tests/auth.test.js && node tests/playlog.test.js",
+    "test:e2e": "node tests/e2e/run.cjs"
   },
   "dependencies": {
     "@vercel/blob": "2.8.2"
+  },
+  "devDependencies": {
+    "express": "4.21.2",
+    "peer": "1.0.2",
+    "peerjs": "1.5.4"
   }
 }

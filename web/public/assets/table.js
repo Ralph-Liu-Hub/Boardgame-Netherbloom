@@ -185,8 +185,6 @@ function newTable(opts) {
   // markers that start on a board
   addItem("tok", { tk: "soul" }, snapPos("soul0"));
   addItem("tok", { tk: "echo" }, snapPos("echoS"));
-  for (let t = 0; t < 3; t++) {
-  }
   for (let i = 0; i < D.LEVELS[opts.level].bw; i++) addItem("tok", { tk: "bw" }, snapPos(`bwsup${i}`));
   for (let p = 0; p < opts.players; p++) addItem("tok", { tk: "push", face: 1 }, snapPos(`mat${p}push`));
   S.log.push({ t: Date.now(), who: -1, m: tr("新的一局", "New game") });
@@ -711,7 +709,13 @@ function detach(id) {
   S.where[id] = null;
 }
 function toTable(id, x, y) { detach(id); const it = S.items[id]; it.x = x; it.y = y; it.z = ++S.z; S.where[id] = "t"; }
-function toStack(id, sid, bottom = false) { detach(id); const st = S.stacks[sid]; bottom ? st.items.unshift(id) : st.items.push(id); S.where[id] = "s:" + sid; }
+function toStack(id, sid, bottom = false) {
+  detach(id);
+  const st = S.stacks[sid], it = S.items[id];
+  if (st.bin && it.tk === "root") it.face = 0;   // a Bloom put back in the supply is just a Root token again
+  it.rot = 0;
+  bottom ? st.items.unshift(id) : st.items.push(id); S.where[id] = "s:" + sid;
+}
 function toHand(id, seat) { detach(id); S.hands[seat].push(id); S.where[id] = "h:" + seat; const it = S.items[id]; it.rot = 0; }
 const nameOf = id => { const it = S.items[id]; return it.kind === "card" ? (it.face ? cardInfo(it.ck).title : tr("一張牌", "a card")) : itemHtml(it).title; };
 const who = () => S.names[ME] || tr(`擺渡人 ${ME + 1}`, `Ferryman ${ME + 1}`);
@@ -744,14 +748,18 @@ function bindTable() {
     const r = v.getBoundingClientRect();
     const mx = e.clientX - r.left, my = e.clientY - r.top;
     const k = Math.exp(-e.deltaY * 0.0015);
-    const ns = Math.min(2.5, Math.max(0.15, view.s * k));
+    const ns = Math.min(2.5, Math.max(0.06, view.s * k));
     view.x = mx - (mx - view.x) * ns / view.s; view.y = my - (my - view.y) * ns / view.s; view.s = ns;
     applyView();
   }, { passive: false });
   v.addEventListener("pointerdown", onDown);
   v.addEventListener("click", e => { const z = e.target.closest(".zoombtn"); if (z) { e.stopPropagation(); zoomTo(z.dataset.zoom); } });
-  window.addEventListener("pointermove", onMove);
-  window.addEventListener("pointerup", onUp);
+  if (!bindTable.once) {   // the window outlives every table: listen to it only once
+    bindTable.once = true;
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+  }
   v.addEventListener("dblclick", e => {
     const p = e.target.closest(".piece[data-id]");
     if (p) flip(p.dataset.id);
@@ -762,17 +770,21 @@ function bindTable() {
   elHand.addEventListener("pointerdown", e => {
     const c = e.target.closest("[data-hid]");
     if (!c || e.button !== 0) return;
-    startDrag(e, c.dataset.hid, "hand");
+    e.preventDefault();
+    drag = { pending: true, id: c.dataset.hid, from: "hand", sx: e.clientX, sy: e.clientY };
   });
   elHand.addEventListener("contextmenu", e => { e.preventDefault(); openMenu(e); });
   $("#tt-undo").onclick = undo; $("#tt-redo").onclick = redo; $("#tt-fit").onclick = fit;
   $("#tt-rules").onclick = () => openDrawer("rules");
   $("#tt-log").onclick = () => openDrawer("log");
-  $("#tt-menu").onclick = () => showMenuScreen();
+  $("#tt-menu").onclick = () => {
+    if (mode !== "local" && !confirm(tr("離開這張線上桌？其他人會和你斷線。", "Leave this online table? The others lose their link to you."))) return;
+    showMenuScreen();
+  };
   $("#tt-hints").onchange = e => { try { localStorage.setItem("nb-hints", e.target.checked ? "1" : "0"); } catch { /* */ } elHint.classList.toggle("hidden", !e.target.checked); renderHint(); };
   elSeats.onclick = e => { const b = e.target.closest("[data-seat]"); if (b && mode === "local") switchSeat(+b.dataset.seat); };
   window.onkeydown = e => {
-    if (e.target.closest("input,textarea")) return;
+    if (!onTable() || e.target.closest("input,textarea,select")) return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); e.shiftKey ? redo() : undo(); }
     else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") { e.preventDefault(); redo(); }
     else if (hover && e.key.toLowerCase() === "f") flip(hover);
@@ -782,8 +794,19 @@ function bindTable() {
   v.addEventListener("pointerover", e => { const p = e.target.closest(".piece[data-id]"); hover = p ? p.dataset.id : null; });
 }
 let hover = null;
+const onTable = () => !!document.getElementById("tt-world");
 
+// two fingers on a touch screen pinch the view
+const touches = new Map();
+function pinchStart() {
+  const [a, b] = [...touches.values()];
+  drag = { pinch: true, d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, s0: view.s, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, vx: view.x, vy: view.y };
+}
 function onDown(e) {
+  if (e.pointerType === "touch") {
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size === 2 && (!drag || drag.pan || drag.pending)) { pinchStart(); return; }
+  }
   if (e.button !== 0) return;
   closeMenus();
   const mk = e.target.closest(".tmarker");
@@ -798,7 +821,10 @@ function onDown(e) {
     if (e.shiftKey) { const pt = worldPt(e); drag = { stackMove: st.id, wx: pt.x, wy: pt.y, ox: st.x, oy: st.y, snapshot: JSON.stringify(S) }; return; }
     const top = st.items[st.items.length - 1];
     if (!top) return;
-    return startDrag(e, top, "stack:" + st.id);
+    // the card leaves the pile only once the pointer moves: a click or double-click leaves the pile as it is
+    e.preventDefault();
+    drag = { pending: true, id: top, from: "stack:" + st.id, sx: e.clientX, sy: e.clientY };
+    return;
   }
   if (e.target.closest("button")) return;
   drag = { pan: true, sx: e.clientX, sy: e.clientY, ox: view.x, oy: view.y };
@@ -821,7 +847,28 @@ function startDrag(e, id, from) {
   els[id]?.classList.add("dragging");
 }
 function onMove(e) {
+  if (touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
   if (!drag) return;
+  if (drag.pinch) {
+    if (touches.size < 2) return;
+    const [a, b] = [...touches.values()];
+    const r = $("#tt-view").getBoundingClientRect();
+    const ns = Math.min(2.6, Math.max(0.06, drag.s0 * Math.hypot(a.x - b.x, a.y - b.y) / drag.d0));
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    // keep the point under the fingers' first midpoint under their current midpoint
+    view.x = mx - r.left - (drag.mx - r.left - drag.vx) * ns / drag.s0;
+    view.y = my - r.top - (drag.my - r.top - drag.vy) * ns / drag.s0;
+    view.s = ns;
+    applyView();
+    return;
+  }
+  if (drag.pending) {
+    if (Math.abs(e.clientX - drag.sx) + Math.abs(e.clientY - drag.sy) <= 3) return;
+    const { id, from, sx, sy } = drag;
+    drag = null;
+    startDrag({ clientX: sx, clientY: sy, preventDefault() {} }, id, from);
+    drag.moved = true;
+  }
   if (drag.track) {
     const v = nearestTrackValue(drag.track, worldPt(e)), sn = trackSnap(drag.track, v);
     drag.val = v;
@@ -850,9 +897,12 @@ function onMove(e) {
 const overHand = e => { const r = elHand.getBoundingClientRect(); return e.clientY > r.top && e.clientX > r.left && e.clientX < r.right; };
 
 function onUp(e) {
+  touches.delete(e.pointerId);
+  if (drag?.pinch) { if (touches.size < 2) drag = null; return; }
   if (!drag) return;
   const d = drag; drag = null;
   elHand.classList.remove("drop");
+  if (d.pending) return;   // a click on a pile or a hand card moves nothing
   if (d.track) { d.el.classList.remove("dragging"); if (d.val !== undefined) setTrack(d.track, d.val); else render(); return; }
   if (d.pan) return;
   if (d.stackMove) { hist.push(d.snapshot); fut = []; S.rev++; changed(); return; }
@@ -957,7 +1007,12 @@ function openMenu(e) {
     const cards = st.accepts === "card" || st.accepts === "any";
     if (cards && st.items.length) {
       opts.push([tr("抽 1 張到手牌", "Draw 1 into my hand"), () => drawToHand(sid)]);
-      opts.push([tr("翻開頂牌放到桌上", "Turn the top card onto the table"), () => commit(tr(`${who()} 翻開${tr(...st.label)}的頂牌`, `${who()} turned the top of ${tr(...st.label)}`), () => { const top = st.items[st.items.length - 1]; toTable(top, st.x + CW * 1.7, st.y + CH / 2 + 4); S.items[top].face = 1; })]);
+      opts.push([tr("翻開頂牌放到桌上", "Turn the top card onto the table"), () => commit(tr(`${who()} 翻開${tr(...st.label)}的頂牌`, `${who()} turned the top of ${tr(...st.label)}`), () => {
+        const top = st.items[st.items.length - 1];
+        // a Mist card goes to the "Mist ahead" slot; anything else to the middle of the view, clear of other piles
+        const pt = /^mist\d$/.test(sid) ? snapPos("mistfront") : centerView();
+        toTable(top, pt.x, pt.y); S.items[top].face = 1;
+      })]);
       opts.push([tr("每人發 1 張", "Deal 1 to each player"), () => commit(tr(`${who()} 從${tr(...st.label)}每人發 1 張`, `${who()} dealt 1 card each`), () => { for (let q = 0; q < S.players; q++) { const top = st.items[st.items.length - 1]; if (top) toHand(top, q); } })]);
     }
     if (st.items.length > 1) opts.push([tr("洗牌", "Shuffle"), () => commit(tr(`${who()} 洗了${tr(...st.label)}`, `${who()} shuffled ${tr(...st.label)}`), () => shuffle(st.items))]);
@@ -1004,7 +1059,7 @@ function searchStack(sid) {
     close();
     commit(tr(`${who()} 從${tr(...st.label)}拿出 ${it.kind === "card" ? tr("1 張牌", "a card") : nameOf(id)}`, `${who()} took ${nameOf(id)} from ${tr(...st.label)}`), () => {
       if (it.kind === "card") toHand(id, ME);
-      else { const pt = { x: st.x + 140, y: st.y + 40 }; toTable(id, pt.x, pt.y); it.face = 1; }
+      else { const pt = { x: st.x + 140, y: st.y + 40 }; toTable(id, pt.x, pt.y); it.face = it.tk === "root" ? 0 : 1; }
     });
   });
 }
@@ -1077,33 +1132,44 @@ function sync() {
 function startHost(code) {
   mode = "host";
   const seats = {};    // connection id -> seat
+  const byClient = {}; // browser id -> seat, so a player who drops and comes back gets the same seat
   link = net.host(code, {
     open: () => { $("#tt-code") && ($("#tt-code").textContent = tr(`房間代碼 ${code}`, `Table code ${code}`)); },
     message: (cid, msg) => {
       if (msg.t === "hello") {
-        let seat = Object.values(seats).length + 1;
-        if (msg.seat !== undefined && msg.seat > 0 && msg.seat < S.players) seat = msg.seat;
-        if (seat >= S.players) { link.send(cid, { t: "full" }); return; }
+        const taken = new Set(Object.values(seats));
+        let seat = byClient[msg.cid];
+        if (seat === undefined || taken.has(seat)) {
+          seat = undefined;
+          for (let q = 1; q < S.players; q++) if (!taken.has(q) && !Object.values(byClient).includes(q)) { seat = q; break; }
+          if (seat === undefined) for (let q = 1; q < S.players; q++) if (!taken.has(q)) { seat = q; break; }
+        }
+        if (seat === undefined) { link.send(cid, { t: "full" }); return; }
         seats[cid] = seat;
+        if (msg.cid) byClient[msg.cid] = seat;
         if (msg.name) S.names[seat] = String(msg.name).slice(0, 18);
         link.send(cid, { t: "welcome", seat, S });
         S.log.push({ t: Date.now(), who: seat, m: tr(`${S.names[seat]} 加入了`, `${S.names[seat]} joined`) });
         changed();
-      } else if (msg.t === "state" && msg.S && msg.S.rev >= S.rev) {
-        S = msg.S; saveLocal(); render(); link.broadcast({ t: "state", S }, cid);
+      } else if (msg.t === "state" && msg.S && seats[cid] !== undefined && msg.S.rev >= S.rev) {
+        S = msg.S; remoteChange(); saveLocal(); render(); link.broadcast({ t: "state", S }, cid);
       }
     },
     leave: cid => { delete seats[cid]; },
     error: e => toast(tr("連線錯誤：", "Connection error: ") + (e?.type || "")),
   });
 }
+// Undo steps back through this screen's own history. Once someone else has changed the table, that history no
+// longer matches it, and undoing would wipe out their move, so it is cleared.
+function remoteChange() { hist = []; fut = []; }
 function startGuest(code, name) {
   mode = "guest";
+  let seated = false;
   link = net.join(code, {
     open: () => link.send({ t: "hello", name, cid: net.clientId() }),
     message: msg => {
-      if (msg.t === "welcome") { ME = msg.seat; S = msg.S; buildTable(); $("#tt-code").textContent = tr(`房間 ${code}`, `Table ${code}`); }
-      else if (msg.t === "state" && S && msg.S.rev >= S.rev) { S = msg.S; render(); }
+      if (msg.t === "welcome") { seated = true; ME = msg.seat; S = msg.S; hist = []; fut = []; buildTable(); $("#tt-code").textContent = tr(`房間 ${code}`, `Table ${code}`); }
+      else if (msg.t === "state" && seated && msg.S && msg.S.rev >= S.rev) { S = msg.S; remoteChange(); if (onTable()) render(); }
       else if (msg.t === "full") toast(tr("這張桌子已經坐滿了。", "That table is full."));
     },
     close: () => toast(tr("與主持人的連線中斷了。", "Lost the host.")),
@@ -1184,9 +1250,9 @@ async function boot() {
   const lb = $("#btn-lang");
   if (lb) {
     lb.textContent = LANG === "zh" ? "English" : "中文";
-    lb.onclick = () => { LANG = LANG === "zh" ? "en" : "zh"; try { localStorage.setItem("nb-lang", LANG); } catch { /* */ } lb.textContent = LANG === "zh" ? "English" : "中文"; S ? buildTable() : showMenuScreen(); };
+    lb.onclick = () => { LANG = LANG === "zh" ? "en" : "zh"; try { localStorage.setItem("nb-lang", LANG); } catch { /* */ } lb.textContent = LANG === "zh" ? "English" : "中文"; S && onTable() ? buildTable() : showMenuScreen(); };
   }
-  window.addEventListener("resize", () => { if (S && elWorld) fit(); });
+  window.addEventListener("resize", () => { if (S && onTable()) fit(); });
   fetch("/api/me", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(me => { if (me?.admin) $("#btn-dash")?.classList.remove("hidden"); }).catch(() => {});
   showMenuScreen();
 }
