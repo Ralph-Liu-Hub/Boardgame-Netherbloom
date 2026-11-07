@@ -182,6 +182,7 @@ class Config:
         self.v5_wall_mode = "pair"   # light walls: "pair" (both banks bloom; absorbs 2), "bank" (each bloom absorbs 1 on its bank)
                                      # or "block" (each bank has its own fog line; a Bloom stops it and is not harmed)
         self.v5_light_reserve = 3    # AI: Light kept back (for Recalls) before lighting memories, until the last page
+        self.v5_ch_skip = (0, 0, 0)  # tuning: memory slots removed from the start of each chapter's route (plain slots only)
         self.v5_turn_heals = (1, 2, 0)
         self.v5_turn_table = (0, 4, 6, 10)  # with v5_turn_knots "table*": knots untied for 0 / 1 / 2 / 3 lit memories  # with v5_turn_knots "scarN_*": scars healed when chapter 1 / 2 / 3 closes
         self.v5_solo_cap_bonus = 0   # extra knots before a thread fills in solo games
@@ -1656,7 +1657,7 @@ class State:
         self.stats["reveals"] = self.stats.get("reveals", 0) + 1
         self.stats.setdefault("reveal_reach", []).append(self.page()) if not self.sim else None
         if self.cfg.v5_chapters:
-            mists = [x for x, v in self.pg[self.ch].items() if v != -1]
+            mists = [x for x, v in self.pg[self.ch].items() if v not in (-1, -2)]
             near = any(self.karma[t] >= self.cap(t) - 2 for t in range(3))
             if self.cfg.v5_reveal_rewrite and self.paths[self.ch] is None and self.rng.random() < self.cfg.v5_reveal_rewrite:
                 self.rewrite = True
@@ -1726,6 +1727,15 @@ class State:
         d = self.chapter_def()
         self.walk[self.ch] = [d["starts"].get(prev_tag, d["first"])]
         self.advance_route()
+        # tuning: a shorter page (the first N memory slots of the route do not exist)
+        for _ in range(self.cfg.v5_ch_skip[self.ch]):
+            nodes = d["nodes"]
+            cur = self.walk[self.ch][-1]
+            if nodes[cur]["kind"] == "m":
+                self.pg[self.ch][cur] = -2
+                self.advance_route()
+            else:
+                break
 
     def advance_route(self):
         """Walk the route as far as it goes: past filled memory slots, mist slots and decided forks."""
@@ -2158,7 +2168,7 @@ class State:
         top = max(set(tags), key=tags.count) if tags else None
         ending = ENDINGS[self.cfg.soul][top] if top is not None and tags.count(top) >= 2 else ENDINGS[self.cfg.soul]["交織"]
         defied = sum(1 for f, p in paths if f is not None and f != p)
-        mist = any(v != -1 for r in range(3) for v in self.pg[r].values())
+        mist = any(v not in (-1, -2) for r in range(3) for v in self.pg[r].values())
         key = next((cid for cid, c in CARD.items() if c.key and cid in self.deck + self.discard + self.forgotten
                     + [x for h in self.hands for x in h] + [x for r in range(3) for x in self.book[r].values()]), None)
         where = None
