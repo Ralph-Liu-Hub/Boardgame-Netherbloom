@@ -48,10 +48,11 @@ const TK = 44;                            // token size
 const SW = CW + 8, SH = CH + 8;           // a card slot or pile
 // The River is a square board: three rows of five spaces that wind down the board with two turns
 // (0–4 left to right, 5–9 right to left, 10–14 left to right).
-// The table, seen from above. Four seats sit around it (bottom, left, top, right, clockwise, so the Oar passes left);
-// the shared boards lie in the middle, within everyone's reach: the Book at the head of the table where all can read it,
-// the River in the centre, the Loom and Ledger on one side of it, the Mist and the supply on the other.
+// The shared table, seen from above: the Book at the head where all can read it, the River in the centre, the Loom and
+// Ledger on one side of it, the Mist and the supply on the other. Each player's own area (commission, Mantle, Push
+// Through token, lasting cards) is not on the shared table: it sits next to their hand at the bottom of their own screen.
 const WORLD = { w: 2920, h: 2560 };
+const BOUNDS = { x: 290, y: 280, w: 2320, h: 1940 };   // the boards: "Fit" fills the window with this
 const RIVER = { x: 1310, y: 1000, w: 900, h: 960, colW: 152, rowH: 310, bank: 82, lane: 92 };
 const BOOK = { x: 950, y: 300, w: 1640, h: 660 };
 const FATE = { x: 310, y: 300, w: 600, h: 330 };
@@ -60,24 +61,6 @@ const LOOM = { x: 310, y: 1000, w: 960, h: 340 };
 const LEDGER = { x: 310, y: 1360, w: 960, h: 340 };
 const SUPPLY = { x: 310, y: 1720, w: 960, h: 480 };
 const PLAY = { x: 2250, y: 1000, w: 340, h: 1200 };
-const MAT = { w: 760, h: 260 };
-const SEATS = [   // where each seat's mat lies and which way it faces
-  { cx: WORLD.w / 2, cy: WORLD.h - 20 - MAT.h / 2, rot: 0 },
-  { cx: 20 + MAT.h / 2, cy: WORLD.h / 2, rot: 90 },
-  { cx: WORLD.w / 2, cy: 20 + MAT.h / 2, rot: 180 },
-  { cx: WORLD.w - 20 - MAT.h / 2, cy: WORLD.h / 2, rot: -90 },
-];
-const SEAT_OF = { 1: [0], 2: [0, 2], 3: [0, 1, 2], 4: [0, 1, 2, 3] };
-const seatGeo = p => SEATS[SEAT_OF[S.players][p]];
-// a rectangle on a player's mat (mat coordinates) -> the table, turned the way the mat faces
-function matRect(p, x, y, w, h) {
-  const g = seatGeo(p), r = g.rot * Math.PI / 180;
-  const dx = x + w / 2 - MAT.w / 2, dy = y + h / 2 - MAT.h / 2;
-  const cx = g.cx + dx * Math.cos(r) - dy * Math.sin(r), cy = g.cy + dx * Math.sin(r) + dy * Math.cos(r);
-  const side = Math.abs(g.rot) === 90;
-  const W = side ? h : w, H = side ? w : h;
-  return [cx - W / 2, cy - H / 2, W, H];
-}
 // where a space sits on the square board, and which way the river flows through it
 function spaceGeo(sp) {
   const row = Math.floor(sp / 5), i = sp % 5;
@@ -97,7 +80,7 @@ let ME = 0;              // my seat
 let mode = "local";      // local | host | guest
 let link = null;         // net handle
 let hist = [], fut = [];
-const LS = "nb-table-v5d";   // the table layout changed: older saved tables do not fit it
+const LS = "nb-table-v5e";   // the table layout changed (player areas left the table): older saved tables do not fit it
 const saveLocal = () => { if (mode !== "guest") try { localStorage.setItem(LS, JSON.stringify(S)); } catch { /* full */ } };
 
 const uid = (() => { let n = 0; return p => `${p}${(++n).toString(36)}${Math.floor(Math.random() * 1296).toString(36)}`; })();
@@ -106,6 +89,8 @@ function blankState(opts) {
   return {
     v: 1, rev: 0, soul: opts.soul, level: opts.level, players: opts.players, names: opts.names,
     items: {}, stacks: {}, hands: Array.from({ length: opts.players }, () => []), where: {}, z: 10,
+    // each player's own area: commission, Mantle, Push Through token and lasting cards (shown only on their screen)
+    areas: Array.from({ length: opts.players }, () => []),
     chapter: 0, hint: 0, log: [],
     // counters are slider tracks: one marker pushed along a groove (Light, Fractures, knots and scars)
     tracks: { light: 0, crack: 0, knot0: 0, knot1: 0, knot2: 0, scar0: 0, scar1: 0, scar2: 0 },
@@ -116,6 +101,7 @@ function addItem(kind, props, place) {
   S.items[id] = { id, kind, x: 0, y: 0, z: ++S.z, rot: 0, face: 1, ...props };
   if (place?.stack) { S.stacks[place.stack].items.push(id); S.where[id] = "s:" + place.stack; }
   else if (place?.hand !== undefined) { S.hands[place.hand].push(id); S.where[id] = "h:" + place.hand; }
+  else if (place?.area !== undefined) { S.areas[place.area].push(id); S.where[id] = "a:" + place.area; }
   else { const it = S.items[id]; it.x = place?.x ?? 0; it.y = place?.y ?? 0; S.where[id] = "t"; }
   return id;
 }
@@ -186,7 +172,7 @@ function newTable(opts) {
   addItem("tok", { tk: "soul" }, snapPos("soul0"));
   addItem("tok", { tk: "echo" }, snapPos("echoS"));
   for (let i = 0; i < D.LEVELS[opts.level].bw; i++) addItem("tok", { tk: "bw" }, snapPos(`bwsup${i}`));
-  for (let p = 0; p < opts.players; p++) addItem("tok", { tk: "push", face: 1 }, snapPos(`mat${p}push`));
+  for (let p = 0; p < opts.players; p++) addItem("tok", { tk: "push", face: 1 }, { area: p });
   S.log.push({ t: Date.now(), who: -1, m: tr("新的一局", "New game") });
 }
 
@@ -232,13 +218,6 @@ function buildSnaps(players) {
     if (n.k === "m" || n.k === "g") snap(`node${ch}_${n.id}`, n.x, n.y, CW + 8, CH + 8, ["card"]);
     if (n.k === "x") snap(`node${ch}_${n.id}`, n.x, n.y, CW + 8, CH + 8, ["card"]);
     if (n.k === "f") snap(`node${ch}_${n.id}`, n.x, n.y, CW + 8, CH + 8, ["card"]);
-  }
-  // player mats
-  for (let p = 0; p < players; p++) {
-    snap(`mat${p}comm`, ...matRect(p, 30, 60, CW + 8, CH + 8), ["card"]);
-    snap(`mat${p}mantle`, ...matRect(p, 140, 60, CW + 8, CH + 8), ["card"]);
-    snap(`mat${p}push`, ...matRect(p, 254, 96, 60, 60), ["tok"]);
-    for (let k = 0; k < 4; k++) snap(`mat${p}keep${k}`, ...matRect(p, 340 + k * 102, 60, SW, SH), ["card"]);
   }
 }
 
@@ -452,17 +431,8 @@ function boardsHtml() {
   // supply
   h += `<div class="board supply" data-region="supply" style="left:${SUPPLY.x}px;top:${SUPPLY.y}px;width:${SUPPLY.w}px;height:${SUPPLY.h}px">${zoomBtn("supply")}<div class="btitle">${tr("稱號列與供應區", "Mantles and supply")}</div>
     <div class="lab" style="left:20px;top:200px">${tr("供應區（拖曳拿取；拖回放回）", "Supply (drag to take, drag back to return)")}</div></div>`;
-  // mats
-  // play area in front of the River (cards being played, persistent cards)
+  // play area in front of the River (cards being played)
   h += `<div class="board playarea" data-region="play" style="left:${PLAY.x}px;top:${PLAY.y}px;width:${PLAY.w}px;height:${PLAY.h}px">${zoomBtn("play")}<div class="btitle">${tr("出牌區", "Play area")}</div></div>`;
-  for (let p = 0; p < S.players; p++) {
-    const g = seatGeo(p);
-    h += `<div class="board mat" data-region="mat${p}" style="left:${g.cx - MAT.w / 2}px;top:${g.cy - MAT.h / 2}px;width:${MAT.w}px;height:${MAT.h}px;transform:rotate(${g.rot}deg)">${zoomBtn(`mat${p}`)}
-      <div class="btitle">${esc(S.names[p] || tr(`擺渡人 ${p + 1}`, `Ferryman ${p + 1}`))}</div>
-      <div class="lab" style="left:30px;top:40px">${tr("託付（面朝下）", "Commission (face down)")}</div><div class="lab" style="left:140px;top:40px">${tr("稱號", "Mantle")}</div>
-      <div class="lab" style="left:250px;top:58px">${tr("破浪", "Push")}</div><div class="lab" style="left:340px;top:40px">${tr("持續中的牌", "Lasting cards")}</div>
-      <div class="handcount" data-hc="${p}"></div></div>`;
-  }
   return h;
 }
 
@@ -551,8 +521,11 @@ function buildTable() {
       <button id="tt-menu">${tr("選單", "Menu")}</button>
     </div>
     <div class="tt-view" id="tt-view"><div class="tt-world" id="tt-world" style="width:${WORLD.w}px;height:${WORLD.h}px">
-      <div class="felt"></div><div id="tt-boards"></div><div id="tt-items"></div></div></div>
-    <div class="tt-hand" id="tt-hand"><div class="hand-title"></div><div class="hand-cards"></div></div>
+      <div class="felt" style="left:${BOUNDS.x}px;top:${BOUNDS.y}px;width:${BOUNDS.w}px;height:${BOUNDS.h}px"></div><div id="tt-boards"></div><div id="tt-items"></div></div></div>
+    <div class="tt-hand" id="tt-hand">
+      <section class="my-area" id="tt-area"><div class="hand-title"></div><div class="area-items"></div></section>
+      <section class="my-hand"><div class="hand-title"></div><div class="hand-cards"></div></section>
+    </div>
     <aside class="tt-hint hidden" id="tt-hint"></aside>
     <aside class="tt-drawer hidden" id="tt-drawer"></aside>
     <div class="tt-menu hidden" id="tt-ctx"></div>
@@ -568,9 +541,17 @@ function buildTable() {
   let hintsOn = false;
   try { hintsOn = localStorage.getItem("nb-hints") === "1"; } catch { /* */ }
   $("#tt-hints").checked = hintsOn;
-  elHint.classList.toggle("hidden", !hintsOn);
-  fit();
+  setHints(hintsOn, false);
   render();
+}
+// the hints are a narrow column docked on the right of the screen; the table and the hand make room for it
+function setHints(on, save = true) {
+  if (save) try { localStorage.setItem("nb-hints", on ? "1" : "0"); } catch { /* */ }
+  $("#app").classList.toggle("hints-on", on);
+  elHint.classList.toggle("hidden", !on);
+  fit();
+  renderHint();
+  focusRegions();
 }
 
 // ---------------------------------------------------------------- render
@@ -627,8 +608,16 @@ function render() {
   // hand
   renderHand();
   // seats & counts
-  elSeats.innerHTML = S.names.map((n, i) => `<button class="seat${i === ME ? " me" : ""}" data-seat="${i}" title="${tr("手牌", "Hand")} ${S.hands[i].length}">${esc(n || tr(`擺渡人 ${i + 1}`, `Ferryman ${i + 1}`))} <b>${S.hands[i].length}</b></button>`).join("");
-  document.querySelectorAll("[data-hc]").forEach(e => { const p = +e.dataset.hc; e.textContent = tr(`手牌 ${S.hands[p].length} 張`, `${S.hands[p].length} cards in hand`); });
+  // seats: the public part of each player's area (hand size, Mantle, whether Push Through is spent) is shown to all
+  S.areas ||= S.hands.map(() => []);
+  elSeats.innerHTML = S.names.map((n, i) => {
+    const area = S.areas[i].map(id => S.items[id]);
+    const mantles = area.filter(it => it.ck?.startsWith("mantle:")).map(it => cardInfo(it.ck).title);
+    const push = area.find(it => it.tk === "push");
+    const pushTxt = push ? (push.face ? tr("破浪可用", "Push Through ready") : tr("破浪已用", "Push Through spent")) : tr("破浪不在區域內", "Push Through not in the area");
+    const tip = [`${tr("手牌", "Hand")} ${S.hands[i].length}`, ...mantles.map(m => tr("稱號：", "Mantle: ") + m), pushTxt].join(" · ");
+    return `<button class="seat${i === ME ? " me" : ""}" data-seat="${i}" title="${esc(tip)}">${esc(n || tr(`擺渡人 ${i + 1}`, `Ferryman ${i + 1}`))} <b>${S.hands[i].length}</b>${mantles.map(m => `<i class="mbadge">${esc(m)}</i>`).join("")}${push && !push.face ? `<i class="pushused" title="${esc(pushTxt)}">${icon("nb-tok-push")}</i>` : ""}</button>`;
+  }).join("");
   renderBook();
   renderHint();
 }
@@ -677,8 +666,23 @@ function nearestTrackValue(id, pt) {
 }
 
 function renderHand() {
+  // my area: only on my own screen. My commission shows its face to me; to everyone else it does not show at all.
+  S.areas ||= S.hands.map(() => []);
+  const area = (S.areas[ME] || []).map(id => S.items[id]);
+  const order = it => (it.ck?.startsWith("comm:") ? 0 : it.ck?.startsWith("mantle:") ? 1 : it.tk === "push" ? 2 : 3);
+  area.sort((a, b) => order(a) - order(b));
+  elHand.querySelector(".my-area .hand-title").innerHTML = `${tr("你的區域", "Your area")}<small>${tr("託付、稱號、破浪、持續中的牌；只有你看得到這裡", "Commission, Mantle, Push Through, lasting cards; only you see this")}</small>`;
+  elHand.querySelector(".area-items").innerHTML = area.map(it => {
+    if (it.kind === "tok") {
+      const r = itemHtml(it);
+      return `<div class="piece atok ${r.cls}" data-aid="${it.id}" title="${esc(r.title)}（${tr("雙擊翻面", "double-click to flip")}）">${r.html}</div>`;
+    }
+    const r = itemHtml({ ...it, face: 1 });
+    const label = it.ck.startsWith("comm:") ? (it.face ? tr("已翻開", "revealed") : tr("面朝下", "face down")) : "";
+    return `<div class="piece hcard ${r.cls}" data-aid="${it.id}" title="${esc(r.title)}" style="width:${CW * 1.4}px;height:${CH * 1.4}px">${r.html}${label ? `<i class="alabel">${label}</i>` : ""}</div>`;
+  }).join("") || `<div class="muted empty">${tr("（空）", "(empty)")}</div>`;
   const list = S.hands[ME] || [];
-  elHand.querySelector(".hand-title").innerHTML = `${tr("你的手牌", "Your hand")}（${esc(S.names[ME] || "")}）<small>${tr("拖到桌上打出；拖回這裡收回。右鍵看更多動作。", "Drag to the table to play; drag back to keep. Right-click for more.")}</small>`;
+  elHand.querySelector(".my-hand .hand-title").innerHTML = `${tr("你的手牌", "Your hand")}（${esc(S.names[ME] || "")}）<small>${tr("拖到桌上打出；拖回這裡收回。右鍵看更多動作。", "Drag to the table to play; drag back to keep. Right-click for more.")}</small>`;
   const box = elHand.querySelector(".hand-cards");
   box.innerHTML = list.map(id => {
     const r = itemHtml({ ...S.items[id], face: 1 });
@@ -706,6 +710,7 @@ function detach(id) {
   if (!w) return;
   if (w.startsWith("s:")) { const st = S.stacks[w.slice(2)]; st.items = st.items.filter(x => x !== id); }
   if (w.startsWith("h:")) { const h = S.hands[+w.slice(2)]; S.hands[+w.slice(2)] = h.filter(x => x !== id); }
+  if (w.startsWith("a:")) { const a = S.areas[+w.slice(2)]; S.areas[+w.slice(2)] = a.filter(x => x !== id); }
   S.where[id] = null;
 }
 function toTable(id, x, y) { detach(id); const it = S.items[id]; it.x = x; it.y = y; it.z = ++S.z; S.where[id] = "t"; }
@@ -717,6 +722,12 @@ function toStack(id, sid, bottom = false) {
   bottom ? st.items.unshift(id) : st.items.push(id); S.where[id] = "s:" + sid;
 }
 function toHand(id, seat) { detach(id); S.hands[seat].push(id); S.where[id] = "h:" + seat; const it = S.items[id]; it.rot = 0; }
+// into a player's own area: a commission lies face down there until it is revealed
+function toArea(id, seat) {
+  const it = S.items[id], from = S.where[id];
+  detach(id); S.areas[seat].push(id); S.where[id] = "a:" + seat; it.rot = 0;
+  if (it.ck?.startsWith("comm:") && from !== "t") it.face = 0;
+}
 const nameOf = id => { const it = S.items[id]; return it.kind === "card" ? (it.face ? cardInfo(it.ck).title : tr("一張牌", "a card")) : itemHtml(it).title; };
 const who = () => S.names[ME] || tr(`擺渡人 ${ME + 1}`, `Ferryman ${ME + 1}`);
 
@@ -733,11 +744,9 @@ function applyView() { elWorld.style.transform = viewMatrix().toString(); }
 function fit() {
   const r = $("#tt-view").getBoundingClientRect();
   view.r = 0;   // everyone sees the same fixed table
-  const side = Math.abs(view.r) === 90;
-  const W = side ? WORLD.h : WORLD.w, H = side ? WORLD.w : WORLD.h;
-  view.s = Math.min(r.width / W, r.height / H) * 0.98;
-  // centre the (turned) table in the window
-  view.x = r.width / 2 - WORLD.w / 2 * view.s; view.y = r.height / 2 - WORLD.h / 2 * view.s;
+  // the boards fill the window
+  view.s = Math.min(r.width / BOUNDS.w, r.height / BOUNDS.h) * 0.99;
+  view.x = r.width / 2 - (BOUNDS.x + BOUNDS.w / 2) * view.s; view.y = r.height / 2 - (BOUNDS.y + BOUNDS.h / 2) * view.s;
   applyView();
 }
 
@@ -768,11 +777,14 @@ function bindTable() {
   });
   v.addEventListener("contextmenu", e => { e.preventDefault(); openMenu(e); });
   elHand.addEventListener("pointerdown", e => {
-    const c = e.target.closest("[data-hid]");
+    const c = e.target.closest("[data-hid],[data-aid]");
     if (!c || e.button !== 0) return;
     e.preventDefault();
-    drag = { pending: true, id: c.dataset.hid, from: "hand", sx: e.clientX, sy: e.clientY };
+    drag = c.dataset.hid ? { pending: true, id: c.dataset.hid, from: "hand", sx: e.clientX, sy: e.clientY }
+      : { pending: true, id: c.dataset.aid, from: "area", sx: e.clientX, sy: e.clientY };
   });
+  // double-click a token in my area to flip it (Push Through: ready / spent)
+  elHand.addEventListener("dblclick", e => { const c = e.target.closest("[data-aid]"); if (c) flipInArea(c.dataset.aid); });
   elHand.addEventListener("contextmenu", e => { e.preventDefault(); openMenu(e); });
   $("#tt-undo").onclick = undo; $("#tt-redo").onclick = redo; $("#tt-fit").onclick = fit;
   $("#tt-rules").onclick = () => openDrawer("rules");
@@ -781,7 +793,7 @@ function bindTable() {
     if (mode !== "local" && !confirm(tr("離開這張線上桌？其他人會和你斷線。", "Leave this online table? The others lose their link to you."))) return;
     showMenuScreen();
   };
-  $("#tt-hints").onchange = e => { try { localStorage.setItem("nb-hints", e.target.checked ? "1" : "0"); } catch { /* */ } elHint.classList.toggle("hidden", !e.target.checked); renderHint(); };
+  $("#tt-hints").onchange = e => setHints(e.target.checked);
   elSeats.onclick = e => { const b = e.target.closest("[data-seat]"); if (b && mode === "local") switchSeat(+b.dataset.seat); };
   window.onkeydown = e => {
     if (!onTable() || e.target.closest("input,textarea,select")) return;
@@ -837,7 +849,7 @@ function startDrag(e, id, from) {
   if (from !== "table") {
     // lift it out of the stack or hand onto the table under the pointer
     const st = from.startsWith("stack:") ? S.stacks[from.slice(6)] : null;
-    if (it.kind === "card") it.face = from === "hand" ? 1 : st && st.faceUp ? 1 : 0;
+    if (it.kind === "card") it.face = from === "hand" ? 1 : from === "area" ? it.face : st && st.faceUp ? 1 : 0;
     if (it.kind === "tile" && st) it.face = st.faceUp ? 1 : 0;
     toTable(id, pt.x, pt.y);
     render();
@@ -892,16 +904,23 @@ function onMove(e) {
     el.style.transform = `translate(${it.x - w / 2}px,${it.y - h / 2}px) rotate(${it.rot}deg)`;
     el.style.zIndex = 9000;
   }
-  elHand.classList.toggle("drop", overHand(e));
+  const over = dockPart(e);
+  elHand.querySelector(".my-area").classList.toggle("drop", over === "area");
+  elHand.querySelector(".my-hand").classList.toggle("drop", over === "hand" && it.kind === "card");
 }
-const overHand = e => { const r = elHand.getBoundingClientRect(); return e.clientY > r.top && e.clientX > r.left && e.clientX < r.right; };
+// is the pointer over my area or my hand (the dock at the bottom of the screen)?
+function dockPart(e) {
+  const r = elHand.getBoundingClientRect();
+  if (!(e.clientY > r.top && e.clientX > r.left && e.clientX < r.right)) return null;
+  return e.clientX < $("#tt-area").getBoundingClientRect().right ? "area" : "hand";
+}
 
 function onUp(e) {
   touches.delete(e.pointerId);
   if (drag?.pinch) { if (touches.size < 2) drag = null; return; }
   if (!drag) return;
   const d = drag; drag = null;
-  elHand.classList.remove("drop");
+  elHand.querySelectorAll(".drop").forEach(x => x.classList.remove("drop"));
   if (d.pending) return;   // a click on a pile or a hand card moves nothing
   if (d.track) { d.el.classList.remove("dragging"); if (d.val !== undefined) setTrack(d.track, d.val); else render(); return; }
   if (d.pan) return;
@@ -911,7 +930,11 @@ function onUp(e) {
   if (!d.moved && d.from === "table") return render();
   hist.push(d.snapshot); if (hist.length > 80) hist.shift(); fut = [];
   let msg = "";
-  if (overHand(e) && it.kind === "card") {
+  const part = dockPart(e);
+  if (part === "area" || (part === "hand" && it.kind !== "card")) {
+    toArea(d.id, ME);
+    msg = d.from === "area" ? "" : tr(`${who()} 把 ${nameOf(d.id)} 放到自己的區域`, `${who()} put ${nameOf(d.id)} in their area`);
+  } else if (part === "hand") {
     toHand(d.id, ME);
     msg = d.from === "hand" ? "" : tr(`${who()} 拿了 ${nameOf(d.id)} 到手牌`, `${who()} took ${nameOf(d.id)} into hand`);
     if (d.from.startsWith("stack:") && !S.stacks[d.from.slice(6)].faceUp) msg = tr(`${who()} 從${tr(...S.stacks[d.from.slice(6)].label)}抽了 1 張`, `${who()} drew a card from ${tr(...S.stacks[d.from.slice(6)].label)}`);
@@ -926,6 +949,7 @@ function onUp(e) {
       if (sn) { it.x = sn.x + sn.w / 2; it.y = sn.y + sn.h / 2; }
       if (sn && sn.id.startsWith("node")) it.pg = bookView; else delete it.pg;
       if (d.from === "hand") msg = tr(`${who()} 打出 ${nameOf(d.id)}`, `${who()} played ${nameOf(d.id)}`);
+      else if (d.from === "area") msg = tr(`${who()} 從自己的區域拿出 ${nameOf(d.id)}`, `${who()} took ${nameOf(d.id)} from their area`);
       else if (d.from.startsWith("stack:")) msg = tr(`${who()} 從${tr(...S.stacks[d.from.slice(6)].label)}拿出 ${nameOf(d.id)}`, `${who()} took ${nameOf(d.id)} from ${tr(...S.stacks[d.from.slice(6)].label)}`);
     }
   }
@@ -965,6 +989,13 @@ function flip(id) {
   if (it.kind === "tok" && !["root", "push"].includes(it.tk)) return;
   commit(tr(`${who()} 翻轉了 ${nameOf(id)}`, `${who()} flipped ${nameOf(id)}`), () => { it.face = it.face ? 0 : 1; });
 }
+function flipInArea(id) {
+  const it = S.items[id];
+  if (!it || S.where[id] !== "a:" + ME) return;
+  if (it.kind === "tok" && it.tk !== "push") return;
+  commit(it.tk === "push" ? tr(`${who()} 的破浪標記${it.face ? "用掉了" : "翻回可用"}`, `${who()} turned their Push Through ${it.face ? "to spent" : "back to ready"}`)
+    : tr(`${who()} 翻轉了自己區域的 1 張牌`, `${who()} flipped a card in their area`), () => { it.face = it.face ? 0 : 1; });
+}
 function rotate(id) {
   const it = S.items[id];
   if (!it || S.where[id] !== "t") return;
@@ -985,6 +1016,7 @@ function openMenu(e) {
   const opts = [];
   const p = e.target.closest(".piece[data-id]");
   const hc = e.target.closest("[data-hid]");
+  const ac = e.target.closest("[data-aid]");
   const s = e.target.closest(".stack");
   if (hc) {
     const id = hc.dataset.hid;
@@ -992,6 +1024,15 @@ function openMenu(e) {
     opts.push([tr("面朝下放到桌上", "Place face down"), () => commit(tr(`${who()} 背面打出 1 張牌`, `${who()} played a card face down`), () => { const pt = centerView(); toTable(id, pt.x, pt.y); S.items[id].face = 0; })]);
     for (let q = 0; q < S.players; q++) if (q !== ME) opts.push([tr(`交給 ${S.names[q]}（換牌）`, `Give to ${S.names[q]} (swap)`), () => commit(tr(`${who()} 交給 ${S.names[q]} 1 張牌`, `${who()} gave ${S.names[q]} a card`), () => toHand(id, q))]);
     opts.push([tr("放到記憶牌庫底", "Put on the bottom of the deck"), () => commit(tr(`${who()} 把 1 張牌放到牌庫底`, `${who()} put a card on the bottom of the deck`), () => toStack(id, "deck", true))]);
+    opts.push([tr("放到我的區域", "Put in my area"), () => commit(tr(`${who()} 把 1 張牌放到自己的區域`, `${who()} put a card in their area`), () => toArea(id, ME))]);
+  } else if (ac) {
+    const id = ac.dataset.aid, it = S.items[id];
+    if (it.kind === "card" || it.tk === "push") opts.push([it.tk === "push" ? (it.face ? tr("用掉破浪（翻面）", "Spend Push Through (flip)") : tr("破浪翻回可用", "Push Through ready again")) : tr("翻面", "Flip"), () => flipInArea(id)]);
+    opts.push([it.ck?.startsWith("comm:") ? tr("翻開放到桌上（翻開託付）", "Reveal it on the table") : tr("放到桌上", "Place on the table"), () => commit(tr(`${who()} 從自己的區域拿出 ${nameOf(id)}`, `${who()} took ${nameOf(id)} from their area`), () => {
+      const pt = centerView(); toTable(id, pt.x, pt.y); if (it.ck?.startsWith("comm:")) it.face = 1; })]);
+    if (it.kind === "card") opts.push([tr("放進我的手牌", "Take into my hand"), () => commit(tr(`${who()} 把 1 張牌從自己的區域拿回手牌`, `${who()} took a card from their area into hand`), () => toHand(id, ME))]);
+    if (it.kind === "card") opts.push([tr("放大檢視", "Look closer"), () => modal(`<div class="piece big ${itemHtml({ ...it, face: 1 }).cls}">${itemHtml({ ...it, face: 1 }).html}</div>`)]);
+    opts.push([tr("放回盒中（移出遊戲）", "Return to the box"), () => commit(tr(`${who()} 把 ${nameOf(id)} 移出遊戲`, `${who()} removed ${nameOf(id)}`), () => toStack(id, "box"))]);
   } else if (p) {
     const id = p.dataset.id, it = S.items[id];
     if (it.kind !== "tok" || ["root", "push"].includes(it.tk)) opts.push([tr("翻面（F）", "Flip (F)"), () => flip(id)]);
@@ -1014,6 +1055,7 @@ function openMenu(e) {
         toTable(top, pt.x, pt.y); S.items[top].face = 1;
       })]);
       opts.push([tr("每人發 1 張", "Deal 1 to each player"), () => commit(tr(`${who()} 從${tr(...st.label)}每人發 1 張`, `${who()} dealt 1 card each`), () => { for (let q = 0; q < S.players; q++) { const top = st.items[st.items.length - 1]; if (top) toHand(top, q); } })]);
+      if (sid === "comm") opts.push([tr("每人發 1 張到各自的區域（面朝下）", "Deal 1 face down to each player's area"), () => commit(tr(`${who()} 發給每人 1 張託付`, `${who()} dealt a commission to each player`), () => { for (let q = 0; q < S.players; q++) { const top = st.items[st.items.length - 1]; if (top) toArea(top, q); } })]);
     }
     if (st.items.length > 1) opts.push([tr("洗牌", "Shuffle"), () => commit(tr(`${who()} 洗了${tr(...st.label)}`, `${who()} shuffled ${tr(...st.label)}`), () => shuffle(st.items))]);
     if (st.items.length) opts.push([tr("查看與搜尋", "Look through / search"), () => searchStack(sid)]);
@@ -1080,7 +1122,7 @@ function renderHint() {
     <div class="hnav"><button data-step="-1">◀ ${tr("上一步", "Back")}</button><button data-step="1">${tr("下一步", "Next")} ▶</button></div>
     ${step.loop !== undefined ? `<button class="hloop" data-jump="${step.loop}">${tr("下一位玩家的回合", "Next player's turn")} ↺</button>` : ""}
     <p class="muted small">${tr("提示只顯示規則的下一步，不會替你移動任何東西。所有人共用同一個步驟。", "Hints only show the next step of the rules; they never move anything for you. Everyone shares the same step.")}</p>`;
-  elHint.querySelector(".hclose").onclick = () => { $("#tt-hints").checked = false; $("#tt-hints").onchange({ target: $("#tt-hints") }); };
+  elHint.querySelector(".hclose").onclick = () => { $("#tt-hints").checked = false; setHints(false); };
   elHint.onclick = e => {
     const b = e.target.closest("[data-step],[data-jump]");
     if (!b) return;

@@ -31,7 +31,7 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
       await page.click("#lb-local");
       await page.waitForSelector("#tt-world");
       const r = await page.evaluate(() => {
-        const S = JSON.parse(localStorage.getItem("nb-table-v5d"));
+        const S = JSON.parse(localStorage.getItem("nb-table-v5e"));
         const out = { items: Object.keys(S.items).length, bad: [] };
         // every table piece has content and lies inside the world
         document.querySelectorAll("#tt-items .piece[data-id]").forEach(el => {
@@ -45,6 +45,7 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
         const seen = {};
         for (const st of Object.values(S.stacks)) for (const id of st.items) { if (!S.items[id]) out.bad.push("ghost item " + id); seen[id] = (seen[id] || 0) + 1; }
         for (const h of S.hands) for (const id of h) seen[id] = (seen[id] || 0) + 1;
+        for (const a of S.areas) for (const id of a) seen[id] = (seen[id] || 0) + 1;
         for (const [id, n] of Object.entries(seen)) if (n > 1) out.bad.push("duplicate " + id);
         // bank tiles: 26 banks filled
         out.tilesOnRiver = Object.values(S.items).filter(it => it.kind === "tile" && S.where[it.id] === "t").length;
@@ -61,7 +62,7 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
       // render every card face via the search modal of each stack would be slow; check all card faces through the module
       const faces = await page.evaluate(async () => {
         const m = await import("/assets/table.js");
-        const S = JSON.parse(localStorage.getItem("nb-table-v5d"));
+        const S = JSON.parse(localStorage.getItem("nb-table-v5e"));
         const bad = [];
         for (const it of Object.values(S.items)) if (it.kind === "card") {
           try { const c = m._test.cardInfo(it.ck); if (!c.html || /undefined|NaN|\[object/.test(c.html + (c.backHtml || ""))) bad.push(it.ck); } catch (e) { bad.push(it.ck + " " + e.message); }

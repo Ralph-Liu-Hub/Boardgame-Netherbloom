@@ -164,8 +164,19 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .stack.bin .piece.tk { border-radius: 50%; }
 
 /* hand */
-.tt-hand { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: linear-gradient(180deg, rgba(23, 20, 27, .95), #0b0a0d); border-top: 1px solid var(--line); z-index: 15; padding: 6px 12px; transition: background .2s; }
-.tt-hand.drop { background: #2b2316; border-top-color: var(--gold); }
+/* the dock at the bottom of MY screen: my own area (left) and my hand (right). Nobody else's area or hand is shown. */
+.tt-hand { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: linear-gradient(180deg, rgba(23, 20, 27, .95), #0b0a0d); border-top: 1px solid var(--line); z-index: 15; display: flex; }
+.tt-hand > section { padding: 6px 12px; min-width: 0; transition: background .2s; }
+.tt-hand > section.drop { background: #2b2316; box-shadow: inset 0 2px 0 var(--gold); }
+.my-area { flex: 0 1 auto; max-width: 46%; border-right: 1px solid var(--line); }
+.my-hand { flex: 1 1 auto; }
+.area-items { display: flex; gap: 10px; margin-top: 4px; overflow-x: auto; height: 152px; align-items: flex-start; }
+.area-items .piece { position: relative; flex: none; transform: scale(.82); transform-origin: 0 0; margin-right: -18px; font-size: 11px; cursor: grab; touch-action: pan-x; }
+.area-items .atok { width: 52px; height: 52px; transform: none; margin: 18px 4px 0 0; }
+.area-items .alabel { position: absolute; left: 4px; bottom: 4px; font-style: normal; font-size: 10px; background: rgba(0, 0, 0, .6); color: var(--gold); padding: 1px 5px; border-radius: 6px; }
+.area-items .empty { padding: 20px; }
+.seat .mbadge { font-style: normal; font-size: 11px; margin-left: 5px; padding: 0 5px; border-radius: 6px; background: rgba(201, 164, 92, .18); color: var(--gold); }
+.seat .pushused .ic { width: 14px; height: 14px; margin-left: 4px; opacity: .55; vertical-align: -2px; }
 .hand-title { font-size: 13px; color: var(--bone); display: flex; gap: 12px; align-items: baseline; }
 .hand-title small { color: var(--mist); font-size: 11px; }
 .hand-cards { display: flex; gap: 10px; margin-top: 4px; overflow-x: auto; height: 152px; transform-origin: 0 0; }
@@ -175,8 +186,12 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .hand-cards .hcard { touch-action: pan-x; }
 
 /* side panels */
-.tt-hint, .tt-drawer { position: absolute; top: 50px; right: 10px; bottom: 160px; width: 360px; background: rgba(20, 17, 24, .97); border: 1px solid var(--line); border-radius: 12px; z-index: 25; padding: 10px 12px; overflow: auto; font-size: 14px; line-height: 1.55; }
-.tt-drawer { width: 520px; right: 380px; }
+.tt-drawer { position: absolute; top: 50px; right: 10px; bottom: 160px; width: 520px; background: rgba(20, 17, 24, .97); border: 1px solid var(--line); border-radius: 12px; z-index: 25; padding: 10px 12px; overflow: auto; font-size: 14px; line-height: 1.55; }
+/* the hints: a narrow column docked down the right side of the screen, beside the table (like the old Chronicle) */
+:root { --hintw: 300px; }
+.tt-hint { position: absolute; top: 42px; right: 0; bottom: 0; width: var(--hintw); background: rgba(20, 17, 24, .98); border-left: 1px solid var(--line); z-index: 16; padding: 10px 12px; overflow: auto; font-size: 13.5px; line-height: 1.55; }
+#app.hints-on .tt-view, #app.hints-on .tt-hand { right: var(--hintw); }
+#app.hints-on .tt-drawer { right: calc(var(--hintw) + 10px); }
 .hh { font-family: var(--serif); color: var(--bone); font-size: 16px; display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
 .hh input { flex: 1; }
 .hclose { margin-left: auto; padding: 2px 8px; }
@@ -223,7 +238,15 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
   .tt-bar { overflow-x: auto; overflow-y: hidden; gap: 6px; scrollbar-width: thin; }
   .tt-bar .brand, .tt-bar > .muted:not(#tt-code) { display: none; }
   .tt-bar button, .seat, .switch { padding: 3px 7px; font-size: 13px; }
-  .tt-hint, .tt-drawer { left: 10px; right: 10px; width: auto; }
+  .tt-drawer { left: 10px; right: 10px; width: auto; }
+  #app.hints-on .tt-drawer { right: 10px; }
+  /* on a phone the hint column takes the lower part of the screen instead of the right side */
+  :root { --hintw: 0px; }
+  .tt-hint { top: auto; bottom: 150px; height: 34vh; left: 0; width: auto; border-left: 0; border-top: 1px solid var(--line); z-index: 18; }
+  #app.hints-on .tt-view { bottom: calc(150px + 34vh); }
+  .my-area { max-width: 40%; }
+  .hand-title { white-space: nowrap; }
+  .hand-title small { display: none; }
 }
 
 /* square River */
@@ -248,10 +271,8 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .browse { position: absolute; right: 16px; top: 44px; font-size: 12px; color: var(--cyan); }
 
 /* the table itself */
-.felt { position: absolute; inset: 0; border-radius: 120px; background: radial-gradient(ellipse at 50% 45%, #2a2219 0%, #1d1812 55%, #120f0c 100%); box-shadow: inset 0 0 0 14px #3a2b1c, inset 0 0 0 18px #20170f, 0 30px 80px rgba(0, 0, 0, .7); }
-.board.mat { transform-origin: 50% 50%; background: rgba(36, 30, 24, .92); }
+.felt { position: absolute; border-radius: 60px; background: radial-gradient(ellipse at 50% 45%, #2a2219 0%, #1d1812 55%, #120f0c 100%); box-shadow: inset 0 0 0 14px #3a2b1c, inset 0 0 0 18px #20170f, 0 30px 80px rgba(0, 0, 0, .7); }
 .playarea { border-style: dashed; background: rgba(0, 0, 0, .12); }
-.handcount { position: absolute; right: 14px; top: 8px; font-size: 12px; color: var(--gold); }
 
 /* larger text at the table */
 .btitle { font-size: 19px; }
