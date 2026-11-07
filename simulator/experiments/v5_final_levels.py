@@ -34,7 +34,8 @@ def run(a):
     s = play_game(cfg(soul, p, "Standard", sd, extra))
     st = s.stats
     row = {"soul": soul, "p": p, "win": s.result == "win", "cause": s.cause,
-           "ch": [st.get(f"ch_end_turn{i}") for i in range(3)], "turns": s.turn}
+           "ch": [st.get(f"ch_end_turn{i}") for i in range(3)], "turns": s.turn,
+           "backlash": sum(st["backlash"])}
     if row["win"]:
         ending, defied, hidden, _ = s.story_ending()
         row.update(thread=THREAD_OF[soul].get(ending), defied=defied, hidden=hidden)

@@ -13,7 +13,13 @@ from experiments import v5_final_levels as F  # noqa: E402
 from experiments.v5_chapters import SOULS  # noqa: E402
 
 D0 = dict(F.DISSOLVE)
-CANDIDATES = [   # (label, level, loom +, dissolve +, fractures to shatter)
+CANDIDATES = [   # (label, level, loom +, dissolve +, fractures to shatter[, black water])
+    ("消散 12｜溫和：裂痕 5、織機 +1、黑水 7", "Gentle", 1, 0, 5, 7),
+    ("消散 12｜溫和：裂痕 5、織機 +2、黑水 7", "Gentle", 2, 0, 5, 7),
+    ("消散 12｜標準：織機 +3", "Standard", 3, 0, 3),
+    ("消散 12｜標準：織機 +4", "Standard", 4, 0, 3),
+    ("消散 12｜困難：織機 +1", "Hard", 1, 0, 3),
+    ("消散 12｜困難：織機 +2", "Hard", 2, 0, 3),
     ("溫和：裂痕 5 道＋織機 +1＋黑水 7", "Gentle", 1, 0, 5, 7),
     ("溫和：裂痕 4 道＋織機 +1＋黑水 7", "Gentle", 1, 0, 4, 7),
     ("溫和：裂痕 4 道＋織機 +1＋黑水 8", "Gentle", 1, 0, 4, 8),
@@ -32,7 +38,7 @@ def run(a):
     old, old4 = dict(F.TUNED_LEVELS[level]), dict(F.PLAYER_DECIDED[4])
     F.TUNED_LEVELS[level] = dict(old, v5_cap_bonus=3 + cap, fracture_limit=frac, **({"bw_supply": bw} if bw else {}))
     F.PLAYER_DECIDED[4] = dict(old4, v5_cap_bonus=2 + cap)
-    F.DISSOLVE[level] = D0[level] + dis
+    F.DISSOLVE[level] = (-4 if os.environ.get("D12") else D0[level]) + dis
     try:
         return {**F.run((soul, p, sd, level)), "p": p}
     finally:
@@ -55,6 +61,7 @@ if __name__ == "__main__":
         r = {"label": label, "level": level, "cap": cap, "dissolve": dis, "fracture_limit": frac, "bw": bw, "win": round(len(wins) / n, 3),
              "by_players": {p: round(sum(x["win"] for x in rows if x["p"] == p) / sum(x["p"] == p for x in rows), 3) for p in (1, 2, 3, 4)},
              "ending_thread": {k: round(v / len(wins), 3) for k, v in Counter(x["thread"] for x in wins).most_common()},
+             "backlash": round(sum(x.get("backlash", 0) for x in rows) / n, 2),
              "loss_causes": {k: round(v / n, 3) for k, v in Counter(x["cause"] for x in rows if not x["win"]).most_common()}}
         print(json.dumps(r, ensure_ascii=False), flush=True)
         out.append(r)

@@ -43,27 +43,29 @@ function deckIds(soul) {
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 // ---------------------------------------------------------------- layout (world coordinates)
-const CW = 72, CH = 100;                  // card size
+const CW = 88, CH = 122;                  // card size (large enough to read at the table)
+const TK = 44;                            // token size
+const SW = CW + 8, SH = CH + 8;           // a card slot or pile
 // The River is a square board: three rows of five spaces that wind down the board with two turns
 // (0–4 left to right, 5–9 right to left, 10–14 left to right).
 // The table, seen from above. Four seats sit around it (bottom, left, top, right, clockwise, so the Oar passes left);
 // the shared boards lie in the middle, within everyone's reach: the Book at the head of the table where all can read it,
 // the River in the centre, the Loom and Ledger on one side of it, the Mist and the supply on the other.
-const WORLD = { w: 3330, h: 2860 };
-const RIVER = { x: 1350, y: 1060, w: 900, h: 960, colW: 152, rowH: 310, bank: 82, lane: 92 };
-const BOOK = { x: 1040, y: 360, w: 1480, h: 640 };
-const FATE = { x: 360, y: 360, w: 640, h: 300 };
-const LOOM = { x: 360, y: 1060, w: 940, h: 340 };
-const LEDGER = { x: 360, y: 1440, w: 940, h: 300 };
-const MISTA = { x: 2290, y: 1060, w: 300, h: 340 };
-const SUPPLY = { x: 2290, y: 1440, w: 700, h: 440 };
-const PLAY = { x: 1350, y: 2080, w: 900, h: 440 };
-const MAT = { w: 700, h: 260 };
+const WORLD = { w: 2920, h: 2560 };
+const RIVER = { x: 1310, y: 1000, w: 900, h: 960, colW: 152, rowH: 310, bank: 82, lane: 92 };
+const BOOK = { x: 950, y: 300, w: 1640, h: 660 };
+const FATE = { x: 310, y: 300, w: 600, h: 330 };
+const MISTA = { x: 310, y: 650, w: 600, h: 340 };
+const LOOM = { x: 310, y: 1000, w: 960, h: 340 };
+const LEDGER = { x: 310, y: 1360, w: 960, h: 340 };
+const SUPPLY = { x: 310, y: 1720, w: 960, h: 480 };
+const PLAY = { x: 2250, y: 1000, w: 340, h: 1200 };
+const MAT = { w: 760, h: 260 };
 const SEATS = [   // where each seat's mat lies and which way it faces
-  { cx: WORLD.w / 2, cy: WORLD.h - 40 - MAT.h / 2, rot: 0 },
-  { cx: 40 + MAT.h / 2, cy: WORLD.h / 2, rot: 90 },
-  { cx: WORLD.w / 2, cy: 40 + MAT.h / 2, rot: 180 },
-  { cx: WORLD.w - 40 - MAT.h / 2, cy: WORLD.h / 2, rot: -90 },
+  { cx: WORLD.w / 2, cy: WORLD.h - 20 - MAT.h / 2, rot: 0 },
+  { cx: 20 + MAT.h / 2, cy: WORLD.h / 2, rot: 90 },
+  { cx: WORLD.w / 2, cy: 20 + MAT.h / 2, rot: 180 },
+  { cx: WORLD.w - 20 - MAT.h / 2, cy: WORLD.h / 2, rot: -90 },
 ];
 const SEAT_OF = { 1: [0], 2: [0, 2], 3: [0, 1, 2], 4: [0, 1, 2, 3] };
 const seatGeo = p => SEATS[SEAT_OF[S.players][p]];
@@ -95,7 +97,7 @@ let ME = 0;              // my seat
 let mode = "local";      // local | host | guest
 let link = null;         // net handle
 let hist = [], fut = [];
-const LS = "nb-table-v5b";   // the square River changed every position on the table
+const LS = "nb-table-v5c";   // the table layout changed: older saved tables do not fit it
 const saveLocal = () => { if (mode !== "guest") try { localStorage.setItem(LS, JSON.stringify(S)); } catch { /* full */ } };
 
 const uid = (() => { let n = 0; return p => `${p}${(++n).toString(36)}${Math.floor(Math.random() * 1296).toString(36)}`; })();
@@ -123,19 +125,19 @@ function newTable(opts) {
   buildSnaps(opts.players);
   const soul = opts.soul, st = D.SETUP_TABLE[opts.players];
   // stacks
-  addStack("deck", { x: LEDGER.x + 20, y: LEDGER.y + 40, label: ["記憶牌庫", "Memory deck"], accepts: "card" });
-  addStack("discard", { x: LEDGER.x + 110, y: LEDGER.y + 40, label: ["棄牌堆", "Discard"], accepts: "card", faceUp: true });
-  addStack("forgot", { x: LEDGER.x + 200, y: LEDGER.y + 40, label: ["遺忘堆", "Forgotten"], accepts: "card", faceUp: true, counter: "forgot" });
-  addStack("box", { x: LEDGER.x + LEDGER.w - 96, y: LEDGER.y + 170, label: ["盒中（移出遊戲）", "Box (out of game)"], accepts: "any", faceUp: true });
-  for (let r = 0; r < 3; r++) addStack("mist" + r, { x: MISTA.x + 20 + r * 92, y: MISTA.y + 40, label: [D.DECK_NAMES[r].zh, D.DECK_NAMES[r].en], accepts: "card", showBack: true });
-  addStack("mistdis", { x: MISTA.x + 200, y: MISTA.y + 210, label: ["迷霧棄牌", "Mist discard"], accepts: "card", faceUp: true });
-  addStack("spare", { x: MISTA.x + 20, y: MISTA.y + 210, label: ["備用板塊", "Spare tiles"], accepts: "tile", faceUp: true, small: true });
+  addStack("deck", { x: LEDGER.x + 20, y: LEDGER.y + 50, label: ["記憶牌庫", "Memory deck"], accepts: "card" });
+  addStack("discard", { x: LEDGER.x + 30 + SW, y: LEDGER.y + 50, label: ["棄牌堆", "Discard"], accepts: "card", faceUp: true });
+  addStack("forgot", { x: LEDGER.x + 40 + 2 * SW, y: LEDGER.y + 50, label: ["遺忘堆", "Forgotten"], accepts: "card", faceUp: true, counter: "forgot" });
+  addStack("box", { x: LEDGER.x + 20, y: LEDGER.y + 202, label: ["盒中（移出遊戲）", "Box (out of game)"], accepts: "any", faceUp: true });
+  for (let r = 0; r < 3; r++) addStack("mist" + r, { x: MISTA.x + 20 + r * (SW + 10), y: MISTA.y + 60, label: [D.DECK_NAMES[r].zh, D.DECK_NAMES[r].en], accepts: "card", showBack: true });
+  addStack("mistdis", { x: MISTA.x + 40 + 4 * (SW + 10), y: MISTA.y + 60, label: ["迷霧棄牌", "Mist discard"], accepts: "card", faceUp: true });
+  addStack("spare", { x: MISTA.x + 20, y: MISTA.y + 200, label: ["備用板塊", "Spare tiles"], accepts: "tile", faceUp: true, small: true });
   for (let ch = 0; ch < 3; ch++) for (let k = 0; k < 2; k++)
-    addStack(`fate${ch}${k}`, { x: FATE.x + 20 + (ch * 2 + k) * 100, y: FATE.y + 170, label: [`第${"一二三"[ch]}章・${k ? "書上" : "河流"}`, `Ch ${ch + 1} · ${k ? "Book" : "River"}`], accepts: "card" });
-  addStack("comm", { x: FATE.x + 360, y: FATE.y + 40, label: ["託付卡", "Commissions"], accepts: "card" });
-  addStack("ending", { x: FATE.x + 460, y: FATE.y + 40, label: ["結局牌", "Endings"], accepts: "card" });
-  if (opts.players === 1) addStack("ghost", { x: FATE.x + 560, y: FATE.y + 40, label: ["幽靈牌庫", "Ghost deck"], accepts: "card", showBack: true });
-  const binX = i => SUPPLY.x + 20 + (i % 6) * 112, binY = i => SUPPLY.y + 190 + Math.floor(i / 6) * 124;
+    addStack(`fate${ch}${k}`, { x: FATE.x + 14 + (ch * 2 + k) * SW, y: FATE.y + 190, label: [`第${"一二三"[ch]}章・${k ? "書上" : "河流"}`, `Ch ${ch + 1} · ${k ? "Book" : "River"}`], accepts: "card" });
+  addStack("comm", { x: FATE.x + 30 + 3 * SW, y: FATE.y + 44, label: ["託付卡", "Commissions"], accepts: "card" });
+  addStack("ending", { x: FATE.x + 40 + 4 * SW, y: FATE.y + 44, label: ["結局牌", "Endings"], accepts: "card" });
+  if (opts.players === 1) addStack("ghost", { x: MISTA.x + 140, y: MISTA.y + 200, label: ["幽靈牌庫", "Ghost deck"], accepts: "card", showBack: true });
+  const binX = i => SUPPLY.x + 20 + (i % 8) * 116, binY = i => SUPPLY.y + 240 + Math.floor(i / 8) * 130;
   const bins = [["root", ["根／花", "Root / Bloom"], 24], ["shade", ["怨念", "Shade"], 8], ["fog", ["霧標記", "Fog marker"], 6],
     ["crack", ["裂痕", "Fracture"], D.LEVELS[opts.level].fractures], ["hold", ["堅守", "Hold Fast"], 1], ["shield", ["護盾", "Shield"], 1],
     ["resign", ["認命", "Resignation"], 1], ["oar", ["船槳", "Oar"], 1]];
@@ -163,7 +165,7 @@ function newTable(opts) {
   if (soul !== "open") ["0", "1", "2", "mix", "hidden"].forEach(k => addItem("card", { ck: `end:${soul}:${k}`, face: 0 }, { stack: "ending" }));
   if (opts.players === 1) shuffle(D.GHOST.map((_, i) => i)).forEach(i => addItem("card", { ck: "ghost:" + i, face: 0 }, { stack: "ghost" }));
   // soul card, mantles
-  addItem("card", { ck: "soul:" + soul, face: 1 }, { x: FATE.x + 20, y: FATE.y + 40 });
+  addItem("card", { ck: "soul:" + soul, face: 1 }, { x: FATE.x + 14 + SW / 2, y: FATE.y + 44 + SH / 2 });
   D.MANTLES.forEach((m, i) => addItem("card", { ck: "mantle:" + m.key, face: 1 }, snapPos(`mantle${i}`)));
   // tiles: each Reach draws from its pool, adds its graves, and fills its banks face down
   D.TILE_POOLS.forEach((p, r) => {
@@ -211,7 +213,7 @@ function buildSnaps(players) {
     snap(`water${sp}`, g.x + 60, g.laneY + 2, 52, R.lane - 4, ["tok"]);
   }
   // mist front
-  snap("mistfront", MISTA.x + 110, MISTA.y + 200, CW + 8, CH + 8, ["card"]);
+  snap("mistfront", MISTA.x + 30 + 3 * (SW + 10), MISTA.y + 60, SW, SH, ["card"]);
   // loom
   for (let t = 0; t < 3; t++) {
     const y = LOOM.y + 60 + t * 88;
@@ -221,13 +223,13 @@ function buildSnaps(players) {
   }
   snap("echoS", LOOM.x + 20, LOOM.y + 300, 40, 32, ["tok"]);
   // ledger
-  for (let k = 0; k <= 12; k++) snap(`light${k}`, LEDGER.x + 300 + k * 46, LEDGER.y + 50, 42, 42, ["tok"]);
-  for (let k = 0; k < 5; k++) snap(`crack${k}`, LEDGER.x + 300 + k * 44, LEDGER.y + 150, 40, 40, ["tok"]);
-  for (let k = 0; k < 7; k++) snap(`bwsup${k}`, LEDGER.x + 530 + k * 44, LEDGER.y + 150, 40, 40, ["tok"]);
+  for (let k = 0; k <= 12; k++) snap(`light${k}`, LEDGER.x + 352 + k * 46, LEDGER.y + 56, 44, 44, ["tok"]);
+  for (let k = 0; k < 5; k++) snap(`crack${k}`, LEDGER.x + 352 + k * 48, LEDGER.y + 160, 44, 44, ["tok"]);
+  for (let k = 0; k < 7; k++) snap(`bwsup${k}`, LEDGER.x + 600 + k * 48, LEDGER.y + 160, 44, 44, ["tok"]);
   // mantle row, fate slots
   // the Mantle row sits along the top of the supply panel
-  D.MANTLES.forEach((_, i) => snap(`mantle${i}`, SUPPLY.x + 20 + i * 92, SUPPLY.y + 50, CW + 8, CH + 8, ["card"]));
-  for (let k = 0; k < 2; k++) snap(`fateslot${k}`, FATE.x + 120 + k * 100, FATE.y + 40, CW + 8, CH + 8, ["card"]);
+  D.MANTLES.forEach((_, i) => snap(`mantle${i}`, SUPPLY.x + 20 + i * (SW + 12), SUPPLY.y + 56, SW, SH, ["card"]));
+  for (let k = 0; k < 2; k++) snap(`fateslot${k}`, FATE.x + 20 + (k + 1) * SW, FATE.y + 44, SW, SH, ["card"]);
   // book nodes
   for (let ch = 0; ch < 3; ch++) for (const n of bookLayout(S.soul, ch)) {
     if (n.k === "m" || n.k === "g") snap(`node${ch}_${n.id}`, n.x, n.y, CW + 8, CH + 8, ["card"]);
@@ -238,8 +240,8 @@ function buildSnaps(players) {
   for (let p = 0; p < players; p++) {
     snap(`mat${p}comm`, ...matRect(p, 30, 60, CW + 8, CH + 8), ["card"]);
     snap(`mat${p}mantle`, ...matRect(p, 140, 60, CW + 8, CH + 8), ["card"]);
-    snap(`mat${p}push`, ...matRect(p, 250, 80, 56, 56), ["tok"]);
-    for (let k = 0; k < 4; k++) snap(`mat${p}keep${k}`, ...matRect(p, 340 + k * 88, 60, CW + 8, CH + 8), ["card"]);
+    snap(`mat${p}push`, ...matRect(p, 254, 96, 60, 60), ["tok"]);
+    for (let k = 0; k < 4; k++) snap(`mat${p}keep${k}`, ...matRect(p, 340 + k * 102, 60, SW, SH), ["card"]);
   }
 }
 
@@ -377,14 +379,13 @@ let elWorld, elTable, elHand, elHint, elMenu, elSeats;
 const els = {};          // item id -> element
 const stackEls = {};
 let view = { x: 0, y: 0, s: 0.6, r: 0 };
-let followSeat = false;   // turn the table so my seat is at the bottom
 
 function boardsHtml() {
   const R = RIVER, soul = S.soul;
   const lv = D.LEVELS[S.level];
   let h = "";
   // river: a square board, three rows of five spaces joined by two turns
-  h += `<div class="board river" data-region="river" style="left:${R.x}px;top:${R.y}px;width:${R.w}px;height:${R.h}px">`;
+  h += `<div class="board river" data-region="river" style="left:${R.x}px;top:${R.y}px;width:${R.w}px;height:${R.h}px">${zoomBtn("river")}`;
   let water = "";
   for (let row = 0; row < 3; row++) {
     const g0 = spaceGeo(row * 5), y = g0.laneY - R.y + R.lane / 2;
@@ -414,11 +415,11 @@ function boardsHtml() {
   h += [[1, 0], [5, 1], [10, 2]].map(([sp, r]) => { const g = spaceGeo(sp); return `<div class="reachname" style="left:${g.x - R.x}px;top:${g.top - R.y - 22}px">${tr(`第${"一二三"[r]}河段・${D.REACHES[r].zh}`, `Reach ${r + 1} · ${D.REACHES[r].en}`)}${r === 1 ? tr("（第 5–8 格）", " (5–8)") : r === 2 ? tr("（第 9–13 格）", " (9–13)") : ""}</div>`; }).join("");
   h += `</div>`;
   // mist area
-  h += `<div class="board mista" data-region="mist" style="left:${MISTA.x}px;top:${MISTA.y}px;width:${MISTA.w}px;height:${MISTA.h}px">
-    <div class="btitle">${tr("迷霧", "Mist")}</div><div class="lab" style="left:110px;top:186px">${tr("前方的霧", "Mist ahead")}</div></div>`;
+  h += `<div class="board mista" data-region="mist" style="left:${MISTA.x}px;top:${MISTA.y}px;width:${MISTA.w}px;height:${MISTA.h}px">${zoomBtn("mist")}
+    <div class="btitle">${tr("迷霧", "Mist")}</div><div class="slotbox" style="left:${30 + 3 * (SW + 10)}px;top:60px;width:${SW}px;height:${SH}px">${tr("前方的霧（面朝上）", "Mist ahead (face up)")}</div></div>`;
   // loom
   const th = D.thresholds(S.level, S.players);
-  h += `<div class="board loom" data-region="loom" style="left:${LOOM.x}px;top:${LOOM.y}px;width:${LOOM.w}px;height:${LOOM.h}px">
+  h += `<div class="board loom" data-region="loom" style="left:${LOOM.x}px;top:${LOOM.y}px;width:${LOOM.w}px;height:${LOOM.h}px">${zoomBtn("loom")}
     <div class="btitle">${tr("命運織機", "Loom of the Fates")}</div>
     <div class="lab" style="left:110px;top:36px">${tr("結", "Knots")}</div><div class="lab" style="left:610px;top:36px">${tr("傷疤", "Scars")}</div>
     <div class="lab" style="left:714px;top:36px">${tr("反噬（第一／二／三級）", "Backlash (I / II / III)")}</div>`;
@@ -434,29 +435,28 @@ function boardsHtml() {
   // book: one open page; tabs flip through the chapters
   h += `<div class="board bookp" data-region="book" id="tt-book" style="left:${BOOK.x}px;top:${BOOK.y}px;width:${BOOK.w}px;height:${BOOK.h}px"></div>`;
   // ledger
-  h += `<div class="board ledger" data-region="ledger" style="left:${LEDGER.x}px;top:${LEDGER.y}px;width:${LEDGER.w}px;height:${LEDGER.h}px">
+  h += `<div class="board ledger" data-region="ledger" style="left:${LEDGER.x}px;top:${LEDGER.y}px;width:${LEDGER.w}px;height:${LEDGER.h}px">${zoomBtn("ledger")}
     <div class="btitle">${tr("渡帳", "Ledger")}</div>
-    <div class="lab" style="left:300px;top:30px">${tr("光", "Light")}</div>`;
-  for (let k = 0; k <= 12; k++) h += `<div class="cell round" style="left:${300 + k * 46}px;top:50px;width:42px;height:42px">${k}</div>`;
-  h += `<div class="lab" style="left:300px;top:130px">${tr(`裂痕（${lv.fractures} 道破碎）`, `Fractures (${lv.fractures} = Shattered)`)}</div>`;
-  for (let k = 0; k < lv.fractures; k++) h += `<div class="cell round crack" style="left:${300 + k * 44}px;top:150px;width:40px;height:40px">${k + 1}</div>`;
-  h += `<div class="lab" style="left:530px;top:130px">${tr(`黑水供應（${lv.bw} 個）`, `Black Water supply (${lv.bw})`)}</div>`;
-  for (let k = 0; k < lv.bw; k++) h += `<div class="cell round" style="left:${530 + k * 44}px;top:150px;width:40px;height:40px"></div>`;
-  h += `<div class="note" style="left:20px;top:250px">${tr(`消散門檻：遺忘 ${lv.dissolve} 張。輕如灰燼 6、漂離 9。忘川的拉力：第一／二／三章 ${PULL.join("／")} 張。`, `Faded at ${lv.dissolve} forgotten. Light as Ash 6, Adrift 9. Pull of Lethe: ${PULL.join(" / ")}.`)}</div></div>`;
+    <div class="lab" style="left:352px;top:34px">${tr("光", "Light")}</div>`;
+  for (let k = 0; k <= 12; k++) h += `<div class="cell round" style="left:${352 + k * 46}px;top:56px;width:44px;height:44px">${k}</div>`;
+  h += `<div class="lab" style="left:352px;top:138px">${tr(`裂痕（${lv.fractures} 道破碎）`, `Fractures (${lv.fractures} = Shattered)`)}</div>`;
+  for (let k = 0; k < lv.fractures; k++) h += `<div class="cell round crack" style="left:${352 + k * 48}px;top:160px;width:44px;height:44px">${k + 1}</div>`;
+  h += `<div class="lab" style="left:600px;top:138px">${tr(`黑水供應（${lv.bw} 個）`, `Black Water supply (${lv.bw})`)}</div>`;
+  for (let k = 0; k < lv.bw; k++) h += `<div class="cell round" style="left:${600 + k * 48}px;top:160px;width:44px;height:44px"></div>`;
+  h += `<div class="note" style="left:140px;top:300px;right:20px">${tr(`消散門檻：遺忘 ${lv.dissolve} 張。輕如灰燼 6、漂離 9。忘川的拉力：第一／二／三章 ${PULL.join("／")} 張。`, `Faded at ${lv.dissolve} forgotten. Light as Ash 6, Adrift 9. Pull of Lethe: ${PULL.join(" / ")}.`)}</div></div>`;
   // fate area
-  h += `<div class="board fatea" data-region="fate" style="left:${FATE.x}px;top:${FATE.y}px;width:${FATE.w}px;height:${FATE.h}px">
+  h += `<div class="board fatea" data-region="fate" style="left:${FATE.x}px;top:${FATE.y}px;width:${FATE.w}px;height:${FATE.h}px">${zoomBtn("fate")}
     <div class="btitle">${tr("亡魂・命運之霧・託付", "Soul · Fate · Commissions")}</div>
-    <div class="lab" style="left:120px;top:24px">${tr("本章的兩張命運之霧（條件面朝上）", "This chapter's two fates (condition up)")}</div>
-    <div class="lab" style="left:20px;top:150px">${tr("命運之霧（每章河流／書上各 2 張）", "Fate mist (2 river + 2 book per chapter)")}</div></div>`;
+    ${[0, 1].map(k => `<div class="slotbox" style="left:${20 + (k + 1) * SW}px;top:44px;width:${SW}px;height:${SH}px">${tr(`本章的命運之霧 ${k + 1}（條件面朝上）`, `This chapter's fate ${k + 1} (condition up)`)}</div>`).join("")}</div>`;
   // supply
-  h += `<div class="board supply" data-region="supply" style="left:${SUPPLY.x}px;top:${SUPPLY.y}px;width:${SUPPLY.w}px;height:${SUPPLY.h}px"><div class="btitle">${tr("稱號列與供應區", "Mantles and supply")}</div>
-    <div class="lab" style="left:20px;top:160px">${tr("供應區", "Supply")}</div></div>`;
+  h += `<div class="board supply" data-region="supply" style="left:${SUPPLY.x}px;top:${SUPPLY.y}px;width:${SUPPLY.w}px;height:${SUPPLY.h}px">${zoomBtn("supply")}<div class="btitle">${tr("稱號列與供應區", "Mantles and supply")}</div>
+    <div class="lab" style="left:20px;top:200px">${tr("供應區（拖曳拿取；拖回放回）", "Supply (drag to take, drag back to return)")}</div></div>`;
   // mats
   // play area in front of the River (cards being played, persistent cards)
-  h += `<div class="board playarea" data-region="play" style="left:${PLAY.x}px;top:${PLAY.y}px;width:${PLAY.w}px;height:${PLAY.h}px"><div class="btitle">${tr("出牌區", "Play area")}</div></div>`;
+  h += `<div class="board playarea" data-region="play" style="left:${PLAY.x}px;top:${PLAY.y}px;width:${PLAY.w}px;height:${PLAY.h}px">${zoomBtn("play")}<div class="btitle">${tr("出牌區", "Play area")}</div></div>`;
   for (let p = 0; p < S.players; p++) {
     const g = seatGeo(p);
-    h += `<div class="board mat" data-region="mat${p}" style="left:${g.cx - MAT.w / 2}px;top:${g.cy - MAT.h / 2}px;width:${MAT.w}px;height:${MAT.h}px;transform:rotate(${g.rot}deg)">
+    h += `<div class="board mat" data-region="mat${p}" style="left:${g.cx - MAT.w / 2}px;top:${g.cy - MAT.h / 2}px;width:${MAT.w}px;height:${MAT.h}px;transform:rotate(${g.rot}deg)">${zoomBtn(`mat${p}`)}
       <div class="btitle">${esc(S.names[p] || tr(`擺渡人 ${p + 1}`, `Ferryman ${p + 1}`))}</div>
       <div class="lab" style="left:30px;top:40px">${tr("託付（面朝下）", "Commission (face down)")}</div><div class="lab" style="left:140px;top:40px">${tr("稱號", "Mantle")}</div>
       <div class="lab" style="left:250px;top:58px">${tr("破浪", "Push")}</div><div class="lab" style="left:340px;top:40px">${tr("持續中的牌", "Lasting cards")}</div>
@@ -497,7 +497,7 @@ function bookPageHtml(ch) {
   const here = S.chapter === ch
     ? `<span class="curnote">★ ${tr("目前的章節", "The chapter in play")}</span>`
     : `<button class="chbtn" data-ch="${ch}">${tr("把這章設為目前的章節（翻頁）", "Make this the chapter in play (turn the page)")}</button>`;
-  return `<div class="btitle">${tr("憶念之書", "Book of Remembrance")} <span class="booktabs">${tabs}</span> ${here}</div>
+  return `${zoomBtn("book")}<div class="btitle">${tr("憶念之書", "Book of Remembrance")} <span class="booktabs">${tabs}</span> ${here}</div>
     ${S.chapter !== ch ? `<div class="browse">${tr("你正在翻閱其他章節；放在這頁的牌只會在這頁顯示。", "You are browsing another chapter; cards placed here only show on this page.")}</div>` : ""}
     <div class="entry">${entry}</div>
     <svg class="arrows" width="${BOOK.w}" height="${BOOK.h}"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9a948c"/></marker></defs>${lines}</svg>
@@ -518,6 +518,20 @@ function renderBook() {
   el.querySelectorAll(".chbtn").forEach(b => b.onclick = () => commit(tr(`${who()} 把第${"一二三"[+b.dataset.ch]}章設為目前的章節`, `${who()} turned to chapter ${+b.dataset.ch + 1}`), () => { S.chapter = +b.dataset.ch; }));
 }
 
+// every board has a magnifier in its top-right corner: click it to fill the window with that board
+function zoomTo(region) {
+  const el = document.querySelector(`.board[data-region="${region}"]`);
+  if (!el) return;
+  let x = parseFloat(el.style.left), y = parseFloat(el.style.top), w = parseFloat(el.style.width), h = parseFloat(el.style.height);
+  if (/rotate\((-?90)deg\)/.test(el.style.transform)) { x += (w - h) / 2; y += (h - w) / 2; [w, h] = [h, w]; }
+  const r = $("#tt-view").getBoundingClientRect();
+  view.r = 0;
+  view.s = Math.min(2.6, Math.min(r.width / w, r.height / h) * 0.94);
+  view.x = r.width / 2 - (x + w / 2) * view.s; view.y = r.height / 2 - (y + h / 2) * view.s;
+  applyView();
+}
+const zoomBtn = region => `<button class="zoombtn" data-zoom="${region}" title="${tr("放大這一區（再按「全桌」回到全景）", "Zoom to this section (press Fit for the whole table)")}">⌕</button>`;
+
 function buildTable() {
   const app = $("#app");
   app.innerHTML = `
@@ -531,7 +545,6 @@ function buildTable() {
       <button id="tt-undo" title="Ctrl+Z">${tr("復原", "Undo")}</button>
       <button id="tt-redo" title="Ctrl+Y">${tr("重做", "Redo")}</button>
       <button id="tt-fit">${tr("全桌", "Fit")}</button>
-      <label class="switch" title="${tr("把桌面轉向，讓你的座位在畫面下方", "Turn the table so your seat is at the bottom")}"><input type="checkbox" id="tt-turn"> <span>${tr("我的座位在下方", "My seat at the bottom")}</span></label>
       <button id="tt-rules">${tr("規則書", "Rulebook")}</button>
       <button id="tt-log">${tr("紀錄", "Log")}</button>
       <button id="tt-menu">${tr("選單", "Menu")}</button>
@@ -577,8 +590,8 @@ function render() {
       el.className = "piece " + r.cls; el.innerHTML = r.html; el.title = r.title; el._sig = sig;
     }
     el.style.display = it.pg !== undefined && it.pg !== bookView ? "none" : "";
-    const w = it.kind === "card" ? CW : it.kind === "tile" ? RIVER.bank - 6 : 36;
-    const hgt = it.kind === "card" ? CH : it.kind === "tile" ? RIVER.bank - 6 : 36;
+    const w = it.kind === "card" ? CW : it.kind === "tile" ? RIVER.bank - 6 : TK;
+    const hgt = it.kind === "card" ? CH : it.kind === "tile" ? RIVER.bank - 6 : TK;
     el.style.width = w + "px"; el.style.height = hgt + "px";
     el.style.transform = `translate(${it.x - w / 2}px,${it.y - hgt / 2}px) rotate(${it.rot}deg)`;
     el.style.zIndex = it.kind === "tile" ? 2 + (it.z % 1000) : it.kind === "card" ? 1000 + it.z : 3000 + it.z;
@@ -666,10 +679,9 @@ function worldPt(e) {
   return { x: q.x, y: q.y };
 }
 function applyView() { elWorld.style.transform = viewMatrix().toString(); }
-const seatRot = p => ({ 0: 0, 90: -90, 180: 180, "-90": 90 })[seatGeo(p).rot];
 function fit() {
   const r = $("#tt-view").getBoundingClientRect();
-  view.r = followSeat ? seatRot(ME) : 0;
+  view.r = 0;   // everyone sees the same fixed table
   const side = Math.abs(view.r) === 90;
   const W = side ? WORLD.h : WORLD.w, H = side ? WORLD.w : WORLD.h;
   view.s = Math.min(r.width / W, r.height / H) * 0.98;
@@ -690,6 +702,7 @@ function bindTable() {
     applyView();
   }, { passive: false });
   v.addEventListener("pointerdown", onDown);
+  v.addEventListener("click", e => { const z = e.target.closest(".zoombtn"); if (z) { e.stopPropagation(); zoomTo(z.dataset.zoom); } });
   window.addEventListener("pointermove", onMove);
   window.addEventListener("pointerup", onUp);
   v.addEventListener("dblclick", e => {
@@ -706,8 +719,6 @@ function bindTable() {
   });
   elHand.addEventListener("contextmenu", e => { e.preventDefault(); openMenu(e); });
   $("#tt-undo").onclick = undo; $("#tt-redo").onclick = redo; $("#tt-fit").onclick = fit;
-  $("#tt-turn").checked = followSeat;
-  $("#tt-turn").onchange = e => { followSeat = e.target.checked; fit(); };
   $("#tt-rules").onclick = () => openDrawer("rules");
   $("#tt-log").onclick = () => openDrawer("log");
   $("#tt-menu").onclick = () => showMenuScreen();
@@ -997,7 +1008,7 @@ function switchSeat(n) {
   c.innerHTML = `<div class="mbox"><h3>${tr(`請把裝置交給 ${esc(S.names[n])}`, `Pass the device to ${esc(S.names[n])}`)}</h3>
     <p>${tr("手牌會在按下按鈕後顯示。", "Their hand appears when they press the button.")}</p><button id="seatok">${tr(`我是 ${esc(S.names[n])}`, `I am ${esc(S.names[n])}`)}</button></div>`;
   c.classList.remove("hidden");
-  $("#seatok").onclick = () => { ME = n; c.classList.add("hidden"); if (followSeat) fit(); render(); };
+  $("#seatok").onclick = () => { ME = n; c.classList.add("hidden"); render(); };
 }
 
 // ---------------------------------------------------------------- online
@@ -1033,7 +1044,7 @@ function startGuest(code, name) {
   link = net.join(code, {
     open: () => link.send({ t: "hello", name, cid: net.clientId() }),
     message: msg => {
-      if (msg.t === "welcome") { ME = msg.seat; S = msg.S; followSeat = true; buildTable(); $("#tt-code").textContent = tr(`房間 ${code}`, `Table ${code}`); }
+      if (msg.t === "welcome") { ME = msg.seat; S = msg.S; buildTable(); $("#tt-code").textContent = tr(`房間 ${code}`, `Table ${code}`); }
       else if (msg.t === "state" && S && msg.S.rev >= S.rev) { S = msg.S; render(); }
       else if (msg.t === "full") toast(tr("這張桌子已經坐滿了。", "That table is full."));
     },
@@ -1078,7 +1089,7 @@ function showMenuScreen() {
   $("#lb-host").onclick = () => {
     const o = opts();
     if (o.players < 2) { toast(tr("線上桌需要 2–4 人。", "Online tables need 2–4 players.")); return; }
-    newTable(o); ME = 0; hist = []; fut = []; followSeat = true; buildTable(); saveLocal();
+    newTable(o); ME = 0; hist = []; fut = []; buildTable(); saveLocal();
     startHost(net.newCode()); track("start");
   };
   $("#lb-join").onclick = () => {
