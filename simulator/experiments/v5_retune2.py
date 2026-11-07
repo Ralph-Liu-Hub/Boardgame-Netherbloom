@@ -16,6 +16,8 @@ D0 = dict(F.DISSOLVE)
 CANDIDATES = [   # (label, level, loom +, dissolve +, fractures to shatter[, black water])
     ("消散 12｜溫和：裂痕 5、織機 +1、黑水 7", "Gentle", 1, 0, 5, 7),
     ("消散 12｜溫和：裂痕 5、織機 +2、黑水 7", "Gentle", 2, 0, 5, 7),
+    ("消散 12｜標準：織機 +2", "Standard", 2, 0, 3),
+    ("消散 14｜標準：織機 +2（目前）", "Standard", 2, 2, 3),
     ("消散 12｜標準：織機 +3", "Standard", 3, 0, 3),
     ("消散 12｜標準：織機 +4", "Standard", 4, 0, 3),
     ("消散 12｜困難：織機 +1", "Hard", 1, 0, 3),
