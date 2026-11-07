@@ -1,0 +1,158 @@
+[
+ {
+  "label": "溫和：裂痕 4 道才破碎",
+  "level": "Gentle",
+  "cap": 0,
+  "dissolve": 0,
+  "fracture_limit": 4,
+  "win": 0.523,
+  "by_players": {
+   "1": 0.424,
+   "2": 0.488,
+   "3": 0.588,
+   "4": 0.594
+  },
+  "ending_thread": {
+   "忘卻": 0.293,
+   "交織": 0.255,
+   "執念": 0.241,
+   "釋懷": 0.211
+  },
+  "loss_causes": {
+   "Deluge": 0.171,
+   "Shattered": 0.139,
+   "Faded": 0.087,
+   "Nameless": 0.08
+  }
+ },
+ {
+  "label": "溫和：裂痕 4 道＋織機 +1",
+  "level": "Gentle",
+  "cap": 1,
+  "dissolve": 0,
+  "fracture_limit": 4,
+  "win": 0.562,
+  "by_players": {
+   "1": 0.488,
+   "2": 0.532,
+   "3": 0.62,
+   "4": 0.608
+  },
+  "ending_thread": {
+   "忘卻": 0.27,
+   "執念": 0.267,
+   "交織": 0.259,
+   "釋懷": 0.204
+  },
+  "loss_causes": {
+   "Deluge": 0.154,
+   "Shattered": 0.128,
+   "Faded": 0.084,
+   "Nameless": 0.071
+  }
+ },
+ {
+  "label": "標準：織機 +1、消散 14",
+  "level": "Standard",
+  "cap": 1,
+  "dissolve": 2,
+  "fracture_limit": 3,
+  "win": 0.469,
+  "by_players": {
+   "1": 0.378,
+   "2": 0.404,
+   "3": 0.528,
+   "4": 0.568
+  },
+  "ending_thread": {
+   "交織": 0.271,
+   "忘卻": 0.271,
+   "執念": 0.26,
+   "釋懷": 0.199
+  },
+  "loss_causes": {
+   "Shattered": 0.329,
+   "Deluge": 0.101,
+   "Nameless": 0.069,
+   "Faded": 0.033
+  }
+ },
+ {
+  "label": "標準：織機 +2、消散 14",
+  "level": "Standard",
+  "cap": 2,
+  "dissolve": 2,
+  "fracture_limit": 3,
+  "win": 0.49,
+  "by_players": {
+   "1": 0.362,
+   "2": 0.45,
+   "3": 0.552,
+   "4": 0.598
+  },
+  "ending_thread": {
+   "忘卻": 0.268,
+   "執念": 0.266,
+   "交織": 0.243,
+   "釋懷": 0.223
+  },
+  "loss_causes": {
+   "Shattered": 0.317,
+   "Deluge": 0.086,
+   "Nameless": 0.082,
+   "Faded": 0.026
+  }
+ },
+ {
+  "label": "困難：消散 14",
+  "level": "Hard",
+  "cap": 0,
+  "dissolve": 2,
+  "fracture_limit": 3,
+  "win": 0.385,
+  "by_players": {
+   "1": 0.338,
+   "2": 0.3,
+   "3": 0.43,
+   "4": 0.47
+  },
+  "ending_thread": {
+   "忘卻": 0.315,
+   "執念": 0.241,
+   "交織": 0.239,
+   "釋懷": 0.205
+  },
+  "loss_causes": {
+   "Shattered": 0.475,
+   "Deluge": 0.067,
+   "Nameless": 0.056,
+   "Faded": 0.017
+  }
+ },
+ {
+  "label": "困難：織機 +1、消散 14",
+  "level": "Hard",
+  "cap": 1,
+  "dissolve": 2,
+  "fracture_limit": 3,
+  "win": 0.41,
+  "by_players": {
+   "1": 0.342,
+   "2": 0.314,
+   "3": 0.482,
+   "4": 0.504
+  },
+  "ending_thread": {
+   "忘卻": 0.274,
+   "交織": 0.258,
+   "執念": 0.252,
+   "釋懷": 0.216
+  },
+  "loss_causes": {
+   "Shattered": 0.457,
+   "Nameless": 0.067,
+   "Deluge": 0.06,
+   "Faded": 0.005
+  }
+ }
+]

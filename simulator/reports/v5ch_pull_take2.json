@@ -1,0 +1,32 @@
+[
+ {
+  "label": "選項 2：河水帶走 2 張（移出遊戲）3／5／7（11/7 決定）",
+  "win": 0.416,
+  "by_players": {
+   "1": 0.344,
+   "2": 0.34,
+   "3": 0.47,
+   "4": 0.512
+  },
+  "ending_thread": {
+   "忘卻": 0.297,
+   "執念": 0.251,
+   "交織": 0.235,
+   "釋懷": 0.217
+  },
+  "defied_1plus": 0.48,
+  "pulled_any": 0.539,
+  "ch1_pulled": 0.078,
+  "ch2_pulled_after_ch1": 0.414,
+  "ch2_pulled_otherwise": 0.225,
+  "ch2_obl_after_ch1": 0.593,
+  "obl_ending_after_ch1_pull": 0.774,
+  "taken_per_game": 1.38,
+  "loss_causes": {
+   "Shattered": 0.316,
+   "Deluge": 0.108,
+   "Faded": 0.093,
+   "Nameless": 0.067
+  }
+ }
+]

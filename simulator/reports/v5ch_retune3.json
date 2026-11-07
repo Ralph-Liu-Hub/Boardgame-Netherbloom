@@ -1,0 +1,758 @@
+[
+ {
+  "label": "G loom-1 F5 BW7",
+  "level": "Gentle",
+  "loom": -1,
+  "fracture_limit": 5,
+  "bw": 7,
+  "win": 0.485,
+  "by_players": {
+   "1": 0.406,
+   "2": 0.454,
+   "3": 0.56,
+   "4": 0.522
+  },
+  "backlash": 3.28,
+  "ending_thread": {
+   "忘卻": 0.332,
+   "交織": 0.262,
+   "執念": 0.216,
+   "釋懷": 0.191
+  },
+  "loss_causes": {
+   "Faded": 0.197,
+   "Shattered": 0.137,
+   "Deluge": 0.117,
+   "Nameless": 0.064
+  }
+ },
+ {
+  "label": "G loom-1 F5 BW6",
+  "level": "Gentle",
+  "loom": -1,
+  "fracture_limit": 5,
+  "bw": 6,
+  "win": 0.479,
+  "by_players": {
+   "1": 0.402,
+   "2": 0.442,
+   "3": 0.556,
+   "4": 0.516
+  },
+  "backlash": 3.04,
+  "ending_thread": {
+   "忘卻": 0.331,
+   "交織": 0.261,
+   "執念": 0.218,
+   "釋懷": 0.19
+  },
+  "loss_causes": {
+   "Deluge": 0.198,
+   "Faded": 0.152,
+   "Shattered": 0.11,
+   "Nameless": 0.061
+  }
+ },
+ {
+  "label": "G loom-1 F4 BW7",
+  "level": "Gentle",
+  "loom": -1,
+  "fracture_limit": 4,
+  "bw": 7,
+  "win": 0.468,
+  "by_players": {
+   "1": 0.378,
+   "2": 0.444,
+   "3": 0.538,
+   "4": 0.51
+  },
+  "backlash": 3.14,
+  "ending_thread": {
+   "忘卻": 0.332,
+   "交織": 0.263,
+   "執念": 0.216,
+   "釋懷": 0.189
+  },
+  "loss_causes": {
+   "Shattered": 0.2,
+   "Faded": 0.168,
+   "Deluge": 0.106,
+   "Nameless": 0.059
+  }
+ },
+ {
+  "label": "G loom-1 F4 BW8",
+  "level": "Gentle",
+  "loom": -1,
+  "fracture_limit": 4,
+  "bw": 8,
+  "win": 0.472,
+  "by_players": {
+   "1": 0.382,
+   "2": 0.448,
+   "3": 0.542,
+   "4": 0.516
+  },
+  "backlash": 3.26,
+  "ending_thread": {
+   "忘卻": 0.328,
+   "交織": 0.264,
+   "執念": 0.217,
+   "釋懷": 0.191
+  },
+  "loss_causes": {
+   "Shattered": 0.214,
+   "Faded": 0.192,
+   "Deluge": 0.062,
+   "Nameless": 0.06
+  }
+ },
+ {
+  "label": "G loom+0 F5 BW7",
+  "level": "Gentle",
+  "loom": 0,
+  "fracture_limit": 5,
+  "bw": 7,
+  "win": 0.556,
+  "by_players": {
+   "1": 0.462,
+   "2": 0.512,
+   "3": 0.622,
+   "4": 0.628
+  },
+  "backlash": 2.26,
+  "ending_thread": {
+   "忘卻": 0.288,
+   "交織": 0.267,
+   "執念": 0.238,
+   "釋懷": 0.207
+  },
+  "loss_causes": {
+   "Faded": 0.14,
+   "Deluge": 0.113,
+   "Shattered": 0.105,
+   "Nameless": 0.086
+  }
+ },
+ {
+  "label": "G loom+0 F5 BW6",
+  "level": "Gentle",
+  "loom": 0,
+  "fracture_limit": 5,
+  "bw": 6,
+  "win": 0.547,
+  "by_players": {
+   "1": 0.448,
+   "2": 0.508,
+   "3": 0.618,
+   "4": 0.614
+  },
+  "backlash": 2.08,
+  "ending_thread": {
+   "忘卻": 0.29,
+   "交織": 0.267,
+   "執念": 0.236,
+   "釋懷": 0.207
+  },
+  "loss_causes": {
+   "Deluge": 0.181,
+   "Faded": 0.101,
+   "Nameless": 0.086,
+   "Shattered": 0.085
+  }
+ },
+ {
+  "label": "G loom+0 F4 BW7",
+  "level": "Gentle",
+  "loom": 0,
+  "fracture_limit": 4,
+  "bw": 7,
+  "win": 0.532,
+  "by_players": {
+   "1": 0.436,
+   "2": 0.492,
+   "3": 0.592,
+   "4": 0.608
+  },
+  "backlash": 2.17,
+  "ending_thread": {
+   "忘卻": 0.291,
+   "交織": 0.256,
+   "執念": 0.243,
+   "釋懷": 0.21
+  },
+  "loss_causes": {
+   "Shattered": 0.162,
+   "Faded": 0.12,
+   "Deluge": 0.105,
+   "Nameless": 0.081
+  }
+ },
+ {
+  "label": "G loom+0 F4 BW8",
+  "level": "Gentle",
+  "loom": 0,
+  "fracture_limit": 4,
+  "bw": 8,
+  "win": 0.535,
+  "by_players": {
+   "1": 0.436,
+   "2": 0.496,
+   "3": 0.598,
+   "4": 0.612
+  },
+  "backlash": 2.27,
+  "ending_thread": {
+   "忘卻": 0.291,
+   "交織": 0.257,
+   "執念": 0.244,
+   "釋懷": 0.208
+  },
+  "loss_causes": {
+   "Shattered": 0.175,
+   "Faded": 0.144,
+   "Nameless": 0.081,
+   "Deluge": 0.065
+  }
+ },
+ {
+  "label": "G loom+1 F5 BW7",
+  "level": "Gentle",
+  "loom": 1,
+  "fracture_limit": 5,
+  "bw": 7,
+  "win": 0.591,
+  "by_players": {
+   "1": 0.526,
+   "2": 0.56,
+   "3": 0.64,
+   "4": 0.636
+  },
+  "backlash": 1.75,
+  "ending_thread": {
+   "忘卻": 0.273,
+   "執念": 0.268,
+   "交織": 0.257,
+   "釋懷": 0.202
+  },
+  "loss_causes": {
+   "Faded": 0.132,
+   "Deluge": 0.107,
+   "Shattered": 0.095,
+   "Nameless": 0.075
+  }
+ },
+ {
+  "label": "G loom+1 F5 BW6",
+  "level": "Gentle",
+  "loom": 1,
+  "fracture_limit": 5,
+  "bw": 6,
+  "win": 0.584,
+  "by_players": {
+   "1": 0.52,
+   "2": 0.554,
+   "3": 0.638,
+   "4": 0.622
+  },
+  "backlash": 1.61,
+  "ending_thread": {
+   "忘卻": 0.272,
+   "執念": 0.267,
+   "交織": 0.259,
+   "釋懷": 0.201
+  },
+  "loss_causes": {
+   "Deluge": 0.165,
+   "Faded": 0.102,
+   "Shattered": 0.076,
+   "Nameless": 0.073
+  }
+ },
+ {
+  "label": "G loom+1 F4 BW7",
+  "level": "Gentle",
+  "loom": 1,
+  "fracture_limit": 4,
+  "bw": 7,
+  "win": 0.57,
+  "by_players": {
+   "1": 0.496,
+   "2": 0.54,
+   "3": 0.62,
+   "4": 0.622
+  },
+  "backlash": 1.68,
+  "ending_thread": {
+   "忘卻": 0.271,
+   "執念": 0.267,
+   "交織": 0.258,
+   "釋懷": 0.204
+  },
+  "loss_causes": {
+   "Shattered": 0.149,
+   "Faded": 0.106,
+   "Deluge": 0.102,
+   "Nameless": 0.073
+  }
+ },
+ {
+  "label": "G loom+1 F4 BW8",
+  "level": "Gentle",
+  "loom": 1,
+  "fracture_limit": 4,
+  "bw": 8,
+  "win": 0.574,
+  "by_players": {
+   "1": 0.504,
+   "2": 0.546,
+   "3": 0.62,
+   "4": 0.626
+  },
+  "backlash": 1.77,
+  "ending_thread": {
+   "忘卻": 0.271,
+   "執念": 0.269,
+   "交織": 0.257,
+   "釋懷": 0.203
+  },
+  "loss_causes": {
+   "Shattered": 0.167,
+   "Faded": 0.127,
+   "Nameless": 0.073,
+   "Deluge": 0.059
+  }
+ },
+ {
+  "label": "S loom-1 F4 BW6",
+  "level": "Standard",
+  "loom": -1,
+  "fracture_limit": 4,
+  "bw": 0,
+  "win": 0.409,
+  "by_players": {
+   "1": 0.34,
+   "2": 0.358,
+   "3": 0.466,
+   "4": 0.474
+  },
+  "backlash": 2.55,
+  "ending_thread": {
+   "忘卻": 0.306,
+   "交織": 0.266,
+   "執念": 0.221,
+   "釋懷": 0.206
+  },
+  "loss_causes": {
+   "Shattered": 0.244,
+   "Faded": 0.161,
+   "Deluge": 0.128,
+   "Nameless": 0.058
+  }
+ },
+ {
+  "label": "S loom-1 F3 BW6",
+  "level": "Standard",
+  "loom": -1,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.361,
+  "by_players": {
+   "1": 0.31,
+   "2": 0.306,
+   "3": 0.414,
+   "4": 0.416
+  },
+  "backlash": 2.38,
+  "ending_thread": {
+   "忘卻": 0.3,
+   "交織": 0.275,
+   "執念": 0.22,
+   "釋懷": 0.205
+  },
+  "loss_causes": {
+   "Shattered": 0.356,
+   "Faded": 0.123,
+   "Deluge": 0.108,
+   "Nameless": 0.051
+  }
+ },
+ {
+  "label": "S loom+0 F4 BW6",
+  "level": "Standard",
+  "loom": 0,
+  "fracture_limit": 4,
+  "bw": 0,
+  "win": 0.467,
+  "by_players": {
+   "1": 0.398,
+   "2": 0.412,
+   "3": 0.528,
+   "4": 0.53
+  },
+  "backlash": 1.79,
+  "ending_thread": {
+   "忘卻": 0.302,
+   "執念": 0.243,
+   "交織": 0.241,
+   "釋懷": 0.214
+  },
+  "loss_causes": {
+   "Shattered": 0.22,
+   "Faded": 0.119,
+   "Deluge": 0.118,
+   "Nameless": 0.075
+  }
+ },
+ {
+  "label": "S loom+0 F3 BW6",
+  "level": "Standard",
+  "loom": 0,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.416,
+  "by_players": {
+   "1": 0.344,
+   "2": 0.34,
+   "3": 0.47,
+   "4": 0.512
+  },
+  "backlash": 1.64,
+  "ending_thread": {
+   "忘卻": 0.297,
+   "執念": 0.251,
+   "交織": 0.235,
+   "釋懷": 0.217
+  },
+  "loss_causes": {
+   "Shattered": 0.316,
+   "Deluge": 0.108,
+   "Faded": 0.093,
+   "Nameless": 0.067
+  }
+ },
+ {
+  "label": "S loom+1 F4 BW6",
+  "level": "Standard",
+  "loom": 1,
+  "fracture_limit": 4,
+  "bw": 0,
+  "win": 0.507,
+  "by_players": {
+   "1": 0.452,
+   "2": 0.446,
+   "3": 0.566,
+   "4": 0.566
+  },
+  "backlash": 1.34,
+  "ending_thread": {
+   "忘卻": 0.268,
+   "交織": 0.266,
+   "執念": 0.263,
+   "釋懷": 0.203
+  },
+  "loss_causes": {
+   "Shattered": 0.206,
+   "Deluge": 0.111,
+   "Faded": 0.106,
+   "Nameless": 0.069
+  }
+ },
+ {
+  "label": "S loom+1 F3 BW6",
+  "level": "Standard",
+  "loom": 1,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.45,
+  "by_players": {
+   "1": 0.366,
+   "2": 0.392,
+   "3": 0.502,
+   "4": 0.538
+  },
+  "backlash": 1.23,
+  "ending_thread": {
+   "交織": 0.273,
+   "執念": 0.264,
+   "忘卻": 0.264,
+   "釋懷": 0.2
+  },
+  "loss_causes": {
+   "Shattered": 0.299,
+   "Deluge": 0.103,
+   "Faded": 0.084,
+   "Nameless": 0.064
+  }
+ },
+ {
+  "label": "S loom+2 F4 BW6",
+  "level": "Standard",
+  "loom": 2,
+  "fracture_limit": 4,
+  "bw": 0,
+  "win": 0.529,
+  "by_players": {
+   "1": 0.424,
+   "2": 0.51,
+   "3": 0.586,
+   "4": 0.598
+  },
+  "backlash": 0.98,
+  "ending_thread": {
+   "忘卻": 0.272,
+   "執念": 0.261,
+   "交織": 0.244,
+   "釋懷": 0.224
+  },
+  "loss_causes": {
+   "Shattered": 0.206,
+   "Deluge": 0.098,
+   "Nameless": 0.085,
+   "Faded": 0.082
+  }
+ },
+ {
+  "label": "S loom+2 F3 BW6",
+  "level": "Standard",
+  "loom": 2,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.473,
+  "by_players": {
+   "1": 0.352,
+   "2": 0.436,
+   "3": 0.536,
+   "4": 0.57
+  },
+  "backlash": 0.91,
+  "ending_thread": {
+   "執念": 0.272,
+   "忘卻": 0.263,
+   "交織": 0.24,
+   "釋懷": 0.225
+  },
+  "loss_causes": {
+   "Shattered": 0.297,
+   "Deluge": 0.086,
+   "Nameless": 0.079,
+   "Faded": 0.064
+  }
+ },
+ {
+  "label": "H loom-2 F3 BW6",
+  "level": "Hard",
+  "loom": -2,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.209,
+  "by_players": {
+   "1": 0.198,
+   "2": 0.14,
+   "3": 0.22,
+   "4": 0.28
+  },
+  "backlash": 3.4,
+  "ending_thread": {
+   "忘卻": 0.375,
+   "交織": 0.284,
+   "釋懷": 0.174,
+   "執念": 0.167
+  },
+  "loss_causes": {
+   "Shattered": 0.593,
+   "Faded": 0.104,
+   "Deluge": 0.074,
+   "Nameless": 0.019
+  }
+ },
+ {
+  "label": "H loom-2 F2 BW6",
+  "level": "Hard",
+  "loom": -2,
+  "fracture_limit": 2,
+  "bw": 0,
+  "win": 0.137,
+  "by_players": {
+   "1": 0.128,
+   "2": 0.102,
+   "3": 0.132,
+   "4": 0.184
+  },
+  "backlash": 2.91,
+  "ending_thread": {
+   "忘卻": 0.363,
+   "交織": 0.326,
+   "執念": 0.165,
+   "釋懷": 0.147
+  },
+  "loss_causes": {
+   "Shattered": 0.725,
+   "Faded": 0.062,
+   "Deluge": 0.061,
+   "Nameless": 0.015
+  }
+ },
+ {
+  "label": "H loom-1 F3 BW6",
+  "level": "Hard",
+  "loom": -1,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.303,
+  "by_players": {
+   "1": 0.234,
+   "2": 0.268,
+   "3": 0.348,
+   "4": 0.362
+  },
+  "backlash": 2.36,
+  "ending_thread": {
+   "忘卻": 0.363,
+   "交織": 0.238,
+   "執念": 0.208,
+   "釋懷": 0.191
+  },
+  "loss_causes": {
+   "Shattered": 0.521,
+   "Deluge": 0.071,
+   "Faded": 0.054,
+   "Nameless": 0.051
+  }
+ },
+ {
+  "label": "H loom-1 F2 BW6",
+  "level": "Hard",
+  "loom": -1,
+  "fracture_limit": 2,
+  "bw": 0,
+  "win": 0.203,
+  "by_players": {
+   "1": 0.13,
+   "2": 0.178,
+   "3": 0.224,
+   "4": 0.28
+  },
+  "backlash": 1.96,
+  "ending_thread": {
+   "忘卻": 0.345,
+   "交織": 0.251,
+   "執念": 0.222,
+   "釋懷": 0.182
+  },
+  "loss_causes": {
+   "Shattered": 0.682,
+   "Deluge": 0.053,
+   "Nameless": 0.032,
+   "Faded": 0.03
+  }
+ },
+ {
+  "label": "H loom+0 F3 BW6",
+  "level": "Hard",
+  "loom": 0,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.37,
+  "by_players": {
+   "1": 0.332,
+   "2": 0.288,
+   "3": 0.414,
+   "4": 0.446
+  },
+  "backlash": 1.68,
+  "ending_thread": {
+   "忘卻": 0.304,
+   "執念": 0.246,
+   "交織": 0.245,
+   "釋懷": 0.205
+  },
+  "loss_causes": {
+   "Shattered": 0.473,
+   "Deluge": 0.066,
+   "Nameless": 0.055,
+   "Faded": 0.035
+  }
+ },
+ {
+  "label": "H loom+0 F2 BW6",
+  "level": "Hard",
+  "loom": 0,
+  "fracture_limit": 2,
+  "bw": 0,
+  "win": 0.248,
+  "by_players": {
+   "1": 0.218,
+   "2": 0.188,
+   "3": 0.28,
+   "4": 0.308
+  },
+  "backlash": 1.41,
+  "ending_thread": {
+   "忘卻": 0.308,
+   "交織": 0.254,
+   "執念": 0.245,
+   "釋懷": 0.193
+  },
+  "loss_causes": {
+   "Shattered": 0.638,
+   "Deluge": 0.052,
+   "Nameless": 0.037,
+   "Faded": 0.024
+  }
+ },
+ {
+  "label": "H loom+1 F3 BW6",
+  "level": "Hard",
+  "loom": 1,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.397,
+  "by_players": {
+   "1": 0.326,
+   "2": 0.306,
+   "3": 0.468,
+   "4": 0.486
+  },
+  "backlash": 1.24,
+  "ending_thread": {
+   "忘卻": 0.271,
+   "執念": 0.256,
+   "交織": 0.253,
+   "釋懷": 0.219
+  },
+  "loss_causes": {
+   "Shattered": 0.456,
+   "Nameless": 0.065,
+   "Deluge": 0.056,
+   "Faded": 0.027
+  }
+ },
+ {
+  "label": "H loom+1 F2 BW6",
+  "level": "Hard",
+  "loom": 1,
+  "fracture_limit": 2,
+  "bw": 0,
+  "win": 0.281,
+  "by_players": {
+   "1": 0.232,
+   "2": 0.198,
+   "3": 0.326,
+   "4": 0.366
+  },
+  "backlash": 1.03,
+  "ending_thread": {
+   "忘卻": 0.283,
+   "執念": 0.26,
+   "交織": 0.232,
+   "釋懷": 0.225
+  },
+  "loss_causes": {
+   "Shattered": 0.61,
+   "Nameless": 0.046,
+   "Deluge": 0.042,
+   "Faded": 0.021
+  }
+ }
+]

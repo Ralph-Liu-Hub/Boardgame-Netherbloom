@@ -1,0 +1,86 @@
+[
+ {
+  "label": "消散 12｜標準：織機 +2",
+  "level": "Standard",
+  "cap": 2,
+  "dissolve": 0,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.473,
+  "by_players": {
+   "1": 0.352,
+   "2": 0.436,
+   "3": 0.536,
+   "4": 0.57
+  },
+  "ending_thread": {
+   "執念": 0.272,
+   "忘卻": 0.263,
+   "交織": 0.24,
+   "釋懷": 0.225
+  },
+  "backlash": 0.91,
+  "loss_causes": {
+   "Shattered": 0.297,
+   "Deluge": 0.086,
+   "Nameless": 0.079,
+   "Faded": 0.064
+  }
+ },
+ {
+  "label": "消散 14｜標準：織機 +2（目前）",
+  "level": "Standard",
+  "cap": 2,
+  "dissolve": 2,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.49,
+  "by_players": {
+   "1": 0.362,
+   "2": 0.45,
+   "3": 0.552,
+   "4": 0.598
+  },
+  "ending_thread": {
+   "忘卻": 0.268,
+   "執念": 0.266,
+   "交織": 0.243,
+   "釋懷": 0.223
+  },
+  "backlash": 0.92,
+  "loss_causes": {
+   "Shattered": 0.317,
+   "Deluge": 0.086,
+   "Nameless": 0.082,
+   "Faded": 0.026
+  }
+ },
+ {
+  "label": "標準：織機 +2、消散 14",
+  "level": "Standard",
+  "cap": 2,
+  "dissolve": 2,
+  "fracture_limit": 3,
+  "bw": 0,
+  "win": 0.49,
+  "by_players": {
+   "1": 0.362,
+   "2": 0.45,
+   "3": 0.552,
+   "4": 0.598
+  },
+  "ending_thread": {
+   "忘卻": 0.268,
+   "執念": 0.266,
+   "交織": 0.243,
+   "釋懷": 0.223
+  },
+  "backlash": 0.92,
+  "loss_causes": {
+   "Shattered": 0.317,
+   "Deluge": 0.086,
+   "Nameless": 0.082,
+   "Faded": 0.026
+  }
+ }
+]
