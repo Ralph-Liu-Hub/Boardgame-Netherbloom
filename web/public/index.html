@@ -1,42 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Netherbloom</title>
+<title>彼岸花渡 · Netherbloom</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <!-- Vercel Web Analytics: page views and visitors, once Analytics is enabled for the project -->
 <script defer src="/_vercel/insights/script.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Alegreya+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&family=Pinyon+Script&family=Noto+Serif+TC:wght@400;600&family=LXGW+WenKai+TC&display=swap">
-<link rel="stylesheet" href="/assets/style.css">
-<!-- Just signed in: keep the screen dark until the arrival plays (assets/passage.js) -->
-<script>try { if (sessionStorage.getItem("nb-arrive") && !matchMedia("(prefers-reduced-motion: reduce)").matches) document.documentElement.classList.add("arriving"); } catch { /* storage blocked */ }</script>
+<link rel="stylesheet" href="/assets/table.css">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" defer></script>
 </head>
 <body>
-<div class="coverbg" aria-hidden="true"></div>
-<div class="fog" aria-hidden="true"><span></span><span></span><span></span></div>
-<div class="embers" id="embers" aria-hidden="true"></div>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><svg aria-hidden="true"><use href="#nb-bloom"/></svg>Netherbloom <span class="muted mono" id="modelabel" style="margin-left:6px"></span></div>
-    <button type="button" id="btn-aid">Player Aid</button>
-    <button type="button" id="btn-rules">Rulebook</button>
-    <button type="button" id="btn-cards">Cards</button>
-    <button type="button" id="btn-music">Music</button>
-    <button type="button" id="btn-sfx">Sound</button>
-    <button type="button" id="btn-fx">Effects</button>
-    <button type="button" id="btn-menu" class="hidden">Menu</button>
+    <div class="brand"><svg class="ic" aria-hidden="true"><use href="#nb-bloom"/></svg>Netherbloom</div>
     <a href="/admin" id="btn-dash" class="hidden"><button type="button" tabindex="-1">Dashboard</button></a>
-    <a href="/api/logout"><button type="button" class="ghost" tabindex="-1" id="btn-out">Sign out</button></a>
-    <button type="button" id="btn-lang" class="langbtn">中文</button>
+    <a href="/api/logout"><button type="button" tabindex="-1" id="btn-out">登出 / Sign out</button></a>
+    <button type="button" id="btn-lang">English</button>
   </header>
   <main id="app"></main>
 </div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
-<script type="module" src="/assets/app.js"></script>
+<script type="module" src="/assets/table.js"></script>
 </body>
 </html>
