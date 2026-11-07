@@ -1,6 +1,6 @@
 // Phase 3: interactions on a 2-player table. Each check names the behaviour it expects.
 module.exports = async (page, setStage, note, BASE) => {
-  const S = () => page.evaluate(() => JSON.parse(localStorage.getItem("nb-table-v5d")));
+  const S = () => page.evaluate(() => JSON.parse(localStorage.getItem("nb-table-v5e")));
   const center = async sel => { const b = await page.locator(sel).first().boundingBox(); if (!b) throw new Error("no box " + sel); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; };
   const dragTo = async (from, to, opts = {}) => {
     await page.mouse.move(from.x, from.y); await page.mouse.down();
@@ -33,7 +33,7 @@ module.exports = async (page, setStage, note, BASE) => {
 
   // b) drag the top card into the hand
   stage("p3 draw by drag");
-  const handBox = await page.locator("#tt-hand").boundingBox();
+  const handBox = await page.locator("#tt-hand .my-hand").boundingBox();
   await dragTo(await center('.stack[data-stack="deck"]'), { x: handBox.x + 300, y: handBox.y + handBox.height / 2 });
   s1 = await S();
   expect(s1.hands[0].length === 1 && s1.stacks.deck.items.length === s0.stacks.deck.items.length - 1, "drag deck -> hand draws 1");
@@ -149,6 +149,46 @@ module.exports = async (page, setStage, note, BASE) => {
   const dc = await center('.stack[data-stack="discard"]');
   await page.keyboard.down("Shift"); await dragTo(dc, { x: dc.x + 80, y: dc.y + 10 }); await page.keyboard.up("Shift");
   s1 = await S(); expect(s1.stacks.discard.x !== s0.stacks.discard.x, "shift-drag moves the pile");
+
+  // l2) my area: commissions dealt face down into each player's area; only my own area is on my screen
+  stage("p3 area");
+  await zoomClick('.zoombtn[data-zoom="fate"]');
+  await page.click('.stack[data-stack="comm"]', { button: "right" });
+  await page.click("#tt-ctx button >> text=每人發 1 張到各自的區域");
+  s1 = await S();
+  const myComm = s1.areas[0].find(id => s1.items[id].ck?.startsWith("comm:"));
+  expect(s1.areas.every(a => a.some(id => s1.items[id].ck?.startsWith("comm:"))), "every area got a commission");
+  expect(myComm && s1.items[myComm].face === 0, "the commission lies face down");
+  expect((await page.$$("#tt-area [data-aid]")).length === 2, "my area shows my commission and Push Through only");
+  expect(!(await page.$(`[data-aid="${s1.areas[1][0]}"]`)), "the other player's area is not on my screen");
+  // double-click Push Through: spent, and the seat bar shows it to everyone
+  const pushId = s1.areas[0].find(id => s1.items[id].tk === "push");
+  await page.dblclick(`[data-aid="${pushId}"]`);
+  s1 = await S(); expect(s1.items[pushId].face === 0, "double-click spends Push Through");
+  expect(!!(await page.$('#tt-seats [data-seat="0"] .pushused')), "the seat bar shows Push Through spent");
+  // a Mantle from the Mantle row into my area: the seat bar names it
+  await zoomClick('.zoombtn[data-zoom="supply"]');
+  const mantle = await page.getAttribute("#tt-items .piece.mantle >> nth=0", "data-id");
+  const areaBox = await page.locator("#tt-area").boundingBox();
+  await dragTo(await center(`.piece[data-id="${mantle}"]`), { x: areaBox.x + areaBox.width / 2, y: areaBox.y + areaBox.height / 2 });
+  s1 = await S(); expect(s1.where[mantle] === "a:0", "a Mantle dropped on my area goes there");
+  expect(!!(await page.$('#tt-seats [data-seat="0"] .mbadge')), "the seat bar names my Mantle");
+  // my commission back out to the table: still face down; then back into my area
+  await dragTo(await center(`[data-aid="${myComm}"]`), await center("#tt-view"));
+  s1 = await S(); expect(s1.where[myComm] === "t" && s1.items[myComm].face === 0, "a commission taken out of my area stays face down");
+  await dragTo(await center(`.piece[data-id="${myComm}"]`), { x: areaBox.x + 40, y: areaBox.y + areaBox.height / 2 });
+  s1 = await S(); expect(s1.where[myComm] === "a:0", "and goes back into my area");
+
+  // l3) hints: a narrow column docked on the right; the table and the dock make room
+  stage("p3 hints dock");
+  if (!(await page.isChecked("#tt-hints"))) await page.click("#tt-hints");
+  const vw = page.viewportSize().width;
+  const hb2 = await page.locator("#tt-hint").boundingBox(), vb = await page.locator("#tt-view").boundingBox(), db = await page.locator("#tt-hand").boundingBox();
+  expect(Math.abs(hb2.x + hb2.width - vw) < 2 && hb2.width < 340, `hint column on the right edge (${Math.round(hb2.x)}+${Math.round(hb2.width)} of ${vw})`);
+  expect(Math.abs(vb.x + vb.width - hb2.x) < 2 && Math.abs(db.x + db.width - hb2.x) < 2, "the table and the dock stop at the hint column");
+  await page.click("#tt-hints");
+  const vb2 = await page.locator("#tt-view").boundingBox();
+  expect(Math.abs(vb2.x + vb2.width - vw) < 2, "with hints off the table fills the width");
 
   // m) seats: pass the device
   stage("p3 seats");

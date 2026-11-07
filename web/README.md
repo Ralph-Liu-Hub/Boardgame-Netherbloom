@@ -7,7 +7,11 @@ A **manual virtual table** for Netherbloom V5, for publisher previews, hosted on
 
 - **The table**: the River (15 spaces, two banks each), the Mist area, the Loom of the Fates, the three chapter pages of
   the Book of Remembrance (each soul's route graph, with memory slots, mist slots, forks and turning points), the Ledger,
-  the fate mist, commissions, endings, the Mantle row, the supply and one mat per player.
+  the fate mist, commissions, endings, the Mantle row and the supply. "Fit" fills the window with the boards.
+- **Your own area**: the bottom of your screen holds your hand and your area (commission, Mantle, Push Through token,
+  lasting cards). Nobody else's hand or area is drawn; the seat buttons show only what is public (hand size, Mantle,
+  Push Through spent).
+- **Next-step hints**: when switched on, a narrow column docked down the right side; the table makes room for it.
 - **Moving things**: drag any card, tile or token; it snaps to the nearest space, bank, track cell or book slot. Double-click
   (or `F`) flips; `R` turns a card sideways or upright (unlit / lit). Drag from a pile to take its top card; drop on a pile to
   put a card on top (`Alt` for the bottom); `Shift`+drag moves a whole pile. Right-click for more: draw, deal one each,
