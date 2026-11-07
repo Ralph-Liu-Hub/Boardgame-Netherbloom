@@ -104,8 +104,10 @@ if __name__ == "__main__":
                 ("單人手牌 5 張", {"_pp": True, "_solo_hand": 5}, "Standard", False)]
         if os.environ.get("HARD_PULL"):
             runs = [(f"忘川的拉力 {a}／{b}／{c}，關口也拉不回", {"_pp": True, "_solo_hand": 5, "v5_obl_pull": (a, b, c),
-                     "v5_obl_pull_hard": True}, "Standard", False) for a, b, c in ((4, 7, 10), (5, 8, 11))]
+                     "v5_obl_pull_hard": True}, "Standard", False) for a, b, c in ((4, 7, 10), (5, 8, 11)) + tuple(tuple(int(x) for x in t.split("-")) for t in os.environ.get("PULLS", "").split(",") if t)]
             runs.insert(0, ("基準（人數門檻＋單人 5 張）", {"_pp": True, "_solo_hand": 5}, "Standard", False))
+            if os.environ.get("PULLS"):
+                runs = runs[3:]
         out = []
         for label, ex, level, old in runs:
             ps = (1,) if ex.get("_solo_hand") and not os.environ.get("HARD_PULL") else (1, 2, 3, 4)
