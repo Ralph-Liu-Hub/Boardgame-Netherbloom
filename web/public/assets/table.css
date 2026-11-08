@@ -73,7 +73,7 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .reachname { position: absolute; top: 4px; font-size: 11px; color: var(--mist); font-family: var(--serif); }
 
 .loom .thread { position: absolute; left: 14px; width: 70px; font-size: 13px; display: flex; gap: 4px; align-items: center; height: 40px; }
-.loom .blash { position: absolute; left: 714px; width: 218px; font-size: 11px; color: var(--mist); line-height: 1.35; }
+.loom .blash { position: absolute; left: 716px; width: 216px; font-size: 11px; color: var(--mist); line-height: 1.35; }
 .loom .blash b { color: var(--bone); margin-right: 4px; }
 .bookp { background: linear-gradient(180deg, #221d18, #18141a); }
 .bookp.current { border-color: var(--bone); }
@@ -98,18 +98,18 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 /* pieces */
 .piece { position: absolute; left: 0; top: 0; user-select: none; cursor: grab; }
 .piece.dragging { cursor: grabbing; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .6)); }
-.card { border-radius: 8px; background: var(--paper); color: #1d1814; border: 1px solid #000; padding: 6px; font-size: 11px; line-height: 1.3; overflow: hidden; box-shadow: 0 2px 6px rgba(0, 0, 0, .5); }
-.card .c-top { display: flex; gap: 3px; align-items: center; font-size: 12.5px; border-bottom: 1px solid rgba(0, 0, 0, .15); padding-bottom: 2px; margin-bottom: 2px; }
+.card { border-radius: 9px; background: var(--paper); color: #1d1814; border: 1px solid #000; padding: 7px; font-size: 13px; line-height: 1.3; overflow: hidden; box-shadow: 0 2px 6px rgba(0, 0, 0, .5); }
+.card .c-top { display: flex; gap: 3px; align-items: center; font-size: 15px; border-bottom: 1px solid rgba(0, 0, 0, .15); padding-bottom: 2px; margin-bottom: 2px; }
 .card .c-top b { font-family: var(--serif); }
 .card.th0 .c-top { color: #7a1a20; } .card.th1 .c-top { color: #6b5521; } .card.th2 .c-top { color: #1f5f63; }
-.card .c-slot { font-size: 10.5px; color: #5a5048; display: flex; gap: 2px; align-items: center; }
+.card .c-slot { font-size: 12.5px; color: #5a5048; display: flex; gap: 2px; align-items: center; }
 .card .c-band { font-style: italic; margin: 2px 0; }
-.card .c-band.small { font-size: 8.5px; font-style: normal; }
+.card .c-band.small { font-size: 10.5px; font-style: normal; }
 .card .c-eff { margin-top: 2px; }
-.card .c-res { margin-top: 3px; border-top: 1px dotted rgba(0, 0, 0, .25); padding-top: 2px; font-size: 10.5px; }
+.card .c-res { margin-top: 3px; border-top: 1px dotted rgba(0, 0, 0, .25); padding-top: 2px; font-size: 12.5px; }
 .card .c-res span { font-weight: 700; margin-right: 3px; }
-.card .c-fog { font-size: 9px; } .card .c-fog i { color: var(--crimson); font-style: normal; margin-left: 4px; }
-.card .keymark { margin-left: auto; font-style: normal; font-size: 8px; color: var(--gold); border: 1px solid var(--gold); border-radius: 3px; padding: 0 2px; }
+.card .c-fog { font-size: 11px; } .card .c-fog i { color: var(--crimson); font-style: normal; margin-left: 4px; }
+.card .keymark { margin-left: auto; font-style: normal; font-size: 10px; color: var(--gold); border: 1px solid var(--gold); border-radius: 3px; padding: 0 2px; }
 .card.mist { background: #d9dcd8; } .card.mist.harsh { background: #d6c3c3; }
 .card.fate { background: #e4dccb; }
 .card.comm { background: #efe5cf; }
@@ -131,12 +131,12 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .gback .c-cond { font-size: 8.5px; font-family: var(--sans); font-weight: 400; text-align: left; }
 .card.unlit { box-shadow: 0 0 0 2px rgba(154, 148, 140, .6); }
 
-.tile { border-radius: 8px; border: 1px solid #000; background: #3b3328; color: var(--paper); font-size: 9px; padding: 4px; display: flex; flex-direction: column; align-items: center; text-align: center; line-height: 1.15; overflow: hidden; }
-.tile .ic { width: 20px; height: 20px; }
-.tile b { font-family: var(--serif); font-size: 11px; }
-.tile small { font-size: 7.5px; color: #d8cbb0; }
+.tile { border-radius: 9px; border: 1px solid #000; background: #3b3328; color: var(--paper); font-size: 11px; padding: 5px; display: flex; flex-direction: column; align-items: center; text-align: center; line-height: 1.15; overflow: hidden; }
+.tile .ic { width: 26px; height: 26px; }
+.tile b { font-family: var(--serif); font-size: 14px; }
+.tile small { font-size: 9.5px; color: #d8cbb0; }
 .tile.fogside { background: repeating-linear-gradient(135deg, #4b4f55 0 6px, #42464c 6px 12px); justify-content: center; color: #c7cbd0; }
-.tile.fogside .ic { width: 30px; height: 30px; }
+.tile.fogside .ic { width: 40px; height: 40px; }
 .tile.t-grave { background: #2b2326; } .tile.t-stony { background: #4a453f; } .tile.t-field { background: #4b2a2c; } .tile.t-frost { background: #2f4247; }
 .tile.t-ember { background: #4d3523; } .tile.t-spring { background: #2b3a45; } .tile.t-echo { background: #38324a; }
 
@@ -165,33 +165,35 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 
 /* hand */
 /* the dock at the bottom of MY screen: my own area (left) and my hand (right). Nobody else's area or hand is shown. */
-.tt-hand { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: linear-gradient(180deg, rgba(23, 20, 27, .95), #0b0a0d); border-top: 1px solid var(--line); z-index: 15; display: flex; }
-.tt-hand > section { padding: 6px 12px; min-width: 0; transition: background .2s; }
-.tt-hand > section.drop { background: #2b2316; box-shadow: inset 0 2px 0 var(--gold); }
-.my-area { flex: 0 1 auto; max-width: 46%; border-right: 1px solid var(--line); }
+/* MY screen only: the right-hand column holds my area (top) and my hand (below), the same width, three cards across */
+:root { --sidew: 364px; --hinth: 190px; }
+.tt-hand { position: absolute; top: 42px; right: 0; bottom: 0; width: var(--sidew); background: linear-gradient(90deg, rgba(23, 20, 27, .97), #0e0c11); border-left: 1px solid var(--line); z-index: 15; display: flex; flex-direction: column; }
+.tt-hand > section { padding: 8px 12px; min-height: 0; transition: background .2s; display: flex; flex-direction: column; }
+.tt-hand > section.drop { background: #2b2316; box-shadow: inset 3px 0 0 var(--gold); }
+.my-area { flex: 0 0 auto; border-bottom: 1px solid var(--line); }
 .my-hand { flex: 1 1 auto; }
-.area-items { display: flex; gap: 10px; margin-top: 4px; overflow-x: auto; height: 152px; align-items: flex-start; }
-.area-items .piece { position: relative; flex: none; transform: scale(.82); transform-origin: 0 0; margin-right: -18px; font-size: 11px; cursor: grab; touch-action: pan-x; }
-.area-items .atok { width: 52px; height: 52px; transform: none; margin: 18px 4px 0 0; }
+.area-items, .hand-cards { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; overflow-y: auto; align-content: flex-start; }
+.area-items { min-height: 178px; max-height: 362px; }
+.hand-cards { flex: 1 1 auto; min-height: 0; }
+.area-items .piece, .hand-cards .piece { position: relative; flex: none; font-size: 11px; cursor: grab; }
+.area-items .atok { width: 56px; height: 56px; margin: 4px; }
 .area-items .alabel { position: absolute; left: 4px; bottom: 4px; font-style: normal; font-size: 10px; background: rgba(0, 0, 0, .6); color: var(--gold); padding: 1px 5px; border-radius: 6px; }
-.area-items .empty { padding: 20px; }
+.area-items .empty, .hand-cards .empty { padding: 12px 4px; }
 .seat .mbadge { font-style: normal; font-size: 11px; margin-left: 5px; padding: 0 5px; border-radius: 6px; background: rgba(201, 164, 92, .18); color: var(--gold); }
 .seat .pushused .ic { width: 14px; height: 14px; margin-left: 4px; opacity: .55; vertical-align: -2px; }
-.hand-title { font-size: 13px; color: var(--bone); display: flex; gap: 12px; align-items: baseline; }
+.hand-title { font-size: 14px; color: var(--bone); display: flex; flex-direction: column; gap: 1px; }
 .hand-title small { color: var(--mist); font-size: 11px; }
-.hand-cards { display: flex; gap: 10px; margin-top: 4px; overflow-x: auto; height: 152px; transform-origin: 0 0; }
-.hand-cards .piece { position: relative; flex: none; transform: scale(.82); transform-origin: 0 0; margin-right: -18px; font-size: 11px; }
-.hand-cards .empty { padding: 20px; }
-/* on a touch screen a sideways swipe scrolls the hand; pulling a card upwards drags it onto the table */
-.hand-cards .hcard { touch-action: pan-x; }
 
 /* side panels */
-.tt-drawer { position: absolute; top: 50px; right: 10px; bottom: 160px; width: 520px; background: rgba(20, 17, 24, .97); border: 1px solid var(--line); border-radius: 12px; z-index: 25; padding: 10px 12px; overflow: auto; font-size: 14px; line-height: 1.55; }
-/* the hints: a narrow column docked down the right side of the screen, beside the table (like the old Chronicle) */
-:root { --hintw: 300px; }
-.tt-hint { position: absolute; top: 42px; right: 0; bottom: 0; width: var(--hintw); background: rgba(20, 17, 24, .98); border-left: 1px solid var(--line); z-index: 16; padding: 10px 12px; overflow: auto; font-size: 13.5px; line-height: 1.55; }
-#app.hints-on .tt-view, #app.hints-on .tt-hand { right: var(--hintw); }
-#app.hints-on .tt-drawer { right: calc(var(--hintw) + 10px); }
+.tt-drawer { position: absolute; top: 50px; right: calc(var(--sidew) + 10px); bottom: 10px; width: 520px; max-width: calc(100% - var(--sidew) - 20px); background: rgba(20, 17, 24, .97); border: 1px solid var(--line); border-radius: 12px; z-index: 25; padding: 10px 12px; overflow: auto; font-size: 14px; line-height: 1.55; }
+/* the board fills everything left of my column, under the one top bar */
+.tt-view { inset: 42px var(--sidew) 0 0; }
+/* the hints: a strip along the bottom of the board, under the table; the board makes room for it */
+.tt-hint { position: absolute; left: 0; right: var(--sidew); bottom: 0; height: var(--hinth); background: rgba(20, 17, 24, .98); border-top: 1px solid var(--line); z-index: 16; padding: 8px 14px; font-size: 13.5px; line-height: 1.5;
+  display: grid; grid-template-columns: minmax(220px, 300px) 1fr 200px; grid-template-rows: auto auto 1fr; grid-template-areas: "hh st nv" "ph st lp" "mt st ."; column-gap: 18px; row-gap: 6px; }
+.tt-hint .hh { grid-area: hh; } .tt-hint .phases { grid-area: ph; } .tt-hint .hstep { grid-area: st; overflow-y: auto; min-height: 0; }
+.tt-hint .hnav { grid-area: nv; } .tt-hint .hloop { grid-area: lp; align-self: start; } .tt-hint > p.muted { grid-area: mt; margin: 0; }
+#app.hints-on .tt-view { bottom: var(--hinth); }
 .hh { font-family: var(--serif); color: var(--bone); font-size: 16px; display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
 .hh input { flex: 1; }
 .hclose { margin-left: auto; padding: 2px 8px; }
@@ -238,21 +240,23 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
   .tt-bar { overflow-x: auto; overflow-y: hidden; gap: 6px; scrollbar-width: thin; }
   .tt-bar .brand, .tt-bar > .muted:not(#tt-code) { display: none; }
   .tt-bar button, .seat, .switch { padding: 3px 7px; font-size: 13px; }
-  .tt-drawer { left: 10px; right: 10px; width: auto; }
-  #app.hints-on .tt-drawer { right: 10px; }
-  /* on a phone the hint column takes the lower part of the screen instead of the right side */
-  :root { --hintw: 0px; }
-  .tt-hint { top: auto; bottom: 150px; height: 34vh; left: 0; width: auto; border-left: 0; border-top: 1px solid var(--line); z-index: 18; }
-  #app.hints-on .tt-view { bottom: calc(150px + 34vh); }
-  .my-area { max-width: 40%; }
+  :root { --sidew: 0px; --hinth: 34vh; --dockh: 190px; }
+  .tt-drawer { left: 10px; right: 10px; width: auto; max-width: none; bottom: calc(var(--dockh) + 10px); }
+  .tt-view { inset: 42px 0 var(--dockh) 0; }
+  .tt-hand { top: auto; left: 0; width: auto; height: var(--dockh); flex-direction: row; border-left: 0; border-top: 1px solid var(--line); }
+  .my-area { max-width: 42%; border-bottom: 0; border-right: 1px solid var(--line); }
+  .area-items, .hand-cards { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; min-height: 0; max-height: none; }
+  .area-items .piece:not(.atok), .hand-cards .piece { transform: scale(.78); transform-origin: 0 0; margin-right: -26px; touch-action: pan-x; }
+  .tt-hint { right: 0; bottom: var(--dockh); display: block; overflow: auto; }
+  #app.hints-on .tt-view { bottom: calc(var(--dockh) + var(--hinth)); }
   .hand-title { white-space: nowrap; }
   .hand-title small { display: none; }
 }
 
 /* square River */
 .river { background: linear-gradient(160deg, #221c16, #17130f); }
-.riverwater { position: absolute; left: 0; top: 0; pointer-events: none; }
-.riverwater path { fill: none; stroke: var(--water); stroke-width: 96; stroke-linecap: round; opacity: .95; }
+.riverwater { position: absolute; left: 0; top: 0; pointer-events: none; overflow: hidden; border-radius: 12px; }
+.riverwater path { fill: none; stroke: var(--water); stroke-width: 126; stroke-linecap: round; opacity: .95; }
 .lane { position: absolute; border: 1px dashed rgba(154, 148, 140, .25); border-radius: 10px; }
 .lane.reach1 { background: rgba(184, 50, 58, .07); } .lane.reach2 { background: rgba(95, 179, 184, .08); }
 .lane.shore { background: rgba(230, 211, 163, .08); border-style: solid; }
@@ -298,3 +302,133 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .tmarker.dragging { transition: none; }
 .tk.lightm { background: radial-gradient(circle, #ffe9a8 0%, #e0b84f 55%, #9a6c12 100%); color: #fff8dc; box-shadow: 0 0 14px rgba(255, 210, 110, .85); }
 .cell.crack.lim { border-color: var(--crimson); color: var(--crimson); font-weight: 700; }
+
+/* Loom: the Echo slot of each thread */
+.echoslot { position: absolute; width: 50px; height: 48px; border: 1.5px dashed currentColor; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; opacity: .8; background: rgba(0, 0, 0, .25); }
+/* Play area and the Box */
+.playnote { left: 16px; right: 16px; top: 44px; font-size: 13px; line-height: 1.5; color: var(--mist); }
+.boxa { background: repeating-linear-gradient(135deg, rgba(42, 37, 48, .55) 0 14px, rgba(30, 26, 35, .55) 14px 28px); border-style: dashed; }
+.stack[data-stack="box"] { border: 2px dashed var(--line); background: rgba(0, 0, 0, .3); }
+.stack[data-stack="box"] .slabel { display: none; }
+
+/* one top bar: while a table is open, the page header hides and its buttons sit in the table's bar */
+body.on-table .topbar { display: none; }
+.tt-sep { width: 1px; align-self: stretch; margin: 8px 2px; background: var(--line); }
+.tt-bar a { text-decoration: none; }
+/* other players' moves */
+.piece.remote-moving { transition: transform .09s linear; }
+.piece.ghost { pointer-events: none; box-shadow: 0 6px 22px rgba(0, 0, 0, .6), 0 0 0 2px rgba(201, 164, 92, .7); transition: transform .09s linear; }
+
+/* my column: dotted slots for what goes where */
+.area-items, .hand-cards { display: block; min-height: 0; max-height: none; margin-top: 8px; }
+.hand-cards { overflow-y: auto; }
+.aslots { display: flex; gap: 8px; align-items: center; }
+.aslot { position: relative; border: 2px dashed rgba(201, 164, 92, .4); border-radius: 10px; flex: none; }
+.aslot.cslot { width: var(--hcw); height: var(--hch); }
+.aslot.tslot { width: 66px; height: 66px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.aslot.cslot > .piece { position: absolute; left: -2px; top: -2px; }
+.aslot.tslot > .piece { margin: 0; }
+.aslot.lasting { margin-top: 8px; min-height: 46px; display: flex; flex-wrap: wrap; gap: 6px; padding: 6px; }
+.slab { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--mist); font-size: 12px; pointer-events: none; }
+.aslot.full > .slab { display: none; }
+.hslots { position: relative; }
+.hslot { position: absolute; left: 0; border: 2px dashed rgba(201, 164, 92, .35); border-radius: 10px; }
+.hpos { position: absolute; left: 0; }
+.hpos > .piece { position: relative; box-shadow: 0 4px 12px rgba(0, 0, 0, .55); }
+.hand-title small { line-height: 1.35; }
+/* boards */
+.setupa { background: rgba(40, 33, 26, .78); border-style: dashed; }
+.setupnote { left: 1060px; width: 480px; top: 50px; font-size: 14px; line-height: 1.55; }
+.echoslot.silent { color: var(--mist); }
+.slotbox.soulslot { z-index: 0; }
+.zoombtn.on { background: #5a1e24; border-color: var(--crimson); font-size: 18px; }
+.pilelist { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+.pilelist button { text-align: left; }
+/* shuffling: the pile riffles */
+@keyframes riffle { 0% { transform: none; } 15% { transform: translateX(-14px) rotate(-6deg); } 30% { transform: translateX(14px) rotate(6deg); } 45% { transform: translateX(-10px) rotate(-4deg); } 60% { transform: translateX(10px) rotate(4deg); } 80% { transform: translateY(-6px); } 100% { transform: none; } }
+.stack.shuffling > .piece { animation: riffle .85s ease-in-out; }
+.stack.shuffling { box-shadow: 0 0 0 3px rgba(201, 164, 92, .6); }
+
+/* the rulebook drawer: readable contents links and a way back to the top */
+.rules a { color: var(--paper); text-decoration: underline; text-decoration-color: rgba(230, 211, 163, .4); text-underline-offset: 3px; }
+.rules a:hover { color: var(--gold); }
+.tt-drawer .totop { position: sticky; bottom: 6px; float: right; margin-top: 8px; background: #3b2f1c; border-color: var(--gold); box-shadow: 0 4px 14px rgba(0, 0, 0, .6); }
+
+/* each player's front at the edge of the table */
+.board.mat { background: linear-gradient(160deg, rgba(48, 38, 28, .9), rgba(28, 23, 18, .9)); border-color: #5a4630; }
+.board.mat .matseat { font-size: 12px; color: var(--mist); margin-left: 6px; }
+.board.mat.dropmat { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201, 164, 92, .5); }
+.slotbox.round { border-radius: 50%; padding: 0; font-size: 12px; }
+.slotbox.lastslot { color: var(--mist); font-size: 12px; }
+.matfan { position: absolute; }
+.matfan .fanlab { position: absolute; left: 0; top: 0; font-size: 14px; color: var(--bone); }
+.matfan .fanback { position: absolute; top: 34px; width: 92px; height: 128px; border-radius: 8px; border: 1px solid #000; background: url(/assets/art/back-memory.webp) center / cover; box-shadow: 0 3px 8px rgba(0, 0, 0, .6); transform-origin: 50% 120%; }
+.piece.inmat { transition: transform .35s ease; }
+.piece.inmat.locked { cursor: default; }
+/* who played the card in the Play area */
+.piece[data-by]:not([data-by=""])::after { content: attr(data-by); position: absolute; left: 50%; bottom: 3px; z-index: 3; transform: translateX(-50%); white-space: nowrap; font-size: 13px; padding: 1px 8px; border-radius: 8px; background: rgba(0, 0, 0, .7); color: var(--gold); }
+
+/* the paintings */
+.card .c-bandart { height: 34px; margin: -7px -7px 5px; background-size: cover; background-position: center 35%; border-bottom: 1px solid rgba(0, 0, 0, .35); border-radius: 8px 8px 0 0; }
+.hcard .c-bandart, .piece.big .c-bandart { height: 40px; }
+.piece.big .c-bandart { height: 120px; margin: -14px -14px 10px; }
+.tile .tpaint { position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 0; border-radius: inherit; }
+.tile > :not(.tpaint) { position: relative; z-index: 1; text-shadow: 0 1px 2px #000; }
+.river { background: linear-gradient(160deg, #241d16, #18130f); }
+.riverwater .wbase path { stroke: #15222c; opacity: 1; }
+.riverwater .wsheen path { stroke: #2a4250; stroke-width: 40; opacity: .35; }
+.bookp { background-size: 100% 100%, auto 100%; background-position: left top; background-repeat: no-repeat; }
+.felt { background: radial-gradient(ellipse at 50% 45%, rgba(42, 34, 25, .93) 0%, rgba(29, 24, 18, .96) 55%, rgba(18, 15, 12, .985) 100%), url(/assets/art/cover-f.webp) center / cover; }
+
+/* ---------------------------------------------------------------- round 5: brighter, more saturated, more contrast */
+:root {
+  --ink: #1b1813; --ink2: #26221a; --ash: #3d362a; --line: #8c7a5c; --bone: #f6dfa8; --paper: #fff6e2; --mist: #cdc2b4;
+  --crimson: #e2434d; --cyan: #45d2d8; --gold: #f2b84f; --water: #1b5a80;
+  --t0: #e2434d; --t1: #f6dfa8; --t2: #45d2d8;
+  --sidew: 146px;
+}
+@media (min-width: 761px) { body.solo-hand { --sidew: 270px; } }
+.tt-bar { background: linear-gradient(180deg, #37301f, #24201a); }
+.tt-view { background: radial-gradient(ellipse at 45% 35%, #3a3326, #15130f 75%); }
+.tt-hand { background: linear-gradient(90deg, #322c20, #221e17); }
+.hand-title small { display: none; }
+.hand-title { font-size: 13px; }
+/* the frame: a sepia painting like the River's, seen through the translucent boards; a gold rim; the boards only */
+.felt { background: #3b3a36; overflow: hidden; box-shadow: inset 0 0 0 12px #8a6a3a, inset 0 0 0 16px #3a2c18, 0 30px 80px rgba(0, 0, 0, .7); }
+.felt::before { content: ""; position: absolute; inset: 16px; border-radius: 46px; background: url(/assets/art/cover-f.webp) center / cover;
+  filter: brightness(1.9) saturate(1.3) sepia(.3); opacity: .5; }
+.felt::after { content: ""; position: absolute; inset: 16px; border-radius: 46px; background: radial-gradient(ellipse at 50% 45%, rgba(255, 238, 205, .12), rgba(30, 26, 20, .45)); }
+.board { background: linear-gradient(160deg, rgba(92, 80, 60, .68), rgba(44, 39, 30, .76)); border-color: rgba(214, 184, 128, .6); box-shadow: 0 6px 18px rgba(0, 0, 0, .35); }
+.btitle { color: #ffe3a6; text-shadow: 0 1px 2px #000; }
+.lab, .note { color: #d9cfc2; }
+.cell { border-color: #c2a77c; background: rgba(0, 0, 0, .35); color: #e6dccd; }
+.slotbox { border: 2px dashed rgba(242, 184, 79, .7); color: #e6dccd; background: rgba(0, 0, 0, .18); }
+.stack { border-color: #c2a77c; background: rgba(0, 0, 0, .3); }
+.stack .slabel { color: #eadfce; }
+.bookp { background-color: rgba(44, 39, 30, .66); background-size: 100% 100%, auto 100%; background-position: left top; background-repeat: no-repeat; }
+.bookp .ar { stroke: #b3a796; }
+.node { border-color: #a3958a; color: #e6dccd; }
+.setupa { background: linear-gradient(160deg, rgba(104, 84, 58, .6), rgba(56, 46, 34, .66)); border-style: dashed; border-color: rgba(214, 184, 128, .7); }
+.setupnote { left: 420px; width: 240px; top: 64px; font-size: 14px; line-height: 1.5; }
+.playarea { background: rgba(255, 240, 210, .1); border: 2px dashed rgba(214, 184, 128, .75); }
+.boxa { background: repeating-linear-gradient(135deg, rgba(92, 80, 60, .55) 0 14px, rgba(60, 52, 40, .55) 14px 28px); }
+.board.mat { background: linear-gradient(160deg, rgba(112, 94, 66, .85), rgba(62, 54, 40, .88)); border-color: #c8a46a; }
+/* the River: a light painting under the banks so the slots stand out */
+.river { background: #3b3a36; overflow: hidden; }
+.river::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: url(/assets/art/scene-river.webp) center / cover;
+  filter: brightness(2.1) saturate(1.35) sepia(.25); opacity: .55; pointer-events: none; }
+.river::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(ellipse at 50% 50%, rgba(255, 238, 205, .16), rgba(40, 30, 22, .35)); pointer-events: none; }
+.river > * { z-index: 1; }
+.riverwater { z-index: 0 !important; }
+.riverwater .wbase path { stroke: #060d14; opacity: .93; }
+.riverwater .wsheen path { stroke: #1d3f52; stroke-width: 22; opacity: .45; }
+.lane { border: 2px solid rgba(120, 150, 165, .3); background: rgba(2, 6, 10, .45); }
+.lane.reach1 { background: rgba(70, 10, 18, .45); } .lane.reach2 { background: rgba(6, 40, 46, .5); }
+.lane.shore { background: rgba(60, 48, 30, .55); }
+.lane .spn { color: #fff6e2; text-shadow: 0 1px 3px #000; font-weight: 600; }
+.lane .flow { color: #7fb8cc; }
+.bankslot { border: 2px dashed rgba(232, 190, 110, .85); background: rgba(8, 10, 14, .6); box-shadow: inset 0 0 12px rgba(0, 0, 0, .6), 0 0 0 1px rgba(0, 0, 0, .5); }
+.bankslot i { color: #ffe3a6; }
+.river .reachname { color: #fff1cf; text-shadow: 0 1px 3px #000; font-weight: 600; }
+.tt-drawer, .tt-hint { background: rgba(38, 34, 26, .98); }
+.tt-menu { background: #2e291f; }

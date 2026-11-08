@@ -25,13 +25,21 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
       stage = `open ${lang} ${soul} L${level} ${players}p`;
       await page.click("#tt-menu").catch(() => {});
       await page.waitForSelector("#lb-local");
+      if (lang === "en") {
+        const names = await page.$$eval("#lb-soul option", os => os.map(o => o.textContent));
+        if (names.some(n => /[\u4e00-\u9fff]/.test(n))) note(stage, "Chinese soul names in English mode: " + names.join(", "));
+      }
       await page.selectOption("#lb-soul", soul);
       await page.selectOption("#lb-level", String(level));
       await page.selectOption("#lb-players", String(players));
       await page.click("#lb-local");
       await page.waitForSelector("#tt-world");
+      if (lang === "en") {   // no Chinese left on the table in English mode (boards, Book, cards, fronts)
+        const zh = await page.evaluate(() => { const m = document.querySelector("#tt-world").innerText.match(/[^\s]*[\u4e00-\u9fff][^\s]*/g); return m ? m.slice(0, 5) : []; });
+        if (zh.length) note(stage, "Chinese on the table in English mode: " + zh.join(" "));
+      }
       const r = await page.evaluate(() => {
-        const S = JSON.parse(localStorage.getItem("nb-table-v5e"));
+        const S = JSON.parse(localStorage.getItem("nb-table-v5g"));
         const out = { items: Object.keys(S.items).length, bad: [] };
         // every table piece has content and lies inside the world
         document.querySelectorAll("#tt-items .piece[data-id]").forEach(el => {
@@ -49,6 +57,7 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
         for (const [id, n] of Object.entries(seen)) if (n > 1) out.bad.push("duplicate " + id);
         // bank tiles: 26 banks filled
         out.tilesOnRiver = Object.values(S.items).filter(it => it.kind === "tile" && S.where[it.id] === "t").length;
+        out.tiles = Object.values(S.items).filter(it => it.kind === "tile").length;
         out.bw = Object.values(S.items).filter(it => it.tk === "bw").length;
         out.deck = S.stacks.deck.items.length;
         out.ghost = S.stacks.ghost ? S.stacks.ghost.items.length : 0;
@@ -56,13 +65,13 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
         return out;
       });
       if (r.bad.length) note(stage, r.bad.slice(0, 5).join("; "));
-      if (r.tilesOnRiver !== 24) note(stage, "tiles on river " + r.tilesOnRiver);
-      if (r.push !== players) note(stage, "push tokens " + r.push);
+      if (r.tilesOnRiver !== 0 || r.tiles !== 37) note(stage, `tiles: ${r.tilesOnRiver} on the river (0 expected), ${r.tiles} in all (37)`);
+      if (r.push !== 4) note(stage, "push tokens " + r.push);
       if ((players === 1) !== (r.ghost > 0)) note(stage, "ghost deck " + r.ghost);
       // render every card face via the search modal of each stack would be slow; check all card faces through the module
       const faces = await page.evaluate(async () => {
         const m = await import("/assets/table.js");
-        const S = JSON.parse(localStorage.getItem("nb-table-v5e"));
+        const S = JSON.parse(localStorage.getItem("nb-table-v5g"));
         const bad = [];
         for (const it of Object.values(S.items)) if (it.kind === "card") {
           try { const c = m._test.cardInfo(it.ck); if (!c.html || /undefined|NaN|\[object/.test(c.html + (c.backHtml || ""))) bad.push(it.ck); } catch (e) { bad.push(it.ck + " " + e.message); }
@@ -75,9 +84,9 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
       const m = txt.match(/.{0,60}(undefined|NaN|\[object Object\]).{0,40}/);
       if (m) note(stage, "text: " + m[0]);
     }
-    if (lang === "zh") { stage = "lang toggle"; await page.click("#btn-lang"); await page.waitForTimeout(200); }
+    if (lang === "zh") { stage = "lang toggle"; await page.click((await page.$("#tt-lang")) ? "#tt-lang" : "#btn-lang"); await page.waitForTimeout(200); }
   }
-  await page.click("#btn-lang"); // back to zh
+  await page.click((await page.$("#tt-lang")) ? "#tt-lang" : "#btn-lang"); // back to zh
   console.log("phase 1 done");
   await page.screenshot({ path: (process.env.OUT || require("os").tmpdir()) + "/nb-e2e-table.png" });
 

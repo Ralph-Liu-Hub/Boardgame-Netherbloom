@@ -102,11 +102,18 @@ export const SETUP_TABLE = { 1: { graves: 2, need: 1 }, 2: { graves: 1, need: 2 
 export const START_LIGHT = { child: 3, garland: 0, king: 0, bride: 1, open: 2 };
 export const SOUL_ART = { open: "soul-nameless", child: "soul-child", garland: "soul-garland", king: "soul-king", bride: "soul-bride" };
 export const SOUL_ORDER = ["child", "garland", "king", "bride", "open"];
+// English names, as in the English rulebook
+export const SOUL_EN = { child: "The Child of the Last Flame", garland: "The Garland Girl", king: "The King on the Barge", bride: "The Bride Who Stayed Below", open: "Open Crossing" };
 // Loom threshold with 0 / 1 / 2 scars: the level's base for 2-4 players, +3 solo
 export const thresholds = (level, players) => { const b = LEVELS[level].loom + (players === 1 ? 3 : 0); return [b, b - 1, b - 2]; };
 export const BACKLASH = [
   ["亡魂所在格放 1 個怨念", "前方第 1 格兩岸各放 1 個怨念", "同第二級，再承受 1 道裂痕"],
   ["認命（下次亡魂行動不動，遺忘 1 張）", "認命，那次共遺忘 2 張", "認命，共遺忘 3 張；霧推進 2"],
   ["下一格放 1 個黑水", "下一格與前方第 3 格各放 1 個黑水", "同第二級，再遺忘 1 張"],
+];
+export const BACKLASH_EN = [
+  ["Place 1 Shade on the soul's space", "Place 1 Shade on each bank of the next space ahead", "As level II, and take 1 Fracture"],
+  ["Resignation (the soul does not move on its next Soul Step; forget 1 card)", "Resignation, forgetting 2 cards that time", "Resignation, forgetting 3 cards in all; the Mist advances 2"],
+  ["Place 1 Black Water on the next space", "Place 1 Black Water on the next space and on the 3rd space ahead", "As level II, and forget 1 more card"],
 ];
 export const TURN_TABLE = [0, 3, 6, 9];
