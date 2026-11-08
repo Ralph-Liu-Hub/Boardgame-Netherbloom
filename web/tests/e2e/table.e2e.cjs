@@ -34,6 +34,10 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
       await page.selectOption("#lb-players", String(players));
       await page.click("#lb-local");
       await page.waitForSelector("#tt-world");
+      if (lang === "en") {   // no Chinese left on the table in English mode (boards, Book, cards, fronts)
+        const zh = await page.evaluate(() => { const m = document.querySelector("#tt-world").innerText.match(/[^\s]*[\u4e00-\u9fff][^\s]*/g); return m ? m.slice(0, 5) : []; });
+        if (zh.length) note(stage, "Chinese on the table in English mode: " + zh.join(" "));
+      }
       const r = await page.evaluate(() => {
         const S = JSON.parse(localStorage.getItem("nb-table-v5g"));
         const out = { items: Object.keys(S.items).length, bad: [] };

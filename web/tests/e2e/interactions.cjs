@@ -250,6 +250,7 @@ module.exports = async (page, setStage, note, BASE) => {
   await page.click("#tt-hand [data-hid] >> nth=0", { button: "right" });
   const cb = await page.locator("#tt-hand [data-hid] >> nth=0").boundingBox(), menu = await page.locator("#tt-ctx").boundingBox();
   expect(Math.abs(menu.y - cb.y) < 2 && (Math.abs(menu.x - (cb.x + cb.width)) < 2 || Math.abs(menu.x + menu.width - (cb.x + cb.width)) < 2), "the menu starts at the card's top-right corner");
+  expect((await page.$$eval("#tt-ctx button", b => b.map(x => x.textContent))).some(t => t.includes("放大檢視")), "a hand card's menu has Look closer");
   await page.mouse.click(db.x + db.width - 10, db.y + db.height - 10);
   expect(await page.locator("#tt-ctx").isHidden(), "a click elsewhere closes the menu");
   // the rulebook: readable contents links and a way back to the top

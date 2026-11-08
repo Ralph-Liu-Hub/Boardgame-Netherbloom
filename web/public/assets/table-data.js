@@ -111,4 +111,9 @@ export const BACKLASH = [
   ["認命（下次亡魂行動不動，遺忘 1 張）", "認命，那次共遺忘 2 張", "認命，共遺忘 3 張；霧推進 2"],
   ["下一格放 1 個黑水", "下一格與前方第 3 格各放 1 個黑水", "同第二級，再遺忘 1 張"],
 ];
+export const BACKLASH_EN = [
+  ["Place 1 Shade on the soul's space", "Place 1 Shade on each bank of the next space ahead", "As level II, and take 1 Fracture"],
+  ["Resignation (the soul does not move on its next Soul Step; forget 1 card)", "Resignation, forgetting 2 cards that time", "Resignation, forgetting 3 cards in all; the Mist advances 2"],
+  ["Place 1 Black Water on the next space", "Place 1 Black Water on the next space and on the 3rd space ahead", "As level II, and forget 1 more card"],
+];
 export const TURN_TABLE = [0, 3, 6, 9];

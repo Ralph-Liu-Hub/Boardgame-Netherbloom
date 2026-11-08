@@ -3,6 +3,7 @@
 import { CARDS, OBS, ACC, OBL, opText } from "./cards.js";
 import { ZH_CARD_NAMES, ZH_BANDS, zhOpText } from "./zh.js";
 import { STORY, PULL } from "./table-story.js";
+import { STORY_EN } from "./table-story-en.js";
 import * as D from "./table-data.js";
 import * as net from "./net.js";
 import { RULES_HTML } from "./rules-v5.js";
@@ -32,6 +33,11 @@ for (const c of CARDS) {
 }
 MEM.C33 = { id: "C33", name: "Lightless Crossing", tag: OBL, eff: [["cross"]], res: [["light", 1]], slot: null, band: "", key: false };
 const zhName = c => (c.id === "C33" ? "無光之渡" : ZH_CARD_NAMES[c.name] || c.name);
+// the storybook in the current language (the English one has the same shape)
+const story = s => (LANG === "en" ? STORY_EN : STORY)[s];
+// a Soul's special rule as the V5 rulebook words it
+const TRAIT_ZH = { garland: "散花：亡魂離開一格時，那一格只要有 1 朵花，就可以留成光牆；只有一朵花的光牆只擋 1 點霧勢。" };
+const soulTrait = s => (LANG === "en" ? STORY_EN[s].trait : TRAIT_ZH[s] || STORY[s].trait.replace(/（同 V4\.0[^）]*）/, ""));
 const soulName = s => (LANG === "en" ? D.SOUL_EN[s] : STORY[s]?.name) || "";
 const PACK = { open: "E", child: "L", garland: "G-", king: "K", bride: "B" };
 function deckIds(soul) {
@@ -357,9 +363,9 @@ function buildSnaps(players) {
 // ---------------------------------------------------------------- the book: route graph layout
 const layoutCache = {};
 function bookLayout(soul, ch) {
-  const key = soul + ch + "@" + BOOK.x + "," + BOOK.y;
+  const key = soul + ch + LANG + "@" + BOOK.x + "," + BOOK.y;
   if (layoutCache[key]) return layoutCache[key];
-  const page = STORY[soul].chapters[ch];
+  const page = story(soul).chapters[ch];
   const byId = Object.fromEntries(page.nodes.map(n => [n.id, n]));
   const nexts = n => (Array.isArray(n.next) ? n.next : n.next ? Object.values(n.next) : []);
   const depth = {};
@@ -407,7 +413,7 @@ function cardInfo(ck) {
       <div class="c-eff">${esc(tr(m.tz, m.te))}</div>`, title: tr(m.zh, m.en) };
   }
   if (type === "fate") {
-    const f = STORY[a].chapters[+b].fates[+c];
+    const f = story(a).chapters[+b].fates[+c];
     const th = D.THREADS[f.thread];
     return { cls: `fate th${f.thread}`, html: `
       <div class="c-top">${icon(th.icon)}<b>${esc(f.name)}</b></div>
@@ -418,20 +424,20 @@ function cardInfo(ck) {
         <div class="c-cond">${esc(f.cond)}</div><div class="c-omen">${esc(f.omen)}</div></div>`, title: f.name };
   }
   if (type === "comm") {
-    const k = STORY[a].commissions[+b];
+    const k = story(a).commissions[+b];
     return { cls: "comm", html: `<div class="c-top"><b>${tr("託付", "Commission")}</b></div><div class="c-band">${esc(k.text)}</div><div class="c-eff">${esc(k.cond)}</div>`,
       backHtml: `<div class="gback">${tr("託付", "Commission")}</div>`, title: tr("託付卡", "Commission") };
   }
   if (type === "end") {
-    const s = STORY[a];
+    const s = story(a);
     const e = b === "hidden" ? s.hidden : s.endings[b];
     const label = b === "hidden" ? tr("隱藏結局", "Hidden ending") : b === "mix" ? tr("交織", "Interwoven") : tr(D.THREADS[+b].zh, D.THREADS[+b].en);
     return { cls: "ending", html: `<div class="c-top"><b>${esc(e.title)}</b></div><div class="c-slot">${label}</div><div class="c-band small">${esc(e.text)}</div>`,
       backHtml: `<div class="gback">${tr("結局", "Ending")}${b === "hidden" ? `<div class="c-cond">${s.hidden.conds.map(esc).join("<br>")}</div>` : `<small>${label}</small>`}</div>`, title: e.title };
   }
   if (type === "soul") {
-    const s = STORY[a];
-    return { cls: "soulc", art: D.SOUL_ART[a], html: `<div class="c-top"><b>${esc(soulName(a))}</b></div><div class="c-eff">${esc(s.trait)}</div>${s.keymem ? `<div class="c-res"><span>${tr("關鍵記憶", "Key memory")}</span>${esc(s.keymem)}</div>` : ""}`, back: "back-soul", title: soulName(a) };
+    const s = story(a);
+    return { cls: "soulc", art: D.SOUL_ART[a], html: `<div class="c-top"><b>${esc(soulName(a))}</b></div><div class="c-eff">${esc(soulTrait(a))}</div>${s.keymem ? `<div class="c-res"><span>${tr("關鍵記憶", "Key memory")}</span>${esc(s.keymem)}</div>` : ""}`, back: "back-soul", title: soulName(a) };
   }
   if (type === "mantle") {
     const m = D.MANTLES.find(x => x.key === a), th = D.THREADS[m.th];
@@ -543,7 +549,7 @@ function boardsHtml() {
     for (let k = 0; k <= 12; k++) h += `<div class="cell tcell${th.includes(k) ? " lim" : ""}" data-track="knot${t}" data-val="${k}" style="left:${146 + k * 35}px;top:${y}px;width:33px">${k}${k === th[0] ? `<i>${th[0]}</i>` : ""}</div>`;
     h += `<div class="groove" style="left:616px;top:${y + 17}px;width:91px"></div>`;
     for (let k = 0; k <= 2; k++) h += `<div class="cell scar tcell" data-track="scar${t}" data-val="${k}" style="left:${616 + k * 31}px;top:${y}px;width:29px">${k}</div>`;
-    h += `<div class="blash" style="top:${y - 4}px">${D.BACKLASH[t].map((s, i) => `<div><b>${"ⅠⅡⅢ"[i]}</b>${esc(s)}</div>`).join("")}</div>`;
+    h += `<div class="blash" style="top:${y - 4}px">${D.BACKLASH[t].map((s, i) => `<div><b>${"ⅠⅡⅢ"[i]}</b>${esc(tr(s, D.BACKLASH_EN[t][i]))}</div>`).join("")}</div>`;
   }
   h += `<div class="echoslot silent" style="left:16px;top:320px">${tr("沉默", "Silent")}</div>
     <div class="note" style="left:96px;top:336px">${tr(`門檻 ${th[0]}／${th[1]}／${th[2]}（0／1／2 道傷疤）。霧痕：同絲線反噬升一級。`, `Threshold ${th.join(" / ")} (0 / 1 / 2 scars). Mist scars raise that thread's Backlash one level.`)}</div></div>`;
@@ -594,7 +600,7 @@ function boardsHtml() {
 }
 
 function bookPageHtml(ch) {
-  const page = STORY[S.soul].chapters[ch];
+  const page = story(S.soul).chapters[ch];
   const px = BOOK.x;
   const nodes = bookLayout(S.soul, ch);
   const pos = Object.fromEntries(nodes.map(n => [n.id, n]));
@@ -621,7 +627,7 @@ function bookPageHtml(ch) {
     if (n.k === "f") return `<div class="node turn" style="left:${l}px;top:${t}px"><span>◆</span><div class="ntext">${tr("轉折", "Turning point")}<br>${tr("忘川的拉力", "Pull")} ${PULL[ch]}</div></div>`;
     return `<div class="node exitn" style="left:${l}px;top:${t + 10}px" title="${esc(n.text)}"><div class="ntext">⬭ ${esc(n.text)}</div></div>`;
   }).join("");
-  const tabs = STORY[S.soul].chapters.map((c, i) => `<button class="booktab${i === ch ? " on" : ""}" data-view="${i}">${S.chapter === i ? "★ " : ""}${tr(`第${"一二三"[i]}章`, `Chapter ${i + 1}`)}・${esc(c.title)}</button>`).join("");
+  const tabs = story(S.soul).chapters.map((c, i) => `<button class="booktab${i === ch ? " on" : ""}" data-view="${i}">${S.chapter === i ? "★ " : ""}${tr(`第${"一二三"[i]}章`, `Chapter ${i + 1}`)}・${esc(c.title)}</button>`).join("");
   const here = S.chapter === ch
     ? `<span class="curnote">★ ${tr("目前的章節", "The chapter in play")}</span>`
     : `<button class="chbtn" data-ch="${ch}">${tr("把這章設為目前的章節（翻頁）", "Make this the chapter in play (turn the page)")}</button>`;
@@ -1274,9 +1280,10 @@ function openMenu(e) {
     for (let q = 0; q < S.players; q++) if (q !== ME) opts.push([tr(`交給 ${S.names[q]}（換牌）`, `Give to ${S.names[q]} (swap)`), () => commit(tr(`${who()} 交給 ${S.names[q]} 1 張牌`, `${who()} gave ${S.names[q]} a card`), () => toHand(id, q))]);
     opts.push([tr("放到記憶牌庫底", "Put on the bottom of the deck"), () => commit(tr(`${who()} 把 1 張牌放到牌庫底`, `${who()} put a card on the bottom of the deck`), () => toStack(id, "deck", true))]);
     opts.push([tr("放到我的區域", "Put in my area"), () => commit(tr(`${who()} 把 1 張牌放到自己的區域`, `${who()} put a card in their area`), () => toArea(id, ME))]);
+    opts.push([tr("放大檢視", "Look closer"), () => lookCloser(S.items[id], true)]);
   } else if (ac && S.where[ac.dataset.aid] !== "a:" + ME) {
     const id = ac.dataset.aid, it = S.items[id];
-    if (it.kind === "card" && !(it.ck?.startsWith("comm:") && !it.face)) opts.push([tr("放大檢視", "Look closer"), () => modal(`<div class="piece big ${itemHtml(it).cls}">${itemHtml(it).html}</div>`)]);
+    if (it.kind === "card" && !(it.ck?.startsWith("comm:") && !it.face)) opts.push([tr("放大檢視", "Look closer"), () => lookCloser(it)]);
     else opts.push([tr("這是其他玩家面前的東西", "In front of another player"), null]);
   } else if (ac) {
     const id = ac.dataset.aid, it = S.items[id];
@@ -1284,7 +1291,7 @@ function openMenu(e) {
     opts.push([it.ck?.startsWith("comm:") ? tr("翻開放到桌上（翻開託付）", "Reveal it on the table") : tr("放到桌上", "Place on the table"), () => commit(tr(`${who()} 從自己的區域拿出 ${nameOf(id)}`, `${who()} took ${nameOf(id)} from their area`), () => {
       const pt = centerView(); toTable(id, pt.x, pt.y); if (it.ck?.startsWith("comm:")) it.face = 1; })]);
     if (it.kind === "card") opts.push([tr("放進我的手牌", "Take into my hand"), () => commit(tr(`${who()} 把 1 張牌從自己的區域拿回手牌`, `${who()} took a card from their area into hand`), () => toHand(id, ME))]);
-    if (it.kind === "card") opts.push([tr("放大檢視", "Look closer"), () => modal(`<div class="piece big ${itemHtml({ ...it, face: 1 }).cls}">${itemHtml({ ...it, face: 1 }).html}</div>`)]);
+    if (it.kind === "card") opts.push([tr("放大檢視", "Look closer"), () => lookCloser(it, true)]);
     opts.push([tr("放回盒中（移出遊戲）", "Return to the box"), () => commit(tr(`${who()} 把 ${nameOf(id)} 移出遊戲`, `${who()} removed ${nameOf(id)}`), () => toStack(id, "box"))]);
   } else if (p) {
     const id = p.dataset.id, it = S.items[id];
@@ -1293,12 +1300,14 @@ function openMenu(e) {
       opts.push([it.rot ? tr("轉正（R）", "Turn upright (R)") : tr("橫放（R）", "Turn sideways (R)"), () => rotate(id)]);
       if (!it.face) opts.push([tr("偷看（只有你看到）", "Peek (only you)"), () => peek(id)]);
       opts.push([tr("放進我的手牌", "Take into my hand"), () => commit(tr(`${who()} 拿了 1 張牌到手牌`, `${who()} took a card`), () => toHand(id, ME))]);
-      opts.push([tr("放大檢視", "Look closer"), () => zoomCard(id)]);
     }
+    if (it.face && it.kind !== "tok") opts.push([tr("放大檢視", "Look closer"), () => lookCloser(it)]);
     opts.push([tr("放回盒中（移出遊戲）", "Return to the box"), () => commit(tr(`${who()} 把 ${nameOf(id)} 移出遊戲`, `${who()} removed ${nameOf(id)}`), () => toStack(id, "box"))]);
   } else if (s) {
     const sid = s.dataset.stack, st = S.stacks[sid];
     const cards = st.accepts === "card" || st.accepts === "any";
+    const topIt = S.items[st.items[st.items.length - 1]];
+    if (topIt && topIt.kind !== "tok" && (topIt.kind === "card" ? st.faceUp : topIt.face)) opts.push([tr("放大檢視頂牌", "Look closer at the top card"), () => lookCloser(topIt, topIt.kind === "card")]);
     if (cards && st.items.length) {
       opts.push([tr("抽 1 張到手牌", "Draw 1 into my hand"), () => drawToHand(sid)]);
       opts.push([tr("翻開頂牌放到桌上", "Turn the top card onto the table"), () => commit(tr(`${who()} 翻開${tr(...st.label)}的頂牌`, `${who()} turned the top of ${tr(...st.label)}`), () => {
@@ -1347,9 +1356,9 @@ function peek(id) {
   const r = itemHtml({ ...S.items[id], face: 1 });
   modal(`<h3>${tr("偷看（其他人看不到）", "Peek (others cannot see)")}</h3><div class="piece big ${r.cls}">${r.html}</div>`);
 }
-function zoomCard(id) {
-  const it = S.items[id];
-  const r = itemHtml(it);
+// a card (or a face-up tile) at a size that is easy to read; faceUp: show its face even if it lies face down (my own)
+function lookCloser(it, faceUp = false) {
+  const r = itemHtml(faceUp ? { ...it, face: 1 } : it);
   modal(`<div class="piece big ${r.cls}">${r.html}</div>`);
 }
 function searchStack(sid) {
