@@ -89,24 +89,75 @@ const PG = SW + 14;                       // pile pitch: the distance from one p
 // (0–4 left to right, 5–9 right to left, 10–14 left to right).
 let WORLD, BOUNDS, FATE, MISTA, BOOK, LOOM, LEDGER, SUPPLY, RIVER, PLAY, BOXA, SETUPA, MATS;
 const SEAT_OF = { 1: [0], 2: [0, 2], 3: [0, 1, 3], 4: [0, 1, 2, 3] };   // 0 bottom, 1 left, 2 top, 3 right
-function layoutWorld(players) {
-  const seats = SEAT_OF[players] || [0];
-  const ox = seats.includes(1) ? 360 : 0, oy = seats.includes(2) ? 300 : 0;
-  const at = (x, y, w, h, more) => ({ x: x + ox, y: y + oy, w, h, ...more });
-  FATE = at(40, 40, 1000, 440); MISTA = at(40, 500, 1000, 280); BOOK = at(1080, 40, 1920, 740);
-  LOOM = at(40, 820, 1000, 400); LEDGER = at(40, 1240, 1000, 400); SUPPLY = at(40, 1660, 1000, 480);
-  RIVER = at(1080, 820, 1200, 1320, { m: 120, colW: 194, rowH: 425, bank: 110, lane: 120 });
-  PLAY = at(2320, 820, 680, 600); BOXA = at(2320, 1440, 680, 700); SETUPA = at(40, 2180, 2960, 230);
-  WORLD = { w: ox + 3040 + (seats.includes(3) ? 360 : 0), h: oy + 2440 + 300 };
-  BOUNDS = { x: 20, y: 20, w: WORLD.w - 40, h: WORLD.h - 40 };
+function layoutWorld(players, me = 0) {
+  FATE = { x: 40, y: 40, w: 1000, h: 440 }; MISTA = { x: 40, y: 500, w: 1000, h: 280 }; BOOK = { x: 1080, y: 40, w: 1920, h: 740 };
+  LOOM = { x: 40, y: 820, w: 1000, h: 400 }; LEDGER = { x: 40, y: 1240, w: 1000, h: 400 }; SUPPLY = { x: 40, y: 1660, w: 1000, h: 480 };
+  RIVER = { x: 1080, y: 820, w: 1200, h: 1320, m: 120, colW: 194, rowH: 425, bank: 110, lane: 120 };
+  PLAY = { x: 2320, y: 820, w: 680, h: 600 }; BOXA = { x: 2320, y: 1440, w: 680, h: 700 }; SETUPA = { x: 40, y: 2180, w: 2960, h: 230 };
+  WORLD = { w: 3040, h: 2720 };
+  BOUNDS = { x: 20, y: 20, w: 3000, h: 2690 };   // what "Fit" fills the window with: the boards and my own front
+  // Fronts are placed on each screen, never saved: mine below the boards, inside the view; the others beyond its
+  // edges (left, top, right, in seat order), seen when a player zooms out.
   const HW = 1180, HH = 260, VW = 320, VH = 1180;
-  const rect = seat => seat === 0 ? { x: ox + 20 + (3000 - HW) / 2, y: oy + 2440 + 20, w: HW, h: HH, v: false }
-    : seat === 2 ? { x: ox + 20 + (3000 - HW) / 2, y: 20, w: HW, h: HH, v: false }
-    : seat === 1 ? { x: 20, y: oy + 20 + (2400 - VH) / 2, w: VW, h: VH, v: true }
-    : { x: ox + 3040 + 20, y: oy + 20 + (2400 - VH) / 2, w: VW, h: VH, v: true };
-  MATS = seats.map(rect);
+  const spot = { bottom: { x: 20 + (3000 - HW) / 2, y: 2440, w: HW, h: HH, v: false }, top: { x: 20 + (3000 - HW) / 2, y: -320, w: HW, h: HH, v: false },
+    left: { x: -380, y: 20 + (2400 - VH) / 2, w: VW, h: VH, v: true }, right: { x: 3100, y: 20 + (2400 - VH) / 2, w: VW, h: VH, v: true } };
+  const order = { 1: ["bottom"], 2: ["bottom", "top"], 3: ["bottom", "left", "right"], 4: ["bottom", "left", "top", "right"] }[players] || ["bottom"];
+  MATS = Array.from({ length: players }, (_, p) => spot[order[(p - me + players) % players]]);
 }
 layoutWorld(1);
+// ------------------------------------------------------------------ stretching the table to fill any window
+// Positions are shared by every player, so the table itself has one shape. On each screen the whole table stretches
+// to the window's shape: every board grows in proportion and what is on it spreads out with it, while cards, tiles,
+// tokens and text keep their size. Each player's front at the edge moves as one piece and keeps its size.
+const STR = { kx: 1, ky: 1 };
+const MX0 = 20, MY0 = 20, MX1 = 3020, MY1 = 2425, SIDEY = 1220, MIDX = 1520;
+const sX = v => MX0 + (v - MX0) * STR.kx, sY = v => MY0 + (v - MY0) * STR.ky;
+function C2D(x, y) {
+  if (y >= MY1) return { x: x + sX(MIDX) - MIDX, y: y + sY(MY1) - MY1 };   // the front below the boards
+  if (y < MY0) return { x: x + sX(MIDX) - MIDX, y };                         // the front above
+  if (x < MX0) return { x, y: y + sY(SIDEY) - SIDEY };                        // the fronts at the sides
+  if (x > MX1) return { x: x + sX(MX1) - MX1, y: y + sY(SIDEY) - SIDEY };
+  return { x: sX(x), y: sY(y) };
+}
+// back from the screen to the table: whichever piece of the map gives back the same point (else the nearest one)
+function D2C(x, y) {
+  const c = [{ x: (x - MX0) / STR.kx + MX0, y: (y - MY0) / STR.ky + MY0 },
+    { x: x - sX(MIDX) + MIDX, y: y - sY(MY1) + MY1 }, { x: x - sX(MIDX) + MIDX, y },
+    { x, y: y - sY(SIDEY) + SIDEY }, { x: x - sX(MX1) + MX1, y: y - sY(SIDEY) + SIDEY }];
+  let best = c[0], bd = Infinity;
+  for (const q of c) { const d = C2D(q.x, q.y), e = Math.abs(d.x - x) + Math.abs(d.y - y); if (e < bd) { bd = e; best = q; } }
+  return best;
+}
+// spread what is drawn inside a board with it: each thing's centre moves with the stretch, its size stays
+function stretchInside(board) {
+  for (const el of board.children) {
+    if (el.tagName === "svg" || el.tagName === "BUTTON" || el.classList.contains("btitle")) continue;
+    const st = el.style;
+    if (getComputedStyle(el).position !== "absolute") continue;
+    if (el.dataset.l0 === undefined) {   // placed inline or by the stylesheet: start from where it is now
+      el.dataset.l0 = st.right && st.left ? st.left : st.right ? "" : el.offsetLeft + "px"; el.dataset.t0 = el.offsetTop + "px";
+      el.dataset.w0 = el.classList.contains("groove") ? st.width : "";
+    }
+    const ow = el.offsetWidth, oh = el.offsetHeight;
+    if (el.dataset.w0) st.width = parseFloat(el.dataset.w0) * STR.kx + "px";
+    else if (el.dataset.l0) st.left = (parseFloat(el.dataset.l0) + ow / 2) * STR.kx - ow / 2 + "px";
+    if (el.dataset.w0 && el.dataset.l0) st.left = parseFloat(el.dataset.l0) * STR.kx + "px";
+    if (el.dataset.t0) st.top = (parseFloat(el.dataset.t0) + oh / 2) * STR.ky - oh / 2 + "px";
+  }
+}
+// place the boards for the current stretch (the fronts keep their size)
+function placeBoards() {
+  document.querySelectorAll("#tt-boards > .board").forEach(b => {
+    if (b.dataset.cx === undefined) Object.assign(b.dataset, { cx: parseFloat(b.style.left), cy: parseFloat(b.style.top), cw: parseFloat(b.style.width), ch: parseFloat(b.style.height) });
+    const q = C2D(+b.dataset.cx, +b.dataset.cy), mat = b.classList.contains("mat");
+    b.style.left = q.x + "px"; b.style.top = q.y + "px";
+    b.style.width = (mat ? +b.dataset.cw : +b.dataset.cw * STR.kx) + "px"; b.style.height = (mat ? +b.dataset.ch : +b.dataset.ch * STR.ky) + "px";
+    if (!mat) stretchInside(b);
+  });
+  const f = $(".felt");
+  if (f) f.style.cssText = `left:${BOUNDS.x}px;top:${BOUNDS.y}px;width:${BOUNDS.w * STR.kx}px;height:${sY(MY1) + (BOUNDS.y + BOUNDS.h - MY1) - BOUNDS.y}px`;
+}
+const tAt = (x, y, w, h, rot) => { const q = C2D(x, y); return `translate(${q.x - w / 2}px,${q.y - h / 2}px)${rot !== undefined ? ` rotate(${rot}deg)` : ""}`; };
 // the slots of a player's front (centres, world coordinates)
 function matSlots(p) {
   const m = MATS[p];
@@ -187,7 +238,7 @@ function addStack(id, props) { S.stacks[id] = { id, items: [], faceUp: false, ..
 // ---------------------------------------------------------------- setup: sort the components onto the table
 function newTable(opts) {
   S = blankState(opts);
-  layoutWorld(opts.players);
+  layoutWorld(opts.players, 0);
   buildSnaps(opts.players);
   const soul = opts.soul;
   // Like opening the box: every component is sorted into its own labelled pile or tray, in order and unshuffled.
@@ -446,17 +497,17 @@ function boardsHtml() {
   h += `<div class="board river" data-region="river" style="left:${R.x}px;top:${R.y}px;width:${R.w}px;height:${R.h}px">${zoomBtn("river")}`;
   let water = "";
   for (let row = 0; row < 3; row++) {
-    const g0 = spaceGeo(row * 5), y = g0.laneY - R.y + R.lane / 2;
-    const x0 = R.m - 6, x1 = R.m + 4 * R.colW + g0.laneW + 6;
+    const g0 = spaceGeo(row * 5), y = (g0.laneY - R.y + R.lane / 2) * STR.ky;
+    const x0 = (R.m + g0.laneW / 2) * STR.kx - g0.laneW / 2 - 6, x1 = (R.m + 4 * R.colW + g0.laneW / 2) * STR.kx + g0.laneW / 2 + 6;
     water += `<path d="M${x0},${y} H${x1}"/>`;
     if (row < 2) {   // the turn: down the right side after row 0, down the left side after row 1
-      const y2 = spaceGeo((row + 1) * 5).laneY - R.y + R.lane / 2;
+      const y2 = (spaceGeo((row + 1) * 5).laneY - R.y + R.lane / 2) * STR.ky;
       const xe = row === 0 ? x1 : x0;
       const bulge = row === 0 ? 40 : -30;
       water += `<path d="M${xe},${y} C${xe + bulge},${y} ${xe + bulge},${y2} ${xe},${y2}"/>`;
     }
   }
-  h += `<svg class="riverwater" width="${R.w}" height="${R.h}"><defs><pattern id="wtex" patternUnits="userSpaceOnUse" width="512" height="512"><image href="${ART("tex-water")}" width="512" height="512" preserveAspectRatio="xMidYMid slice"/></pattern></defs><g class="wbase">${water}</g><g class="wtex">${water}</g></svg>`;
+  h += `<svg class="riverwater" width="${R.w * STR.kx}" height="${R.h * STR.ky}"><g class="wbase">${water}</g><g class="wsheen">${water}</g></svg>`;
   for (let sp = 0; sp <= 14; sp++) {
     const g = spaceGeo(sp);
     const reach = sp <= 4 ? 0 : sp <= 8 ? 1 : 2;
@@ -548,7 +599,7 @@ function bookPageHtml(ch) {
   const pos = Object.fromEntries(nodes.map(n => [n.id, n]));
   const entry = typeof page.entry === "string" ? esc(page.entry) : Object.entries(page.entry).map(([t, s]) => `<b class="th${t}">${tr(D.THREADS[t].zh, D.THREADS[t].en)}</b> ${esc(s)}`).join("<br>");
   let lines = "";
-  const ctr = n => [n.x - px + (CW + 8) / 2, n.y - BOOK.y + (CH + 8) / 2];
+  const ctr = n => [(n.x - px + 40) * STR.kx, (n.y - BOOK.y + 54) * STR.ky];   // a node's centre, spread with the stretch
   for (const n of nodes) {
     const nx = Array.isArray(n.next) ? n.next.map(id => [id, null]) : n.next ? Object.entries(n.next).map(([t, id]) => [id, +t]) : [];
     for (const [id, t] of nx) {
@@ -576,7 +627,7 @@ function bookPageHtml(ch) {
   return `${zoomBtn("book")}<div class="btitle">${tr("憶念之書", "Book of Remembrance")} <span class="booktabs">${tabs}</span> ${here}</div>
     ${S.chapter !== ch ? `<div class="browse">${tr("你正在翻閱其他章節；放在這頁的牌只會在這頁顯示。", "You are browsing another chapter; cards placed here only show on this page.")}</div>` : ""}
     <div class="entry">${entry}</div>
-    <svg class="arrows" width="${BOOK.w}" height="${BOOK.h}"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9a948c"/></marker></defs>${lines}</svg>
+    <svg class="arrows" width="${BOOK.w * STR.kx}" height="${BOOK.h * STR.ky}"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9a948c"/></marker></defs>${lines}</svg>
     ${cells}`;
 }
 
@@ -585,11 +636,12 @@ function renderBook() {
   const el = $("#tt-book");
   if (!el) return;
   if (S.chapter !== lastChapter) { lastChapter = S.chapter; bookView = S.chapter; }
-  const sig = `${bookView}|${S.chapter}|${LANG}`;
+  const sig = `${bookView}|${S.chapter}|${LANG}|${STR.kx}|${STR.ky}`;
   if (el._sig === sig) return;
   el._sig = sig;
   el.innerHTML = bookPageHtml(bookView);
-  el.style.backgroundImage = `linear-gradient(rgba(20,17,24,.80),rgba(20,17,24,.90)),url(${ART((SOUL_PAINT[S.soul] || SOUL_PAINT.open)[bookView])})`;
+  stretchInside(el);
+  el.style.backgroundImage = `linear-gradient(90deg,rgba(24,20,26,.35) 0,rgba(24,20,26,.75) 200px,#18141a 300px),url(${ART((SOUL_PAINT[S.soul] || SOUL_PAINT.open)[bookView])})`;
   markZoom();
   el.classList.toggle("current", bookView === S.chapter);
   el.querySelectorAll(".booktab").forEach(b => b.onclick = () => { bookView = +b.dataset.view; render(); });
@@ -601,7 +653,7 @@ function zoomTo(region) {
   const el = document.querySelector(`.board[data-region="${region}"]`);
   if (!el) return;
   let x = parseFloat(el.style.left), y = parseFloat(el.style.top), w = parseFloat(el.style.width), h = parseFloat(el.style.height);
-  if (region === "setup") w = 1560;
+  if (region === "setup") w = 1560 * STR.kx;
   if (/rotate\((-?90)deg\)/.test(el.style.transform)) { x += (w - h) / 2; y += (h - w) / 2; [w, h] = [h, w]; }
   const r = $("#tt-view").getBoundingClientRect();
   view.r = 0;
@@ -656,12 +708,12 @@ function buildTable() {
   elWorld = $("#tt-world"); elTable = $("#tt-items"); elHand = $("#tt-hand"); elHint = $("#tt-hint"); elMenu = $("#tt-ctx"); elSeats = $("#tt-seats");
   for (const k in els) delete els[k];
   for (const k in stackEls) delete stackEls[k];
-  layoutWorld(S.players);
+  layoutWorld(S.players, ME);
   buildSnaps(S.players);
   $("#tt-world").style.width = WORLD.w + "px"; $("#tt-world").style.height = WORLD.h + "px";
-  $(".felt").style.cssText = `left:${BOUNDS.x}px;top:${BOUNDS.y}px;width:${BOUNDS.w}px;height:${BOUNDS.h}px`;
   bookView = lastChapter = S.chapter;
   $("#tt-boards").innerHTML = boardsHtml();
+  placeBoards();
   bindTable();
   let hintsOn = false;
   try { hintsOn = localStorage.getItem("nb-hints") === "1"; } catch { /* */ }
@@ -701,7 +753,7 @@ function render() {
     const w = it.kind === "card" ? CW : it.kind === "tile" ? RIVER.bank - 6 : TK;
     const hgt = it.kind === "card" ? CH : it.kind === "tile" ? RIVER.bank - 6 : TK;
     el.style.width = w + "px"; el.style.height = hgt + "px";
-    el.style.transform = `translate(${it.x - w / 2}px,${it.y - hgt / 2}px) rotate(${it.rot}deg)`;
+    el.style.transform = tAt(it.x, it.y, w, hgt, it.rot);
     el.style.zIndex = it.kind === "tile" ? 2 + (it.z % 1000) : it.kind === "card" ? 1000 + it.z : 3000 + it.z;
     el.classList.toggle("unlit", it.kind === "card" && it.rot === 90);
     // a card in the Play area shows who played it
@@ -728,7 +780,7 @@ function render() {
       }
       const w = it.kind === "card" ? CW : TK, hgt = it.kind === "card" ? CH : TK;
       el.style.width = w + "px"; el.style.height = hgt + "px"; el.style.display = "";
-      if (drag?.id !== id) el.style.transform = `translate(${pos.x - w / 2}px,${pos.y - hgt / 2}px)`;
+      if (drag?.id !== id) el.style.transform = tAt(pos.x, pos.y, w, hgt);
       el.style.zIndex = 1500;
     }
   });
@@ -751,8 +803,9 @@ function render() {
     const top = st.items[st.items.length - 1];
     const it = top ? S.items[top] : null;
     const tokenBin = st.accepts.startsWith("tok");
-    const w = st.w || (tokenBin ? 92 : st.small ? 86 : CW + 8), h = st.h || (tokenBin ? 92 : st.small ? 86 : CH + 8);
-    el.style.left = st.x + "px"; el.style.top = st.y + "px"; el.style.width = w + "px"; el.style.height = h + "px";
+    const w = st.big ? st.w * STR.kx : st.w || (tokenBin ? 92 : st.small ? 86 : CW + 8), h = st.big ? st.h * STR.ky : st.h || (tokenBin ? 92 : st.small ? 86 : CH + 8);
+    const sc0 = C2D(st.x + (st.big ? st.w : w) / 2, st.y + (st.big ? st.h : h) / 2), sp = { x: sc0.x - w / 2, y: sc0.y - h / 2 };
+    el.style.left = sp.x + "px"; el.style.top = sp.y + "px"; el.style.width = w + "px"; el.style.height = h + "px";
     const sig = `${top}|${it?.face}|${st.faceUp}|${st.items.length}|${LANG}`;
     if (el._sig !== sig) {
       let inner = "";
@@ -807,7 +860,7 @@ function renderTracks() {
     if (!sn) continue;
     el.title = `${trackName(id)}：${S.tracks[id]}`;
     el.style.width = el.style.height = TK + "px";
-    el.style.transform = `translate(${sn.x + sn.w / 2 - TK / 2}px,${sn.y + sn.h / 2 - TK / 2}px)`;
+    el.style.transform = tAt(sn.x + sn.w / 2, sn.y + sn.h / 2, TK, TK);
     el.style.zIndex = 8000;
   }
 }
@@ -902,9 +955,15 @@ const viewMatrix = () => new DOMMatrix().translate(view.x, view.y).scale(view.s)
 function worldPt(e) {
   const r = $("#tt-view").getBoundingClientRect();
   const q = viewMatrix().inverse().transformPoint(new DOMPoint(e.clientX - r.left, e.clientY - r.top));
-  return { x: q.x, y: q.y };
+  return D2C(q.x, q.y);
 }
 function applyView() { elWorld.style.transform = viewMatrix().toString(); }
+// a new stretch: draw the boards again for it, then everything on them
+function applyStretch() {
+  $("#tt-boards").innerHTML = boardsHtml();
+  placeBoards();
+  if (S) render();
+}
 // The right-hand column (my area and hand) takes whatever width the board does not need, so the board always fills
 // the space between the top bar and the bottom of the window (or the hint strip). At least three cards across.
 function sizeColumn() { /* the column has a fixed width in the stylesheet: one card plus the menu beside it */ }
@@ -912,9 +971,14 @@ function fit() {
   sizeColumn();
   const r = $("#tt-view").getBoundingClientRect();
   view.r = 0;   // everyone sees the same fixed table
-  // the boards fill the window
-  view.s = Math.min(r.width / BOUNDS.w, r.height / BOUNDS.h) * 0.99;
-  view.x = r.width / 2 - (BOUNDS.x + BOUNDS.w / 2) * view.s; view.y = r.height / 2 - (BOUNDS.y + BOUNDS.h / 2) * view.s;
+  // the boards stretch to fill the window: the scale that fits them, then the gaps take the rest
+  const pad = 0.985, sc = Math.min(r.width / BOUNDS.w, r.height / BOUNDS.h) * pad;
+  const ex = Math.max(0, r.width * pad / sc - BOUNDS.w), ey = Math.max(0, r.height * pad / sc - BOUNDS.h);
+  const kx = Math.round((1 + ex / (MX1 - MX0)) * 1000) / 1000, ky = Math.round((1 + ey / (MY1 - MY0)) * 1000) / 1000;
+  if (kx !== STR.kx || ky !== STR.ky) { STR.kx = kx; STR.ky = ky; applyStretch(); }
+  const W = BOUNDS.w + ex, H = BOUNDS.h + ey;
+  view.s = sc;
+  view.x = r.width / 2 - (BOUNDS.x + W / 2) * view.s; view.y = r.height / 2 - (BOUNDS.y + H / 2) * view.s;
   applyView();
   zoomed = null; markZoom();
 }
@@ -1064,7 +1128,7 @@ function onMove(e) {
   if (drag.track) {
     const v = nearestTrackValue(drag.track, worldPt(e)), sn = trackSnap(drag.track, v);
     drag.val = v;
-    drag.el.style.transform = `translate(${sn.x + sn.w / 2 - TK / 2}px,${sn.y + sn.h / 2 - TK / 2}px)`;
+    drag.el.style.transform = tAt(sn.x + sn.w / 2, sn.y + sn.h / 2, TK, TK);
     return;
   }
   if (drag.pan) { view.x = drag.ox + e.clientX - drag.sx; view.y = drag.oy + e.clientY - drag.sy; applyView(); return; }
@@ -1072,7 +1136,7 @@ function onMove(e) {
     const st = S.stacks[drag.stackMove];
     const pt = worldPt(e);
     st.x = drag.ox + pt.x - drag.wx; st.y = drag.oy + pt.y - drag.wy;
-    stackEls[st.id].style.left = st.x + "px"; stackEls[st.id].style.top = st.y + "px"; return;
+    const el0 = stackEls[st.id], sw = el0.offsetWidth, sh = el0.offsetHeight, sc0 = C2D(st.x + sw / 2, st.y + sh / 2), sp = { x: sc0.x - sw / 2, y: sc0.y - sh / 2 }; stackEls[st.id].style.left = sp.x + "px"; stackEls[st.id].style.top = sp.y + "px"; return;
   }
   const pt = worldPt(e);
   const it = S.items[drag.id];
@@ -1081,7 +1145,7 @@ function onMove(e) {
   const el = els[drag.id];
   if (el) {
     const w = parseFloat(el.style.width), h = parseFloat(el.style.height);
-    el.style.transform = `translate(${it.x - w / 2}px,${it.y - h / 2}px) rotate(${it.rot}deg)`;
+    el.style.transform = tAt(it.x, it.y, w, h, it.rot);
     el.style.zIndex = 9000;
   }
   sendMove(drag, it);
@@ -1470,7 +1534,7 @@ function switchSeat(n) {
   c.innerHTML = `<div class="mbox"><h3>${tr(`請把裝置交給 ${esc(S.names[n])}`, `Pass the device to ${esc(S.names[n])}`)}</h3>
     <p>${tr("手牌會在按下按鈕後顯示。", "Their hand appears when they press the button.")}</p><button id="seatok">${tr(`我是 ${esc(S.names[n])}`, `I am ${esc(S.names[n])}`)}</button></div>`;
   c.classList.remove("hidden");
-  $("#seatok").onclick = () => { ME = n; c.classList.add("hidden"); render(); };
+  $("#seatok").onclick = () => { ME = n; c.classList.add("hidden"); buildTable(); };
 }
 
 // ---------------------------------------------------------------- online
@@ -1509,7 +1573,7 @@ function remoteMove(msg) {
   if (!it || drag?.id === msg.id) return;
   if (msg.t === "mvend") { setTimeout(() => dropGhost(msg.id), 600); return; }
   const [w, h] = pieceSize(it);
-  const tf = `translate(${msg.x - w / 2}px,${msg.y - h / 2}px) rotate(${it.rot || 0}deg)`;
+  const tf = tAt(msg.x, msg.y, w, h, it.rot || 0);
   const el = S.where[msg.id] === "t" ? els[msg.id] : null;
   if (el) { el.classList.add("remote-moving"); el.style.transform = tf; el.style.zIndex = 9500; clearTimeout(el._rm); el._rm = setTimeout(() => el.classList.remove("remote-moving"), 700); return; }
   const g = ghostEl(msg.id, it, msg.face);
@@ -1551,7 +1615,7 @@ function animateChanges(old) {
     const from = placeOf(old, id), to = placeOf(S, id);
     if (!from || !to) continue;
     const it = S.items[id], [w, h] = pieceSize(it);
-    const tf = p => `translate(${p.x - w / 2}px,${p.y - h / 2}px) rotate(${it.rot || 0}deg)`;
+    const tf = p => tAt(p.x, p.y, w, h, it.rot || 0);
     if (now === "t" && els[id]) {
       const el = els[id], final = el.style.transform;
       el.style.transition = "none"; el.style.transform = tf(from); void el.offsetWidth;

@@ -374,7 +374,8 @@ body.on-table .topbar { display: none; }
 .piece.big .c-bandart { height: 120px; margin: -14px -14px 10px; }
 .tile .tpaint { position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 0; border-radius: inherit; }
 .tile > :not(.tpaint) { position: relative; z-index: 1; text-shadow: 0 1px 2px #000; }
-.river { background: linear-gradient(rgba(23, 18, 14, .55), rgba(23, 18, 14, .7)), url(/assets/art/tex-bank.webp) center / 600px; }
-.riverwater .wtex path { stroke: url(#wtex); opacity: .85; }
-.bookp { background-size: cover; background-position: center; }
-.felt { background: radial-gradient(ellipse at 50% 45%, rgba(42, 34, 25, .82) 0%, rgba(29, 24, 18, .9) 55%, rgba(18, 15, 12, .96) 100%), url(/assets/art/cover-f.webp) center / cover; }
+.river { background: linear-gradient(160deg, #241d16, #18130f); }
+.riverwater .wbase path { stroke: #15222c; opacity: 1; }
+.riverwater .wsheen path { stroke: #2a4250; stroke-width: 40; opacity: .35; }
+.bookp { background-size: 100% 100%, auto 100%; background-position: left top; background-repeat: no-repeat; }
+.felt { background: radial-gradient(ellipse at 50% 45%, rgba(42, 34, 25, .93) 0%, rgba(29, 24, 18, .96) 55%, rgba(18, 15, 12, .985) 100%), url(/assets/art/cover-f.webp) center / cover; }

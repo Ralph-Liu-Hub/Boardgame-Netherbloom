@@ -10,7 +10,16 @@ module.exports = async (page, setStage, note, BASE) => {
     if (opts.alt) await page.keyboard.up("Alt");
     await page.waitForTimeout(60);
   };
-  const zoomClick = async sel => { await page.click("#tt-fit"); await page.click(sel); await page.waitForTimeout(50); };
+  // other players' fronts sit outside the full view: zoom out with the wheel to reach them
+  const zoomClick = async sel => {
+    await page.click("#tt-fit");
+    if (/mat[1-9]/.test(sel)) {
+      const v = await page.locator("#tt-view").boundingBox();
+      await page.mouse.move(v.x + v.width / 2, v.y + v.height / 2);
+      for (let i = 0; i < 4; i++) { await page.mouse.wheel(0, 300); await page.waitForTimeout(30); }
+    }
+    await page.click(sel); await page.waitForTimeout(50);
+  };
   const expect = (cond, msg) => { if (!cond) note(stageName, "EXPECTED " + msg); };
   let stageName = "";
   const stage = n => { stageName = n; setStage(n); };
@@ -145,6 +154,16 @@ module.exports = async (page, setStage, note, BASE) => {
   expect(backScale < zoomedScale && (await page.textContent('.zoombtn[data-zoom="loom"]')).trim() === "⌕", "✕ goes back to the whole table");
   // k) every zoom button, fit, drawers
   stage("p3 zoom/drawers");
+  // the full view: the boards fill the window; my front at the bottom; the others' fronts outside it
+  await page.click("#tt-fit");
+  {
+    const v = await page.locator("#tt-view").boundingBox(), f = await page.locator(".felt").boundingBox();
+    const m0 = await page.locator('.board.mat[data-region="mat0"]').boundingBox(), m1 = await page.locator('.board.mat[data-region="mat1"]').boundingBox();
+    expect((Math.abs(f.x - v.x) < 20 && Math.abs(f.x + f.width - v.x - v.width) < 20) || (Math.abs(f.y - v.y) < 20 && Math.abs(f.y + f.height - v.y - v.height) < 20), "the table fills the window");
+    expect(Math.abs(f.width / f.height - v.width / v.height) < 0.05, `the table takes the window's shape (${(f.width / f.height).toFixed(2)} vs ${(v.width / v.height).toFixed(2)})`);
+    expect(m0.y >= v.y && m0.y + m0.height <= v.y + v.height + 1, "my front is in the full view");
+    expect(m1.x + m1.width <= v.x || m1.x >= v.x + v.width || m1.y + m1.height <= v.y || m1.y >= v.y + v.height, "another player's front is outside the full view");
+  }
   for (const z of await page.$$eval(".zoombtn", b => b.map(x => x.dataset.zoom))) await zoomClick(`.zoombtn[data-zoom="${z}"]`);
   await page.click("#tt-fit");
   await page.click("#tt-rules"); await page.fill("#rq", "織機"); await page.waitForTimeout(100); await page.click("#tt-rules");
@@ -205,7 +224,7 @@ module.exports = async (page, setStage, note, BASE) => {
   await page.click("#tt-ctx button >> text=背面打出");
   s1 = await S();
   const pc = s1.items[playId];
-  const PLAYR = await page.evaluate(() => { const b = document.querySelector('.board[data-region="play"]'); return { x: parseFloat(b.style.left), y: parseFloat(b.style.top), w: parseFloat(b.style.width), h: parseFloat(b.style.height) }; });
+  const PLAYR = await page.evaluate(() => { const b = document.querySelector('.board[data-region="play"]'); return { x: +b.dataset.cx, y: +b.dataset.cy, w: +b.dataset.cw, h: +b.dataset.ch }; });   // the table's own coordinates
   expect(s1.where[playId] === "t" && pc.face === 0 && pc.x > PLAYR.x && pc.x < PLAYR.x + PLAYR.w && pc.y > PLAYR.y && pc.y < PLAYR.y + PLAYR.h, "a card played face down lands in the Play area");
   expect((await page.getAttribute(`.piece[data-id="${playId}"]`, "data-by")) === "擺渡人 1", "it shows who played it");
 
