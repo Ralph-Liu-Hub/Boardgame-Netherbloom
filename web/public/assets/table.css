@@ -492,12 +492,12 @@ body.on-table .topbar { display: none; }
 .loom .scarslot { position: absolute; height: 36px; border: 1.5px dashed rgba(226, 67, 77, .7); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #ffb3b8; background: rgba(120, 20, 28, .18); cursor: pointer; }
 .tmarker.scarm { border-radius: 8px 8px 50% 50%; }
 /* the Ledger's forgotten track */
-.ledger .fcell { position: absolute; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 6px; }
+.ledger .fcell { position: absolute; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 6px; }
 .ledger .fcell.pull { border: 2px dotted var(--cyan); color: #bff3f5; }
 .ledger .fcell.drift { border: 2px solid var(--gold); color: var(--bone); }
 .ledger .fcell.lim { border: 2px solid var(--crimson); color: #ffb3b8; font-weight: 700; }
 .ledger .fcell.past { opacity: .35; }
-.forgotm { pointer-events: none; border-radius: 50%; background: radial-gradient(circle, #1d5f66, #0c2a2e); box-shadow: 0 0 0 2px var(--cyan), 0 2px 6px rgba(0, 0, 0, .6); }
+.forgotm { border-radius: 50%; background: radial-gradient(circle, #1d5f66, #0c2a2e); box-shadow: 0 0 0 2px var(--cyan), 0 2px 6px rgba(0, 0, 0, .6); }
 .forgotm .ic { width: 70%; height: 70%; color: #d9fbfc; }
 .ledger .note b.k-drift { color: var(--gold); } .ledger .note b.k-pull { color: var(--cyan); } .ledger .note b.k-lim { color: var(--crimson); }
 /* Rulebook search */

@@ -235,7 +235,7 @@ function blankState(opts) {
     areas: Array.from({ length: opts.players }, () => []),
     chapter: 0, hint: 0, log: [],
     // counters are slider tracks: one marker pushed along a groove (Light, Fractures, knots and scars)
-    tracks: { light: 0, crack: 0, knot0: 0, knot1: 0, knot2: 0, scar0: 0, scar1: 0, scar2: 0 },
+    tracks: { light: 0, crack: 0, forgot: 0, knot0: 0, knot1: 0, knot2: 0, scar0: 0, scar1: 0, scar2: 0 },
   };
 }
 function addItem(kind, props, place) {
@@ -360,6 +360,7 @@ function buildSnaps(players) {
   for (let k = 0; k <= 12; k++) snap(`light${k}`, LEDGER.x + 420 + k * 44, LEDGER.y + 62, 42, 42, []);
   for (let k = 0; k <= 5; k++) snap(`crack${k}`, LEDGER.x + 420 + k * 56, LEDGER.y + 160, 50, 50, []);
   for (let k = 0; k < 7; k++) snap(`bwsup${k}`, LEDGER.x + 20 + k * 56, LEDGER.y + 262, 54, 54, ["tok"]);
+  for (let k = 0; k <= FORGOT_MAX; k++) snap(`forgot${k}`, LEDGER.x + FX0 + k * FP, LEDGER.y + FY, FW, FW, []);
   // mantle row, fate slots
   // the Mantle row sits along the top of the supply panel
   D.MANTLES.forEach((_, i) => snap(`mantle${i}`, SUPPLY.x + 20 + i * PG, SUPPLY.y + 56, SW, SH, ["card"]));
@@ -583,12 +584,12 @@ function boardsHtml() {
   for (let k = 0; k <= lv.fractures; k++) h += `<div class="cell round tcell crack${k === lv.fractures ? " lim" : ""}" data-track="crack" data-val="${k}" style="left:${420 + k * 56}px;top:160px;width:50px;height:50px">${k === lv.fractures ? tr("碎", "✕") : k}</div>`;
   h += `<div class="lab" style="left:20px;top:238px">${tr(`黑水供應：放 ${lv.bw} 個（其餘放回盒中）`, `Black Water supply: put ${lv.bw} here (the rest go in the Box)`)}</div>`;
   for (let k = 0; k < lv.bw; k++) h += `<div class="cell round" style="left:${20 + k * 56}px;top:262px;width:54px;height:54px"></div>`;
-  // the forgotten track: the marker follows the forgotten pile by itself
-  h += `<div class="lab" style="left:${FX0}px;top:238px">${tr(`遺忘（標記自動跟著遺忘堆的張數；${lv.dissolve} 張消散）`, `Forgotten (the marker follows the forgotten pile; Faded at ${lv.dissolve})`)}</div>
+  // the forgotten track: the players move its marker as cards are forgotten (like Light and Fractures)
+  h += `<div class="lab" style="left:${FX0}px;top:238px">${tr(`遺忘（推動標記或點選格子；${lv.dissolve} 張消散）`, `Forgotten (push the marker or click a cell; Faded at ${lv.dissolve})`)}</div>
     <div class="groove" style="left:${FX0}px;top:${FY + FW / 2 - 1}px;width:${FORGOT_MAX * FP + FW}px"></div>`;
   for (let k = 0; k <= FORGOT_MAX; k++) {
     const tag = k === lv.dissolve ? "lim" : k === 6 || k === 9 ? "drift" : [3, 5, 7].includes(k) ? "pull" : "";
-    h += `<div class="cell fcell ${tag}${k > lv.dissolve ? " past" : ""}" style="left:${FX0 + k * FP}px;top:${FY}px;width:${FW}px;height:${FW}px">${k === lv.dissolve ? tr("散", "✕") : k}</div>`;
+    h += `<div class="cell fcell tcell ${tag}${k > lv.dissolve ? " past" : ""}" data-track="forgot" data-val="${k}" style="left:${FX0 + k * FP}px;top:${FY}px;width:${FW}px;height:${FW}px">${k === lv.dissolve ? tr("散", "✕") : k}</div>`;
   }
   h += `<div class="note fkey" style="left:${FX0}px;top:${FY + FW + 8}px;right:16px">${tr(`<b class="k-drift">6</b> 輕如灰燼、<b class="k-drift">9</b> 漂離；<b class="k-pull">${PULL.join("／")}</b> 第一／二／三章的忘川的拉力；<b class="k-lim">${lv.dissolve}</b> 消散。`, `<b class="k-drift">6</b> Light as Ash, <b class="k-drift">9</b> Adrift; <b class="k-pull">${PULL.join(" / ")}</b> the Pull of Lethe in chapters 1 / 2 / 3; <b class="k-lim">${lv.dissolve}</b> Faded.`)}</div></div>`;
   // fate area
@@ -902,14 +903,15 @@ function renderOnline() {
 }
 
 // ---------------------------------------------------------------- slider tracks
-const TRACK_ICON = { light: ["nb-rays", "lightm"], crack: ["nb-fracture", "crack"] };
-const trackMax = id => (id === "light" ? 12 : id === "crack" ? D.LEVELS[S.level].fractures : id.startsWith("scar") ? 2 : KNOTS);
+const TRACK_ICON = { light: ["nb-rays", "lightm"], crack: ["nb-fracture", "crack"], forgot: ["nb-oblivion", "forgotm"] };
+const trackMax = id => (id === "light" ? 12 : id === "crack" ? D.LEVELS[S.level].fractures : id === "forgot" ? FORGOT_MAX : id.startsWith("scar") ? 2 : KNOTS);
 const trackSnap = (id, v) => snapById[id.startsWith("knot") || id.startsWith("scar") ? `${id}_${v}` : `${id}${v}`];
-const trackName = id => (id === "light" ? tr("光", "Light") : id === "crack" ? tr("裂痕", "Fractures")
+const trackName = id => (id === "light" ? tr("光", "Light") : id === "crack" ? tr("裂痕", "Fractures") : id === "forgot" ? tr("遺忘", "Forgotten")
   : `${tr(id.startsWith("knot") ? "結" : "傷疤", id.startsWith("knot") ? "Knots" : "Scars")}（${tr(D.THREADS[+id.slice(-1)].zh, D.THREADS[+id.slice(-1)].en)}）`);
 const markerEls = {};
 function renderTracks() {
   S.tracks ||= { light: 0, crack: 0, knot0: 0, knot1: 0, knot2: 0, scar0: 0, scar1: 0, scar2: 0 };
+  S.tracks.forgot ??= 0;   // tables saved before the forgotten track existed
   for (const id in S.tracks) {
     let el = markerEls[id];
     if (!el || !el.isConnected) {
@@ -921,28 +923,12 @@ function renderTracks() {
     if (drag?.track === id) continue;
     const sn = trackSnap(id, Math.min(S.tracks[id], trackMax(id)));
     if (!sn) continue;
-    const sz = id.startsWith("scar") ? 40 : TK;   // the Scar marker fits inside its knot cell
+    const sz = id.startsWith("scar") ? 40 : id === "forgot" ? 34 : TK;   // the Scar and forgotten markers fit inside their cells
     el.title = id.startsWith("scar") ? tr(`${trackName(id)}：${S.tracks[id]} 道（門檻 ${D.thresholds(S.level, S.players)[S.tracks[id]]}）`, `${trackName(id)}: ${S.tracks[id]} (threshold ${D.thresholds(S.level, S.players)[S.tracks[id]]})`) : `${trackName(id)}：${S.tracks[id]}`;
     el.style.width = el.style.height = sz + "px";
     el.style.transform = tAt(sn.x + sn.w / 2, sn.y + sn.h / 2, sz, sz);
     el.style.zIndex = 8000;
   }
-  renderForgotten();
-}
-// the forgotten track on the Ledger: its marker always shows how many cards the forgotten pile holds
-function renderForgotten() {
-  let el = markerEls.forgot;
-  if (!el || !el.isConnected) {
-    el = document.createElement("div");
-    el.className = "piece tk forgotm"; el.innerHTML = icon("nb-oblivion");
-    elTable.appendChild(el); markerEls.forgot = el;
-  }
-  const n = S.stacks.forgot?.items.length || 0, k = Math.min(n, FORGOT_MAX), sz = 32;
-  el.title = tr(`遺忘堆：${n} 張`, `Forgotten pile: ${n}`);
-  el.dataset.count = n;
-  el.style.width = el.style.height = sz + "px";
-  el.style.transform = tAt(LEDGER.x + FX0 + k * FP + FW / 2, LEDGER.y + FY + FW / 2, sz, sz);
-  el.style.zIndex = 7900;
 }
 function setTrack(id, v) {
   v = Math.max(0, Math.min(trackMax(id), v));
