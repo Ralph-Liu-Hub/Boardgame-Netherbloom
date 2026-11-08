@@ -65,7 +65,7 @@ When **both banks of the next space have Shades** and it has no Black Water: rem
 
 | Item | Number |
 |---|---|
-| Loom threshold | 7 knots with 2–4 players · 10 solo; each Scar −1, and the Backlash one level higher |
+| Loom threshold | Where the Scar marker stands on the knot track: from 7 (2–4 players) or 10 (solo); each Scar moves it one cell down (threshold −1, Backlash one level higher) |
 | The Pull of Lethe (forgotten pile at the fork) | Chapter 1: 3 · chapter 2: 5 · chapter 3: 7 cards |
 | Turning the page unties (0 / 1 / 2 / 3 memories lit on the page) | 0 / 3 / 6 / 9 knots |
 | Light | 12 at most; light a memory 1 · summon a Mantle 3 (King 2) · Recall 3 |
