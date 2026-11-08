@@ -1,6 +1,6 @@
 // Phase 3: interactions on a 2-player table. Each check names the behaviour it expects.
 module.exports = async (page, setStage, note, BASE) => {
-  const S = () => page.evaluate(() => JSON.parse(localStorage.getItem("nb-table-v5e")));
+  const S = () => page.evaluate(() => JSON.parse(localStorage.getItem("nb-table-v5f")));
   const center = async sel => { const b = await page.locator(sel).first().boundingBox(); if (!b) throw new Error("no box " + sel); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; };
   const dragTo = async (from, to, opts = {}) => {
     await page.mouse.move(from.x, from.y); await page.mouse.down();
@@ -135,6 +135,14 @@ module.exports = async (page, setStage, note, BASE) => {
   await page.keyboard.press("Control+y");
   s1 = await S(); expect(s1.tracks.knot1 === 6, "redo knot");
 
+  // k0) the magnifier of a zoomed board becomes an X that goes back to the whole table
+  stage("p3 zoom X");
+  await page.click("#tt-fit"); await page.click('.zoombtn[data-zoom="loom"]');
+  expect((await page.textContent('.zoombtn[data-zoom="loom"]')).trim() === "✕", "the zoomed board's button shows ✕");
+  const zoomedScale = await page.evaluate(() => new DOMMatrix(getComputedStyle(document.querySelector("#tt-world")).transform).a);
+  await page.click('.zoombtn[data-zoom="loom"]');
+  const backScale = await page.evaluate(() => new DOMMatrix(getComputedStyle(document.querySelector("#tt-world")).transform).a);
+  expect(backScale < zoomedScale && (await page.textContent('.zoombtn[data-zoom="loom"]')).trim() === "⌕", "✕ goes back to the whole table");
   // k) every zoom button, fit, drawers
   stage("p3 zoom/drawers");
   for (const z of await page.$$eval(".zoombtn", b => b.map(x => x.dataset.zoom))) await zoomClick(`.zoombtn[data-zoom="${z}"]`);
@@ -152,6 +160,9 @@ module.exports = async (page, setStage, note, BASE) => {
 
   // l2) my area: commissions dealt face down into each player's area; only my own area is on my screen
   stage("p3 area");
+  await zoomClick('.zoombtn[data-zoom="supply"]');
+  await page.click('.stack[data-stack="bin_push"]', { button: "right" });
+  await page.click("#tt-ctx button >> text=每人 1 個到各自的區域");
   await zoomClick('.zoombtn[data-zoom="fate"]');
   await page.click('.stack[data-stack="comm"]', { button: "right" });
   await page.click("#tt-ctx button >> text=每人發 1 張到各自的區域");
@@ -167,10 +178,10 @@ module.exports = async (page, setStage, note, BASE) => {
   s1 = await S(); expect(s1.items[pushId].face === 0, "double-click spends Push Through");
   expect(!!(await page.$('#tt-seats [data-seat="0"] .pushused')), "the seat bar shows Push Through spent");
   // a Mantle from the Mantle row into my area: the seat bar names it
-  await zoomClick('.zoombtn[data-zoom="supply"]');
-  const mantle = await page.getAttribute("#tt-items .piece.mantle >> nth=0", "data-id");
+  await zoomClick('.zoombtn[data-zoom="setup"]');
+  const mantle = (await S()).stacks.mantles.items.slice(-1)[0];
   const areaBox = await page.locator("#tt-area").boundingBox();
-  await dragTo(await center(`.piece[data-id="${mantle}"]`), { x: areaBox.x + areaBox.width / 2, y: areaBox.y + areaBox.height / 2 });
+  await dragTo(await center('.stack[data-stack="mantles"]'), { x: areaBox.x + areaBox.width / 2, y: areaBox.y + areaBox.height / 2 });
   s1 = await S(); expect(s1.where[mantle] === "a:0", "a Mantle dropped on my area goes there");
   expect(!!(await page.$('#tt-seats [data-seat="0"] .mbadge')), "the seat bar names my Mantle");
   // my commission back out to the table: still face down; then back into my area

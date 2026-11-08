@@ -35,7 +35,7 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
       await page.click("#lb-local");
       await page.waitForSelector("#tt-world");
       const r = await page.evaluate(() => {
-        const S = JSON.parse(localStorage.getItem("nb-table-v5e"));
+        const S = JSON.parse(localStorage.getItem("nb-table-v5f"));
         const out = { items: Object.keys(S.items).length, bad: [] };
         // every table piece has content and lies inside the world
         document.querySelectorAll("#tt-items .piece[data-id]").forEach(el => {
@@ -53,6 +53,7 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
         for (const [id, n] of Object.entries(seen)) if (n > 1) out.bad.push("duplicate " + id);
         // bank tiles: 26 banks filled
         out.tilesOnRiver = Object.values(S.items).filter(it => it.kind === "tile" && S.where[it.id] === "t").length;
+        out.tiles = Object.values(S.items).filter(it => it.kind === "tile").length;
         out.bw = Object.values(S.items).filter(it => it.tk === "bw").length;
         out.deck = S.stacks.deck.items.length;
         out.ghost = S.stacks.ghost ? S.stacks.ghost.items.length : 0;
@@ -60,13 +61,13 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
         return out;
       });
       if (r.bad.length) note(stage, r.bad.slice(0, 5).join("; "));
-      if (r.tilesOnRiver !== 24) note(stage, "tiles on river " + r.tilesOnRiver);
-      if (r.push !== players) note(stage, "push tokens " + r.push);
+      if (r.tilesOnRiver !== 0 || r.tiles !== 37) note(stage, `tiles: ${r.tilesOnRiver} on the river (0 expected), ${r.tiles} in all (37)`);
+      if (r.push !== 4) note(stage, "push tokens " + r.push);
       if ((players === 1) !== (r.ghost > 0)) note(stage, "ghost deck " + r.ghost);
       // render every card face via the search modal of each stack would be slow; check all card faces through the module
       const faces = await page.evaluate(async () => {
         const m = await import("/assets/table.js");
-        const S = JSON.parse(localStorage.getItem("nb-table-v5e"));
+        const S = JSON.parse(localStorage.getItem("nb-table-v5f"));
         const bad = [];
         for (const it of Object.values(S.items)) if (it.kind === "card") {
           try { const c = m._test.cardInfo(it.ck); if (!c.html || /undefined|NaN|\[object/.test(c.html + (c.backHtml || ""))) bad.push(it.ck); } catch (e) { bad.push(it.ck + " " + e.message); }

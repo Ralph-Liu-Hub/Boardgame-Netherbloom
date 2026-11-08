@@ -33,7 +33,7 @@ function startPeer() {
 (async () => {
   await new Promise(ok => site.listen(8765, "127.0.0.1", ok));
   const havePeer = await startPeer();
-  const tests = ["table.e2e.cjs", "touch.e2e.cjs", "pinch.e2e.cjs", ...(havePeer ? ["online.e2e.cjs"] : [])];
+  const tests = ["table.e2e.cjs", "setup.e2e.cjs", "touch.e2e.cjs", "pinch.e2e.cjs", ...(havePeer ? ["online.e2e.cjs"] : [])];
   if (!havePeer) console.log("online.e2e.cjs skipped: install the dev packages peer and peerjs to run it");
   let failed = 0;
   for (const t of tests) {
