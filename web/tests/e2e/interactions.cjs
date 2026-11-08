@@ -1,6 +1,6 @@
 // Phase 3: interactions on a 2-player table. Each check names the behaviour it expects.
 module.exports = async (page, setStage, note, BASE) => {
-  const S = () => page.evaluate(() => JSON.parse(localStorage.getItem("nb-table-v5f")));
+  const S = () => page.evaluate(() => JSON.parse(localStorage.getItem("nb-table-v5g")));
   const center = async sel => { const b = await page.locator(sel).first().boundingBox(); if (!b) throw new Error("no box " + sel); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; };
   const dragTo = async (from, to, opts = {}) => {
     await page.mouse.move(from.x, from.y); await page.mouse.down();
@@ -43,7 +43,7 @@ module.exports = async (page, setStage, note, BASE) => {
   // b) drag the top card into the hand
   stage("p3 draw by drag");
   const handBox = await page.locator("#tt-hand .my-hand").boundingBox();
-  await dragTo(await center('.stack[data-stack="deck"]'), { x: handBox.x + 300, y: handBox.y + handBox.height / 2 });
+  await dragTo(await center('.stack[data-stack="deck"]'), { x: handBox.x + handBox.width / 2, y: handBox.y + handBox.height / 2 });
   s1 = await S();
   expect(s1.hands[0].length === 1 && s1.stacks.deck.items.length === s0.stacks.deck.items.length - 1, "drag deck -> hand draws 1");
   // double-click the deck draws too
@@ -159,8 +159,11 @@ module.exports = async (page, setStage, note, BASE) => {
   {
     const v = await page.locator("#tt-view").boundingBox(), f = await page.locator(".felt").boundingBox();
     const m0 = await page.locator('.board.mat[data-region="mat0"]').boundingBox(), m1 = await page.locator('.board.mat[data-region="mat1"]').boundingBox();
-    expect((Math.abs(f.x - v.x) < 20 && Math.abs(f.x + f.width - v.x - v.width) < 20) || (Math.abs(f.y - v.y) < 20 && Math.abs(f.y + f.height - v.y - v.height) < 20), "the table fills the window");
-    expect(Math.abs(f.width / f.height - v.width / v.height) < 0.05, `the table takes the window's shape (${(f.width / f.height).toFixed(2)} vs ${(v.width / v.height).toFixed(2)})`);
+    // the frame holds the boards; my front sits below it; together they fill the window
+    const all = { x: f.x, y: f.y, w: f.width, h: m0.y + m0.height - f.y };
+    expect(m0.y >= f.y + f.height - 2, "my front is outside the table's frame");
+    expect((Math.abs(all.x - v.x) < 20 && Math.abs(all.x + all.w - v.x - v.width) < 20) || (Math.abs(all.y - v.y) < 20 && Math.abs(all.y + all.h - v.y - v.height) < 20), "the table fills the window");
+    expect(Math.abs(all.w / all.h - v.width / v.height) < 0.05, `the table takes the window's shape (${(all.w / all.h).toFixed(2)} vs ${(v.width / v.height).toFixed(2)})`);
     expect(m0.y >= v.y && m0.y + m0.height <= v.y + v.height + 1, "my front is in the full view");
     expect(m1.x + m1.width <= v.x || m1.x >= v.x + v.width || m1.y + m1.height <= v.y || m1.y >= v.y + v.height, "another player's front is outside the full view");
   }

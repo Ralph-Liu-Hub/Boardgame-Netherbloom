@@ -80,27 +80,28 @@ const PG = SW + 14;                       // pile pitch: the distance from one p
 // The shared table, seen from above. Every player's screen shows the same table (positions are shared online):
 //   top:    the Soul, fate and commissions (left), the Book (right)
 //   middle: the Loom, Ledger and supply (left), the River (centre), the Play area and the Box (right)
-//   bottom: the set-up strip, where the components wait to be set out at the start of a game
+//   right:  the Play area, the Box and the set-up board (where the components wait to be set out at the start)
 //   edges:  each player's front, as at a real table (Tabletopia-like): seat 1 at the bottom, then left, top and right.
 //           A front shows what that player has in front of them: their hand as card backs, commission (face up only to its
 //           owner), Mantle, Push Through and lasting cards. Each player's hand is in a column at the right of their screen.
 // The table takes the shape its seats need (the same for every player in that game).
 // The River is a square board: three rows of five spaces that wind down the board with two turns
 // (0–4 left to right, 5–9 right to left, 10–14 left to right).
-let WORLD, BOUNDS, FATE, MISTA, BOOK, LOOM, LEDGER, SUPPLY, RIVER, PLAY, BOXA, SETUPA, MATS;
+let WORLD, BOUNDS, FITB, FATE, MISTA, BOOK, LOOM, LEDGER, SUPPLY, RIVER, PLAY, BOXA, SETUPA, MATS;
 const SEAT_OF = { 1: [0], 2: [0, 2], 3: [0, 1, 3], 4: [0, 1, 2, 3] };   // 0 bottom, 1 left, 2 top, 3 right
 function layoutWorld(players, me = 0) {
   FATE = { x: 40, y: 40, w: 1000, h: 440 }; MISTA = { x: 40, y: 500, w: 1000, h: 280 }; BOOK = { x: 1080, y: 40, w: 1920, h: 740 };
   LOOM = { x: 40, y: 820, w: 1000, h: 400 }; LEDGER = { x: 40, y: 1240, w: 1000, h: 400 }; SUPPLY = { x: 40, y: 1660, w: 1000, h: 480 };
   RIVER = { x: 1080, y: 820, w: 1200, h: 1320, m: 120, colW: 194, rowH: 425, bank: 110, lane: 120 };
-  PLAY = { x: 2320, y: 820, w: 680, h: 600 }; BOXA = { x: 2320, y: 1440, w: 680, h: 700 }; SETUPA = { x: 40, y: 2180, w: 2960, h: 230 };
-  WORLD = { w: 3040, h: 2720 };
-  BOUNDS = { x: 20, y: 20, w: 3000, h: 2690 };   // what "Fit" fills the window with: the boards and my own front
+  PLAY = { x: 2320, y: 820, w: 680, h: 500 }; BOXA = { x: 2320, y: 1340, w: 680, h: 400 }; SETUPA = { x: 2320, y: 1760, w: 680, h: 380 };
+  WORLD = { w: 3040, h: 2500 };
+  BOUNDS = { x: 20, y: 20, w: 3000, h: 2140 };   // the table's frame: the boards only
+  FITB = { x: 20, y: 20, w: 3000, h: 2470 };     // what "Fit" fills the window with: the boards and my own front below them
   // Fronts are placed on each screen, never saved: mine below the boards, inside the view; the others beyond its
   // edges (left, top, right, in seat order), seen when a player zooms out.
-  const HW = 1180, HH = 260, VW = 320, VH = 1180;
-  const spot = { bottom: { x: 20 + (3000 - HW) / 2, y: 2440, w: HW, h: HH, v: false }, top: { x: 20 + (3000 - HW) / 2, y: -320, w: HW, h: HH, v: false },
-    left: { x: -380, y: 20 + (2400 - VH) / 2, w: VW, h: VH, v: true }, right: { x: 3100, y: 20 + (2400 - VH) / 2, w: VW, h: VH, v: true } };
+  const HW = 1260, HH = 260, VW = 320, VH = 1180;
+  const spot = { bottom: { x: 20 + (3000 - HW) / 2, y: 2210, w: HW, h: HH, v: false }, top: { x: 20 + (3000 - HW) / 2, y: -320, w: HW, h: HH, v: false },
+    left: { x: -380, y: 20 + (2140 - VH) / 2, w: VW, h: VH, v: true }, right: { x: 3100, y: 20 + (2140 - VH) / 2, w: VW, h: VH, v: true } };
   const order = { 1: ["bottom"], 2: ["bottom", "top"], 3: ["bottom", "left", "right"], 4: ["bottom", "left", "top", "right"] }[players] || ["bottom"];
   MATS = Array.from({ length: players }, (_, p) => spot[order[(p - me + players) % players]]);
 }
@@ -110,7 +111,7 @@ layoutWorld(1);
 // to the window's shape: every board grows in proportion and what is on it spreads out with it, while cards, tiles,
 // tokens and text keep their size. Each player's front at the edge moves as one piece and keeps its size.
 const STR = { kx: 1, ky: 1 };
-const MX0 = 20, MY0 = 20, MX1 = 3020, MY1 = 2425, SIDEY = 1220, MIDX = 1520;
+const MX0 = 20, MY0 = 20, MX1 = 3020, MY1 = 2180, SIDEY = 1090, MIDX = 1520;
 const sX = v => MX0 + (v - MX0) * STR.kx, sY = v => MY0 + (v - MY0) * STR.ky;
 function C2D(x, y) {
   if (y >= MY1) return { x: x + sX(MIDX) - MIDX, y: y + sY(MY1) - MY1 };   // the front below the boards
@@ -155,7 +156,7 @@ function placeBoards() {
     if (!mat) stretchInside(b);
   });
   const f = $(".felt");
-  if (f) f.style.cssText = `left:${BOUNDS.x}px;top:${BOUNDS.y}px;width:${BOUNDS.w * STR.kx}px;height:${sY(MY1) + (BOUNDS.y + BOUNDS.h - MY1) - BOUNDS.y}px`;
+  if (f) f.style.cssText = `left:${BOUNDS.x}px;top:${BOUNDS.y}px;width:${BOUNDS.w * STR.kx}px;height:${BOUNDS.h * STR.ky}px`;
 }
 const tAt = (x, y, w, h, rot) => { const q = C2D(x, y); return `translate(${q.x - w / 2}px,${q.y - h / 2}px)${rot !== undefined ? ` rotate(${rot}deg)` : ""}`; };
 // the slots of a player's front (centres, world coordinates)
@@ -165,22 +166,23 @@ function matSlots(p) {
   if (!m.v) {
     const y = m.y + 60 + SH / 2, x0 = m.x + 330;
     return { fan: { x: m.x + 20, y: m.y + 50, w: 290, h: 190 }, comm: { x: x0 + SW / 2, y }, mantle: { x: x0 + PG + SW / 2, y },
-      push: { x: x0 + 2 * PG + 40, y }, lasting: [0, 1, 2].map(i => ({ x: x0 + 2 * PG + 100 + i * PG + SW / 2, y })) };
+      push: { x: x0 + 2 * PG + 40, y: m.y + 98 }, oar: { x: x0 + 2 * PG + 40, y: m.y + 192 }, lasting: [0, 1, 2].map(i => ({ x: x0 + 2 * PG + 100 + i * PG + SW / 2, y })) };
   }
   const x0 = m.x + 20;
   return { fan: { x: m.x + 16, y: m.y + 50, w: m.w - 32, h: 170 }, comm: { x: x0 + SW / 2, y: m.y + 240 + SH / 2 }, mantle: { x: x0 + PG + SW / 2, y: m.y + 240 + SH / 2 },
-    push: { x: x0 + 40, y: m.y + 450 }, lasting: [0, 1, 2, 3].map(i => ({ x: x0 + (i % 2) * PG + SW / 2, y: m.y + 530 + Math.floor(i / 2) * (SH + 30) + SH / 2 })) };
+    push: { x: x0 + 40, y: m.y + 450 }, oar: { x: x0 + PG + 40, y: m.y + 450 }, lasting: [0, 1, 2, 3].map(i => ({ x: x0 + (i % 2) * PG + SW / 2, y: m.y + 530 + Math.floor(i / 2) * (SH + 30) + SH / 2 })) };
 }
 // where each item of a player's area lies on their front
 function areaPlaces(p) {
   const sl = matSlots(p), out = {};
   if (!sl) return out;
   const items = (S.areas[p] || []).map(id => S.items[id]);
-  const comm = items.find(it => it.ck?.startsWith("comm:")), mantle = items.find(it => it.ck?.startsWith("mantle:")), push = items.find(it => it.tk === "push");
+  const comm = items.find(it => it.ck?.startsWith("comm:")), mantle = items.find(it => it.ck?.startsWith("mantle:")), push = items.find(it => it.tk === "push"), oar = items.find(it => it.tk === "oar");
   if (comm) out[comm.id] = sl.comm;
   if (mantle) out[mantle.id] = sl.mantle;
   if (push) out[push.id] = sl.push;
-  items.filter(it => it !== comm && it !== mantle && it !== push).forEach((it, i) => {
+  if (oar) out[oar.id] = sl.oar;
+  items.filter(it => it !== comm && it !== mantle && it !== push && it !== oar).forEach((it, i) => {
     const q = sl.lasting[Math.min(i, sl.lasting.length - 1)];
     out[it.id] = { x: q.x + Math.max(0, i - 3) * 14, y: q.y + Math.max(0, i - 3) * 14 };
   });
@@ -208,7 +210,7 @@ let ME = 0;              // my seat
 let mode = "local";      // local | host | guest
 let link = null;         // net handle
 let hist = [], fut = [];
-const LS = "nb-table-v5f";   // the table layout changed (larger components, set-up strip): older saved tables do not fit it
+const LS = "nb-table-v5g";   // the table layout changed (larger components, set-up strip): older saved tables do not fit it
 const saveLocal = () => { if (mode !== "guest") try { localStorage.setItem(LS, JSON.stringify(S)); } catch { /* full */ } };
 
 const uid = (() => { let n = 0; return p => `${p}${(++n).toString(36)}${Math.floor(Math.random() * 1296).toString(36)}`; })();
@@ -243,7 +245,7 @@ function newTable(opts) {
   const soul = opts.soul;
   // Like opening the box: every component is sorted into its own labelled pile or tray, in order and unshuffled.
   // The players set the game up themselves (the hints walk them through it).
-  const fx = i => FATE.x + 20 + i * PG, mx = i => MISTA.x + 20 + i * PG, sx = i => SETUPA.x + 24 + i * (PG + 24);
+  const fx = i => FATE.x + 20 + i * PG, mx = i => MISTA.x + 20 + i * PG, sx = i => SETUPA.x + 20 + i * PG, tx = i => SETUPA.x + 20 + i * 112;
   addStack("deck", { x: LEDGER.x + 20, y: LEDGER.y + 56, label: ["記憶牌庫", "Memory deck"], accepts: "card" });
   addStack("discard", { x: LEDGER.x + 20 + PG, y: LEDGER.y + 56, label: ["棄牌堆", "Discard"], accepts: "card", faceUp: true });
   addStack("forgot", { x: LEDGER.x + 20 + 2 * PG, y: LEDGER.y + 56, label: ["遺忘堆", "Forgotten"], accepts: "card", faceUp: true, counter: "forgot" });
@@ -257,11 +259,11 @@ function newTable(opts) {
   addStack("comm", { x: fx(3), y: FATE.y + 60, label: ["託付卡", "Commissions"], accepts: "card" });
   addStack("ending", { x: fx(4), y: FATE.y + 60, label: ["結局牌", "Endings"], accepts: "card" });
   // the set-up strip
-  addStack("mine", { x: sx(0), y: SETUPA.y + 50, label: ["亡魂專屬記憶", "The soul's memories"], accepts: "card", faceUp: true });
-  D.TILE_POOLS.forEach((_, r) => addStack(`pool${r}`, { x: sx(1 + r), y: SETUPA.y + 50, label: [`第${"一二三"[r]}河段板塊池`, `Reach ${r + 1} tile pool`], accepts: "tile", small: true, pool: r }));
-  addStack("graves", { x: sx(4), y: SETUPA.y + 50, label: ["墳墓", "Graves"], accepts: "tile", faceUp: true, small: true });
-  addStack("mantles", { x: sx(5), y: SETUPA.y + 50, label: ["稱號牌", "Mantle cards"], accepts: "card", faceUp: true });
-  if (opts.players === 1) addStack("ghost", { x: sx(6), y: SETUPA.y + 50, label: ["幽靈牌庫", "Ghost deck"], accepts: "card", showBack: true });
+  addStack("mine", { x: sx(0), y: SETUPA.y + 56, label: ["亡魂專屬記憶", "The soul's memories"], accepts: "card", faceUp: true });
+  D.TILE_POOLS.forEach((_, r) => addStack(`pool${r}`, { x: tx(r), y: SETUPA.y + 262, label: [`第${"一二三"[r]}河段板塊池`, `Reach ${r + 1} tile pool`], accepts: "tile", small: true, pool: r }));
+  addStack("graves", { x: tx(3), y: SETUPA.y + 262, label: ["墳墓", "Graves"], accepts: "tile", faceUp: true, small: true });
+  addStack("mantles", { x: sx(1), y: SETUPA.y + 56, label: ["稱號牌", "Mantle cards"], accepts: "card", faceUp: true });
+  if (opts.players === 1) addStack("ghost", { x: sx(2), y: SETUPA.y + 56, label: ["幽靈牌庫", "Ghost deck"], accepts: "card", showBack: true });
   // the supply trays
   const binX = i => SUPPLY.x + 20 + (i % 8) * 120, binY = i => SUPPLY.y + 264 + Math.floor(i / 8) * 116;
   const bins = [["root", ["根／花", "Root / Bloom"], 24], ["shade", ["怨念", "Shade"], 8], ["bw", ["黑水", "Black Water"], 7],
@@ -569,9 +571,8 @@ function boardsHtml() {
     ${D.MANTLES.map((_, i) => `<div class="slotbox" style="left:${20 + i * PG}px;top:56px;width:${SW}px;height:${SH}px">${tr("稱號", "Mantle")}</div>`).join("")}
     <div class="lab" style="left:740px;top:60px;white-space:normal;width:240px">${tr("供應區在下方：拖曳拿取，拖回放回。", "The supply is below: drag to take, drag back to return.")}</div></div>`;
   // the set-up strip
-  h += `<div class="board setupa" data-region="setup" style="left:${SETUPA.x}px;top:${SETUPA.y}px;width:${SETUPA.w}px;height:${SETUPA.h}px">${zoomBtn("setup")}<div class="btitle">${tr("準備區（開局時用；打開「下一步提示」看怎麼準備）", "Set-up strip (for the start; turn on the hints to be walked through it)")}</div>
-    <div class="note setupnote">${tr("專屬記憶：右鍵「整疊放到…」放進記憶牌庫，再洗牌。板塊池：先把墳墓拖上去（第二河段 1 塊、第三河段依人數），再右鍵「補滿這個河段的河岸」。稱號牌：排到稱號列。",
-      "The soul's memories: right-click, “Put the whole pile on…”, the memory deck, then shuffle it. Tile pools: drag the Graves onto them first (Reach 2: 1, Reach 3: by player count), then right-click, “Fill this Reach's banks”. Mantle cards: lay them out on the Mantle row.")}</div></div>`;
+  h += `<div class="board setupa" data-region="setup" style="left:${SETUPA.x}px;top:${SETUPA.y}px;width:${SETUPA.w}px;height:${SETUPA.h}px">${zoomBtn("setup")}<div class="btitle">${tr("準備區", "Set-up")}</div>
+    <div class="note setupnote">${tr("開局時用。打開「下一步提示」一步步帶你準備，或按「自動準備」。", "For the start of a game. Turn on the hints to be walked through it, or press Auto Setup.")}</div></div>`;
   // each player's front at the edge of the table
   MATS.forEach((m, p) => {
     if (!m) return;
@@ -580,7 +581,7 @@ function boardsHtml() {
     h += `<div class="board mat${m.v ? " vert" : ""}" data-region="mat${p}" style="left:${m.x}px;top:${m.y}px;width:${m.w}px;height:${m.h}px">${zoomBtn(`mat${p}`)}
       <div class="btitle">${esc(S.names[p] || tr(`擺渡人 ${p + 1}`, `Ferryman ${p + 1}`))}<span class="matseat">${p === 0 ? tr("（起始玩家）", "(first player)") : ""}</span></div>
       <div class="matfan" data-fan="${p}" style="left:${sl.fan.x - m.x}px;top:${sl.fan.y - m.y}px;width:${sl.fan.w}px;height:${sl.fan.h}px"></div>
-      ${box(sl.comm, SW, SH, tr("託付", "Commission"))}${box(sl.mantle, SW, SH, tr("稱號", "Mantle"))}${box(sl.push, 66, 66, tr("破浪", "Push"), "round")}
+      ${box(sl.comm, SW, SH, tr("託付", "Commission"))}${box(sl.mantle, SW, SH, tr("稱號", "Mantle"))}${box(sl.push, 66, 66, tr("破浪", "Push"), "round")}${box(sl.oar, 66, 66, tr("船槳", "Oar"), "round")}
       ${sl.lasting.map((q, i) => box(q, SW, SH, i ? "" : tr("持續中的牌", "Lasting cards"), "lastslot")).join("")}</div>`;
   });
   // play area in front of the River (cards being played)
@@ -641,7 +642,7 @@ function renderBook() {
   el._sig = sig;
   el.innerHTML = bookPageHtml(bookView);
   stretchInside(el);
-  el.style.backgroundImage = `linear-gradient(90deg,rgba(24,20,26,.35) 0,rgba(24,20,26,.75) 200px,#18141a 300px),url(${ART((SOUL_PAINT[S.soul] || SOUL_PAINT.open)[bookView])})`;
+  el.style.backgroundImage = `linear-gradient(90deg,rgba(60,52,40,.1) 0,rgba(60,52,40,.5) 200px,rgba(52,46,36,.62) 300px),url(${ART((SOUL_PAINT[S.soul] || SOUL_PAINT.open)[bookView])})`;
   markZoom();
   el.classList.toggle("current", bookView === S.chapter);
   el.querySelectorAll(".booktab").forEach(b => b.onclick = () => { bookView = +b.dataset.view; render(); });
@@ -653,7 +654,6 @@ function zoomTo(region) {
   const el = document.querySelector(`.board[data-region="${region}"]`);
   if (!el) return;
   let x = parseFloat(el.style.left), y = parseFloat(el.style.top), w = parseFloat(el.style.width), h = parseFloat(el.style.height);
-  if (region === "setup") w = 1560 * STR.kx;
   if (/rotate\((-?90)deg\)/.test(el.style.transform)) { x += (w - h) / 2; y += (h - w) / 2; [w, h] = [h, w]; }
   const r = $("#tt-view").getBoundingClientRect();
   view.r = 0;
@@ -708,6 +708,7 @@ function buildTable() {
   elWorld = $("#tt-world"); elTable = $("#tt-items"); elHand = $("#tt-hand"); elHint = $("#tt-hint"); elMenu = $("#tt-ctx"); elSeats = $("#tt-seats");
   for (const k in els) delete els[k];
   for (const k in stackEls) delete stackEls[k];
+  document.body.classList.toggle("solo-hand", S.players === 1);
   layoutWorld(S.players, ME);
   buildSnaps(S.players);
   $("#tt-world").style.width = WORLD.w + "px"; $("#tt-world").style.height = WORLD.h + "px";
@@ -891,7 +892,7 @@ function renderHand() {
   };
   // my hand: three dotted card slots, one under the other; more than three cards overlap so every top line shows
   const list = S.hands[ME] || [];
-  elHand.querySelector(".my-hand .hand-title").innerHTML = `${tr("你的手牌", "Your hand")}（${esc(S.names[ME] || "")}・${list.length}）<small>${tr("拖到桌上打出；拖回這裡收回。右鍵看更多動作。", "Drag to the table to play; drag back to keep. Right-click for more.")}</small>`;
+  elHand.querySelector(".my-hand .hand-title").innerHTML = `${tr("我的手牌", "My hand")} · ${list.length}<small>${tr("拖到桌上打出；拖回這裡收回。右鍵看更多動作。", "Drag to the table to play; drag back to keep. Right-click for more.")}</small>`;
   const box = elHand.querySelector(".hand-cards");
   if (phone) {
     box.innerHTML = list.map(id => cardHtml(S.items[id], "data-hid")).join("") || `<div class="muted empty">${tr("（沒有手牌）", "(no cards)")}</div>`;
@@ -972,13 +973,13 @@ function fit() {
   const r = $("#tt-view").getBoundingClientRect();
   view.r = 0;   // everyone sees the same fixed table
   // the boards stretch to fill the window: the scale that fits them, then the gaps take the rest
-  const pad = 0.985, sc = Math.min(r.width / BOUNDS.w, r.height / BOUNDS.h) * pad;
-  const ex = Math.max(0, r.width * pad / sc - BOUNDS.w), ey = Math.max(0, r.height * pad / sc - BOUNDS.h);
+  const pad = 0.985, sc = Math.min(r.width / FITB.w, r.height / FITB.h) * pad;
+  const ex = Math.max(0, r.width * pad / sc - FITB.w), ey = Math.max(0, r.height * pad / sc - FITB.h);
   const kx = Math.round((1 + ex / (MX1 - MX0)) * 1000) / 1000, ky = Math.round((1 + ey / (MY1 - MY0)) * 1000) / 1000;
   if (kx !== STR.kx || ky !== STR.ky) { STR.kx = kx; STR.ky = ky; applyStretch(); }
-  const W = BOUNDS.w + ex, H = BOUNDS.h + ey;
+  const W = FITB.w + ex, H = FITB.h + ey;
   view.s = sc;
-  view.x = r.width / 2 - (BOUNDS.x + W / 2) * view.s; view.y = r.height / 2 - (BOUNDS.y + H / 2) * view.s;
+  view.x = r.width / 2 - (FITB.x + W / 2) * view.s; view.y = r.height / 2 - (FITB.y + H / 2) * view.s;
   applyView();
   zoomed = null; markZoom();
 }
@@ -1427,7 +1428,7 @@ async function autoSetup() {
     await step(["每人一個破浪標記", "a Push Through token to each player"], () => { for (let q = 0; q < S.players; q++) toArea(top("bin_push"), q); });
     const hand = S.players === 1 ? 6 : S.players === 2 ? 4 : 3;
     for (let c = 0; c < hand; c++) await step([`發手牌（第 ${c + 1} 輪）`, `deal the hands (round ${c + 1})`], () => { for (let q = 0; q < S.players; q++) toHand(top("deck"), q); });
-    await step(["船槳給起始玩家", "the Oar to the first player"], () => { const o = top("bin_oar"); toTable(o, PLAY.x + PLAY.w - 60, PLAY.y + 60); });
+    await step(["船槳給起始玩家", "the Oar to the first player"], () => { const o = top("bin_oar"); toArea(o, 0); });
     if (S.stacks.ghost) await step(["洗幽靈牌庫", "shuffle the Ghost deck"], () => shuffle(S.stacks.ghost.items), ["ghost"]);
     await step(["翻開前方的霧", "turn the first Mist"], () => { place(top("mist0"), "mistfront", 1); S.hint = STEPS.findIndex(x => x.phase === "turn"); });
     toast(tr("準備完成：起始玩家開始第一個回合。", "Set-up done: the first player begins."));

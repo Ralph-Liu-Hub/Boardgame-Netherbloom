@@ -35,7 +35,7 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
       await page.click("#lb-local");
       await page.waitForSelector("#tt-world");
       const r = await page.evaluate(() => {
-        const S = JSON.parse(localStorage.getItem("nb-table-v5f"));
+        const S = JSON.parse(localStorage.getItem("nb-table-v5g"));
         const out = { items: Object.keys(S.items).length, bad: [] };
         // every table piece has content and lies inside the world
         document.querySelectorAll("#tt-items .piece[data-id]").forEach(el => {
@@ -67,7 +67,7 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
       // render every card face via the search modal of each stack would be slow; check all card faces through the module
       const faces = await page.evaluate(async () => {
         const m = await import("/assets/table.js");
-        const S = JSON.parse(localStorage.getItem("nb-table-v5f"));
+        const S = JSON.parse(localStorage.getItem("nb-table-v5g"));
         const bad = [];
         for (const it of Object.values(S.items)) if (it.kind === "card") {
           try { const c = m._test.cardInfo(it.ck); if (!c.html || /undefined|NaN|\[object/.test(c.html + (c.backHtml || ""))) bad.push(it.ck); } catch (e) { bad.push(it.ck + " " + e.message); }

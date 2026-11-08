@@ -379,3 +379,56 @@ body.on-table .topbar { display: none; }
 .riverwater .wsheen path { stroke: #2a4250; stroke-width: 40; opacity: .35; }
 .bookp { background-size: 100% 100%, auto 100%; background-position: left top; background-repeat: no-repeat; }
 .felt { background: radial-gradient(ellipse at 50% 45%, rgba(42, 34, 25, .93) 0%, rgba(29, 24, 18, .96) 55%, rgba(18, 15, 12, .985) 100%), url(/assets/art/cover-f.webp) center / cover; }
+
+/* ---------------------------------------------------------------- round 5: brighter, more saturated, more contrast */
+:root {
+  --ink: #1b1813; --ink2: #26221a; --ash: #3d362a; --line: #8c7a5c; --bone: #f6dfa8; --paper: #fff6e2; --mist: #cdc2b4;
+  --crimson: #e2434d; --cyan: #45d2d8; --gold: #f2b84f; --water: #1b5a80;
+  --t0: #e2434d; --t1: #f6dfa8; --t2: #45d2d8;
+  --sidew: 146px;
+}
+@media (min-width: 761px) { body.solo-hand { --sidew: 270px; } }
+.tt-bar { background: linear-gradient(180deg, #37301f, #24201a); }
+.tt-view { background: radial-gradient(ellipse at 45% 35%, #3a3326, #15130f 75%); }
+.tt-hand { background: linear-gradient(90deg, #322c20, #221e17); }
+.hand-title small { display: none; }
+.hand-title { font-size: 13px; }
+/* the frame: a sepia painting like the River's, seen through the translucent boards; a gold rim; the boards only */
+.felt { background: #3b3a36; overflow: hidden; box-shadow: inset 0 0 0 12px #8a6a3a, inset 0 0 0 16px #3a2c18, 0 30px 80px rgba(0, 0, 0, .7); }
+.felt::before { content: ""; position: absolute; inset: 16px; border-radius: 46px; background: url(/assets/art/cover-f.webp) center / cover;
+  filter: brightness(1.9) saturate(1.3) sepia(.3); opacity: .5; }
+.felt::after { content: ""; position: absolute; inset: 16px; border-radius: 46px; background: radial-gradient(ellipse at 50% 45%, rgba(255, 238, 205, .12), rgba(30, 26, 20, .45)); }
+.board { background: linear-gradient(160deg, rgba(92, 80, 60, .68), rgba(44, 39, 30, .76)); border-color: rgba(214, 184, 128, .6); box-shadow: 0 6px 18px rgba(0, 0, 0, .35); }
+.btitle { color: #ffe3a6; text-shadow: 0 1px 2px #000; }
+.lab, .note { color: #d9cfc2; }
+.cell { border-color: #c2a77c; background: rgba(0, 0, 0, .35); color: #e6dccd; }
+.slotbox { border: 2px dashed rgba(242, 184, 79, .7); color: #e6dccd; background: rgba(0, 0, 0, .18); }
+.stack { border-color: #c2a77c; background: rgba(0, 0, 0, .3); }
+.stack .slabel { color: #eadfce; }
+.bookp { background-color: rgba(44, 39, 30, .66); background-size: 100% 100%, auto 100%; background-position: left top; background-repeat: no-repeat; }
+.bookp .ar { stroke: #b3a796; }
+.node { border-color: #a3958a; color: #e6dccd; }
+.setupa { background: linear-gradient(160deg, rgba(104, 84, 58, .6), rgba(56, 46, 34, .66)); border-style: dashed; border-color: rgba(214, 184, 128, .7); }
+.setupnote { left: 420px; width: 240px; top: 64px; font-size: 14px; line-height: 1.5; }
+.playarea { background: rgba(255, 240, 210, .1); border: 2px dashed rgba(214, 184, 128, .75); }
+.boxa { background: repeating-linear-gradient(135deg, rgba(92, 80, 60, .55) 0 14px, rgba(60, 52, 40, .55) 14px 28px); }
+.board.mat { background: linear-gradient(160deg, rgba(112, 94, 66, .85), rgba(62, 54, 40, .88)); border-color: #c8a46a; }
+/* the River: a light painting under the banks so the slots stand out */
+.river { background: #3b3a36; overflow: hidden; }
+.river::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: url(/assets/art/scene-river.webp) center / cover;
+  filter: brightness(2.1) saturate(1.35) sepia(.25); opacity: .55; pointer-events: none; }
+.river::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(ellipse at 50% 50%, rgba(255, 238, 205, .16), rgba(40, 30, 22, .35)); pointer-events: none; }
+.river > * { z-index: 1; }
+.riverwater { z-index: 0 !important; }
+.riverwater .wbase path { stroke: #1f6a94; opacity: .92; }
+.riverwater .wsheen path { stroke: #7fd0ee; stroke-width: 34; opacity: .35; }
+.lane { border: 2px solid rgba(255, 246, 226, .45); background: rgba(10, 40, 60, .25); }
+.lane.reach1 { background: rgba(226, 67, 77, .2); } .lane.reach2 { background: rgba(69, 210, 216, .2); }
+.lane.shore { background: rgba(246, 223, 168, .3); }
+.lane .spn { color: #fff6e2; text-shadow: 0 1px 3px #000; font-weight: 600; }
+.lane .flow { color: #bfeaff; }
+.bankslot { border: 2px dashed rgba(255, 214, 130, .95); background: rgba(20, 14, 10, .55); box-shadow: inset 0 0 12px rgba(0, 0, 0, .6), 0 0 0 1px rgba(0, 0, 0, .5); }
+.bankslot i { color: #ffe3a6; }
+.river .reachname { color: #fff1cf; text-shadow: 0 1px 3px #000; font-weight: 600; }
+.tt-drawer, .tt-hint { background: rgba(38, 34, 26, .98); }
+.tt-menu { background: #2e291f; }

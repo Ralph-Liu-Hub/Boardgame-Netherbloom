@@ -6,7 +6,7 @@ const BASE = process.env.BASE || "http://localhost:8765";
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const problems = [];
   page.on("pageerror", e => problems.push("pageerror " + e.message));
-  const S = () => page.evaluate(() => JSON.parse(localStorage.getItem("nb-table-v5f")));
+  const S = () => page.evaluate(() => JSON.parse(localStorage.getItem("nb-table-v5g")));
   const expect = (c, m) => { if (!c) problems.push(m); };
   const menu = async (sel, label, zoom) => {
     await page.click("#tt-fit");
@@ -62,7 +62,7 @@ const BASE = process.env.BASE || "http://localhost:8765";
   expect([0, 1, 2].every(r => s.stacks["pool" + r].items.length === 0), "the pools are empty (the rest went to the Box)");
   // every bank of spaces 2–13 holds exactly one tile, space 1 none
   const banks = await page.evaluate(() => {
-    const st = JSON.parse(localStorage.getItem("nb-table-v5f"));
+    const st = JSON.parse(localStorage.getItem("nb-table-v5g"));
     const tiles = Object.values(st.items).filter(it => it.kind === "tile" && st.where[it.id] === "t").map(t => `${Math.round(t.x)},${Math.round(t.y)}`);
     return { n: tiles.length, distinct: new Set(tiles).size };
   });
@@ -114,7 +114,8 @@ const BASE = process.env.BASE || "http://localhost:8765";
   const tiles2 = Object.values(s.items).filter(it => it.kind === "tile" && s.where[it.id] === "t");
   expect(tiles2.length === 24 && tiles2.filter(t => t.tk === "grave").length === 2, "Auto Setup: 24 bank tiles with 2 Graves (2 players)");
   expect(s.hands.every(h => h.length === 4), "Auto Setup: 4 cards each (2 players)");
-  expect(s.areas.every(a => a.length === 2), "Auto Setup: a commission and Push Through on each front");
+  expect(s.areas.every((a, q) => a.length === (q === 0 ? 3 : 2)), "Auto Setup: a commission and Push Through on each front, the Oar on the first player's");
+  expect(s.areas[0].some(id => s.items[id].tk === "oar"), "Auto Setup: the Oar sits in its slot on the first player's front");
   expect([13, 17, 15].every((n, r) => s.stacks["mist" + r].items.length === n + 2 - (r === 0 ? 1 : 0)), "Auto Setup: Mist decks with 2 Harsh Mist (the first one turned up)");
   expect(s.tracks.light === 3 && s.stacks.bin_bw.items.length === 0, "Auto Setup: Light 3 (the Child), Black Water set out");
   expect(Object.values(s.items).filter(it => it.ck?.startsWith("mantle:") && s.where[it.id] === "t").length === 5, "Auto Setup: the Mantle row");
