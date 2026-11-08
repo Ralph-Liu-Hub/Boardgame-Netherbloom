@@ -291,4 +291,13 @@ module.exports = async (page, setStage, note, BASE) => {
   await zoomClick('.zoombtn[data-zoom="river"]');
   await page.screenshot({ path: (process.env.OUT || require("os").tmpdir()) + "/nb-e2e-phone.png" });
   await page.setViewportSize({ width: 1440, height: 900 });
+
+  // p) the menu: the tables that help choose a Soul and a difficulty; End the game clears the save
+  stage("p3 end game");
+  await page.click("#tt-menu"); await page.waitForSelector("#lb-local");
+  expect((await page.$$(".lobby .choose table")).length === 3, "the menu shows the difficulty, set-up and Soul tables");
+  expect(!!(await page.$("#lb-end")), "End the game sits next to Continue");
+  page.once("dialog", d => d.accept());
+  await page.click("#lb-end"); await page.waitForTimeout(150);
+  expect(!(await page.$("#lb-resume")) && (await S()) === null, "End the game clears the save");
 };

@@ -6,7 +6,7 @@ import { STORY, PULL } from "./table-story.js";
 import { STORY_EN } from "./table-story-en.js";
 import * as D from "./table-data.js";
 import * as net from "./net.js";
-import { RULES_HTML } from "./rules-v5.js";
+import { RULES_HTML, RULES_HTML_EN } from "./rules-v5.js";
 import { STEPS, PHASES } from "./table-hints.js";
 
 // ---------------------------------------------------------------- language
@@ -1515,7 +1515,7 @@ function openDrawer(kind) {
   if (!d.classList.contains("hidden") && d.dataset.kind === kind) { d.classList.add("hidden"); return; }
   d.dataset.kind = kind;
   if (kind === "rules") {
-    d.innerHTML = `<div class="hh">${tr("規則書 V5", "Rulebook V5")}<input id="rq" placeholder="${tr("搜尋…", "Search…")}"><button class="hclose">✕</button></div><div class="rules">${RULES_HTML}</div>
+    d.innerHTML = `<div class="hh">${tr("規則書 V5", "Rulebook V5")}<input id="rq" placeholder="${tr("搜尋…", "Search…")}"><button class="hclose">✕</button></div><div class="rules">${LANG === "en" ? RULES_HTML_EN : RULES_HTML}</div>
       <button class="totop" title="${tr("回到目錄", "Back to the contents")}">▲ ${tr("回到頂端", "Top")}</button>`;
     d.querySelector(".totop").onclick = () => { d.scrollTop = 0; };
     // the rulebook's own links (its table of contents) scroll the drawer only, never the page behind it
@@ -1698,6 +1698,32 @@ function startGuest(code, name) {
 }
 
 // ---------------------------------------------------------------- lobby
+// "Choosing a Soul and a difficulty" (rulebook section 3), to help the players pick: the difficulties, the set-up by
+// player count, and each Soul's special rule
+function chooseTables() {
+  const L = D.LEVELS, WIN = ["59%", "52%", "42%"], MARK = ["◆◇◇", "◆◆◇", "◆◆◆"];
+  const row = (h, cells) => `<tr><th>${h}</th>${cells.map(c => `<td>${c}</td>`).join("")}</tr>`;
+  return `<section class="choose"><h2>${tr("選擇亡魂與難度", "Choosing a Soul and a difficulty")}</h2>
+    <table><thead><tr><th>${tr("難度", "Difficulty")}</th>${L.map((l, i) => `<th>${MARK[i]} ${tr(l.zh, l.en)}</th>`).join("")}</tr></thead><tbody>
+      ${row(tr("霧推進時霧勢", "Fog when the Mist advances"), L.map(l => "+" + l.fog))}
+      ${row(tr("被迷霧籠罩時", "When the Mist engulfs the soul"), L.map(l => l.crack ? tr("留霧痕，並承受 1 道裂痕", "Mist scar, and 1 Fracture") : tr("只留霧痕", "Mist scar only")))}
+      ${row(tr("起始結", "Starting knots"), L.map(l => l.knots ? tr(`每條絲線 ${l.knots} 結`, `${l.knots} on each thread`) : "0"))}
+      ${row(tr("消散門檻", "Faded at"), L.map(l => tr(`遺忘 ${l.dissolve} 張`, `${l.dissolve} forgotten`)))}
+      ${row(tr("破碎門檻", "Shattered at"), L.map(l => tr(`${l.fractures} 道裂痕`, `${l.fractures} Fractures`)))}
+      ${row(tr("黑水", "Black Water"), L.map(l => tr(`${l.bw} 個`, String(l.bw))))}
+      ${row(tr("模擬勝率", "Simulated win rate"), WIN)}
+    </tbody></table>
+    <p class="muted small">${tr("三種難度相同：織機門檻 2–4 人 7 結、單人 10 結；每副迷霧加 2 張凶霧。你的第一局：建議以溫和難度遊玩最後火光的孩子。",
+      "The same at every difficulty: the Loom threshold is 7 knots with 2–4 players, 10 solo; each Mist deck gets 2 harsh Mist cards. Your first game: we suggest the Child of the Last Flame at Gentle.")}</p>
+    <table><thead><tr><th>${tr("設定表", "Set-up")}</th>${[1, 2, 3, 4].map(n => `<th>${tr(`${n} 人`, `${n}p`)}</th>`).join("")}</tr></thead><tbody>
+      ${row(tr("第三河段的墳墓", "Graves in Reach 3"), [2, 1, 2, 2])}
+      ${row(tr("要完成的託付", "Commissions to fulfil"), [1, 2, 2, 3])}
+      ${row(tr("每人手牌", "Hand size"), [6, 4, 3, 3])}
+    </tbody></table>
+    <table class="souls"><thead><tr><th>${tr("亡魂", "Soul")}</th><th>${tr("特色規則", "Special rule")}</th></tr></thead><tbody>
+      ${D.SOUL_ORDER.map(k => `<tr><th>${esc(soulName(k))}</th><td>${esc(soulTrait(k))}</td></tr>`).join("")}
+    </tbody></table></section>`;
+}
 function showMenuScreen() {
   document.body.classList.remove("on-table");
   let saved = null;
@@ -1707,7 +1733,7 @@ function showMenuScreen() {
   app.innerHTML = `<div class="lobby">
     <h1>${icon("nb-bloom")} ${tr("彼岸花渡", "Netherbloom")} <small>V5 · ${tr("手動桌面", "manual table")}</small></h1>
     <p class="muted">${tr("這是一張虛擬的實體桌面：所有的牌、板塊與指示物都由你們親手移動，程式不會替你們執行任何規則。需要時打開「下一步提示」，它會告訴你們規則的下一步。", "A virtual physical table: you move every card, tile and token yourselves; the page never carries out a rule. Turn on “Next-step hints” to be shown the next step of the rules.")}</p>
-    ${saved?.soul ? `<div class="card-row"><button id="lb-resume" class="primary">${tr("繼續上一局", "Resume the last game")}</button><span class="muted">${esc(saved.soul ? soulName(saved.soul) : "")}・${saved.players}${tr(" 人", "p")}</span></div>` : ""}
+    ${saved?.soul ? `<div class="card-row"><button id="lb-resume" class="primary">${tr("繼續遊戲", "Continue the game")}</button><button id="lb-end">${tr("結束遊戲", "End the game")}</button><span class="muted">${esc(saved.soul ? soulName(saved.soul) : "")}・${saved.players}${tr(" 人", "p")}</span></div>` : ""}
     <fieldset><legend>${tr("新的一局", "New game")}</legend>
       <label>${tr("亡魂", "Soul")} <select id="lb-soul">${D.SOUL_ORDER.map(s => `<option value="${s}">${esc(soulName(s))}</option>`).join("")}</select></label>
       <label>${tr("難度", "Difficulty")} <select id="lb-level">${D.LEVELS.map((l, i) => `<option value="${i}"${i === 0 ? " selected" : ""}>${tr(l.zh, l.en)}</option>`).join("")}</select></label>
@@ -1720,6 +1746,7 @@ function showMenuScreen() {
       <label>${tr("代碼", "Code")} <input id="lb-code" maxlength="5" size="6"></label>
       <label>${tr("你的名字", "Your name")} <input id="lb-myname" maxlength="18" size="12"></label>
       <button id="lb-join">${tr("加入", "Join")}</button></fieldset>
+    ${chooseTables()}
     <p class="muted small">${tr("開桌時，元件會依規則書的準備步驟分好：牌庫洗好、河岸板塊面朝下隨機擺好、各種指示物放在供應區。發牌、放最初的花、翻開前方的霧等，都由你們自己動手（提示會一步一步帶你們）。", "When the table opens, the components are sorted as the rulebook's set-up says: decks shuffled, bank tiles placed face down at random, tokens in the supply. Dealing, the first flowers and the first Mist are yours to do (the hints walk you through it).")}</p>
   </div>`;
   const names = () => {
@@ -1730,6 +1757,13 @@ function showMenuScreen() {
   const opts = () => ({ soul: $("#lb-soul").value, level: +$("#lb-level").value, players: +$("#lb-players").value,
     names: [...document.querySelectorAll("[data-name]")].map(i => i.value.trim() || i.defaultValue) });
   if ($("#lb-resume")) $("#lb-resume").onclick = () => { S = saved; ME = 0; mode = "local"; hist = []; fut = []; buildTable(); };
+  // end the saved game for good (it cannot be continued afterwards)
+  if ($("#lb-end")) $("#lb-end").onclick = () => {
+    if (!confirm(tr("結束這一局？存檔會被刪除，之後無法再繼續。", "End this game? Its save is deleted and it cannot be continued."))) return;
+    try { localStorage.removeItem(LS); } catch { /* */ }
+    S = null; hist = []; fut = [];
+    showMenuScreen(); toast(tr("這一局已結束。", "The game has ended."));
+  };
   $("#lb-local").onclick = () => { newTable(opts()); ME = 0; mode = "local"; hist = []; fut = []; buildTable(); saveLocal(); track("start"); };
   $("#lb-host").onclick = () => {
     const o = opts();

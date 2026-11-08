@@ -37,6 +37,12 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
       if (lang === "en") {   // no Chinese left on the table in English mode (boards, Book, cards, fronts)
         const zh = await page.evaluate(() => { const m = document.querySelector("#tt-world").innerText.match(/[^\s]*[\u4e00-\u9fff][^\s]*/g); return m ? m.slice(0, 5) : []; });
         if (zh.length) note(stage, "Chinese on the table in English mode: " + zh.join(" "));
+        if (soul === souls[0] && level === 0 && players === 1) {   // the Rulebook drawer shows the English edition
+          await page.click("#tt-rules");
+          const rz = await page.evaluate(() => { const t = document.querySelector("#tt-drawer .rules").innerText; return { cjk: (t.match(/[\u4e00-\u9fff]/g) || []).length, en: t.includes("Glossary") }; });
+          if (rz.cjk || !rz.en) note(stage, `the Rulebook drawer in English mode: ${rz.cjk} Chinese characters, glossary ${rz.en}`);
+          await page.click("#tt-rules");
+        }
       }
       const r = await page.evaluate(() => {
         const S = JSON.parse(localStorage.getItem("nb-table-v5g"));
