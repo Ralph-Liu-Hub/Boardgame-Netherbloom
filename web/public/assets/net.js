@@ -54,6 +54,7 @@ export function host(code, handlers) {
     peer = new window.Peer(PREFIX + code, opts);
     peer.on("open", () => handlers.open?.());
     peer.on("error", e => handlers.error?.(e));
+    peer.on("call", c => handlers.call?.(c));   // voice (see voice.js)
     peer.on("disconnected", () => {
       if (closed) return;
       handlers.away?.();
@@ -72,6 +73,8 @@ export function host(code, handlers) {
   });
   return {
     send(id, msg) { const c = conns.get(id); if (c && c.open) c.send(msg); },
+    peer: () => peer,
+    id: () => peer?.id || PREFIX + code,
     broadcast(msg, except) { for (const [id, c] of conns) if (id !== except && c.open) c.send(msg); },
     close() {
       closed = true;
@@ -96,10 +99,13 @@ export function join(code, handlers) {
       conn.on("close", () => handlers.close?.());
       conn.on("error", e => handlers.error?.(e));
     });
+    peer.on("call", c => handlers.call?.(c));   // voice (see voice.js)
     peer.on("error", e => handlers.error?.(e));
   });
   return {
     send(msg) { if (conn && conn.open) conn.send(msg); },
+    peer: () => peer,
+    id: () => peer?.id || "",
     close() { closed = true; peer?.destroy(); },
   };
 }

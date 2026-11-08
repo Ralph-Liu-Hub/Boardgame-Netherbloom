@@ -6,6 +6,7 @@ import { STORY, PULL } from "./table-story.js";
 import { STORY_EN } from "./table-story-en.js";
 import * as D from "./table-data.js";
 import * as net from "./net.js";
+import { createVoice } from "./voice.js";
 import { RULES_HTML, RULES_HTML_EN, AID_HTML, AID_HTML_EN } from "./rules-v5.js";
 import { STEPS, PHASES } from "./table-hints.js";
 
@@ -215,6 +216,11 @@ let S = null;            // the shared table
 let ME = 0;              // my seat
 let mode = "local";      // local | host | guest
 let link = null;         // net handle
+// Watching (an admin): a seat-less view of an online table. Nothing can be moved; the view can be any player's.
+// watchHost: this screen hosts the table without playing. It stands in for a seat only while that seat is empty.
+let WATCH = false, watchHost = false, liveCode = null, liveTimer = 0;
+let voice = null, voiceList = [];   // in-game voice (voice.js) and the host's list of who is in it
+const watchToast = () => toast(tr("觀戰中：不能移動任何東西。", "Watching: you cannot move anything."));
 let hist = [], fut = [];
 const LS = "nb-table-v5g";   // the table layout changed (larger components, set-up strip): older saved tables do not fit it
 const saveLocal = () => { if (mode !== "guest") try { localStorage.setItem(LS, JSON.stringify(S)); } catch { /* full */ } };
@@ -685,7 +691,12 @@ function buildTable() {
       <span class="brand">${icon("nb-bloom")}${tr("彼岸花渡・桌面", "Netherbloom · Table")}</span>
       <span class="muted">${esc(soulName(S.soul))}・${tr(D.LEVELS[S.level].zh, D.LEVELS[S.level].en)}・${S.players}${tr(" 人", "p")}</span>
       <span id="tt-code" class="muted"></span>
+      <span id="tt-watch" class="watchbadge hidden"></span>
+      <button id="tt-switch" class="hidden" title="${tr("看其他正在進行的線上桌", "Watch another live table")}">${tr("切換牌桌", "Switch table")}</button>
       <span class="sp"></span>
+      <span id="tt-vchips" class="vchips"></span>
+      <button id="tt-voice" class="hidden" title="${tr("和同桌的人語音通話", "Talk with everyone at this table")}"></button>
+      <button id="tt-mute" class="hidden"></button>
       <div id="tt-seats" class="seats"></div>
       <label class="switch"><input type="checkbox" id="tt-hints"> <span>${tr("下一步提示", "Next-step hints")}</span></label>
       <button id="tt-auto" title="${tr("照規則書的準備步驟自動擺好牌桌（有動畫）", "Set the table up by the rulebook's steps, animated")}">${tr("自動準備", "Auto Setup")}</button>
@@ -840,10 +851,35 @@ function render() {
     const push = area.find(it => it.tk === "push");
     const pushTxt = push ? (push.face ? tr("破浪可用", "Push Through ready") : tr("破浪已用", "Push Through spent")) : tr("破浪不在區域內", "Push Through not in the area");
     const tip = [`${tr("手牌", "Hand")} ${S.hands[i].length}`, ...mantles.map(m => tr("稱號：", "Mantle: ") + m), pushTxt].join(" · ");
-    return `<button class="seat${i === ME ? " me" : ""}" data-seat="${i}" title="${esc(tip)}">${esc(n || tr(`擺渡人 ${i + 1}`, `Ferryman ${i + 1}`))} <b>${S.hands[i].length}</b>${mantles.map(m => `<i class="mbadge">${esc(m)}</i>`).join("")}${push && !push.face ? `<i class="pushused" title="${esc(pushTxt)}">${icon("nb-tok-push")}</i>` : ""}</button>`;
+    const off = mode !== "local" && S.online && !S.online[i];
+    return `<button class="seat${i === ME ? " me" : ""}${off ? " offline" : ""}" data-seat="${i}" title="${esc(off ? tr("（不在線上）", "(not here) ") + tip : tip)}">${esc(n || tr(`擺渡人 ${i + 1}`, `Ferryman ${i + 1}`))} <b>${S.hands[i].length}</b>${mantles.map(m => `<i class="mbadge">${esc(m)}</i>`).join("")}${push && !push.face ? `<i class="pushused" title="${esc(pushTxt)}">${icon("nb-tok-push")}</i>` : ""}</button>`;
   }).join("");
   renderBook();
   renderHint();
+  renderOnline();
+}
+// the watching badge, the voice buttons and who is talking (re-drawn whenever voice changes, too)
+function renderOnline() {
+  if (!onTable()) return;
+  const online = mode !== "local";
+  const wb = $("#tt-watch");
+  wb.classList.toggle("hidden", !WATCH && !(watchHost && !WATCH));
+  wb.textContent = WATCH ? tr(`觀戰中・從 ${S.names[ME] || ""} 的視角`, `Watching · from ${S.names[ME] || ""}'s side`) : tr(`代打 ${S.names[ME] || ""}`, `Playing for ${S.names[ME] || ""}`);
+  $("#tt-switch").classList.toggle("hidden", !(WATCH && mode === "guest" && isAdmin));
+  $("#tt-auto").disabled = WATCH || autoRunning; $("#tt-undo").disabled = $("#tt-redo").disabled = WATCH;
+  const vb = $("#tt-voice"), mb = $("#tt-mute");
+  vb.classList.toggle("hidden", !online); mb.classList.toggle("hidden", !online || !voice?.on);
+  vb.classList.toggle("on", !!voice?.on);
+  vb.textContent = voice?.on ? tr("🎙 離開語音", "🎙 Leave voice") : tr("🎙 加入語音", "🎙 Join voice");
+  mb.textContent = voice?.muted ? tr("🔇 已靜音", "🔇 Muted") : tr("🔈 靜音", "🔈 Mute");
+  mb.classList.toggle("on", !!voice?.muted);
+  const members = voice ? voice.members() : [];
+  document.querySelectorAll("#tt-seats [data-seat]").forEach(b => {
+    const m = members.find(x => x.seat === +b.dataset.seat);
+    b.classList.toggle("invoice", !!m); b.classList.toggle("talking", !!m && !m.muted && voice.speaking(m.id));
+  });
+  // people in voice without a seat (watchers)
+  $("#tt-vchips").innerHTML = members.filter(m => m.seat < 0).map(m => `<span class="vchip${!m.muted && voice.speaking(m.id) ? " talking" : ""}" title="${esc(tr("觀戰者", "Watcher"))}">👁 ${esc(m.name)}${m.muted ? " 🔇" : ""}</span>`).join("");
 }
 
 // ---------------------------------------------------------------- slider tracks
@@ -899,7 +935,7 @@ function renderHand() {
   };
   // my hand: three dotted card slots, one under the other; more than three cards overlap so every top line shows
   const list = S.hands[ME] || [];
-  elHand.querySelector(".my-hand .hand-title").innerHTML = `${tr("我的手牌", "My hand")} · ${list.length}<small>${tr("拖到桌上打出；拖回這裡收回。右鍵看更多動作。", "Drag to the table to play; drag back to keep. Right-click for more.")}</small>`;
+  elHand.querySelector(".my-hand .hand-title").innerHTML = WATCH ? `${tr(`${esc(S.names[ME] || "")} 的手牌`, `${esc(S.names[ME] || "")}'s hand`)} · ${list.length}<small>${tr("觀戰中：點上方的座位換成別人的視角。", "Watching: press a seat above to see from another player's side.")}</small>` : `${tr("我的手牌", "My hand")} · ${list.length}<small>${tr("拖到桌上打出；拖回這裡收回。右鍵看更多動作。", "Drag to the table to play; drag back to keep. Right-click for more.")}</small>`;
   const box = elHand.querySelector(".hand-cards");
   if (phone) {
     box.innerHTML = list.map(id => cardHtml(S.items[id], "data-hid")).join("") || `<div class="muted empty">${tr("（沒有手牌）", "(no cards)")}</div>`;
@@ -917,6 +953,7 @@ function renderHand() {
 
 // ---------------------------------------------------------------- changes
 function commit(msg, fn) {
+  if (WATCH) return watchToast();
   hist.push(JSON.stringify(S));
   if (hist.length > 80) hist.shift();
   fut = [];
@@ -926,8 +963,8 @@ function commit(msg, fn) {
   changed();
 }
 function changed() { saveLocal(); render(); sync(); }
-function undo() { if (!hist.length) return; fut.push(JSON.stringify(S)); S = JSON.parse(hist.pop()); S.rev = Date.now(); changed(); toast(tr("已復原", "Undone")); }
-function redo() { if (!fut.length) return; hist.push(JSON.stringify(S)); S = JSON.parse(fut.pop()); S.rev = Date.now(); changed(); }
+function undo() { if (WATCH || !hist.length) return; fut.push(JSON.stringify(S)); S = JSON.parse(hist.pop()); S.rev = Date.now(); changed(); toast(tr("已復原", "Undone")); }
+function redo() { if (WATCH || !fut.length) return; hist.push(JSON.stringify(S)); S = JSON.parse(fut.pop()); S.rev = Date.now(); changed(); }
 
 function detach(id) {
   delete S.items[id].pg;
@@ -1020,6 +1057,7 @@ function bindTable() {
   });
   v.addEventListener("contextmenu", e => { e.preventDefault(); openMenu(e); });
   elHand.addEventListener("pointerdown", e => {
+    if (WATCH) return;
     const c = e.target.closest("[data-hid],[data-aid]");
     if (!c || e.button !== 0) return;
     e.preventDefault();
@@ -1034,13 +1072,29 @@ function bindTable() {
   $("#tt-aid").onclick = () => openDrawer("aid");
   $("#tt-log").onclick = () => openDrawer("log");
   $("#tt-menu").onclick = () => {
-    if (mode !== "local" && !confirm(tr("離開這張線上桌？其他人會和你斷線。", "Leave this online table? The others lose their link to you."))) return;
+    if (mode !== "local" && !WATCH && !confirm(tr("離開這張線上桌？其他人會和你斷線。", "Leave this online table? The others lose their link to you."))) return;
     showMenuScreen();
   };
   $("#tt-hints").onchange = e => setHints(e.target.checked);
   $("#tt-lang").onclick = toggleLang;
   $("#tt-auto").onclick = autoSetup;
-  elSeats.onclick = e => { const b = e.target.closest("[data-seat]"); if (b && mode === "local") switchSeat(+b.dataset.seat); };
+  $("#tt-voice").onclick = toggleVoice;
+  $("#tt-mute").onclick = () => { if (!voice?.on) return; voice.setMuted(!voice.muted); announceVoice(); renderOnline(); };
+  $("#tt-switch").onclick = liveTablesModal;
+  elSeats.onclick = e => {
+    const b = e.target.closest("[data-seat]");
+    if (!b) return;
+    const n = +b.dataset.seat;
+    if (mode === "local") return switchSeat(n);
+    if (watchHost && !WATCH && n === ME) {   // stop standing in for this seat
+      WATCH = true; buildTable(); toast(tr("回到觀戰。", "Back to watching.")); return;
+    }
+    if (!WATCH) return;
+    if (watchHost && S.online && !S.online[n] && confirm(tr(`${S.names[n]} 不在線上。要代為進行這個座位嗎？對方回來時會自動交還。`, `${S.names[n]} is not here. Play this seat for them? It goes back to them when they return.`))) {
+      WATCH = false; ME = n; buildTable(); toast(tr(`你正在代打 ${S.names[n]}。再按一次自己的座位就回到觀戰。`, `You are playing for ${S.names[n]}. Press your seat again to go back to watching.`)); return;
+    }
+    ME = n; buildTable();   // watch from that player's side
+  };
   window.onkeydown = e => {
     if (!onTable() || e.target.closest("input,textarea,select")) return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") { e.preventDefault(); e.shiftKey ? redo() : undo(); }
@@ -1067,6 +1121,11 @@ function onDown(e) {
   }
   if (e.button !== 0) return;
   closeMenus();
+  if (WATCH) {   // a watcher can only look around
+    if (e.target.closest("button")) return;
+    drag = { pan: true, sx: e.clientX, sy: e.clientY, ox: view.x, oy: view.y };
+    return;
+  }
   const mk = e.target.closest(".tmarker");
   if (mk) { e.preventDefault(); drag = { track: mk.dataset.track, el: mk }; mk.classList.add("dragging"); return; }
   const tc = e.target.closest(".tcell");
@@ -1270,6 +1329,11 @@ function drawToHand(sid, seat = ME) {
 // ---------------------------------------------------------------- context menu
 function openMenu(e) {
   closeMenus();
+  if (WATCH) {   // a watcher may still look closer at an open card
+    const p = e.target.closest(".piece[data-id],[data-hid]"), it = p && S.items[p.dataset.id || p.dataset.hid];
+    if (it && it.kind !== "tok" && (it.face || p.dataset.hid)) lookCloser(it, !!p.dataset.hid);
+    return;
+  }
   const opts = [];
   const p = e.target.closest(".piece[data-id]");
   const hc = e.target.closest("[data-hid]");
@@ -1348,6 +1412,7 @@ const closeMenus = () => elMenu?.classList.add("hidden");
 document.addEventListener("pointerdown", e => { if (elMenu && !elMenu.classList.contains("hidden") && !e.target.closest("#tt-ctx")) closeMenus(); }, true);
 const centerView = () => { const r = $("#tt-view").getBoundingClientRect(); return worldPt({ clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 }); };
 
+const closeModal = () => $("#tt-modal")?.classList.add("hidden");
 function modal(html, onClick) {
   const m = $("#tt-modal");
   m.innerHTML = `<div class="mbox"><button class="mclose">✕</button>${html}</div>`;
@@ -1384,6 +1449,7 @@ function searchStack(sid) {
 
 let autoRunning = false;
 async function autoSetup() {
+  if (WATCH) return watchToast();
   if (autoRunning) return;
   const fresh = S.stacks.mine?.items.length && !Object.values(S.items).some(it => it.kind === "tile" && S.where[it.id] === "t");
   if (!fresh) return toast(tr("自動準備只能用在還沒準備的新牌桌。", "Auto Setup works only on a table that has not been set up."));
@@ -1646,53 +1712,169 @@ function animateChanges(old) {
 }
 
 function sync() {
-  if (mode === "host") link?.broadcast({ t: "state", S });
+  if (mode === "host") { link?.broadcast({ t: "state", S }); liveReport(); }
+  if (WATCH && mode === "guest") return;
   if (mode === "guest") link?.send({ t: "state", S });
 }
 function startHost(code) {
   mode = "host";
   const seats = {};    // connection id -> seat
   const byClient = {}; // browser id -> seat, so a player who drops and comes back gets the same seat
+  const watchers = {}; // connection id -> watcher's name (admins with a pass the server vouched for)
+  const voicePeer = {}; // connection id -> that browser's peer id, while it is in voice
+  liveCode = code; voiceList = [];
+  S.since ||= new Date().toISOString();
+  const markOnline = () => { S.online = S.names.map((_, q) => (q === 0 && !watchHost) || Object.values(seats).includes(q)); };
+  markOnline();
+  hostSide = { seats, watchers, voicePeer, markOnline };
+  voice = createVoice({ myId: () => link?.id(), onChange: renderOnline });
+  clearInterval(liveTimer); liveTimer = setInterval(() => liveReport(true), 45000);
   link = net.host(code, {
     open: () => { $("#tt-code") && ($("#tt-code").textContent = tr(`房間代碼 ${code}`, `Table code ${code}`)); },
+    call: c => voice?.incoming(c),
     message: (cid, msg) => {
+      if (msg.t === "hello" && msg.watch) {   // an admin asks to watch: the server says whether the pass is real
+        fetch(`/api/live?verify=${encodeURIComponent(msg.watch)}&code=${code}`, { cache: "no-store" }).then(r => r.ok ? r.json() : { ok: false }).catch(() => ({ ok: false })).then(v => {
+          if (!v.ok) { link.send(cid, { t: "nowatch" }); return; }
+          watchers[cid] = String(msg.name || tr("管理員", "Admin")).slice(0, 18);
+          link.send(cid, { t: "welcome", seat: -1, watch: true, S });
+          link.send(cid, { t: "voices", list: voiceList });
+          S.log.push({ t: Date.now(), who: -1, m: tr(`${watchers[cid]} 開始觀戰`, `${watchers[cid]} is watching`) });
+          changed();
+        });
+        return;
+      }
+      if (msg.t === "voice") { setVoiceMember(cid, msg); return; }
       if (msg.t === "hello") {
-        const taken = new Set(Object.values(seats));
+        const taken = new Set(Object.values(seats)), first = watchHost ? 0 : 1;
         let seat = byClient[msg.cid];
         if (seat === undefined || taken.has(seat)) {
           seat = undefined;
-          for (let q = 1; q < S.players; q++) if (!taken.has(q) && !Object.values(byClient).includes(q)) { seat = q; break; }
-          if (seat === undefined) for (let q = 1; q < S.players; q++) if (!taken.has(q)) { seat = q; break; }
+          for (let q = first; q < S.players; q++) if (!taken.has(q) && !Object.values(byClient).includes(q)) { seat = q; break; }
+          if (seat === undefined) for (let q = first; q < S.players; q++) if (!taken.has(q)) { seat = q; break; }
         }
         if (seat === undefined) { link.send(cid, { t: "full" }); return; }
         seats[cid] = seat;
         if (msg.cid) byClient[msg.cid] = seat;
         if (msg.name) S.names[seat] = String(msg.name).slice(0, 18);
+        markOnline();
         link.send(cid, { t: "welcome", seat, S });
+        link.send(cid, { t: "voices", list: voiceList });
         S.log.push({ t: Date.now(), who: seat, m: tr(`${S.names[seat]} 加入了`, `${S.names[seat]} joined`) });
-        changed();
+        if (watchHost && !WATCH && seat === ME) { WATCH = true; buildTable(); toast(tr(`${S.names[seat]} 回來了，你回到觀戰。`, `${S.names[seat]} is back; you are watching again.`)); }
+        changed(); liveReport(true);
       } else if (msg.t === "state" && msg.S && seats[cid] !== undefined && msg.S.rev >= S.rev) {
+        msg.S.online = S.online; msg.S.since = S.since;
         const old = S;
         S = msg.S; remoteChange(); saveLocal(); render(); animateChanges(old); link.broadcast({ t: "state", S }, cid);
       } else if ((msg.t === "mv" || msg.t === "mvend") && seats[cid] !== undefined) {
         remoteMove(msg); link.broadcast(msg, cid);
       }
     },
-    leave: cid => { delete seats[cid]; },
+    leave: cid => {
+      const wasSeat = seats[cid] !== undefined, wasWatcher = watchers[cid];
+      delete seats[cid]; delete watchers[cid];
+      if (voicePeer[cid]) setVoiceMember(cid, { on: false, id: voicePeer[cid] });
+      if (wasSeat) { markOnline(); changed(); }
+      if (wasSeat || wasWatcher) liveReport(true);
+    },
     error: e => toast(tr("連線錯誤：", "Connection error: ") + (e?.type || "")),
   });
 }
 // Undo steps back through this screen's own history. Once someone else has changed the table, that history no
 // longer matches it, and undoing would wipe out their move, so it is cleared.
 function remoteChange() { hist = []; fut = []; }
-function startGuest(code, name) {
+let hostSide = null;
+// the host's list of who is in voice: one entry per browser, passed to everyone
+function setVoiceMember(cid, msg) {
+  if (mode !== "host") return;
+  const id = String(msg.id || "");
+  voiceList = voiceList.filter(m => m.id !== id);
+  if (cid !== null && hostSide) { if (msg.on) hostSide.voicePeer[cid] = id; else delete hostSide.voicePeer[cid]; }
+  if (msg.on && id) voiceList.push({ id, name: String(msg.name || "").slice(0, 18), seat: Number.isInteger(msg.seat) ? msg.seat : -1, muted: !!msg.muted });
+  link?.broadcast({ t: "voices", list: voiceList });
+  voice?.update(voiceList, link?.peer());
+  liveReport(true);
+}
+// tell the host whether I am in voice (and muted); the host tells everyone
+function announceVoice() {
+  if (!link || !voice) return;
+  const msg = { t: "voice", id: link.id(), on: voice.on, muted: voice.muted, seat: WATCH ? -1 : ME,
+    name: WATCH ? (myWatchName || tr("觀戰者", "Watcher")) : S.names[ME] };
+  mode === "host" ? setVoiceMember(null, msg) : link.send(msg);
+}
+async function toggleVoice() {
+  if (!voice || mode === "local") return;
+  if (voice.on) { voice.stop(); announceVoice(); renderOnline(); return; }
+  if (!(await voice.start())) { toast(tr("無法使用麥克風：請允許這個網站使用麥克風。", "The microphone is not available: allow this site to use it.")); return; }
+  announceVoice(); renderOnline();
+}
+let myWatchName = "";
+// the host tells the server its table is live (the dashboard lists it), at most every few seconds
+let lastLive = 0, liveLater = 0;
+function liveReport(force = false) {
+  if (mode !== "host" || !liveCode || !S) return;
+  const now = Date.now();
+  clearTimeout(liveLater);
+  if (!force && now - lastLive < 8000) { liveLater = setTimeout(() => liveReport(true), 8000 - (now - lastLive)); return; }
+  lastLive = now;
+  const forgotten = S.stacks?.forgot?.items.length || 0;
+  const body = { code: liveCode, since: S.since, soul: S.soul, level: S.level, players: S.players, names: S.names, online: S.online || [],
+    watchers: hostSide ? Object.keys(hostSide.watchers).length : 0, watchHost, chapter: S.chapter || 0, light: S.tracks?.light || 0,
+    forgotten, cracks: S.tracks?.crack || 0, voice: voiceList.length };
+  fetch("/api/live", { method: "POST", body: JSON.stringify(body), headers: { "Content-Type": "application/json" }, keepalive: true }).catch(() => {});
+}
+function liveEnd() {
+  clearInterval(liveTimer); liveTimer = 0; clearTimeout(liveLater);
+  if (mode === "host" && liveCode) fetch(`/api/live?code=${liveCode}`, { method: "DELETE", keepalive: true }).catch(() => {});
+  liveCode = null;
+}
+window.addEventListener("pagehide", () => liveEnd());
+// watching: ask the server for a pass to this table, then join it without a seat
+async function startWatch(code) {
+  code = String(code || "").toUpperCase();
+  let pass = null;
+  try { const r = await fetch(`/api/live?token=${code}`, { cache: "no-store" }); const j = r.ok ? await r.json() : null; pass = j?.pass; } catch { /* offline */ }
+  if (!pass) { toast(tr("無法取得觀戰資格（需要管理員帳號）。", "Could not get a pass to watch (an admin account is needed).")); return; }
+  if (link) leaveOnline();
+  myWatchName = tr("管理員", "Admin");
+  try { const me = await (await fetch("/api/me", { cache: "no-store" })).json(); if (me?.user) myWatchName = String(me.user).slice(0, 18); } catch { /* */ }
+  startGuest(code, myWatchName, pass);
+  toast(tr("連線中…", "Connecting…"));
+}
+// leave the online table this screen is at (voice, the link, the live entry)
+function leaveOnline() {
+  voice?.stop(); voice = null; voiceList = [];
+  liveEnd();
+  try { link?.close(); } catch { /* */ }
+  link = null; mode = "local"; WATCH = false; watchHost = false; hostSide = null;
+}
+// the live tables (admins): watch one, from the menu or while watching another
+async function liveTablesModal() {
+  let j = null;
+  try { const r = await fetch("/api/live", { cache: "no-store" }); j = await r.json(); } catch { /* */ }
+  const rows = (j?.live || []).filter(t => t.code !== (WATCH ? watchingCode : ""));
+  modal(`<h3>${tr("正在進行的線上桌", "Live tables")}</h3>
+    ${!j?.ok ? `<p class="muted">${esc(j?.error || tr("無法讀取。", "Could not be read."))}</p>` : !rows.length ? `<p class="muted">${tr("現在沒有其他正在進行的線上桌。", "No other table is being played right now.")}</p>` : ""}
+    <div class="livelist">${rows.map(t => `<div class="liverow"><b>${esc(t.code)}</b> <span>${esc(soulName(t.soul))}・${tr(D.LEVELS[t.level]?.zh || "", D.LEVELS[t.level]?.en || "")}・${t.players}${tr(" 人", "p")}</span>
+      <small>${t.names.map((n, i) => `${esc(n)}${t.online[i] ? "" : tr("（離線）", " (away)")}`).join("、")}・${tr(`第${"一二三"[t.chapter] || "一"}章`, `ch. ${t.chapter + 1}`)}${t.watchers ? tr(`・觀戰 ${t.watchers}`, ` · ${t.watchers} watching`) : ""}${t.voice ? tr(`・語音 ${t.voice}`, ` · ${t.voice} in voice`) : ""}</small>
+      <button class="primary" data-watch="${esc(t.code)}">${tr("觀戰", "Watch")}</button></div>`).join("")}</div>`);
+  document.querySelectorAll("[data-watch]").forEach(b => b.onclick = () => { closeModal(); startWatch(b.dataset.watch); });
+}
+let watchingCode = "";
+function startGuest(code, name, pass = null) {
   mode = "guest";
   let seated = false;
+  watchingCode = pass ? code : "";
+  voice = createVoice({ myId: () => link?.id(), onChange: renderOnline }); voiceList = [];
   link = net.join(code, {
-    open: () => link.send({ t: "hello", name, cid: net.clientId() }),
+    open: () => link.send(pass ? { t: "hello", name, watch: pass } : { t: "hello", name, cid: net.clientId() }),
+    call: c => voice?.incoming(c),
     message: msg => {
-      if (msg.t === "welcome") { const first = !seated; seated = true; ME = msg.seat; S = msg.S; hist = []; fut = [];
-        const go = () => { buildTable(); $("#tt-code").textContent = tr(`房間 ${code}`, `Table ${code}`); };
+      if (msg.t === "voices") { voiceList = msg.list || []; voice?.update(voiceList, link?.peer()); return; }
+      if (msg.t === "nowatch") { toast(tr("主持人無法確認你的觀戰資格。", "The host could not confirm your pass to watch.")); return; }
+      if (msg.t === "welcome") { const first = !seated; seated = true; WATCH = !!msg.watch; ME = msg.watch ? 0 : msg.seat; S = msg.S; hist = []; fut = [];
+        const go = () => { buildTable(); $("#tt-code").textContent = WATCH ? tr(`牌桌 ${code}`, `Table ${code}`) : tr(`房間 ${code}`, `Table ${code}`); };
         first ? enterGame(go) : go(); }
       else if (msg.t === "state" && seated && msg.S && msg.S.rev >= S.rev) { const old = S; S = msg.S; remoteChange(); if (onTable()) { render(); animateChanges(old); } }
       else if ((msg.t === "mv" || msg.t === "mvend") && seated && onTable()) remoteMove(msg);
@@ -1753,7 +1935,7 @@ function showMenuScreen() {
   document.body.classList.remove("on-table");
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(LS) || "null"); } catch { /* */ }
-  if (link) { try { link.close(); } catch { /* */ } link = null; mode = "local"; }
+  if (link) leaveOnline();
   const app = $("#app");
   app.innerHTML = `<div class="lobby">
     <h1>${icon("nb-bloom")} ${tr("彼岸花渡", "Netherbloom")} <small>V5 · ${tr("手動桌面", "manual table")}</small></h1>
@@ -1764,15 +1946,18 @@ function showMenuScreen() {
       <label>${tr("難度", "Difficulty")} <select id="lb-level">${D.LEVELS.map((l, i) => `<option value="${i}"${i === 0 ? " selected" : ""}>${tr(l.zh, l.en)}</option>`).join("")}</select></label>
       <label>${tr("人數", "Players")} <select id="lb-players">${[1, 2, 3, 4].map(n => `<option${n === 2 ? " selected" : ""}>${n}</option>`).join("")}</select></label>
       <div id="lb-names"></div>
+      ${isAdmin ? `<label class="adminopt"><input type="checkbox" id="lb-watchhost"> ${tr("主持但不參與（管理員）：開線上桌後只觀戰；某個座位沒人時可以代打", "Host without playing (admin): watch the online table; play a seat only while it is empty")}</label>` : ""}
       <div class="card-row"><button id="lb-local" class="primary">${tr("在這台裝置開桌", "Open the table here")}</button>
       <button id="lb-host">${tr("開線上桌（其他人用代碼加入）", "Host online (others join with a code)")}</button></div>
     </fieldset>
+    ${isAdmin ? `<fieldset><legend>${tr("觀戰（管理員）", "Watch (admin)")}</legend><button id="lb-live">${tr("查看正在進行的線上桌", "See the live tables")}</button><span class="muted small">${tr("也可以從後台觀戰。", "You can also watch from the Dashboard.")}</span></fieldset>` : ""}
     <fieldset><legend>${tr("加入線上桌", "Join an online table")}</legend>
       <label>${tr("代碼", "Code")} <input id="lb-code" maxlength="5" size="6"></label>
       <label>${tr("你的名字", "Your name")} <input id="lb-myname" maxlength="18" size="12"></label>
       <button id="lb-join">${tr("加入", "Join")}</button></fieldset>
     ${chooseTables()}
     <aside class="tt-drawer lobby-drawer hidden" id="tt-drawer"></aside>
+    <div class="tt-modal hidden" id="tt-modal"></div>
     <p class="muted small">${tr("開桌時，元件會依規則書的準備步驟分好：牌庫洗好、河岸板塊面朝下隨機擺好、各種指示物放在供應區。發牌、放最初的花、翻開前方的霧等，都由你們自己動手（提示會一步一步帶你們）。", "When the table opens, the components are sorted as the rulebook's set-up says: decks shuffled, bank tiles placed face down at random, tokens in the supply. Dealing, the first flowers and the first Mist are yours to do (the hints walk you through it).")}</p>
   </div>`;
   const names = () => {
@@ -1794,8 +1979,10 @@ function showMenuScreen() {
   $("#lb-host").onclick = () => {
     const o = opts();
     if (o.players < 2) { toast(tr("線上桌需要 2–4 人。", "Online tables need 2–4 players.")); return; }
-    enterGame(() => { newTable(o); ME = 0; hist = []; fut = []; buildTable(); saveLocal(); startHost(net.newCode()); track("start"); });
+    const wh = isAdmin && !!$("#lb-watchhost")?.checked;
+    enterGame(() => { newTable(o); ME = 0; hist = []; fut = []; watchHost = wh; WATCH = wh; const code = net.newCode(); startHost(code); buildTable(); saveLocal(); liveReport(true); track("start"); });
   };
+  if ($("#lb-live")) $("#lb-live").onclick = liveTablesModal;
   $("#lb-join").onclick = () => {
     const code = $("#lb-code").value.trim().toUpperCase();
     if (code.length !== 5) { toast(tr("請輸入 5 個字母的代碼。", "Enter the 5-letter code.")); return; }
@@ -1849,7 +2036,12 @@ async function boot() {
   if ($("#btn-rules")) $("#btn-rules").onclick = () => openDrawer("rules");
   if ($("#btn-aid")) $("#btn-aid").onclick = () => openDrawer("aid");
   window.addEventListener("resize", () => { if (S && onTable()) fit(); });
-  fetch("/api/me", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(me => { if (me?.admin) { isAdmin = true; $("#btn-dash")?.classList.remove("hidden"); $("#tt-dash")?.classList.remove("hidden"); } }).catch(() => {});
+  const watchParam = new URLSearchParams(location.search).get("watch");
+  if (watchParam) history.replaceState(null, "", location.pathname);
+  fetch("/api/me", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(me => {
+    if (me?.admin) { isAdmin = true; $("#btn-dash")?.classList.remove("hidden"); $("#tt-dash")?.classList.remove("hidden"); if (!onTable()) showMenuScreen(); }
+    if (watchParam) startWatch(watchParam);
+  }).catch(() => {});
   showMenuScreen();
 }
 boot();
