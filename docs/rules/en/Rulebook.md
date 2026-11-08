@@ -141,9 +141,9 @@ Every special term used in the rules and on the cards is here. When a word in bo
 |---|---|
 | **Thread** | Obsession, Acceptance or Oblivion. Cards, Shades, Mist and the story each belong to one of them. |
 | **Knot, tie, untie** | Progress on the Loom's knot track. Tie: move the marker forward 1. Untie: move it back 1. |
-| **Threshold, full** | When a thread's knots reach the threshold, the thread is full and Backlashes at once. |
+| **Threshold, full** | The threshold is the cell of the knot track where the Scar marker stands. When the knot marker reaches the Scar marker, the thread is full and Backlashes at once. |
 | **Backlash** | The harm a full thread does, in three levels, printed on the Loom. |
-| **Scar** | The mark a full thread leaves. Each Scar lowers the threshold by 1 and raises the Backlash one level; Scars never go away. |
+| **Scar** | The mark a full thread leaves: the Scar marker moves one cell down the knot track. Each Scar lowers the threshold by 1 and raises the Backlash one level; Scars never go away. |
 | **Mist scar** | The Mist card placed on the Book's route when the soul is Engulfed by the Mist. It raises the Backlash of its thread one level. |
 | **Current route** | The stretch of the page from the entrance to the first memory slot not yet filled, branch not yet decided, or turning point. |
 | **Lit, unlit** | A newly inscribed memory is unlit and lies sideways. Pay 1 Light to light it and turn it upright. Only lit memories count for Commissions. |
@@ -179,7 +179,7 @@ First choose a Soul (section 13) and a difficulty.
 | ◆◆◇ Standard | +1 | Mist scar only | 0 | 12 cards forgotten | 4 Fractures | 6 | 52% |
 | ◆◆◆ Hard | +1 | Mist scar, and the soul takes 1 Fracture | 1 on each thread | 12 cards forgotten | 3 Fractures | 6 | 42% |
 
-The same at all three difficulties: the Loom threshold is printed on the Loom, 7 knots with 2–4 players and 10 knots solo; each Mist deck gets 2 harsh Mist cards. Simulated win rates by player count (solo / 2 / 3 / 4 players): Gentle 51 / 61 / 63 / 63%, Standard 43 / 52 / 55 / 56%, Hard 35 / 43 / 42 / 47%. A game sees about 2 Backlashes.
+The same at all three difficulties: the Loom threshold is 7 knots with 2–4 players and 10 knots solo, and both starting cells are printed on the knot tracks; each Mist deck gets 2 harsh Mist cards. Simulated win rates by player count (solo / 2 / 3 / 4 players): Gentle 51 / 61 / 63 / 63%, Standard 43 / 52 / 55 / 56%, Hard 35 / 43 / 42 / 47%. A game sees about 2 Backlashes.
 
 **Set-up table**: by player count, how many Graves go in Reach 3, how many Commissions you must fulfil, and how many cards each player holds.
 
@@ -207,7 +207,7 @@ The same at all three difficulties: the Loom threshold is printed on the Loom, 7
     1. Add 1 "Rising Water" and 1 "Shade Drawn Near" to each deck, then add 2 harsh Mist cards at random. Return the other harsh Mist cards to the box.
     2. Shuffle the three decks separately and put them face down to one side.
     3. Put the Pale Mist deck in the Mist well, turn its top card over, and put it face up in front of the well: this is the **Mist ahead**. The back of the next card of the Pale Mist deck can also be seen: it shows a thread and a Fog number.
-7. **Loom of the Fates**: set out the Loom. Put 1 knot marker at 0 on the knot track of each of the three threads (at 1 for Hard), and 1 Scar marker at 0 on each Scar track. Put the Echo marker in the Loom's Silent box.
+7. **Loom of the Fates**: set out the Loom. Put 1 knot marker at 0 on the knot track of each of the three threads (at 1 for Hard), and 1 Scar marker on the starting cell of the same knot track: 7 with 2–4 players, 10 solo. Put the Echo marker in the Loom's Silent box.
 8. **Mantles**: lay the 5 Mantle cards face up in the Mantle row below the Loom.
 9. **Book of Remembrance**: open the chosen Soul's book at chapter 1 and have its corners ready. Split this Soul's 12 Fate Mist cards into three groups by chapter, 4 for each chapter: 2 with river conditions and 2 with Book conditions. Draw 1 at random from chapter 1's river conditions and 1 from its Book conditions, and put them condition side up beside the Book; put the rest face down to one side. Put the ending cards face down to one side without looking at them. The Nameless soul has no ending cards.
 10. **Ledger**: put Black Water markers in the Black Water supply as the difficulty says (7 for Gentle, 6 for Standard and Hard). Put the Light marker on the Light track at the chosen Soul's starting Light (section 13; 0 if none is given). Put the Fracture marker at 0 on the Fracture track. Put the Root/Bloom tokens, Shades, fog markers, and the Hold Fast, Shield and Resignation markers in the supply.
@@ -428,10 +428,10 @@ Mist cards themselves tie no knots; the thread on a Mist card's back only decide
 When a knot marker reaches the threshold, that thread is full. In order:
 
 1. Carry out its Backlash at once. Its level is the thread's number of Scars, raised by any Mist scar.
-2. Move the Scar marker forward 1, to 2 Scars at most.
+2. Move the Scar marker one cell down the knot track: that is the new threshold. 2 Scars at most.
 3. Put the knot marker back to 0.
 
-The thresholds are printed on the Loom: 7 knots with 2–4 players, 10 solo; each Scar lowers it by 1. They are the same at all three difficulties. Once a Scar is made, it never goes away.
+Each thread has a single knot track (0–10). The Scar marker stands on it, and its cell is the threshold: it starts on 7 with 2–4 players and on 10 solo, and moves one cell down for each Scar. A thread is full when its knot marker reaches the Scar marker. The cells 7 / 6 / 5 and 10 / 9 / 8 are pale red and printed "Scar 0 / 1 / 2" for 2–4 players and for solo play. They are the same at all three difficulties. Once a Scar is made, it never goes away.
 
 | Scars on this thread | 2–4 players | Solo | When it becomes full |
 |---|---|---|---|
@@ -701,7 +701,7 @@ Read these in order. The Nameless soul reads only the general lines for parts 1 
 Solo play follows the normal rules, with only these differences:
 
 - **Hand**: 6 cards.
-- **Loom threshold**: 10 knots, −1 for each Scar. It is printed on the Loom.
+- **Loom threshold**: 10 knots, −1 for each Scar: the Scar marker starts on 10 of the knot track.
 - **Commissions**: you hold 1 Commission card, and must fulfil 1.
 - **Swap**: put 1 card from your hand on the bottom of the Memory deck, turn over the top card of the deck and play it face up at once.
 - **The Ghost**: after each of your turns (step 8 of the end of the turn), turn over the top card of the Ghost deck and carry it out, then tie 1 knot on its thread and move the Echo to that thread. Then clean up once more. When the Ghost deck runs out, shuffle it again. The Ghost cards' actions are printed on them (Appendix B).
@@ -718,7 +718,7 @@ Solo play follows the normal rules, with only these differences:
 | Bank tiles | 34: 28 in the tile pools (3 of them Graves), 6 spares (2 Flower Field, 2 Fertile, 2 Memory Spring) |
 | Ending cards | For each named Soul, 1 each: Obsession, Acceptance, Oblivion, Interwoven, hidden ending |
 | Soul cards, Mantle cards, Ghost cards | 5, 5, 12 |
-| Boards | 3 river boards (4 / 4 / 5 spaces), 1 Loom of the Fates (knot tracks, Scar tracks, Backlash table, thresholds), 1 Ledger (forgotten track, Fracture track, Black Water supply, Light track 0–12, deck and discard frames) |
+| Boards | 3 river boards (4 / 4 / 5 spaces), 1 Loom of the Fates (three knot tracks 0–10, the Scar marker standing on each to mark its threshold; Backlash table), 1 Ledger (forgotten track, Fracture track, Black Water supply, Light track 0–12, deck and discard frames) |
 | Book of Remembrance | 5 books, one for each Soul, each with three chapter route maps |
 | Root/Bloom tokens (two-sided) | 24 |
 | Shade tokens, Black Water markers | 8, 7 |
@@ -980,7 +980,7 @@ When **both banks of the next space have Shades** and it has no Black Water: rem
 
 | Item | Number |
 |---|---|
-| Loom threshold | 7 knots with 2–4 players · 10 solo; each Scar −1, and the Backlash one level higher |
+| Loom threshold | Where the Scar marker stands on the knot track: from 7 (2–4 players) or 10 (solo); each Scar moves it one cell down (threshold −1, Backlash one level higher) |
 | The Pull of Lethe (forgotten pile at the fork) | Chapter 1: 3 · chapter 2: 5 · chapter 3: 7 cards |
 | Turning the page unties (0 / 1 / 2 / 3 memories lit on the page) | 0 / 3 / 6 / 9 knots |
 | Light | 12 at most; light a memory 1 · summon a Mantle 3 (King 2) · Recall 3 |

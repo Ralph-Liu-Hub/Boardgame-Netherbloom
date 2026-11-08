@@ -169,7 +169,39 @@ module.exports = async (page, setStage, note, BASE) => {
   }
   for (const z of await page.$$eval(".zoombtn", b => b.map(x => x.dataset.zoom))) await zoomClick(`.zoombtn[data-zoom="${z}"]`);
   await page.click("#tt-fit");
-  await page.click("#tt-rules"); await page.fill("#rq", "織機"); await page.waitForTimeout(100); await page.click("#tt-rules");
+  // the Rulebook's search: every match highlighted, "x / n", Enter and the buttons step through them
+  await page.click("#tt-rules"); await page.fill("#rq", "織機"); await page.waitForTimeout(300);
+  {
+    const n = await page.$$eval("#tt-drawer mark.rqm", m => m.length);
+    const c1 = await page.textContent("#rqc");
+    expect(n > 5 && c1 === `1 / ${n}`, `search highlights every match and counts them (${c1}, ${n} marks)`);
+    await page.press("#rq", "Enter"); await page.press("#rq", "Enter");
+    expect((await page.textContent("#rqc")) === `3 / ${n}`, "Enter goes to the next match");
+    await page.press("#rq", "Shift+Enter"); await page.click("#rqprev");
+    expect((await page.textContent("#rqc")) === `1 / ${n}` && (await page.$$eval("#tt-drawer mark.rqm.cur", m => m.length)) === 1, "Shift+Enter and the previous button go back; one match is current");
+    await page.click("#rqprev");
+    expect((await page.textContent("#rqc")) === `${n} / ${n}`, "previous from the first wraps to the last");
+    expect(await page.locator("#rqc").isVisible(), "the search bar stays in view while the drawer scrolls");
+    await page.fill("#rq", ""); await page.waitForTimeout(300);
+    expect((await page.$$eval("#tt-drawer mark.rqm", m => m.length)) === 0, "clearing the search takes the highlights away");
+  }
+  await page.click("#tt-rules");
+  // the Loom: one track per thread (0-10); the Scar marker stands on the threshold and moves left with each Scar
+  await zoomClick('.zoombtn[data-zoom="loom"]');
+  expect((await page.$$('.tcell[data-track="knot0"]')).length === 11, "the knot track runs 0-10");
+  {   // drag the Scar marker one cell left: one Scar, the threshold drops by one
+    const st0 = await S(), thr = st0.players === 1 ? 10 : 7;
+    expect(await page.locator(`.tcell[data-track="knot2"][data-val="${thr}"]`).evaluate(e => e.classList.contains("scarcell") && /傷疤0|Scar 0/.test(e.textContent)), "the threshold cell is pale red and says Scar 0");
+    await dragTo(await center('.tmarker[data-track="scar2"]'), await center(`.tcell[data-track="knot2"][data-val="${thr - 1}"]`));
+    const st = await S(), sm = await page.locator('.tmarker[data-track="scar2"]').boundingBox(), c = await page.locator(`.tcell[data-track="knot2"][data-val="${thr - 1}"]`).boundingBox();
+    expect(st.tracks.scar2 === 1 && Math.abs(sm.x + sm.width / 2 - (c.x + c.width / 2)) < 3 && Math.abs(sm.y + sm.height / 2 - (c.y + c.height / 2)) < 3, "one Scar: the Scar marker sits in the next cell down, the new threshold");
+    await dragTo(await center('.tmarker[data-track="scar2"]'), await center(`.tcell[data-track="knot2"][data-val="${thr}"]`));
+  }
+  // the Ledger: the forgotten track's marker follows the forgotten pile
+  {
+    const st = await S(), cnt = await page.getAttribute(".forgotm", "data-count");
+    expect(+cnt === st.stacks.forgot.items.length, `the forgotten marker shows the forgotten pile (${cnt} / ${st.stacks.forgot.items.length})`);
+  }
   await page.click("#tt-log"); expect((await page.$$("#tt-drawer .log li")).length > 5, "log lists moves"); await page.click("#tt-log");
 
   // l) shift-drag a stack moves it; undo puts it back

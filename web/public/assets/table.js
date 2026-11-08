@@ -320,6 +320,11 @@ function fillReach(r) {
 }
 
 // ---------------------------------------------------------------- snap points (built with the boards)
+// the Loom's knot track: 0-10 (10 is the solo threshold without Scars, the most any mode needs)
+const KNOTS = 10, KX0 = 146, KP = 44, KW = 42;
+// the Ledger's forgotten track: 0-14 (the Gentle Faded limit is 14), beside the Light and Fracture tracks
+const FORGOT_MAX = 14, FX0 = 420, FP = 38, FW = 36, FY = 262;
+const loomStart = players => D.thresholds(0, players)[0];   // where the Scar marker starts: 7 (2-4 players) or 10 (solo)
 let SNAPS = [];
 const snapById = {};
 function snapPos(id) { const s = snapById[id]; return s ? { x: s.x + s.w / 2, y: s.y + s.h / 2 } : null; }
@@ -345,15 +350,16 @@ function buildSnaps(players) {
   // loom
   for (let t = 0; t < 3; t++) {
     const y = LOOM.y + 60 + t * 88;
-    for (let k = 0; k <= 12; k++) snap(`knot${t}_${k}`, LOOM.x + 146 + k * 35, y, 33, 40, []);
-    for (let k = 0; k <= 2; k++) snap(`scar${t}_${k}`, LOOM.x + 616 + k * 31, y, 29, 40, []);
+    for (let k = 0; k <= KNOTS; k++) snap(`knot${t}_${k}`, LOOM.x + KX0 + k * KP, y, KW, 40, []);
+    // the Scar marker sits on the knot cell that is the threshold: start, start-1, start-2 for 0, 1, 2 Scars
+    for (let k = 0; k <= 2; k++) snap(`scar${t}_${k}`, LOOM.x + KX0 + (loomStart(players) - k) * KP, y, KW, 40, []);
     snap(`echo${t}`, LOOM.x + 90, y - 4, 50, 48, ["tok"]);
   }
   snap("echoS", LOOM.x + 16, LOOM.y + 320, 56, 56, ["tok"]);
   // ledger
   for (let k = 0; k <= 12; k++) snap(`light${k}`, LEDGER.x + 420 + k * 44, LEDGER.y + 62, 42, 42, []);
   for (let k = 0; k <= 5; k++) snap(`crack${k}`, LEDGER.x + 420 + k * 56, LEDGER.y + 160, 50, 50, []);
-  for (let k = 0; k < 7; k++) snap(`bwsup${k}`, LEDGER.x + 420 + k * 56, LEDGER.y + 262, 54, 54, ["tok"]);
+  for (let k = 0; k < 7; k++) snap(`bwsup${k}`, LEDGER.x + 20 + k * 56, LEDGER.y + 262, 54, 54, ["tok"]);
   // mantle row, fate slots
   // the Mantle row sits along the top of the supply panel
   D.MANTLES.forEach((_, i) => snap(`mantle${i}`, SUPPLY.x + 20 + i * PG, SUPPLY.y + 56, SW, SH, ["card"]));
@@ -545,20 +551,21 @@ function boardsHtml() {
   const th = D.thresholds(S.level, S.players);
   h += `<div class="board loom" data-region="loom" style="left:${LOOM.x}px;top:${LOOM.y}px;width:${LOOM.w}px;height:${LOOM.h}px">${zoomBtn("loom")}
     <div class="btitle">${tr("命運織機", "Loom of the Fates")}</div>
-    <div class="lab" style="left:92px;top:36px">${tr("迴響", "Echo")}</div><div class="lab" style="left:146px;top:36px">${tr("結", "Knots")}</div><div class="lab" style="left:616px;top:36px">${tr("傷疤", "Scars")}</div>
-    <div class="lab" style="left:716px;top:36px">${tr("反噬（第一／二／三級）", "Backlash (I / II / III)")}</div>`;
+    <div class="lab" style="left:92px;top:36px">${tr("迴響", "Echo")}</div><div class="lab" style="left:146px;top:36px">${tr("結（淡紅色格放傷疤標記）", "Knots (the Scar marker goes on a pale red cell)")}</div>
+    <div class="lab" style="left:${KX0 + KNOTS * KP + KW + 18}px;top:36px">${tr("反噬（第一／二／三級）", "Backlash (I / II / III)")}</div>`;
   for (let t = 0; t < 3; t++) {
     const y = 60 + t * 88;
     h += `<div class="thread th${t}" style="top:${y}px">${icon(D.THREADS[t].icon)}${tr(D.THREADS[t].zh, D.THREADS[t].en)}</div>`;
     h += `<div class="echoslot th${t}" style="left:90px;top:${y - 4}px" title="${tr("迴響停在這條絲線時，把迴響標記放在這裡", "Put the Echo token here when the Echo is on this thread")}">${tr("迴響", "Echo")}</div>`;
-    h += `<div class="groove" style="left:146px;top:${y + 17}px;width:${12 * 35 + 33}px"></div>`;
-    for (let k = 0; k <= 12; k++) h += `<div class="cell tcell${th.includes(k) ? " lim" : ""}" data-track="knot${t}" data-val="${k}" style="left:${146 + k * 35}px;top:${y}px;width:33px">${k}${k === th[0] ? `<i>${th[0]}</i>` : ""}</div>`;
-    h += `<div class="groove" style="left:616px;top:${y + 17}px;width:91px"></div>`;
-    for (let k = 0; k <= 2; k++) h += `<div class="cell scar tcell" data-track="scar${t}" data-val="${k}" style="left:${616 + k * 31}px;top:${y}px;width:29px">${k}</div>`;
-    h += `<div class="blash" style="top:${y - 4}px">${D.BACKLASH[t].map((s, i) => `<div><b>${"ⅠⅡⅢ"[i]}</b>${esc(tr(s, D.BACKLASH_EN[t][i]))}</div>`).join("")}</div>`;
+    h += `<div class="groove" style="left:${KX0}px;top:${y + 17}px;width:${KNOTS * KP + KW}px"></div>`;
+    for (let k = 0; k <= KNOTS; k++) {
+      const sc = th.indexOf(k);   // the threshold cells carry their Scar count: the Scar marker stands on one of them
+      h += `<div class="cell tcell${sc >= 0 ? " scarcell" : ""}" data-track="knot${t}" data-val="${k}" style="left:${KX0 + k * KP}px;top:${y}px;width:${KW}px"${sc >= 0 ? ` title="${tr(`${sc} 道傷疤：門檻 ${k}，打滿時第${"一二三"[sc]}級反噬`, `${sc} Scar${sc === 1 ? "" : "s"}: threshold ${k}, Backlash level ${"I II III".split(" ")[sc]}`)}"` : ""}>${sc >= 0 ? `<em class="sc">${tr(`傷疤${sc}`, `Scar ${sc}`)}</em>` : ""}${k}</div>`;
+    }
+    h += `<div class="blash" style="left:${KX0 + KNOTS * KP + KW + 18}px;top:${y - 4}px">${D.BACKLASH[t].map((s, i) => `<div><b>${"ⅠⅡⅢ"[i]}</b>${esc(tr(s, D.BACKLASH_EN[t][i]))}</div>`).join("")}</div>`;
   }
   h += `<div class="echoslot silent" style="left:16px;top:320px">${tr("沉默", "Silent")}</div>
-    <div class="note" style="left:96px;top:336px">${tr(`門檻 ${th[0]}／${th[1]}／${th[2]}（0／1／2 道傷疤）。霧痕：同絲線反噬升一級。`, `Threshold ${th.join(" / ")} (0 / 1 / 2 scars). Mist scars raise that thread's Backlash one level.`)}</div></div>`;
+    <div class="note" style="left:96px;top:336px">${tr(`傷疤標記從 ${th[0]} 開始，每道傷疤往左一格（門檻 ${th[0]}／${th[1]}／${th[2]}）。結標記追上傷疤標記就打滿。霧痕：同絲線反噬升一級。`, `The Scar marker starts on ${th[0]} and moves one space left for each Scar (threshold ${th.join(" / ")}). A thread is full when its knot marker reaches the Scar marker. Mist scars raise that thread's Backlash one level.`)}</div></div>`;
   // book: one open page; tabs flip through the chapters
   h += `<div class="board bookp" data-region="book" id="tt-book" style="left:${BOOK.x}px;top:${BOOK.y}px;width:${BOOK.w}px;height:${BOOK.h}px"></div>`;
   // ledger
@@ -570,9 +577,16 @@ function boardsHtml() {
   h += `<div class="lab" style="left:420px;top:136px">${tr(`裂痕（${lv.fractures} 道破碎）`, `Fractures (${lv.fractures} = Shattered)`)}</div>
     <div class="groove" style="left:420px;top:182px;width:${lv.fractures * 56 + 50}px"></div>`;
   for (let k = 0; k <= lv.fractures; k++) h += `<div class="cell round tcell crack${k === lv.fractures ? " lim" : ""}" data-track="crack" data-val="${k}" style="left:${420 + k * 56}px;top:160px;width:50px;height:50px">${k === lv.fractures ? tr("碎", "✕") : k}</div>`;
-  h += `<div class="lab" style="left:420px;top:238px">${tr(`黑水供應：放 ${lv.bw} 個（其餘放回盒中）`, `Black Water supply: put ${lv.bw} here (the rest go in the Box)`)}</div>`;
-  for (let k = 0; k < lv.bw; k++) h += `<div class="cell round" style="left:${420 + k * 56}px;top:262px;width:54px;height:54px"></div>`;
-  h += `<div class="note" style="left:20px;top:340px;right:20px">${tr(`消散門檻：遺忘 ${lv.dissolve} 張。輕如灰燼 6、漂離 9。忘川的拉力：第一／二／三章 ${PULL.join("／")} 張。`, `Faded at ${lv.dissolve} forgotten. Light as Ash 6, Adrift 9. Pull of Lethe: ${PULL.join(" / ")}.`)}</div></div>`;
+  h += `<div class="lab" style="left:20px;top:238px">${tr(`黑水供應：放 ${lv.bw} 個（其餘放回盒中）`, `Black Water supply: put ${lv.bw} here (the rest go in the Box)`)}</div>`;
+  for (let k = 0; k < lv.bw; k++) h += `<div class="cell round" style="left:${20 + k * 56}px;top:262px;width:54px;height:54px"></div>`;
+  // the forgotten track: the marker follows the forgotten pile by itself
+  h += `<div class="lab" style="left:${FX0}px;top:238px">${tr(`遺忘（標記自動跟著遺忘堆的張數；${lv.dissolve} 張消散）`, `Forgotten (the marker follows the forgotten pile; Faded at ${lv.dissolve})`)}</div>
+    <div class="groove" style="left:${FX0}px;top:${FY + FW / 2 - 1}px;width:${FORGOT_MAX * FP + FW}px"></div>`;
+  for (let k = 0; k <= FORGOT_MAX; k++) {
+    const tag = k === lv.dissolve ? "lim" : k === 6 || k === 9 ? "drift" : [3, 5, 7].includes(k) ? "pull" : "";
+    h += `<div class="cell fcell ${tag}${k > lv.dissolve ? " past" : ""}" style="left:${FX0 + k * FP}px;top:${FY}px;width:${FW}px;height:${FW}px">${k === lv.dissolve ? tr("散", "✕") : k}</div>`;
+  }
+  h += `<div class="note fkey" style="left:${FX0}px;top:${FY + FW + 8}px;right:16px">${tr(`<b class="k-drift">6</b> 輕如灰燼、<b class="k-drift">9</b> 漂離；<b class="k-pull">${PULL.join("／")}</b> 第一／二／三章的忘川的拉力；<b class="k-lim">${lv.dissolve}</b> 消散。`, `<b class="k-drift">6</b> Light as Ash, <b class="k-drift">9</b> Adrift; <b class="k-pull">${PULL.join(" / ")}</b> the Pull of Lethe in chapters 1 / 2 / 3; <b class="k-lim">${lv.dissolve}</b> Faded.`)}</div></div>`;
   // fate area
   h += `<div class="board fatea" data-region="fate" style="left:${FATE.x}px;top:${FATE.y}px;width:${FATE.w}px;height:${FATE.h}px">${zoomBtn("fate")}
     <div class="btitle">${tr("亡魂・命運之霧・託付", "Soul · Fate · Commissions")}</div>
@@ -885,7 +899,7 @@ function renderOnline() {
 
 // ---------------------------------------------------------------- slider tracks
 const TRACK_ICON = { light: ["nb-rays", "lightm"], crack: ["nb-fracture", "crack"] };
-const trackMax = id => (id === "light" ? 12 : id === "crack" ? D.LEVELS[S.level].fractures : id.startsWith("scar") ? 2 : 12);
+const trackMax = id => (id === "light" ? 12 : id === "crack" ? D.LEVELS[S.level].fractures : id.startsWith("scar") ? 2 : KNOTS);
 const trackSnap = (id, v) => snapById[id.startsWith("knot") || id.startsWith("scar") ? `${id}_${v}` : `${id}${v}`];
 const trackName = id => (id === "light" ? tr("光", "Light") : id === "crack" ? tr("裂痕", "Fractures")
   : `${tr(id.startsWith("knot") ? "結" : "傷疤", id.startsWith("knot") ? "Knots" : "Scars")}（${tr(D.THREADS[+id.slice(-1)].zh, D.THREADS[+id.slice(-1)].en)}）`);
@@ -903,11 +917,28 @@ function renderTracks() {
     if (drag?.track === id) continue;
     const sn = trackSnap(id, Math.min(S.tracks[id], trackMax(id)));
     if (!sn) continue;
-    el.title = `${trackName(id)}：${S.tracks[id]}`;
-    el.style.width = el.style.height = TK + "px";
-    el.style.transform = tAt(sn.x + sn.w / 2, sn.y + sn.h / 2, TK, TK);
+    const sz = id.startsWith("scar") ? 40 : TK;   // the Scar marker fits inside its knot cell
+    el.title = id.startsWith("scar") ? tr(`${trackName(id)}：${S.tracks[id]} 道（門檻 ${D.thresholds(S.level, S.players)[S.tracks[id]]}）`, `${trackName(id)}: ${S.tracks[id]} (threshold ${D.thresholds(S.level, S.players)[S.tracks[id]]})`) : `${trackName(id)}：${S.tracks[id]}`;
+    el.style.width = el.style.height = sz + "px";
+    el.style.transform = tAt(sn.x + sn.w / 2, sn.y + sn.h / 2, sz, sz);
     el.style.zIndex = 8000;
   }
+  renderForgotten();
+}
+// the forgotten track on the Ledger: its marker always shows how many cards the forgotten pile holds
+function renderForgotten() {
+  let el = markerEls.forgot;
+  if (!el || !el.isConnected) {
+    el = document.createElement("div");
+    el.className = "piece tk forgotm"; el.innerHTML = icon("nb-oblivion");
+    elTable.appendChild(el); markerEls.forgot = el;
+  }
+  const n = S.stacks.forgot?.items.length || 0, k = Math.min(n, FORGOT_MAX), sz = 32;
+  el.title = tr(`遺忘堆：${n} 張`, `Forgotten pile: ${n}`);
+  el.dataset.count = n;
+  el.style.width = el.style.height = sz + "px";
+  el.style.transform = tAt(LEDGER.x + FX0 + k * FP + FW / 2, LEDGER.y + FY + FW / 2, sz, sz);
+  el.style.zIndex = 7900;
 }
 function setTrack(id, v) {
   v = Math.max(0, Math.min(trackMax(id), v));
@@ -1584,7 +1615,7 @@ function openDrawer(kind) {
   if (!d.classList.contains("hidden") && d.dataset.kind === kind) { d.classList.add("hidden"); return; }
   d.dataset.kind = kind;
   if (kind === "rules") {
-    d.innerHTML = `<div class="hh">${tr("規則書 V5", "Rulebook V5")}<input id="rq" placeholder="${tr("搜尋…", "Search…")}"><button class="hclose">✕</button></div><div class="rules">${LANG === "en" ? RULES_HTML_EN : RULES_HTML}</div>
+    d.innerHTML = `<div class="hh">${tr("規則書 V5", "Rulebook V5")}<input id="rq" placeholder="${tr("搜尋…（Enter 下一個）", "Search… (Enter: next)")}"><span id="rqc" class="rqc"></span><button id="rqprev" title="${tr("上一個（Shift+Enter）", "Previous (Shift+Enter)")}">‹</button><button id="rqnext" title="${tr("下一個（Enter）", "Next (Enter)")}">›</button><button class="hclose">✕</button></div><div class="rules">${LANG === "en" ? RULES_HTML_EN : RULES_HTML}</div>
       <button class="totop" title="${tr("回到目錄", "Back to the contents")}">▲ ${tr("回到頂端", "Top")}</button>`;
     d.querySelector(".totop").onclick = () => { d.scrollTop = 0; };
     // the rulebook's own links (its table of contents) scroll the drawer only, never the page behind it
@@ -1595,10 +1626,51 @@ function openDrawer(kind) {
       const t = d.querySelector(`[id="${CSS.escape(decodeURIComponent(a.getAttribute("href").slice(1)))}"]`);
       if (t) d.scrollTop += t.getBoundingClientRect().top - d.getBoundingClientRect().top - 48;
     };
-    $("#rq").oninput = e => {
-      const q = e.target.value.trim();
-      d.querySelectorAll(".rules > *").forEach(el => { el.style.display = !q || el.textContent.includes(q) ? "" : "none"; });
+    // search: every match highlighted, "3 / 12", previous and next (Enter, Shift+Enter)
+    const box = d.querySelector(".rules");
+    let hits = [], at = -1, timer = 0;
+    const clear = () => {
+      box.querySelectorAll("mark.rqm").forEach(m => m.replaceWith(document.createTextNode(m.textContent)));
+      box.normalize(); hits = []; at = -1;
     };
+    const show = i => {
+      if (!hits.length) { $("#rqc").textContent = $("#rq").value.trim() ? "0 / 0" : ""; return; }
+      at = (i + hits.length) % hits.length;
+      hits.forEach((m, j) => m.classList.toggle("cur", j === at));
+      const m = hits[at];
+      d.scrollTop += m.getBoundingClientRect().top - d.getBoundingClientRect().top - d.clientHeight / 3;
+      $("#rqc").textContent = `${at + 1} / ${hits.length}`;
+    };
+    const find = () => {
+      clear();
+      const q = $("#rq").value.trim().toLowerCase();
+      if (q) {
+        const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+        const nodes = [];
+        for (let n; (n = walker.nextNode());) if (n.nodeValue.toLowerCase().includes(q) && !n.parentElement.closest("svg")) nodes.push(n);
+        for (const n of nodes) {
+          const text = n.nodeValue, low = text.toLowerCase(), frag = document.createDocumentFragment();
+          let i = 0, j;
+          while ((j = low.indexOf(q, i)) >= 0) {
+            if (j > i) frag.appendChild(document.createTextNode(text.slice(i, j)));
+            const m = document.createElement("mark"); m.className = "rqm"; m.textContent = text.slice(j, j + q.length);
+            frag.appendChild(m); hits.push(m); i = j + q.length;
+          }
+          if (i < text.length) frag.appendChild(document.createTextNode(text.slice(i)));
+          n.replaceWith(frag);
+        }
+      }
+      show(0);
+    };
+    $("#rq").oninput = () => { clearTimeout(timer); timer = setTimeout(() => { timer = 0; find(); }, 150); };
+    $("#rq").onkeydown = e => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      if (timer) { clearTimeout(timer); timer = 0; find(); if (!e.shiftKey) return; }
+      show(at + (e.shiftKey ? -1 : 1));
+    };
+    $("#rqprev").onclick = () => show(at - 1);
+    $("#rqnext").onclick = () => show(at + 1);
   } else if (kind === "aid") {
     d.innerHTML = `<div class="hh">${tr("玩家輔助卡 V5", "Player Aid V5")}<button class="hclose">✕</button></div><div class="rules aid">${LANG === "en" ? AID_HTML_EN : AID_HTML}</div>`;
   } else {

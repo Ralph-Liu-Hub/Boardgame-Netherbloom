@@ -487,3 +487,28 @@ body.on-table .topbar { display: none; }
 .liverow button { grid-row: 1 / span 2; grid-column: 3; }
 .tt-bar { overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
 .tt-bar > * { flex-shrink: 0; }
+
+/* the Loom: the Scar marker's places over the knot track (the threshold), with the Backlash level */
+.loom .scarslot { position: absolute; height: 36px; border: 1.5px dashed rgba(226, 67, 77, .7); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #ffb3b8; background: rgba(120, 20, 28, .18); cursor: pointer; }
+.tmarker.scarm { border-radius: 8px 8px 50% 50%; }
+/* the Ledger's forgotten track */
+.ledger .fcell { position: absolute; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 6px; }
+.ledger .fcell.pull { border: 2px dotted var(--cyan); color: #bff3f5; }
+.ledger .fcell.drift { border: 2px solid var(--gold); color: var(--bone); }
+.ledger .fcell.lim { border: 2px solid var(--crimson); color: #ffb3b8; font-weight: 700; }
+.ledger .fcell.past { opacity: .35; }
+.forgotm { pointer-events: none; border-radius: 50%; background: radial-gradient(circle, #1d5f66, #0c2a2e); box-shadow: 0 0 0 2px var(--cyan), 0 2px 6px rgba(0, 0, 0, .6); }
+.forgotm .ic { width: 70%; height: 70%; color: #d9fbfc; }
+.ledger .note b.k-drift { color: var(--gold); } .ledger .note b.k-pull { color: var(--cyan); } .ledger .note b.k-lim { color: var(--crimson); }
+/* Rulebook search */
+.hh .rqc { min-width: 54px; text-align: center; font-size: 12.5px; color: var(--mist); }
+.hh #rqprev, .hh #rqnext { padding: 2px 9px; }
+mark.rqm { background: rgba(242, 184, 79, .35); color: inherit; border-radius: 3px; padding: 0 1px; }
+mark.rqm.cur { background: #f2b84f; color: #1b1813; box-shadow: 0 0 0 2px rgba(242, 184, 79, .5); }
+.loom .blash { width: 330px; }
+.tt-drawer > .hh { position: sticky; top: -10px; z-index: 3; background: rgba(38, 34, 26, .98); margin: -10px -12px 6px; padding: 10px 12px 8px; border-bottom: 1px solid var(--line); }
+
+/* the Loom: the threshold cells are pale red and carry their Scar count; the Scar marker sits on one */
+.loom .cell.scarcell { background: rgba(226, 67, 77, .22); border-color: rgba(226, 67, 77, .75); color: #ffd0d3; }
+.loom .cell.scarcell .sc { position: absolute; top: 2px; left: 0; right: 0; text-align: center; font-style: normal; font-size: 9.5px; color: #ffb3b8; line-height: 1; }
+.ledger .note.fkey { font-size: 12px; line-height: 1.4; }
