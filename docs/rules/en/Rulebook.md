@@ -431,7 +431,7 @@ When a knot marker reaches the threshold, that thread is full. In order:
 2. Move the Scar marker one cell down the knot track: that is the new threshold. 2 Scars at most.
 3. Put the knot marker back to 0.
 
-Each thread has a single knot track (0–10). The Scar marker stands on it, and its cell is the threshold: it starts on 7 with 2–4 players and on 10 solo, and moves one cell down for each Scar. A thread is full when its knot marker reaches the Scar marker. The cells 7 / 6 / 5 and 10 / 9 / 8 are pale red and printed "Scar 0 / 1 / 2" for 2–4 players and for solo play. They are the same at all three difficulties. Once a Scar is made, it never goes away.
+Each thread has a single knot track (0–10). The Scar marker stands on it, and its cell is the threshold: it starts on 7 with 2–4 players and on 10 solo, and moves one cell down for each Scar. A thread is full when its knot marker reaches the Scar marker. Both sets of threshold cells are printed "Scar 0 / 1 / 2": 7 / 6 / 5 for 2–4 players in pale red, 10 / 9 / 8 for solo play in pale teal. They are the same at all three difficulties. Once a Scar is made, it never goes away.
 
 | Scars on this thread | 2–4 players | Solo | When it becomes full |
 |---|---|---|---|

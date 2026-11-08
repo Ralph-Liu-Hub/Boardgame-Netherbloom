@@ -551,28 +551,25 @@ function boardsHtml() {
   const th = D.thresholds(S.level, S.players);
   h += `<div class="board loom" data-region="loom" style="left:${LOOM.x}px;top:${LOOM.y}px;width:${LOOM.w}px;height:${LOOM.h}px">${zoomBtn("loom")}
     <div class="btitle">${tr("命運織機", "Loom of the Fates")}</div>
-    <div class="lab" style="left:92px;top:36px">${tr("迴響", "Echo")}</div><div class="lab" style="left:146px;top:36px">${tr("結（淡紅色格放傷疤標記）", "Knots (the Scar marker goes on a pale red cell)")}</div>
+    <div class="lab" style="left:92px;top:36px">${tr("迴響", "Echo")}</div><div class="lab" style="left:146px;top:36px">${tr("結", "Knots")}</div>
     <div class="lab" style="left:${KX0 + KNOTS * KP + KW + 18}px;top:36px">${tr("反噬（第一／二／三級）", "Backlash (I / II / III)")}</div>`;
   for (let t = 0; t < 3; t++) {
     const y = 60 + t * 88;
     h += `<div class="thread th${t}" style="top:${y}px">${icon(D.THREADS[t].icon)}${tr(D.THREADS[t].zh, D.THREADS[t].en)}</div>`;
     h += `<div class="echoslot th${t}" style="left:90px;top:${y - 4}px" title="${tr("迴響停在這條絲線時，把迴響標記放在這裡", "Put the Echo token here when the Echo is on this thread")}">${tr("迴響", "Echo")}</div>`;
     h += `<div class="groove" style="left:${KX0}px;top:${y + 17}px;width:${KNOTS * KP + KW}px"></div>`;
-    // Both sets of threshold cells are printed, as on the board: 7 / 6 / 5 for 2-4 players, 10 / 9 / 8 solo. Each cell
-    // carries its Scar count; the set this game uses is pale red (the Scar marker stands on one of its cells), the other faint.
-    const solo = S.players === 1;
-    for (const [grp, start, label] of [["multi", 7, tr("2–4 人", "2–4 players")], ["solo", 10, tr("單人", "Solo")]]) {
-      const on = (grp === "solo") === solo;
-      h += `<div class="scargrp${on ? " on" : ""}" style="left:${KX0 + (start - 2) * KP}px;top:${y - 15}px;width:${2 * KP + KW}px">${label}</div>`;
-    }
+    // Both sets of threshold cells are printed, as on the board, each in its own colour and with its Scar count:
+    // 7 / 6 / 5 for 2-4 players (pale red), 10 / 9 / 8 solo (pale teal). The Scar marker stands on one of them.
+    for (const [grp, start, label] of [["multi", 7, tr("2–4 人", "2–4 players")], ["solo", 10, tr("單人", "Solo")]])
+      h += `<div class="scargrp ${grp}" style="left:${KX0 + (start - 2) * KP}px;top:${y - 15}px;width:${2 * KP + KW}px">${label}</div>`;
     for (let k = 0; k <= KNOTS; k++) {
-      const multi = k >= 5 && k <= 7, solos = k >= 8, sc = multi ? 7 - k : solos ? 10 - k : -1, on = sc >= 0 && solos === solo;
-      h += `<div class="cell tcell${sc >= 0 ? ` scarcell${on ? "" : " off"}` : ""}" data-track="knot${t}" data-val="${k}" style="left:${KX0 + k * KP}px;top:${y}px;width:${KW}px"${sc >= 0 ? ` title="${tr(`${solos ? "單人" : "2–4 人"}・${sc} 道傷疤：門檻 ${k}，打滿時第${"一二三"[sc]}級反噬`, `${solos ? "Solo" : "2–4 players"} · ${sc} Scar${sc === 1 ? "" : "s"}: threshold ${k}, Backlash level ${"I II III".split(" ")[sc]}`)}"` : ""}>${sc >= 0 ? `<em class="sc">${tr(`傷疤${sc}`, `Scar ${sc}`)}</em>` : ""}${k}</div>`;
+      const multi = k >= 5 && k <= 7, solos = k >= 8, sc = multi ? 7 - k : solos ? 10 - k : -1;
+      h += `<div class="cell tcell${sc >= 0 ? ` scarcell ${solos ? "solo" : "multi"}` : ""}" data-track="knot${t}" data-val="${k}" style="left:${KX0 + k * KP}px;top:${y}px;width:${KW}px"${sc >= 0 ? ` title="${tr(`${solos ? "單人" : "2–4 人"}・${sc} 道傷疤：門檻 ${k}，打滿時第${"一二三"[sc]}級反噬`, `${solos ? "Solo" : "2–4 players"} · ${sc} Scar${sc === 1 ? "" : "s"}: threshold ${k}, Backlash level ${"I II III".split(" ")[sc]}`)}"` : ""}>${sc >= 0 ? `<em class="sc">${tr(`傷疤${sc}`, `Scar ${sc}`)}</em>` : ""}${k}</div>`;
     }
     h += `<div class="blash" style="left:${KX0 + KNOTS * KP + KW + 18}px;top:${y - 4}px">${D.BACKLASH[t].map((s, i) => `<div><b>${"ⅠⅡⅢ"[i]}</b>${esc(tr(s, D.BACKLASH_EN[t][i]))}</div>`).join("")}</div>`;
   }
   h += `<div class="echoslot silent" style="left:16px;top:320px">${tr("沉默", "Silent")}</div>
-    <div class="note" style="left:96px;top:336px">${tr(`傷疤標記從 ${th[0]} 開始，每道傷疤往左一格（門檻 ${th[0]}／${th[1]}／${th[2]}）。結標記追上傷疤標記就打滿。霧痕：同絲線反噬升一級。`, `The Scar marker starts on ${th[0]} and moves one space left for each Scar (threshold ${th.join(" / ")}). A thread is full when its knot marker reaches the Scar marker. Mist scars raise that thread's Backlash one level.`)}</div></div>`;
+    <div class="note" style="left:96px;top:336px">${tr(`傷疤標記放在有顏色的格子：<b class="k-multi">紅色</b> 2–4 人（7／6／5）、<b class="k-solo">藍綠色</b> 單人（10／9／8）。這局從 ${th[0]} 開始，每道傷疤往左一格；結標記追上傷疤標記就打滿。霧痕：同絲線反噬升一級。`, `The Scar marker goes on a coloured cell: <b class="k-multi">red</b> 2–4 players (7 / 6 / 5), <b class="k-solo">teal</b> solo (10 / 9 / 8). This game it starts on ${th[0]} and moves one cell left for each Scar; a thread is full when its knot marker reaches the Scar marker. Mist scars raise that thread's Backlash one level.`)}</div></div>`;
   // book: one open page; tabs flip through the chapters
   h += `<div class="board bookp" data-region="book" id="tt-book" style="left:${BOOK.x}px;top:${BOOK.y}px;width:${BOOK.w}px;height:${BOOK.h}px"></div>`;
   // ledger

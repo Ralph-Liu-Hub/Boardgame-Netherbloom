@@ -513,8 +513,10 @@ mark.rqm.cur { background: #f2b84f; color: #1b1813; box-shadow: 0 0 0 2px rgba(2
 .loom .cell.scarcell .sc { position: absolute; top: 2px; left: 0; right: 0; text-align: center; font-style: normal; font-size: 9.5px; color: #ffb3b8; line-height: 1; }
 .ledger .note.fkey { font-size: 12px; line-height: 1.4; }
 
-/* the set of threshold cells not used in this game (solo vs 2-4 players): faint, dashed */
-.loom .cell.scarcell.off { background: rgba(226, 67, 77, .05); border-style: dashed; border-color: rgba(226, 67, 77, .35); color: var(--mist); }
-.loom .cell.scarcell.off .sc { color: rgba(255, 179, 184, .45); }
-.loom .scargrp { position: absolute; height: 13px; font-size: 10.5px; line-height: 13px; text-align: center; color: rgba(255, 179, 184, .45); border-top: 1px solid rgba(226, 67, 77, .3); }
-.loom .scargrp.on { color: #ffb3b8; border-top-color: rgba(226, 67, 77, .8); font-weight: 600; }
+/* the two sets of threshold cells: 2-4 players pale red, solo pale teal */
+.loom .cell.scarcell.solo { background: rgba(69, 210, 216, .2); border-color: rgba(69, 210, 216, .75); color: #d2f6f8; }
+.loom .cell.scarcell.solo .sc { color: #a8eef2; }
+/* the captions over each set: a white bracket [------] with the label on it */
+.loom .scargrp { position: absolute; height: 12px; font-size: 10.5px; line-height: 10px; text-align: center; color: var(--paper); }
+.loom .scargrp::before { content: ""; position: absolute; left: 0; right: 0; bottom: -3px; height: 5px; border: 1px solid rgba(242, 232, 213, .8); border-bottom: none; border-radius: 2px 2px 0 0; }
+.loom .note b.k-multi { color: #ffb3b8; } .loom .note b.k-solo { color: #a8eef2; }
