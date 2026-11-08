@@ -1,110 +1,78 @@
-# Netherbloom — Player Aid
+# Netherbloom — Player Aid V5
 
-Everything needed to play, in the order you need it. The Rulebook explains the same rules in full.
+> One for each player, printed on both sides. Laid out in the order you need it during play; § refers to the rulebook's sections. Steps marked ★ are the ones most easily missed.
 
-### Win and lose
+## Front: your turn
 
-**You win** when the soul reaches the Far Shore (space 12). Everyone wins or loses together.
+**You win** when the soul reaches the Far Shore (space 14) with enough Commissions fulfilled (solo 1, 2–3 players 2, 4 players 3). The Far Shore appears only once chapter 3 is written.
+**You lose**: Faded (forgotten cards reach the limit) · Shattered (Fractures reach the limit) · Deluge (Black Water must be placed but none is left) · Nameless (the soul reaches the Far Shore without enough Commissions).
 
-**You lose at once if:**
+### 1. Before your first action (optional, not an action)
 
-- **Faded**: the forgotten pile reaches your Lantern's limit (8–11 cards; the ✕ on the Ledger).
-- **Shattered**: the soul takes its 3rd Fracture.
-- **Deluge**: you must place Black Water and the Ledger's Black Water well is empty.
+- **Summon a Mantle**: pay Light (3, or 2 in the King's game) ★ **and discard 1 card of the same thread**. §9
+- **Redraw your Commission**: once per game. §4
+- **Reaper**: look at the top 2 cards of the deck; you may swap them into your hand.
 
-### Talking: the Veiled Memories
+### 2. Two actions
 
-Talk freely about plans and the table, and say which threads you hold ("2 Obsession, 1 Oblivion"). Never show your hand or say a card's name, effect, Resonance or memory.
+| Action | What you do | Knot | Echo |
+|---|---|---|---|
+| **Play face up** | Resolve the card's effect | +1 on its thread | Moves to its thread |
+| **Play face down** | Place 1 Root (gain 1 Light if there is nowhere to place it) | ★ +1 on its thread | Does not move |
+| **Swap** (once per turn) | Exchange 1 card with a teammate, and play the card you receive face up at once | As face up | As face up |
+| **Recall** (once per turn) | Pay 3 Light to inscribe an Obsession or Acceptance card from the forgotten pile back onto the current route | None | Does not move |
 
-### Setup
+**Playing face up, in order** ★: effect → tie a knot (if the thread is full, **Backlash at once**) → was the Echo already on this thread? Then **Resonate** if this is your first action, and you may **Echo-inscribe** on either action → move the Echo → a card not inscribed: Obsession and Acceptance to the discard pile, Oblivion to the forgotten pile.
 
-1.  **River**: join the 3 panels (Reach I left, III right). Shuffle each Reach's bank tiles separately and place them fog side up in its square wells (spaces 2–4, 5–8, 9–11). A Bloom on both banks of space 1; the soul token on space 0.
-2.  **Soul and Lantern**: choose both. The Soul card's special rule applies all game. Starting Light: Child of the Last Flame 3, Bride Who Stayed Below 1, all others 0.
-3.  **Lantern**: Gentle: 6 Black Water, Faded at 11, 0 harsh Mist per Reach; Standard: 5 Black Water, Faded at 10, 2 harsh Mist per Reach; Hard: 4 Black Water, Faded at 9, 3 harsh Mist per Reach; Heroic: 3 Black Water, Faded at 8, 3 harsh Mist per Reach.
-4.  **Memory deck**: the 32 core cards plus the Soul's 8 (the 8 Echo cards for the Open Crossing), shuffled face down. Leave room for a face-up discard pile.
-5.  **Mist decks**: one per Reach: its 10 basic cards, plus Rising Water and Shade Drawn Near, plus the Lantern's number of random harsh cards. Shuffle each and place it face down, turned sideways, in its Reach's Mist well.
-6.  **Loom**: knots beside it; the Echo token beside it (it goes on a thread at the first card played face up or Burned).
-7.  **Ledger**: the Lantern's Black Water tokens in its well (the rest back in the box); Fractures beside it. Forgotten cards will go on its numbered track.
-8.  **Mantles** face up; the Soul's **Book** open to page I, with its Keepsake cards in three face-down stacks by Reach and its ending cards face down beside it; all other tokens in the supply.
-9.  **Players**: deal each a hand of 3 (4 in solo); each takes a Push Through token face up; the first player takes the Oar. Solo: shuffle the Ghost cards into a deck.
+- **Resonance** belongs only to the first action. A **Key Memory** played face up may always be inscribed.
+- Oblivion cards can never be inscribed.
 
-### On your turn
+### 3. Light and Commissions (optional)
 
-1.  **Summon a Mantle** (optional, before your Answer): pay 3 Light (2 with the King) and discard a card of the Mantle's thread; take the Mantle. One Mantle per player for the game (solo: you may swap it for another, and the old one is gone for good; at most 3 summons).
-2.  **Answer** (first action), one of:
-    - play a card: **face up**, **face down** or **Burn** (below);
-    - **Recall**: pay 3 Light and move any card from the forgotten pile to the discard pile;
-    - **Push Through** (below).
+- **Light memories**: 1 Light each, as many as you like, on any page. Only lit memories count for Commissions.
+- **Reveal a fulfilled Commission**: choose one: untie 2 knots · remove 1 Mist scar · rewrite this chapter's fork.
 
-    Only the Answer can **Resonate**: a card played face up or Burned as your Answer on the thread the Echo sits on also resolves its Resonance effect ("Instead" replaces the normal effect).
-3.  **Steer** (second action): play a card or Push Through. The Steer never Resonates.
-4.  **End of turn**: do the end-of-turn steps (below).
+### At any time: Push Through (free action, once per game)
 
-### Ways to play a card
+When **both banks of the next space have Shades** and it has no Black Water: remove both Shades, the soul moves forward, flip your Push Through token, and **the soul takes 1 Fracture**.
 
-- **Face up**: resolve its effect (and its Resonance, if it Resonates). Tie 1 knot on its thread and move the Echo to that thread. Then: Obsession or Acceptance card → discard pile face up, or inscribe it in the Book if it Resonated and its slot is empty on the current Reach's page (a Key Memory may be inscribed whenever played face up); Oblivion card → forgotten.
-- **Face down**: place 1 Root and ignore the card's text. No knot, the Echo stays. The card goes face up on the discard pile.
-- **Burn** (at most once per turn): another player who holds a card of the same thread joins you. You each put a card of that thread face down, then flip both; you choose one and resolve its effect **twice**. Tie 1 knot on that thread and move the Echo there. Forget both cards; the other player draws 1 card. Nobody else has the thread → you cannot Burn. **Solo**: Burn one card: resolve its effect twice, tie 1 knot, move the Echo, then forget it and the top card of the deck.
-- **Push Through** (once per game for each player): only if Shades hold both banks of the next space and it has no Black Water. Remove both Shades, move the soul there (gain its Light), flip your Push Through token. The soul takes 1 Fracture plus 1 for each Push Through token already face down, and you forget the top card of the deck.
+### The Veiled Memories
 
-### Roots and Blooms
+- **You may say**: which threads you hold, the slots on your cards (Place · Person · Deed · Feeling), and the memory text on your cards.
+- **You may not say**: a card's name, effect or Resonance; nor show your hand. Commission cards are completely secret: no hints until revealed.
 
-- **Place a Root**: a Root token on an empty bank (no token at all) on the soul's space or ahead. It must touch: the soul's space or the next space, or the other bank of its space already has a Root or Bloom token, or the same bank one space before or after has one.
-- **Fog**: placing on a fog bank flips its bank tile. **Fertile**: the Root stays. **Stony**: only with "even on Stony ground" or the Root-Weaver, otherwise return the Root token to the supply. **Memory Site**: the Root stays; draw a keepsake from that Reach's stack, read it aloud, and place it beside its Book page (Open Crossing: +2 Light instead). **Grave**: no Root; a Shade token goes there.
-- **Bloom**: flip a Root on the soul's space or ahead to its Bloom side. A space with a Bloom is **Lit**; the soul only moves onto Lit spaces. **Wither**: flip a Bloom back to its Root side.
+## Back: the end of the turn (after every player's turn)
 
-### End of turn (after every player's turn, in order)
+1. ★ **Bloombringer**: its holder makes 1 Root Bloom for free.
+2. **Soul Step** (see below).
+3. **Shades push the Loom**: Shades on the soul's space tie a knot: left bank Obsession, right bank Acceptance, in the fog Oblivion.
+4. **Mist**: carry out the Mist ahead → if the soul **did not move forward this turn**, the Mist advances (Fog + difficulty bonus) → both banks fog side up means the soul is **Engulfed**: this Mist card becomes a Mist scar (at Hard, also 1 Fracture) → turn over the new Mist ahead.
+5. **The fork and turning the page**: a Fate Mist card on the ◆ means the story forks; a route at its exit means you turn the page. §11
+6. ★ **Cleanup**, space by space: Black Water with a Root or Bloom on both banks → Black Water back in the box; a Shade with Blooms on the same side of the space ahead **and** the space behind → remove the Shade.
+7. **Draw** back up to your hand size.
+8. **Solo**: the Ghost acts, then clean up again. §14
+9. Pass the **Oar** to the player on your left.
 
-1.  **Bloom-Bringer**: if you hold the Bloom-Bringer Mantle, you may Bloom 1 Root for free.
-2.  **Soul Step** (check in order, do the first that applies):
-    1.  If the Resignation token is beside the soul: it does not move; forget the top card of the deck; remove the token. Go to *d*.
-    2.  Otherwise, if the next space is Lit and without Black Water: the soul moves there. Gain 1 Light per Bloom on the space it left, then clear that space (Root, Bloom and Shade tokens back to the supply). Entering a new Reach clears all knots from the Loom. Then check one **extra move**: with 6 or more but fewer than 9 forgotten (***Light as Ash***) it moves one more space only if that space is Lit and without Black Water; with 9 or more (***Adrift***) it must move one more space even if that space is dark or flooded, and takes 1 Fracture if it was (unless the Spirit Warden stops it).
-    3.  Otherwise the soul cannot move: it **Lingers**. In order: the Hold Fast token is out, the Spirit Warden is unused, or the soul's own space is Lit → nothing is forgotten; the Bride Who Stayed Below may move back one space instead (once per game); none of these → forget the top card of the deck.
-    4.  Always, last: a Shade on either bank of the soul's space gives it 1 Fracture.
-3.  **Mist**: reveal the top card of the current Reach's Mist deck and resolve it, then put it on the Mist discard pile beside its well. Empty deck: shuffle that Reach's basic Mist cards.
-4.  **Cleanup**: Black Water with a Root or Bloom token on both banks of its space goes back in the box. A Shade token with a Bloom token on the same bank one space before and one after goes back to the supply.
-5.  **Draw** back up to 3 (4 in solo) (empty deck: shuffle the discard pile).
-6.  **Solo**: flip a Ghost card and do it; tie its knot and move the Echo; Cleanup again.
-7.  **Pass the Oar** left. Next turn: remove the Hold Fast token; the Spirit Warden straightens at its holder's turn; an unused Shield is removed at the end of its owner's next turn.
+### The Soul Step
 
-### The Loom (a thread is full at 4 (2–3 players) or 5 (solo, 4 players) knots)
+1. **Resignation** marker: she does not move; forget the top card; remove the marker.
+2. The next space is **Lit** and free of Black Water: she moves forward (the Spirit Warden may make her Stay). The space she left: **gather the light** (1 Light per Bloom; the Blooms wither) or **leave the light**.
+3. If she moved, look at the forgotten pile: **6–8 Light as Ash**, one more step if the next space is Lit and free of Black Water; **9+ Adrift**, always one more step, and a Fracture if it goes into the dark.
+4. If she cannot move forward she **Lingers**; do only the first that applies: I Hold Fast → II Spirit Warden → III her space is Lit → IV the Bride is pulled back → V forget the top card.
+5. ★ **Shade damage**: a Shade on her space means 1 Fracture (whether or not she moved).
 
-A full thread causes its Backlash at once, then all its knots come off:
+### Key numbers
 
-- **Obsession, Grasping**: a Shade token on the soul's space (left bank first, else right; both taken: the next space; a Root or Bloom token on that bank goes back to the supply).
-- **Acceptance, Resignation**: the Resignation token beside the soul (in the next Soul Step, the soul stays put and you forget 1).
-- **Oblivion, the Tide Rises**: Black Water on the next space.
+| Item | Number |
+|---|---|
+| Loom threshold | 7 knots with 2–4 players · 10 solo; each Scar −1, and the Backlash one level higher |
+| The Pull of Lethe (forgotten pile at the fork) | Chapter 1: 3 · chapter 2: 5 · chapter 3: 7 cards |
+| Turning the page unties (0 / 1 / 2 / 3 memories lit on the page) | 0 / 3 / 6 / 9 knots |
+| Light | 12 at most; light a memory 1 · summon a Mantle 3 (King 2) · Recall 3 |
+| Hand size | Solo 6 · 2 players 4 · 3–4 players 3 |
 
-### Threats
-
-- **Black Water**: taken from the Ledger's well. If the space already has some, use the next space ahead without it. Blooms on that space wither. The soul cannot enter it. Removed Black Water goes in the box.
-- **Shade tokens**: on the bank named; taken: the other bank; both taken: the next space. A Root or Bloom token there goes back to the supply. No Root on a bank with a Shade token.
-- **Fractures**: each on the next Ledger well; 3rd = Shattered. The Shield token cancels the next one.
-- **Forgetting**: forgotten cards go face up on the Ledger's track. 6: Light as Ash · 9: Adrift · 8–11: Faded (you lose).
-
-### Light and Mantles
-
-Light is shared by all players. Gain 1 Light per Bloom token on each space the soul leaves. Spend 3 to Recall (as your Answer) or to summon a Mantle.
-
-- **The Root-Weaver** (Obsession): Your Roots may grow on Stony ground. Your first Root effect each turn places 1 extra Root.
-- **The Spirit Warden** (Obsession): Once per round, stop the soul from Lingering or from drifting Adrift.
-- **The Bloom-Bringer** (Acceptance): At the end of each of your turns, Bloom 1 Root for free.
-- **The Fog-Breaker** (Oblivion): Your first Oblivion card each turn is discarded instead of forgotten.
-
-### The Book of Remembrance
-
-- Each pair of neighboring slots on a page gives its reward once, when the second of the two is inscribed:
-- Page I: Place + Person: Place 1 Root. · Person + Deed: Bloom 1 Root. · Deed + Feeling: Gain 2 Light.
-- Page II: Place + Person: Banish the nearest Shade. · Person + Deed: Drain the nearest Black Water. · Deed + Feeling: Untie 1 knot on the fullest thread (if tied, you choose).
-- Page III: Place + Person: Return the newest forgotten card to the discard pile. · Person + Deed: Mend 1 Fracture. · Deed + Feeling: The soul steps forward now, if the next space is Lit.
-- A full page (4 cards; the Garland Girl 3) also gives a **Chapter Blessing**: remove 1 Fracture; if none, remove the nearest Black Water ahead; if none, move the newest forgotten card to the discard pile.
-
-### Card words
-
-- **Banish** a Shade / **Wash away** Shades: return them to the supply. **Drain** Black Water: remove it to the box.
-- **Mend**: remove a Fracture. **Untie** / **Empty** the fullest thread: remove its knots, no Backlash (tied: you choose). **Tie**: add knots (full → Backlash).
-- **Forget**: put the card face up on the Ledger's track. **Linger**: the soul does not move. **Lift the fog**: flip a Reach's bank tiles without placing Roots; Graves turn Fertile.
-
-### The ending
-
-When the game ends, read the Book aloud, page by page; an empty slot reads "…but this, the river has taken", and each page's keepsakes follow it. If you won, check where the Key Memory is (inscribed, forgotten, or unspoken) and how many cards were forgotten, and read the matching ending card last; a hidden ending whose conditions are met replaces the one it names.
+| Difficulty | Faded | Shattered | Black Water | Mist bonus | Starting knots |
+|---|---|---|---|---|---|
+| Gentle | 14 forgotten | 5 Fractures | 7 | +0 | 0 |
+| Standard | 12 forgotten | 4 Fractures | 6 | +1 | 0 |
+| Hard | 12 forgotten | 3 Fractures | 6 | +1 | 1 on each |

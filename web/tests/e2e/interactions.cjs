@@ -284,6 +284,11 @@ module.exports = async (page, setStage, note, BASE) => {
   await page.click("#lb-resume"); await page.waitForSelector("#tt-world");
   s1 = await S(); expect(s1.tracks.knot1 === 6 && s1.hands[0].length >= 2, "resume restores the game");
 
+  // the game bar's Player Aid button
+  await page.click("#tt-aid"); await page.waitForTimeout(80);
+  expect((await page.getAttribute("#tt-drawer", "data-kind")) === "aid", "the game's Player Aid button opens the player aid");
+  await page.click("#tt-aid");
+
   // o) phone size: the table still opens and fits
   stage("p3 phone");
   await page.setViewportSize({ width: 390, height: 844 });
@@ -297,6 +302,12 @@ module.exports = async (page, setStage, note, BASE) => {
   await page.click("#tt-menu"); await page.waitForSelector("#lb-local");
   expect((await page.$$(".lobby .choose table")).length === 3, "the menu shows the difficulty, set-up and Soul tables");
   expect(!!(await page.$("#lb-end")), "End the game sits next to Continue");
+  // the menu's top bar: the Rulebook and the Player Aid open in a drawer
+  await page.click("#btn-rules"); await page.waitForTimeout(80);
+  expect((await page.getAttribute("#tt-drawer", "data-kind")) === "rules" && await page.locator("#tt-drawer").isVisible(), "the menu's Rulebook button opens the rulebook");
+  await page.click("#btn-aid"); await page.waitForTimeout(80);
+  expect((await page.getAttribute("#tt-drawer", "data-kind")) === "aid" && (await page.textContent("#tt-drawer")).includes("回合結束"), "the menu's Player Aid button opens the player aid");
+  await page.click("#tt-drawer .hclose");
   page.once("dialog", d => d.accept());
   await page.click("#lb-end"); await page.waitForTimeout(150);
   expect(!(await page.$("#lb-resume")) && (await S()) === null, "End the game clears the save");

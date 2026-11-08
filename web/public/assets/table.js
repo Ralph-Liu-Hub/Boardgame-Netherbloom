@@ -6,7 +6,7 @@ import { STORY, PULL } from "./table-story.js";
 import { STORY_EN } from "./table-story-en.js";
 import * as D from "./table-data.js";
 import * as net from "./net.js";
-import { RULES_HTML, RULES_HTML_EN } from "./rules-v5.js";
+import { RULES_HTML, RULES_HTML_EN, AID_HTML, AID_HTML_EN } from "./rules-v5.js";
 import { STEPS, PHASES } from "./table-hints.js";
 
 // ---------------------------------------------------------------- language
@@ -693,6 +693,7 @@ function buildTable() {
       <button id="tt-redo" title="Ctrl+Y">${tr("重做", "Redo")}</button>
       <button id="tt-fit">${tr("全桌", "Fit")}</button>
       <button id="tt-rules">${tr("規則書", "Rulebook")}</button>
+      <button id="tt-aid">${tr("玩家輔助卡", "Player Aid")}</button>
       <button id="tt-log">${tr("紀錄", "Log")}</button>
       <button id="tt-menu">${tr("選單", "Menu")}</button>
       <span class="tt-sep"></span>
@@ -1030,6 +1031,7 @@ function bindTable() {
   elHand.addEventListener("contextmenu", e => { e.preventDefault(); openMenu(e); });
   $("#tt-undo").onclick = undo; $("#tt-redo").onclick = redo; $("#tt-fit").onclick = fit;
   $("#tt-rules").onclick = () => openDrawer("rules");
+  $("#tt-aid").onclick = () => openDrawer("aid");
   $("#tt-log").onclick = () => openDrawer("log");
   $("#tt-menu").onclick = () => {
     if (mode !== "local" && !confirm(tr("離開這張線上桌？其他人會和你斷線。", "Leave this online table? The others lose their link to you."))) return;
@@ -1530,6 +1532,8 @@ function openDrawer(kind) {
       const q = e.target.value.trim();
       d.querySelectorAll(".rules > *").forEach(el => { el.style.display = !q || el.textContent.includes(q) ? "" : "none"; });
     };
+  } else if (kind === "aid") {
+    d.innerHTML = `<div class="hh">${tr("玩家輔助卡 V5", "Player Aid V5")}<button class="hclose">✕</button></div><div class="rules aid">${LANG === "en" ? AID_HTML_EN : AID_HTML}</div>`;
   } else {
     d.innerHTML = `<div class="hh">${tr("紀錄", "Log")}<button class="hclose">✕</button></div><ol class="log">${[...S.log].reverse().map(l => `<li><small>${new Date(l.t).toLocaleTimeString()}</small> ${esc(l.m)}</li>`).join("")}</ol>`;
   }
@@ -1687,7 +1691,9 @@ function startGuest(code, name) {
   link = net.join(code, {
     open: () => link.send({ t: "hello", name, cid: net.clientId() }),
     message: msg => {
-      if (msg.t === "welcome") { seated = true; ME = msg.seat; S = msg.S; hist = []; fut = []; buildTable(); $("#tt-code").textContent = tr(`房間 ${code}`, `Table ${code}`); }
+      if (msg.t === "welcome") { const first = !seated; seated = true; ME = msg.seat; S = msg.S; hist = []; fut = [];
+        const go = () => { buildTable(); $("#tt-code").textContent = tr(`房間 ${code}`, `Table ${code}`); };
+        first ? enterGame(go) : go(); }
       else if (msg.t === "state" && seated && msg.S && msg.S.rev >= S.rev) { const old = S; S = msg.S; remoteChange(); if (onTable()) { render(); animateChanges(old); } }
       else if ((msg.t === "mv" || msg.t === "mvend") && seated && onTable()) remoteMove(msg);
       else if (msg.t === "full") toast(tr("這張桌子已經坐滿了。", "That table is full."));
@@ -1695,6 +1701,25 @@ function startGuest(code, name) {
     close: () => toast(tr("與主持人的連線中斷了。", "Lost the host.")),
     error: e => toast(tr("連線錯誤：", "Connection error: ") + (e?.type || "")),
   });
+}
+
+// ---------------------------------------------------------------- entering a game
+// A veil falls over the screen while the table is laid out, a spider lily opens on it, and the veil lifts onto the
+// table. It never blocks the pointer, and it is brief for anyone who prefers reduced motion.
+function enterGame(build) {
+  document.querySelector(".nb-loading")?.remove();
+  const quick = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const v = document.createElement("div");
+  v.className = "nb-loading";
+  const petals = Array.from({ length: 6 }, (_, i) => `<g transform="rotate(${i * 60} 60 60)"><path class="pt" style="--d:${i * 0.07}s" d="M60 60 C52 44 50 26 60 10 C70 26 68 44 60 60 Z"/></g>`).join("");
+  const stamens = Array.from({ length: 6 }, (_, i) => { const a = (i * 60 + 30) * Math.PI / 180;
+    return `<path class="st" style="--d:${0.45 + i * 0.05}s" d="M60 60 Q${(60 + 30 * Math.cos(a - 0.3)).toFixed(1)} ${(60 + 30 * Math.sin(a - 0.3)).toFixed(1)} ${(60 + 50 * Math.cos(a)).toFixed(1)} ${(60 + 50 * Math.sin(a)).toFixed(1)}"/>`; }).join("");
+  v.innerHTML = `<div class="nb-lily"><svg viewBox="0 0 120 120" aria-hidden="true">${petals}${stamens}<circle class="core" cx="60" cy="60" r="5"/></svg>
+    <p>${tr("擺渡人點起燈，走向河岸……", "The Ferrymen light their lamps and walk down to the river…")}</p></div>`;
+  document.body.appendChild(v);
+  build();
+  setTimeout(() => v.classList.add("out"), quick ? 150 : 1100);
+  setTimeout(() => v.remove(), quick ? 450 : 1700);
 }
 
 // ---------------------------------------------------------------- lobby
@@ -1747,6 +1772,7 @@ function showMenuScreen() {
       <label>${tr("你的名字", "Your name")} <input id="lb-myname" maxlength="18" size="12"></label>
       <button id="lb-join">${tr("加入", "Join")}</button></fieldset>
     ${chooseTables()}
+    <aside class="tt-drawer lobby-drawer hidden" id="tt-drawer"></aside>
     <p class="muted small">${tr("開桌時，元件會依規則書的準備步驟分好：牌庫洗好、河岸板塊面朝下隨機擺好、各種指示物放在供應區。發牌、放最初的花、翻開前方的霧等，都由你們自己動手（提示會一步一步帶你們）。", "When the table opens, the components are sorted as the rulebook's set-up says: decks shuffled, bank tiles placed face down at random, tokens in the supply. Dealing, the first flowers and the first Mist are yours to do (the hints walk you through it).")}</p>
   </div>`;
   const names = () => {
@@ -1756,7 +1782,7 @@ function showMenuScreen() {
   $("#lb-players").onchange = names; names();
   const opts = () => ({ soul: $("#lb-soul").value, level: +$("#lb-level").value, players: +$("#lb-players").value,
     names: [...document.querySelectorAll("[data-name]")].map(i => i.value.trim() || i.defaultValue) });
-  if ($("#lb-resume")) $("#lb-resume").onclick = () => { S = saved; ME = 0; mode = "local"; hist = []; fut = []; buildTable(); };
+  if ($("#lb-resume")) $("#lb-resume").onclick = () => enterGame(() => { S = saved; ME = 0; mode = "local"; hist = []; fut = []; buildTable(); });
   // end the saved game for good (it cannot be continued afterwards)
   if ($("#lb-end")) $("#lb-end").onclick = () => {
     if (!confirm(tr("結束這一局？存檔會被刪除，之後無法再繼續。", "End this game? Its save is deleted and it cannot be continued."))) return;
@@ -1764,12 +1790,11 @@ function showMenuScreen() {
     S = null; hist = []; fut = [];
     showMenuScreen(); toast(tr("這一局已結束。", "The game has ended."));
   };
-  $("#lb-local").onclick = () => { newTable(opts()); ME = 0; mode = "local"; hist = []; fut = []; buildTable(); saveLocal(); track("start"); };
+  $("#lb-local").onclick = () => enterGame(() => { newTable(opts()); ME = 0; mode = "local"; hist = []; fut = []; buildTable(); saveLocal(); track("start"); });
   $("#lb-host").onclick = () => {
     const o = opts();
     if (o.players < 2) { toast(tr("線上桌需要 2–4 人。", "Online tables need 2–4 players.")); return; }
-    newTable(o); ME = 0; hist = []; fut = []; buildTable(); saveLocal();
-    startHost(net.newCode()); track("start");
+    enterGame(() => { newTable(o); ME = 0; hist = []; fut = []; buildTable(); saveLocal(); startHost(net.newCode()); track("start"); });
   };
   $("#lb-join").onclick = () => {
     const code = $("#lb-code").value.trim().toUpperCase();
@@ -1800,7 +1825,12 @@ function toggleLang() {
   try { localStorage.setItem("nb-lang", LANG); } catch { /* */ }
   const lb = $("#btn-lang");
   if (lb) lb.textContent = LANG === "zh" ? "English" : "中文";
+  labelTopbar();
   S && onTable() ? buildTable() : showMenuScreen();
+}
+function labelTopbar() {
+  if ($("#btn-rules")) $("#btn-rules").textContent = tr("規則書", "Rulebook");
+  if ($("#btn-aid")) $("#btn-aid").textContent = tr("玩家輔助卡", "Player Aid");
 }
 async function boot() {
   try {
@@ -1815,6 +1845,9 @@ async function boot() {
     lb.textContent = LANG === "zh" ? "English" : "中文";
     lb.onclick = toggleLang;
   }
+  labelTopbar();
+  if ($("#btn-rules")) $("#btn-rules").onclick = () => openDrawer("rules");
+  if ($("#btn-aid")) $("#btn-aid").onclick = () => openDrawer("aid");
   window.addEventListener("resize", () => { if (S && onTable()) fit(); });
   fetch("/api/me", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(me => { if (me?.admin) { isAdmin = true; $("#btn-dash")?.classList.remove("hidden"); $("#tt-dash")?.classList.remove("hidden"); } }).catch(() => {});
   showMenuScreen();

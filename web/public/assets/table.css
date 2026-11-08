@@ -440,3 +440,30 @@ body.on-table .topbar { display: none; }
 .lobby .choose thead th { background: rgba(214, 184, 128, .14); color: var(--bone); }
 .lobby .choose tbody th { font-weight: 500; color: var(--mist); white-space: nowrap; }
 .lobby .choose table.souls tbody th { color: var(--bone); }
+
+/* the menu's drawer (Rulebook, Player Aid): fixed to the window, under the top bar */
+.tt-drawer.lobby-drawer { position: fixed; top: 52px; right: 12px; bottom: 12px; width: min(600px, calc(100% - 24px)); max-width: none; left: auto; z-index: 40; text-align: left; }
+/* the Player Aid in a drawer: compact reference tables */
+.rules.aid h2 { font-family: var(--serif); color: var(--bone); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin: 18px 0 8px; font-size: 18px; }
+.rules.aid h3 { color: var(--gold); font-size: 15px; margin: 14px 0 6px; }
+.rules.aid table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 6px 0 10px; }
+.rules.aid th, .rules.aid td { border: 1px solid var(--line); padding: 4px 6px; vertical-align: top; text-align: left; }
+.rules.aid th { background: rgba(214, 184, 128, .14); color: var(--bone); }
+.rules.aid blockquote { margin: 0 0 8px; padding: 6px 10px; border-left: 3px solid var(--gold); color: var(--mist); font-size: 13px; }
+
+/* entering a game: a veil with a spider lily opening on it */
+.nb-loading { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 45%, #3a2f22 0%, #1d1913 55%, #0d0b08 100%); opacity: 0; animation: nbveil .35s ease forwards; }
+.nb-loading.out { animation: nbveilout .6s ease forwards; }
+@keyframes nbveil { to { opacity: 1; } }
+@keyframes nbveilout { from { opacity: 1; } to { opacity: 0; transform: scale(1.04); } }
+.nb-lily { text-align: center; color: var(--bone); }
+.nb-lily svg { width: 150px; height: 150px; overflow: visible; filter: drop-shadow(0 0 18px rgba(226, 67, 77, .45)); }
+.nb-lily .pt { fill: #c8323c; fill-opacity: .85; stroke: #ff8a7a; stroke-width: 1; transform-box: view-box; transform-origin: 60px 60px;
+  opacity: 0; animation: nbpetal .7s cubic-bezier(.2, .8, .3, 1) forwards; animation-delay: var(--d); }
+@keyframes nbpetal { from { opacity: 0; transform: scale(.15); } to { opacity: 1; transform: scale(1); } }
+.nb-lily .st { fill: none; stroke: #ffb3a3; stroke-width: 1.4; stroke-linecap: round; stroke-dasharray: 70; stroke-dashoffset: 70; animation: nbstamen .6s ease-out forwards; animation-delay: var(--d); }
+@keyframes nbstamen { to { stroke-dashoffset: 0; } }
+.nb-lily .core { fill: #f2b84f; opacity: 0; animation: nbveil .4s ease .7s forwards; }
+.nb-lily p { font-family: var(--serif); font-size: 17px; letter-spacing: .04em; margin-top: 14px; opacity: 0; animation: nbveil .6s ease .35s forwards; }
+@media (prefers-reduced-motion: reduce) { .nb-loading, .nb-lily * { animation-duration: .01s !important; animation-delay: 0s !important; } }

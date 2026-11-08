@@ -24,6 +24,8 @@ const BASE = process.env.BASE || "http://localhost:8765";
   await page.goto(BASE + "/index.html"); await page.waitForSelector("#lb-local");
   await page.selectOption("#lb-level", "2"); await page.selectOption("#lb-players", "3");
   await page.click("#lb-local"); await page.waitForSelector("#tt-world");
+  expect(!!(await page.$(".nb-loading")), "a loading veil covers the table as it opens");
+  await page.waitForSelector(".nb-loading", { state: "detached", timeout: 4000 }).catch(() => problems.push("the loading veil never lifts"));
   let s = await S();
   expect(Object.values(s.items).every(it => it.kind !== "tile" || s.where[it.id] !== "t"), "no tile is on the River before set-up");
 
