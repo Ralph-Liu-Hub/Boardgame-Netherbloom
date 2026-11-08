@@ -414,17 +414,17 @@ body.on-table .topbar { display: none; }
 .boxa { background: repeating-linear-gradient(135deg, rgba(92, 80, 60, .55) 0 14px, rgba(60, 52, 40, .55) 14px 28px); }
 .board.mat { background: linear-gradient(160deg, rgba(112, 94, 66, .85), rgba(62, 54, 40, .88)); border-color: #c8a46a; }
 /* the River: a light painting under the banks so the slots stand out */
-.river { background: #0c1014; overflow: hidden; }
+.river { background: #3b3a36; overflow: hidden; }
 .river::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: url(/assets/art/scene-river.webp) center / cover;
-  filter: brightness(.95) saturate(1.2) hue-rotate(-10deg); opacity: .7; pointer-events: none; }
-.river::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(ellipse at 50% 42%, rgba(40, 70, 90, .12), rgba(6, 10, 16, .55) 70%, rgba(2, 4, 8, .8)); pointer-events: none; }
+  filter: brightness(2.1) saturate(1.35) sepia(.25); opacity: .55; pointer-events: none; }
+.river::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(ellipse at 50% 50%, rgba(255, 238, 205, .16), rgba(40, 30, 22, .35)); pointer-events: none; }
 .river > * { z-index: 1; }
 .riverwater { z-index: 0 !important; }
-.riverwater .wbase path { stroke: #0c2c40; opacity: .9; }
-.riverwater .wsheen path { stroke: #3c7f9c; stroke-width: 26; opacity: .28; }
-.lane { border: 2px solid rgba(160, 200, 215, .35); background: rgba(4, 14, 22, .3); }
-.lane.reach1 { background: rgba(150, 30, 40, .22); } .lane.reach2 { background: rgba(30, 120, 130, .22); }
-.lane.shore { background: rgba(200, 170, 110, .22); }
+.riverwater .wbase path { stroke: #060d14; opacity: .93; }
+.riverwater .wsheen path { stroke: #1d3f52; stroke-width: 22; opacity: .45; }
+.lane { border: 2px solid rgba(120, 150, 165, .3); background: rgba(2, 6, 10, .45); }
+.lane.reach1 { background: rgba(70, 10, 18, .45); } .lane.reach2 { background: rgba(6, 40, 46, .5); }
+.lane.shore { background: rgba(60, 48, 30, .55); }
 .lane .spn { color: #fff6e2; text-shadow: 0 1px 3px #000; font-weight: 600; }
 .lane .flow { color: #7fb8cc; }
 .bankslot { border: 2px dashed rgba(232, 190, 110, .85); background: rgba(8, 10, 14, .6); box-shadow: inset 0 0 12px rgba(0, 0, 0, .6), 0 0 0 1px rgba(0, 0, 0, .5); }
