@@ -6,7 +6,7 @@ import { STORY, PULL } from "./table-story.js";
 import { STORY_EN } from "./table-story-en.js";
 import * as D from "./table-data.js";
 import * as net from "./net.js";
-import { RULES_HTML } from "./rules-v5.js";
+import { RULES_HTML, RULES_HTML_EN } from "./rules-v5.js";
 import { STEPS, PHASES } from "./table-hints.js";
 
 // ---------------------------------------------------------------- language
@@ -1515,7 +1515,7 @@ function openDrawer(kind) {
   if (!d.classList.contains("hidden") && d.dataset.kind === kind) { d.classList.add("hidden"); return; }
   d.dataset.kind = kind;
   if (kind === "rules") {
-    d.innerHTML = `<div class="hh">${tr("規則書 V5", "Rulebook V5")}<input id="rq" placeholder="${tr("搜尋…", "Search…")}"><button class="hclose">✕</button></div><div class="rules">${RULES_HTML}</div>
+    d.innerHTML = `<div class="hh">${tr("規則書 V5", "Rulebook V5")}<input id="rq" placeholder="${tr("搜尋…", "Search…")}"><button class="hclose">✕</button></div><div class="rules">${LANG === "en" ? RULES_HTML_EN : RULES_HTML}</div>
       <button class="totop" title="${tr("回到目錄", "Back to the contents")}">▲ ${tr("回到頂端", "Top")}</button>`;
     d.querySelector(".totop").onclick = () => { d.scrollTop = 0; };
     // the rulebook's own links (its table of contents) scroll the drawer only, never the page behind it
