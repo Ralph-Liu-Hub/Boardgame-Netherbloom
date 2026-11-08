@@ -197,11 +197,16 @@ module.exports = async (page, setStage, note, BASE) => {
     expect(st.tracks.scar2 === 1 && Math.abs(sm.x + sm.width / 2 - (c.x + c.width / 2)) < 3 && Math.abs(sm.y + sm.height / 2 - (c.y + c.height / 2)) < 3, "one Scar: the Scar marker sits in the next cell down, the new threshold");
     await dragTo(await center('.tmarker[data-track="scar2"]'), await center(`.tcell[data-track="knot2"][data-val="${thr}"]`));
   }
-  // the Ledger: the forgotten track's marker follows the forgotten pile
+  // the Ledger: the forgotten track is moved by hand, like Light
+  await zoomClick('.zoombtn[data-zoom="ledger"]');
+  await page.click('.tcell[data-track="forgot"][data-val="3"]'); await page.waitForTimeout(400);   // the marker glides there
   {
-    const st = await S(), cnt = await page.getAttribute(".forgotm", "data-count");
-    expect(+cnt === st.stacks.forgot.items.length, `the forgotten marker shows the forgotten pile (${cnt} / ${st.stacks.forgot.items.length})`);
+    const st = await S(), m = await page.locator('.tmarker[data-track="forgot"]').boundingBox(), c = await page.locator('.tcell[data-track="forgot"][data-val="3"]').boundingBox();
+    expect(st.tracks.forgot === 3 && Math.abs(m.x + m.width / 2 - (c.x + c.width / 2)) < 3, `a click on the forgotten track moves its marker there (${st.tracks.forgot}, ${Math.round(m.x + m.width / 2)} vs ${Math.round(c.x + c.width / 2)})`);
+    await dragTo(await center('.tmarker[data-track="forgot"]'), await center('.tcell[data-track="forgot"][data-val="5"]'));
+    expect((await S()).tracks.forgot === 5, "the forgotten marker can be dragged");
   }
+  await page.click('.tcell[data-track="forgot"][data-val="0"]');
   await page.click("#tt-log"); expect((await page.$$("#tt-drawer .log li")).length > 5, "log lists moves"); await page.click("#tt-log");
 
   // l) shift-drag a stack moves it; undo puts it back
