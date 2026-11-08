@@ -558,9 +558,16 @@ function boardsHtml() {
     h += `<div class="thread th${t}" style="top:${y}px">${icon(D.THREADS[t].icon)}${tr(D.THREADS[t].zh, D.THREADS[t].en)}</div>`;
     h += `<div class="echoslot th${t}" style="left:90px;top:${y - 4}px" title="${tr("迴響停在這條絲線時，把迴響標記放在這裡", "Put the Echo token here when the Echo is on this thread")}">${tr("迴響", "Echo")}</div>`;
     h += `<div class="groove" style="left:${KX0}px;top:${y + 17}px;width:${KNOTS * KP + KW}px"></div>`;
+    // Both sets of threshold cells are printed, as on the board: 7 / 6 / 5 for 2-4 players, 10 / 9 / 8 solo. Each cell
+    // carries its Scar count; the set this game uses is pale red (the Scar marker stands on one of its cells), the other faint.
+    const solo = S.players === 1;
+    for (const [grp, start, label] of [["multi", 7, tr("2–4 人", "2–4 players")], ["solo", 10, tr("單人", "Solo")]]) {
+      const on = (grp === "solo") === solo;
+      h += `<div class="scargrp${on ? " on" : ""}" style="left:${KX0 + (start - 2) * KP}px;top:${y - 15}px;width:${2 * KP + KW}px">${label}</div>`;
+    }
     for (let k = 0; k <= KNOTS; k++) {
-      const sc = th.indexOf(k);   // the threshold cells carry their Scar count: the Scar marker stands on one of them
-      h += `<div class="cell tcell${sc >= 0 ? " scarcell" : ""}" data-track="knot${t}" data-val="${k}" style="left:${KX0 + k * KP}px;top:${y}px;width:${KW}px"${sc >= 0 ? ` title="${tr(`${sc} 道傷疤：門檻 ${k}，打滿時第${"一二三"[sc]}級反噬`, `${sc} Scar${sc === 1 ? "" : "s"}: threshold ${k}, Backlash level ${"I II III".split(" ")[sc]}`)}"` : ""}>${sc >= 0 ? `<em class="sc">${tr(`傷疤${sc}`, `Scar ${sc}`)}</em>` : ""}${k}</div>`;
+      const multi = k >= 5 && k <= 7, solos = k >= 8, sc = multi ? 7 - k : solos ? 10 - k : -1, on = sc >= 0 && solos === solo;
+      h += `<div class="cell tcell${sc >= 0 ? ` scarcell${on ? "" : " off"}` : ""}" data-track="knot${t}" data-val="${k}" style="left:${KX0 + k * KP}px;top:${y}px;width:${KW}px"${sc >= 0 ? ` title="${tr(`${solos ? "單人" : "2–4 人"}・${sc} 道傷疤：門檻 ${k}，打滿時第${"一二三"[sc]}級反噬`, `${solos ? "Solo" : "2–4 players"} · ${sc} Scar${sc === 1 ? "" : "s"}: threshold ${k}, Backlash level ${"I II III".split(" ")[sc]}`)}"` : ""}>${sc >= 0 ? `<em class="sc">${tr(`傷疤${sc}`, `Scar ${sc}`)}</em>` : ""}${k}</div>`;
     }
     h += `<div class="blash" style="left:${KX0 + KNOTS * KP + KW + 18}px;top:${y - 4}px">${D.BACKLASH[t].map((s, i) => `<div><b>${"ⅠⅡⅢ"[i]}</b>${esc(tr(s, D.BACKLASH_EN[t][i]))}</div>`).join("")}</div>`;
   }

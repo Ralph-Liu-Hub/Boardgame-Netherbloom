@@ -512,3 +512,9 @@ mark.rqm.cur { background: #f2b84f; color: #1b1813; box-shadow: 0 0 0 2px rgba(2
 .loom .cell.scarcell { background: rgba(226, 67, 77, .22); border-color: rgba(226, 67, 77, .75); color: #ffd0d3; }
 .loom .cell.scarcell .sc { position: absolute; top: 2px; left: 0; right: 0; text-align: center; font-style: normal; font-size: 9.5px; color: #ffb3b8; line-height: 1; }
 .ledger .note.fkey { font-size: 12px; line-height: 1.4; }
+
+/* the set of threshold cells not used in this game (solo vs 2-4 players): faint, dashed */
+.loom .cell.scarcell.off { background: rgba(226, 67, 77, .05); border-style: dashed; border-color: rgba(226, 67, 77, .35); color: var(--mist); }
+.loom .cell.scarcell.off .sc { color: rgba(255, 179, 184, .45); }
+.loom .scargrp { position: absolute; height: 13px; font-size: 10.5px; line-height: 13px; text-align: center; color: rgba(255, 179, 184, .45); border-top: 1px solid rgba(226, 67, 77, .3); }
+.loom .scargrp.on { color: #ffb3b8; border-top-color: rgba(226, 67, 77, .8); font-weight: 600; }
