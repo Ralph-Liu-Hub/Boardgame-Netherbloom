@@ -40,6 +40,35 @@ function deckIds(soul) {
   return [...core, ...own];
 }
 
+// ---------------------------------------------------------------- the paintings
+const ART = name => `/assets/art/${name}.webp`;
+const SOUL_PAINT = {
+  open: ["nameless-road", "nameless-mourners", "nameless-lethe"], child: ["child-road", "child-fields", "child-lethe"],
+  garland: ["garland-brook", "garland-wade", "garland-lethe"], king: ["king-field", "king-barge", "king-lake"],
+  bride: ["bride-wedding", "bride-stair", "bride-shore"],
+};
+const TAG_ART = ["card-obsession", "card-acceptance", "card-oblivion"];
+// a Memory card's painting: core cards by thread; a soul's own cards use that soul's Book paintings
+// (Oblivion cards keep the thread painting, the Key Memory gets the last chapter), as on the printed cards
+function memArt(card) {
+  const soul = Object.keys(PACK).find(k => card.id.startsWith(PACK[k]) && (k !== "garland" || card.id.startsWith("G-")));
+  if (!soul || card.id[0] === "C" || card.tag === 2) return TAG_ART[card.tag] || TAG_ART[1];
+  const pp = SOUL_PAINT[soul];
+  return card.key ? pp[2] : card.tag === 0 ? pp[0] : pp[1];
+}
+const MANTLE_ART = { weaver: "card-mantle-weaver", warden: "card-mantle-warden", bringer: "card-mantle-bringer", breaker: "card-mantle-breaker", reaper: "card-oblivion" };
+const BANK_ART = { fertile: "card-bank-fertile", stony: "card-bank-stony", spring: "card-bank-memory", grave: "card-bank-grave" };
+// the painted band at the top of a face-up card
+function bandArt(it) {
+  const [type, a] = it.ck.split(":");
+  if (type === "mem") return memArt(MEM[a]);
+  if (type === "mist") return `card-mist-${(it.deck ?? 0) + 1}`;
+  if (type === "harsh") return "card-harsh";
+  if (type === "mantle") return MANTLE_ART[a];
+  if (type === "ghost") return "card-ghost";
+  return null;
+}
+
 // ---------------------------------------------------------------- random
 const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
@@ -52,21 +81,61 @@ const PG = SW + 14;                       // pile pitch: the distance from one p
 //   top:    the Soul, fate and commissions (left), the Book (right)
 //   middle: the Loom, Ledger and supply (left), the River (centre), the Play area and the Box (right)
 //   bottom: the set-up strip, where the components wait to be set out at the start of a game
-// Each player's own area and hand are not on the shared table: they sit in a column at the right of their own screen.
+//   edges:  each player's front, as at a real table (Tabletopia-like): seat 1 at the bottom, then left, top and right.
+//           A front shows what that player has in front of them: their hand as card backs, commission (face up only to its
+//           owner), Mantle, Push Through and lasting cards. Each player's hand is in a column at the right of their screen.
+// The table takes the shape its seats need (the same for every player in that game).
 // The River is a square board: three rows of five spaces that wind down the board with two turns
 // (0–4 left to right, 5–9 right to left, 10–14 left to right).
-const WORLD = { w: 3040, h: 2440 };
-const BOUNDS = { x: 20, y: 20, w: 3000, h: 2400 };     // the boards: "Fit" fills the window with this
-const FATE = { x: 40, y: 40, w: 1000, h: 440 };
-const MISTA = { x: 40, y: 500, w: 1000, h: 280 };
-const BOOK = { x: 1080, y: 40, w: 1920, h: 740 };
-const LOOM = { x: 40, y: 820, w: 1000, h: 400 };
-const LEDGER = { x: 40, y: 1240, w: 1000, h: 400 };
-const SUPPLY = { x: 40, y: 1660, w: 1000, h: 480 };
-const RIVER = { x: 1080, y: 820, w: 1200, h: 1320, m: 70, colW: 212, rowH: 425, bank: 110, lane: 120 };
-const PLAY = { x: 2320, y: 820, w: 680, h: 600 };
-const BOXA = { x: 2320, y: 1440, w: 680, h: 700 };     // the Box: everything removed from the game
-const SETUPA = { x: 40, y: 2180, w: 2960, h: 230 };    // the set-up strip
+let WORLD, BOUNDS, FATE, MISTA, BOOK, LOOM, LEDGER, SUPPLY, RIVER, PLAY, BOXA, SETUPA, MATS;
+const SEAT_OF = { 1: [0], 2: [0, 2], 3: [0, 1, 3], 4: [0, 1, 2, 3] };   // 0 bottom, 1 left, 2 top, 3 right
+function layoutWorld(players) {
+  const seats = SEAT_OF[players] || [0];
+  const ox = seats.includes(1) ? 360 : 0, oy = seats.includes(2) ? 300 : 0;
+  const at = (x, y, w, h, more) => ({ x: x + ox, y: y + oy, w, h, ...more });
+  FATE = at(40, 40, 1000, 440); MISTA = at(40, 500, 1000, 280); BOOK = at(1080, 40, 1920, 740);
+  LOOM = at(40, 820, 1000, 400); LEDGER = at(40, 1240, 1000, 400); SUPPLY = at(40, 1660, 1000, 480);
+  RIVER = at(1080, 820, 1200, 1320, { m: 120, colW: 194, rowH: 425, bank: 110, lane: 120 });
+  PLAY = at(2320, 820, 680, 600); BOXA = at(2320, 1440, 680, 700); SETUPA = at(40, 2180, 2960, 230);
+  WORLD = { w: ox + 3040 + (seats.includes(3) ? 360 : 0), h: oy + 2440 + 300 };
+  BOUNDS = { x: 20, y: 20, w: WORLD.w - 40, h: WORLD.h - 40 };
+  const HW = 1180, HH = 260, VW = 320, VH = 1180;
+  const rect = seat => seat === 0 ? { x: ox + 20 + (3000 - HW) / 2, y: oy + 2440 + 20, w: HW, h: HH, v: false }
+    : seat === 2 ? { x: ox + 20 + (3000 - HW) / 2, y: 20, w: HW, h: HH, v: false }
+    : seat === 1 ? { x: 20, y: oy + 20 + (2400 - VH) / 2, w: VW, h: VH, v: true }
+    : { x: ox + 3040 + 20, y: oy + 20 + (2400 - VH) / 2, w: VW, h: VH, v: true };
+  MATS = seats.map(rect);
+}
+layoutWorld(1);
+// the slots of a player's front (centres, world coordinates)
+function matSlots(p) {
+  const m = MATS[p];
+  if (!m) return null;
+  if (!m.v) {
+    const y = m.y + 60 + SH / 2, x0 = m.x + 330;
+    return { fan: { x: m.x + 20, y: m.y + 50, w: 290, h: 190 }, comm: { x: x0 + SW / 2, y }, mantle: { x: x0 + PG + SW / 2, y },
+      push: { x: x0 + 2 * PG + 40, y }, lasting: [0, 1, 2].map(i => ({ x: x0 + 2 * PG + 100 + i * PG + SW / 2, y })) };
+  }
+  const x0 = m.x + 20;
+  return { fan: { x: m.x + 16, y: m.y + 50, w: m.w - 32, h: 170 }, comm: { x: x0 + SW / 2, y: m.y + 240 + SH / 2 }, mantle: { x: x0 + PG + SW / 2, y: m.y + 240 + SH / 2 },
+    push: { x: x0 + 40, y: m.y + 450 }, lasting: [0, 1, 2, 3].map(i => ({ x: x0 + (i % 2) * PG + SW / 2, y: m.y + 530 + Math.floor(i / 2) * (SH + 30) + SH / 2 })) };
+}
+// where each item of a player's area lies on their front
+function areaPlaces(p) {
+  const sl = matSlots(p), out = {};
+  if (!sl) return out;
+  const items = (S.areas[p] || []).map(id => S.items[id]);
+  const comm = items.find(it => it.ck?.startsWith("comm:")), mantle = items.find(it => it.ck?.startsWith("mantle:")), push = items.find(it => it.tk === "push");
+  if (comm) out[comm.id] = sl.comm;
+  if (mantle) out[mantle.id] = sl.mantle;
+  if (push) out[push.id] = sl.push;
+  items.filter(it => it !== comm && it !== mantle && it !== push).forEach((it, i) => {
+    const q = sl.lasting[Math.min(i, sl.lasting.length - 1)];
+    out[it.id] = { x: q.x + Math.max(0, i - 3) * 14, y: q.y + Math.max(0, i - 3) * 14 };
+  });
+  return out;
+}
+const matAt = pt => MATS.findIndex(m => m && pt.x >= m.x && pt.x <= m.x + m.w && pt.y >= m.y && pt.y <= m.y + m.h);
 // where a space sits on the square board, and which way the river flows through it
 function spaceGeo(sp) {
   const row = Math.floor(sp / 5), i = sp % 5;
@@ -118,6 +187,7 @@ function addStack(id, props) { S.stacks[id] = { id, items: [], faceUp: false, ..
 // ---------------------------------------------------------------- setup: sort the components onto the table
 function newTable(opts) {
   S = blankState(opts);
+  layoutWorld(opts.players);
   buildSnaps(opts.players);
   const soul = opts.soul;
   // Like opening the box: every component is sorted into its own labelled pile or tray, in order and unshuffled.
@@ -153,7 +223,7 @@ function newTable(opts) {
   // cards, in order (shuffling is the players' job)
   deckIds(soul).filter(id => id[0] === "C").forEach(cid => addItem("card", { ck: "mem:" + cid, face: 0 }, { stack: "deck" }));
   deckIds(soul).filter(id => id[0] !== "C").forEach(cid => addItem("card", { ck: "mem:" + cid, face: 1 }, { stack: "mine" }));
-  for (let r = 0; r < 3; r++) for (const [k, n] of D.MIST_DECKS[r]) for (let i = 0; i < n; i++) addItem("card", { ck: "mist:" + k, face: 0 }, { stack: "mist" + r });
+  for (let r = 0; r < 3; r++) for (const [k, n] of D.MIST_DECKS[r]) for (let i = 0; i < n; i++) addItem("card", { ck: "mist:" + k, face: 0, deck: r }, { stack: "mist" + r });
   D.HARSH_CARDS.forEach(h => addItem("card", { ck: "harsh:" + h.key, face: 0 }, { stack: "harsh" }));
   STORY[soul].chapters.forEach((ch, ci) => ch.fates.forEach((f, fi) => addItem("card", { ck: `fate:${soul}:${ci}:${fi}`, face: 0 }, { stack: `fate${ci}${f.river ? 0 : 1}` })));
   STORY[soul].commissions.forEach((_, i) => addItem("card", { ck: `comm:${soul}:${i}`, face: 0 }, { stack: "comm" }));
@@ -234,7 +304,7 @@ function buildSnaps(players) {
 // ---------------------------------------------------------------- the book: route graph layout
 const layoutCache = {};
 function bookLayout(soul, ch) {
-  const key = soul + ch;
+  const key = soul + ch + "@" + BOOK.x + "," + BOOK.y;
   if (layoutCache[key]) return layoutCache[key];
   const page = STORY[soul].chapters[ch];
   const byId = Object.fromEntries(page.nodes.map(n => [n.id, n]));
@@ -349,12 +419,14 @@ function itemHtml(it, hidden) {
       return { cls: `card back ${info.cls}`, html: `<div class="cback" ${art}>${info.backHtml || ""}</div>`, title: tr("牌背", "Back") };
     }
     const art = info.art ? `<div class="c-art" style="background-image:url(/assets/art/${info.art}.webp)"></div>` : "";
-    return { cls: `card ${info.cls}`, html: art + info.html, title: info.title };
+    const band = !info.art && bandArt(it);
+    return { cls: `card ${info.cls}${band ? " withart" : ""}`, html: (band ? `<div class="c-bandart" style="background-image:url(${ART(band)})"></div>` : "") + art + info.html, title: info.title };
   }
   if (it.kind === "tile") {
     const k = D.TILE_KINDS[it.tk];
     if (!it.face) return { cls: "tile fogside", html: `${icon("nb-fog")}`, title: tr("霧面板塊", "Fog-side tile") };
-    return { cls: `tile t-${it.tk}`, html: `${icon(k.icon)}<b>${esc(tr(k.zh, k.en))}</b><small>${esc(tr(k.tz, k.te))}</small>`, title: tr(k.zh, k.en) };
+    const paint = BANK_ART[it.tk] ? ` style="background-image:linear-gradient(rgba(14,12,10,.38),rgba(14,12,10,.72)),url(${ART(BANK_ART[it.tk])})"` : "";
+    return { cls: `tile t-${it.tk}${paint ? " painted" : ""}`, html: `<div class="tpaint"${paint}></div>${icon(k.icon)}<b>${esc(tr(k.zh, k.en))}</b><small>${esc(tr(k.tz, k.te))}</small>`, title: tr(k.zh, k.en) };
   }
   const t = TOKENS[it.tk](it.face);
   return { cls: t.cls, html: icon(t.ic), title: t.t };
@@ -375,7 +447,7 @@ function boardsHtml() {
   let water = "";
   for (let row = 0; row < 3; row++) {
     const g0 = spaceGeo(row * 5), y = g0.laneY - R.y + R.lane / 2;
-    const x0 = R.m - 24, x1 = R.m + 4 * R.colW + g0.laneW + 24;
+    const x0 = R.m - 6, x1 = R.m + 4 * R.colW + g0.laneW + 6;
     water += `<path d="M${x0},${y} H${x1}"/>`;
     if (row < 2) {   // the turn: down the right side after row 0, down the left side after row 1
       const y2 = spaceGeo((row + 1) * 5).laneY - R.y + R.lane / 2;
@@ -384,7 +456,7 @@ function boardsHtml() {
       water += `<path d="M${xe},${y} C${xe + bulge},${y} ${xe + bulge},${y2} ${xe},${y2}"/>`;
     }
   }
-  h += `<svg class="riverwater" width="${R.w}" height="${R.h}"><g>${water}</g></svg>`;
+  h += `<svg class="riverwater" width="${R.w}" height="${R.h}"><defs><pattern id="wtex" patternUnits="userSpaceOnUse" width="512" height="512"><image href="${ART("tex-water")}" width="512" height="512" preserveAspectRatio="xMidYMid slice"/></pattern></defs><g class="wbase">${water}</g><g class="wtex">${water}</g></svg>`;
   for (let sp = 0; sp <= 14; sp++) {
     const g = spaceGeo(sp);
     const reach = sp <= 4 ? 0 : sp <= 8 ? 1 : 2;
@@ -449,6 +521,17 @@ function boardsHtml() {
   h += `<div class="board setupa" data-region="setup" style="left:${SETUPA.x}px;top:${SETUPA.y}px;width:${SETUPA.w}px;height:${SETUPA.h}px">${zoomBtn("setup")}<div class="btitle">${tr("準備區（開局時用；打開「下一步提示」看怎麼準備）", "Set-up strip (for the start; turn on the hints to be walked through it)")}</div>
     <div class="note setupnote">${tr("專屬記憶：右鍵「整疊放到…」放進記憶牌庫，再洗牌。板塊池：先把墳墓拖上去（第二河段 1 塊、第三河段依人數），再右鍵「補滿這個河段的河岸」。稱號牌：排到稱號列。",
       "The soul's memories: right-click, “Put the whole pile on…”, the memory deck, then shuffle it. Tile pools: drag the Graves onto them first (Reach 2: 1, Reach 3: by player count), then right-click, “Fill this Reach's banks”. Mantle cards: lay them out on the Mantle row.")}</div></div>`;
+  // each player's front at the edge of the table
+  MATS.forEach((m, p) => {
+    if (!m) return;
+    const sl = matSlots(p), rel = q => ({ l: q.x - m.x, t: q.y - m.y });
+    const box = (q, w, h, label, cls = "") => `<div class="slotbox ${cls}" style="left:${rel(q).l - w / 2}px;top:${rel(q).t - h / 2}px;width:${w}px;height:${h}px">${label}</div>`;
+    h += `<div class="board mat${m.v ? " vert" : ""}" data-region="mat${p}" style="left:${m.x}px;top:${m.y}px;width:${m.w}px;height:${m.h}px">${zoomBtn(`mat${p}`)}
+      <div class="btitle">${esc(S.names[p] || tr(`擺渡人 ${p + 1}`, `Ferryman ${p + 1}`))}<span class="matseat">${p === 0 ? tr("（起始玩家）", "(first player)") : ""}</span></div>
+      <div class="matfan" data-fan="${p}" style="left:${sl.fan.x - m.x}px;top:${sl.fan.y - m.y}px;width:${sl.fan.w}px;height:${sl.fan.h}px"></div>
+      ${box(sl.comm, SW, SH, tr("託付", "Commission"))}${box(sl.mantle, SW, SH, tr("稱號", "Mantle"))}${box(sl.push, 66, 66, tr("破浪", "Push"), "round")}
+      ${sl.lasting.map((q, i) => box(q, SW, SH, i ? "" : tr("持續中的牌", "Lasting cards"), "lastslot")).join("")}</div>`;
+  });
   // play area in front of the River (cards being played)
   h += `<div class="board playarea" data-region="play" style="left:${PLAY.x}px;top:${PLAY.y}px;width:${PLAY.w}px;height:${PLAY.h}px">${zoomBtn("play")}<div class="btitle">${tr("出牌區", "Play area")}</div>
     <div class="note playnote">${tr("你打出的牌先放在這裡，讓大家看清楚再執行效果。執行完：銘刻的牌放上書頁；沒銘刻的執念、釋懷牌放入棄牌堆，忘卻牌放入遺忘堆。翻開的命運之霧、託付卡也可以先放在這裡朗讀。",
@@ -506,6 +589,7 @@ function renderBook() {
   if (el._sig === sig) return;
   el._sig = sig;
   el.innerHTML = bookPageHtml(bookView);
+  el.style.backgroundImage = `linear-gradient(rgba(20,17,24,.80),rgba(20,17,24,.90)),url(${ART((SOUL_PAINT[S.soul] || SOUL_PAINT.open)[bookView])})`;
   markZoom();
   el.classList.toggle("current", bookView === S.chapter);
   el.querySelectorAll(".booktab").forEach(b => b.onclick = () => { bookView = +b.dataset.view; render(); });
@@ -546,6 +630,7 @@ function buildTable() {
       <span class="sp"></span>
       <div id="tt-seats" class="seats"></div>
       <label class="switch"><input type="checkbox" id="tt-hints"> <span>${tr("下一步提示", "Next-step hints")}</span></label>
+      <button id="tt-auto" title="${tr("照規則書的準備步驟自動擺好牌桌（有動畫）", "Set the table up by the rulebook's steps, animated")}">${tr("自動準備", "Auto Setup")}</button>
       <button id="tt-undo" title="Ctrl+Z">${tr("復原", "Undo")}</button>
       <button id="tt-redo" title="Ctrl+Y">${tr("重做", "Redo")}</button>
       <button id="tt-fit">${tr("全桌", "Fit")}</button>
@@ -560,7 +645,6 @@ function buildTable() {
     <div class="tt-view" id="tt-view"><div class="tt-world" id="tt-world" style="width:${WORLD.w}px;height:${WORLD.h}px">
       <div class="felt" style="left:${BOUNDS.x}px;top:${BOUNDS.y}px;width:${BOUNDS.w}px;height:${BOUNDS.h}px"></div><div id="tt-boards"></div><div id="tt-items"></div></div></div>
     <div class="tt-hand" id="tt-hand">
-      <section class="my-area" id="tt-area"><div class="hand-title"></div><div class="area-items"></div></section>
       <section class="my-hand" id="tt-myhand"><div class="hand-title"></div><div class="hand-cards"></div></section>
     </div>
     <aside class="tt-hint hidden" id="tt-hint"></aside>
@@ -572,7 +656,10 @@ function buildTable() {
   elWorld = $("#tt-world"); elTable = $("#tt-items"); elHand = $("#tt-hand"); elHint = $("#tt-hint"); elMenu = $("#tt-ctx"); elSeats = $("#tt-seats");
   for (const k in els) delete els[k];
   for (const k in stackEls) delete stackEls[k];
+  layoutWorld(S.players);
   buildSnaps(S.players);
+  $("#tt-world").style.width = WORLD.w + "px"; $("#tt-world").style.height = WORLD.h + "px";
+  $(".felt").style.cssText = `left:${BOUNDS.x}px;top:${BOUNDS.y}px;width:${BOUNDS.w}px;height:${BOUNDS.h}px`;
   bookView = lastChapter = S.chapter;
   $("#tt-boards").innerHTML = boardsHtml();
   bindTable();
@@ -602,7 +689,8 @@ function render() {
     const it = S.items[id];
     seen.add(id);
     let el = els[id];
-    if (!el) { el = document.createElement("div"); el.dataset.id = id; elTable.appendChild(el); els[id] = el; }
+    if (!el) { el = document.createElement("div"); elTable.appendChild(el); els[id] = el; }
+    if (el.dataset.id !== id) { el.dataset.id = id; delete el.dataset.aid; el._sig = ""; }   // it may have just left a front
     const hidden = false;
     const sig = `${it.ck || it.tk}|${it.face}|${LANG}`;
     if (el._sig !== sig) {
@@ -616,7 +704,41 @@ function render() {
     el.style.transform = `translate(${it.x - w / 2}px,${it.y - hgt / 2}px) rotate(${it.rot}deg)`;
     el.style.zIndex = it.kind === "tile" ? 2 + (it.z % 1000) : it.kind === "card" ? 1000 + it.z : 3000 + it.z;
     el.classList.toggle("unlit", it.kind === "card" && it.rot === 90);
+    // a card in the Play area shows who played it
+    const inPlay = it.by !== undefined && it.x > PLAY.x && it.x < PLAY.x + PLAY.w && it.y > PLAY.y && it.y < PLAY.y + PLAY.h;
+    el.dataset.by = inPlay ? (S.names[it.by] || "") : "";
   }
+  S.areas ||= S.hands.map(() => []);
+  S.areas.forEach((_, q) => {
+    const places = areaPlaces(q);
+    for (const id of S.areas[q]) {
+      const it = S.items[id], pos = places[id];
+      if (!it || !pos) continue;
+      seen.add(id);
+      let el = els[id];
+      if (!el) { el = document.createElement("div"); elTable.appendChild(el); els[id] = el; }
+      delete el.dataset.id; el.dataset.aid = id;
+      // a commission shows its face only to its owner (and to everyone once it is revealed)
+      const hidden = it.ck?.startsWith("comm:") && q !== ME && !it.face;
+      const sig = `${it.ck || it.tk}|${it.face}|${hidden}|${q === ME}|${LANG}`;
+      if (el._sig !== sig) {
+        const r = itemHtml(hidden ? { ...it, face: 0 } : it.ck?.startsWith("comm:") ? { ...it, face: 1 } : it);
+        el.className = `piece inmat ${r.cls}${q === ME ? "" : " locked"}`; el.innerHTML = r.html + (it.ck?.startsWith("comm:") && q === ME && !it.face ? `<i class="alabel">${tr("面朝下", "face down")}</i>` : "");
+        el.title = q === ME ? r.title : hidden ? tr(`${S.names[q]} 的託付`, `${S.names[q]}'s commission`) : r.title; el._sig = sig;
+      }
+      const w = it.kind === "card" ? CW : TK, hgt = it.kind === "card" ? CH : TK;
+      el.style.width = w + "px"; el.style.height = hgt + "px"; el.style.display = "";
+      if (drag?.id !== id) el.style.transform = `translate(${pos.x - w / 2}px,${pos.y - hgt / 2}px)`;
+      el.style.zIndex = 1500;
+    }
+  });
+  document.querySelectorAll("[data-fan]").forEach(f => {
+    const q = +f.dataset.fan, n = S.hands[q]?.length || 0;
+    const sig = `${n}|${LANG}`;
+    if (f._sig === sig) return;
+    f._sig = sig;
+    f.innerHTML = `<div class="fanlab">${tr(`手牌 ${n} 張`, `${n} cards in hand`)}</div>` + Array.from({ length: n }, (_, i) => `<div class="fanback" style="left:${20 + i * Math.min(38, 200 / Math.max(1, n))}px;transform:rotate(${(i - (n - 1) / 2) * 5}deg)"></div>`).join("");
+  });
   for (const id in els) if (!seen.has(id)) { els[id].remove(); delete els[id]; }
   // stacks
   for (const sid in S.stacks) {
@@ -709,29 +831,11 @@ function nearestTrackValue(id, pt) {
 // my column: dotted slots show what goes where. Cards are shown a little larger than on the table (HCW x HCH).
 const HCW = Math.round(CW * 1.05), HCH = Math.round(CH * 1.05);
 function renderHand() {
-  // my area: only on my own screen. My commission shows its face to me; to everyone else it does not show at all.
-  S.areas ||= S.hands.map(() => []);
-  const area = (S.areas[ME] || []).map(id => S.items[id]);
   const phone = window.innerWidth <= 760;
-  const cardHtml = (it, attr, extra = "") => {
+  const cardHtml = (it, attr) => {
     const r = itemHtml({ ...it, face: 1 });
-    return `<div class="piece hcard ${r.cls}" ${attr}="${it.id}" title="${esc(r.title)}" style="width:${HCW}px;height:${HCH}px">${r.html}${extra}</div>`;
+    return `<div class="piece hcard ${r.cls}" ${attr}="${it.id}" title="${esc(r.title)}" style="width:${HCW}px;height:${HCH}px">${r.html}</div>`;
   };
-  const tokHtml = it => { const r = itemHtml(it); return `<div class="piece atok ${r.cls}" data-aid="${it.id}" title="${esc(r.title)}（${tr("雙擊翻面", "double-click to flip")}）">${r.html}</div>`; };
-  const commLabel = it => `<i class="alabel">${it.face ? tr("已翻開", "revealed") : tr("面朝下", "face down")}</i>`;
-  elHand.querySelector(".my-area .hand-title").innerHTML = `${tr("你的區域", "Your area")}<small>${tr("託付只有你看得到；稱號與破浪的狀態會顯示在上方你的名字旁。", "Only you see your commission; your Mantle and Push Through show next to your name at the top.")}</small>`;
-  // the slots: commission, Mantle, Push Through; lasting cards (and any extra) in a strip below
-  const comm = area.find(it => it.ck?.startsWith("comm:")), mantle = area.find(it => it.ck?.startsWith("mantle:")), push = area.find(it => it.tk === "push");
-  const rest = area.filter(it => it !== comm && it !== mantle && it !== push);
-  const slot = (cls, label, inner) => `<div class="aslot ${cls}${inner ? " full" : ""}"><span class="slab">${label}</span>${inner || ""}</div>`;
-  elHand.querySelector(".area-items").innerHTML = phone
-    ? area.map(it => (it.kind === "tok" ? tokHtml(it) : cardHtml(it, "data-aid", it.ck?.startsWith("comm:") ? commLabel(it) : ""))).join("") || `<div class="muted empty">${tr("（空）", "(empty)")}</div>`
-    : `<div class="aslots" style="--hcw:${HCW}px;--hch:${HCH}px">
-        ${slot("cslot", tr("託付", "Commission"), comm && cardHtml(comm, "data-aid", commLabel(comm)))}
-        ${slot("cslot", tr("稱號", "Mantle"), mantle && cardHtml(mantle, "data-aid"))}
-        ${slot("tslot", tr("破浪", "Push"), push && tokHtml(push))}
-      </div>
-      <div class="aslot lasting${rest.length ? " full" : ""}"><span class="slab">${tr("持續中的牌", "Lasting cards")}</span>${rest.map(it => (it.kind === "tok" ? tokHtml(it) : cardHtml(it, "data-aid"))).join("")}</div>`;
   // my hand: three dotted card slots, one under the other; more than three cards overlap so every top line shows
   const list = S.hands[ME] || [];
   elHand.querySelector(".my-hand .hand-title").innerHTML = `${tr("你的手牌", "Your hand")}（${esc(S.names[ME] || "")}・${list.length}）<small>${tr("拖到桌上打出；拖回這裡收回。右鍵看更多動作。", "Drag to the table to play; drag back to keep. Right-click for more.")}</small>`;
@@ -740,11 +844,13 @@ function renderHand() {
     box.innerHTML = list.map(id => cardHtml(S.items[id], "data-hid")).join("") || `<div class="muted empty">${tr("（沒有手牌）", "(no cards)")}</div>`;
     return;
   }
-  const gap = 8, H = 3 * HCH + 2 * gap;
-  const step = list.length <= 3 ? HCH + gap : (H - HCH) / (list.length - 1);
-  box.innerHTML = `<div class="hslots" style="height:${H}px;width:${HCW}px">
-      ${[0, 1, 2].map(i => `<div class="hslot" style="top:${i * (HCH + gap)}px;width:${HCW}px;height:${HCH}px"><span class="slab">${tr("手牌", "Card")}</span></div>`).join("")}
-      ${list.map((id, i) => `<div class="hpos" style="top:${Math.round(i * step)}px;z-index:${10 + i}">${cardHtml(S.items[id], "data-hid")}</div>`).join("")}
+  const gap = 8, H = 3 * HCH + 2 * gap, cols = list.length > 3 ? 2 : 1;
+  const perCol = Math.ceil(list.length / cols) || 1;
+  const step = perCol <= 3 ? HCH + gap : (H - HCH) / (perCol - 1);
+  box.innerHTML = `<div class="hslots" style="height:${H}px;width:${cols * HCW + (cols - 1) * gap}px">
+      ${[0, 1, 2].flatMap(i => Array.from({ length: cols }, (_, c) => `<div class="hslot" style="left:${c * (HCW + gap)}px;top:${i * (HCH + gap)}px;width:${HCW}px;height:${HCH}px"><span class="slab">${tr("手牌", "Card")}</span></div>`)).join("")}
+      ${list.map((id, i) => { const c = Math.floor(i / perCol), r = i % perCol;
+        return `<div class="hpos" data-col="${c}" style="left:${c * (HCW + gap)}px;top:${Math.round(r * step)}px;z-index:${10 + i}">${cardHtml(S.items[id], "data-hid")}</div>`; }).join("")}
     </div>`;
 }
 
@@ -833,6 +939,8 @@ function bindTable() {
     window.addEventListener("pointercancel", onUp);
   }
   v.addEventListener("dblclick", e => {
+    const a = e.target.closest(".piece[data-aid]");
+    if (a) return flipInArea(a.dataset.aid);
     const p = e.target.closest(".piece[data-id]");
     if (p) flip(p.dataset.id);
     const s = e.target.closest(".stack");
@@ -858,6 +966,7 @@ function bindTable() {
   };
   $("#tt-hints").onchange = e => setHints(e.target.checked);
   $("#tt-lang").onclick = toggleLang;
+  $("#tt-auto").onclick = autoSetup;
   elSeats.onclick = e => { const b = e.target.closest("[data-seat]"); if (b && mode === "local") switchSeat(+b.dataset.seat); };
   window.onkeydown = e => {
     if (!onTable() || e.target.closest("input,textarea,select")) return;
@@ -889,6 +998,13 @@ function onDown(e) {
   if (mk) { e.preventDefault(); drag = { track: mk.dataset.track, el: mk }; mk.classList.add("dragging"); return; }
   const tc = e.target.closest(".tcell");
   if (tc) { setTrack(tc.dataset.track, +tc.dataset.val); return; }
+  const a = e.target.closest(".piece[data-aid]");
+  if (a) {   // an item on a front: only its owner moves it
+    if (S.where[a.dataset.aid] !== "a:" + ME) return toast(tr("這是其他玩家面前的東西。", "That is in front of another player."));
+    e.preventDefault();
+    drag = { pending: true, id: a.dataset.aid, from: "area", sx: e.clientX, sy: e.clientY };
+    return;
+  }
   const p = e.target.closest(".piece[data-id]");
   if (p) return startDrag(e, p.dataset.id, "table");
   const s = e.target.closest(".stack");
@@ -970,13 +1086,14 @@ function onMove(e) {
   }
   sendMove(drag, it);
   const over = dockPart(e);
-  elHand.querySelector(".my-area").classList.toggle("drop", over === "area");
   elHand.querySelector(".my-hand").classList.toggle("drop", over === "hand" && it.kind === "card");
+  const mo = over ? -1 : matAt({ x: it.x, y: it.y });
+  document.querySelectorAll(".board.mat").forEach(b => b.classList.toggle("dropmat", b.dataset.region === "mat" + mo));
 }
 // is the pointer over my area or my hand (the dock at the bottom of the screen)?
 function dockPart(e) {
-  const inside = el => { const r = el.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; };
-  return inside($("#tt-area")) ? "area" : inside($("#tt-myhand")) ? "hand" : null;
+  const r = $("#tt-myhand").getBoundingClientRect();
+  return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom ? "hand" : null;
 }
 
 function onUp(e) {
@@ -985,6 +1102,7 @@ function onUp(e) {
   if (!drag) return;
   const d = drag; drag = null;
   elHand.querySelectorAll(".drop").forEach(x => x.classList.remove("drop"));
+  document.querySelectorAll(".dropmat").forEach(x => x.classList.remove("dropmat"));
   if (d.pending) return;   // a click on a pile or a hand card moves nothing
   if (d.track) { d.el.classList.remove("dragging"); if (d.val !== undefined) setTrack(d.track, d.val); else render(); return; }
   if (d.pan) return;
@@ -995,10 +1113,11 @@ function onUp(e) {
   if (!d.moved && d.from === "table") return render();
   hist.push(d.snapshot); if (hist.length > 80) hist.shift(); fut = [];
   let msg = "";
-  const part = dockPart(e);
-  if (part === "area" || (part === "hand" && it.kind !== "card")) {
-    toArea(d.id, ME);
-    msg = d.from === "area" ? "" : tr(`${who()} 把 ${nameOf(d.id)} 放到自己的區域`, `${who()} put ${nameOf(d.id)} in their area`);
+  const part = dockPart(e), mat = part ? -1 : matAt({ x: it.x, y: it.y });
+  if (mat >= 0 || (part === "hand" && it.kind !== "card")) {
+    const q = mat >= 0 ? mat : ME;
+    toArea(d.id, q);
+    msg = d.from === "area" && q === ME ? "" : tr(`${who()} 把 ${nameOf(d.id)} 放到${q === ME ? "自己" : ` ${S.names[q]} `}面前`, `${who()} put ${nameOf(d.id)} in front of ${q === ME ? "themselves" : S.names[q]}`);
   } else if (part === "hand") {
     toHand(d.id, ME);
     msg = d.from === "hand" ? "" : tr(`${who()} 拿了 ${nameOf(d.id)} 到手牌`, `${who()} took ${nameOf(d.id)} into hand`);
@@ -1085,11 +1204,15 @@ function openMenu(e) {
   const s = e.target.closest(".stack");
   if (hc) {
     const id = hc.dataset.hid;
-    opts.push([tr("面朝上放到桌上", "Place face up"), () => commit(tr(`${who()} 打出 ${nameOf(id)}`, `${who()} played ${nameOf(id)}`), () => { const pt = centerView(); toTable(id, pt.x, pt.y); S.items[id].face = 1; })]);
-    opts.push([tr("面朝下放到桌上", "Place face down"), () => commit(tr(`${who()} 背面打出 1 張牌`, `${who()} played a card face down`), () => { const pt = centerView(); toTable(id, pt.x, pt.y); S.items[id].face = 0; })]);
+    opts.push([tr("正面打出（放到出牌區）", "Play face up (to the Play area)"), () => { S.items[id].face = 1; commit(tr(`${who()} 正面打出 ${nameOf(id)}`, `${who()} played ${nameOf(id)} face up`), () => { const pt = playSpot(); toTable(id, pt.x, pt.y); S.items[id].face = 1; S.items[id].by = ME; }); }]);
+    opts.push([tr("背面打出（放到出牌區）", "Play face down (to the Play area)"), () => commit(tr(`${who()} 背面打出 1 張牌`, `${who()} played a card face down`), () => { const pt = playSpot(); toTable(id, pt.x, pt.y); S.items[id].face = 0; S.items[id].by = ME; })]);
     for (let q = 0; q < S.players; q++) if (q !== ME) opts.push([tr(`交給 ${S.names[q]}（換牌）`, `Give to ${S.names[q]} (swap)`), () => commit(tr(`${who()} 交給 ${S.names[q]} 1 張牌`, `${who()} gave ${S.names[q]} a card`), () => toHand(id, q))]);
     opts.push([tr("放到記憶牌庫底", "Put on the bottom of the deck"), () => commit(tr(`${who()} 把 1 張牌放到牌庫底`, `${who()} put a card on the bottom of the deck`), () => toStack(id, "deck", true))]);
     opts.push([tr("放到我的區域", "Put in my area"), () => commit(tr(`${who()} 把 1 張牌放到自己的區域`, `${who()} put a card in their area`), () => toArea(id, ME))]);
+  } else if (ac && S.where[ac.dataset.aid] !== "a:" + ME) {
+    const id = ac.dataset.aid, it = S.items[id];
+    if (it.kind === "card" && !(it.ck?.startsWith("comm:") && !it.face)) opts.push([tr("放大檢視", "Look closer"), () => modal(`<div class="piece big ${itemHtml(it).cls}">${itemHtml(it).html}</div>`)]);
+    else opts.push([tr("這是其他玩家面前的東西", "In front of another player"), null]);
   } else if (ac) {
     const id = ac.dataset.aid, it = S.items[id];
     if (it.kind === "card" || it.tk === "push") opts.push([it.tk === "push" ? (it.face ? tr("用掉破浪（翻面）", "Spend Push Through (flip)") : tr("破浪翻回可用", "Push Through ready again")) : tr("翻面", "Flip"), () => flipInArea(id)]);
@@ -1116,7 +1239,7 @@ function openMenu(e) {
       opts.push([tr("翻開頂牌放到桌上", "Turn the top card onto the table"), () => commit(tr(`${who()} 翻開${tr(...st.label)}的頂牌`, `${who()} turned the top of ${tr(...st.label)}`), () => {
         const top = st.items[st.items.length - 1];
         // a Mist card goes to the "Mist ahead" slot; anything else to the middle of the view, clear of other piles
-        const pt = /^mist\d$/.test(sid) ? snapPos("mistfront") : centerView();
+        const pt = /^mist\d$/.test(sid) ? snapPos("mistfront") : playSpot();
         toTable(top, pt.x, pt.y); S.items[top].face = 1;
       })]);
       opts.push([tr("每人發 1 張", "Deal 1 to each player"), () => commit(tr(`${who()} 從${tr(...st.label)}每人發 1 張`, `${who()} dealt 1 card each`), () => { for (let q = 0; q < S.players; q++) { const top = st.items[st.items.length - 1]; if (top) toHand(top, q); } })]);
@@ -1135,15 +1258,18 @@ function openMenu(e) {
   elMenu.innerHTML = opts.map(([t, f], i) => `<button data-i="${i}"${f ? "" : " disabled"}>${esc(t)}</button>`).join("");
   elMenu.classList.remove("hidden");
   const anchor = (hc || ac || p || s)?.getBoundingClientRect();
-  let x = anchor ? anchor.right : e.clientX, y = anchor ? anchor.top : e.clientY;
-  // keep it on the screen: if it would run off the right edge, open it leftwards from the same corner
   const mw = elMenu.offsetWidth, mh = elMenu.offsetHeight;
+  const leftSide = hc?.closest('.hpos[data-col="1"]');   // a card in the hand's right-hand column: the menu opens on its left
+  let x = anchor ? (leftSide ? anchor.left - mw : anchor.right) : e.clientX, y = anchor ? anchor.top : e.clientY;
+  // keep it on the screen: if it would run off the right edge, open it leftwards from the same corner
   if (x + mw > window.innerWidth - 4) x = Math.max(4, (anchor ? anchor.right : x) - mw);
+  if (x < 4) x = 4;
   if (y + mh > window.innerHeight - 4) y = Math.max(4, window.innerHeight - 4 - mh);
   elMenu.style.left = x + "px"; elMenu.style.top = Math.max(4, y) + "px";
   elMenu.onclick = ev => { const b = ev.target.closest("[data-i]"); if (!b) return; closeMenus(); opts[+b.dataset.i][1]?.(); };
 }
 const closeMenus = () => elMenu?.classList.add("hidden");
+document.addEventListener("pointerdown", e => { if (elMenu && !elMenu.classList.contains("hidden") && !e.target.closest("#tt-ctx")) closeMenus(); }, true);
 const centerView = () => { const r = $("#tt-view").getBoundingClientRect(); return worldPt({ clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 }); };
 
 function modal(html, onClick) {
@@ -1180,6 +1306,78 @@ function searchStack(sid) {
   });
 }
 
+let autoRunning = false;
+async function autoSetup() {
+  if (autoRunning) return;
+  const fresh = S.stacks.mine?.items.length && !Object.values(S.items).some(it => it.kind === "tile" && S.where[it.id] === "t");
+  if (!fresh) return toast(tr("自動準備只能用在還沒準備的新牌桌。", "Auto Setup works only on a table that has not been set up."));
+  autoRunning = true; $("#tt-auto").disabled = true;
+  const lv = D.LEVELS[S.level], st = D.SETUP_TABLE[S.players];
+  const top = sid => S.stacks[sid].items[S.stacks[sid].items.length - 1];
+  const place = (id, snapId, face) => { const q = snapPos(snapId); toTable(id, q.x, q.y); if (face !== undefined) S.items[id].face = face; };
+  const step = async (msg, fn, shuffled = []) => {
+    const old = JSON.parse(JSON.stringify(S));
+    commit(tr(`自動準備：${msg[0]}`, `Auto Setup: ${msg[1]}`), fn);
+    animateChanges(old);
+    shuffled.forEach(shuffleAnim);
+    await new Promise(r => setTimeout(r, 750));
+  };
+  try {
+    await step(["亡魂專屬記憶放進記憶牌庫", "the soul's memories into the deck"], () => { for (const id of [...S.stacks.mine.items]) { S.items[id].face = 0; toStack(id, "deck"); } });
+    await step(["洗記憶牌庫", "shuffle the memory deck"], () => shuffle(S.stacks.deck.items), ["deck"]);
+    await step(["洗凶霧", "shuffle the Harsh Mist"], () => shuffle(S.stacks.harsh.items), ["harsh"]);
+    await step(["每副迷霧加入 2 張凶霧", "2 Harsh Mist into each Mist deck"], () => { for (let r = 0; r < 3; r++) for (let i = 0; i < D.HARSH_PER_DECK; i++) { const h = top("harsh"); S.items[h].deck = r; toStack(h, "mist" + r); } });
+    await step(["洗三副迷霧", "shuffle the three Mist decks"], () => [0, 1, 2].forEach(r => shuffle(S.stacks["mist" + r].items)), ["mist0", "mist1", "mist2"]);
+    await step(["其餘凶霧放回盒中", "the other Harsh Mist into the Box"], () => { for (const id of [...S.stacks.harsh.items]) toStack(id, "box"); });
+    await step(["墳墓放上板塊池", "the Graves onto the tile pools"], () => {
+      toStack(top("graves"), "pool1");
+      for (let i = 0; i < st.graves; i++) toStack(top("graves"), "pool2");
+      for (const id of [...S.stacks.graves.items]) toStack(id, "box");
+    });
+    for (let r = 0; r < 3; r++) {
+      const pool = S.stacks[`pool${r}`], spaces = D.TILE_POOLS[r].spaces;
+      const banks = spaces.flatMap(sp => [`bank${sp}L`, `bank${sp}R`]);
+      const graves = pool.items.filter(id => S.items[id].tk === "grave"), others = shuffle(pool.items.filter(id => S.items[id].tk !== "grave"));
+      const chosen = shuffle([...graves, ...others.slice(0, banks.length - graves.length)]);
+      await step([`擺第${"一二三"[r]}河段的河岸板塊`, `lay Reach ${r + 1}'s bank tiles`], () => {
+        chosen.forEach((id, i) => place(id, banks[i], 0));
+        others.slice(banks.length - graves.length).forEach(id => { S.items[id].face = 0; toStack(id, "box"); });
+      });
+    }
+    await step(["最初的花與亡魂", "the first flowers and the soul"], () => {
+      place(top("bin_root"), "bank1L", 1); place(top("bin_root"), "bank1R", 1);
+      place(top("bin_soul"), "soul0");
+    });
+    await step(["迴響、光、黑水", "the Echo, Light and Black Water"], () => {
+      place(top("bin_echo"), "echoS");
+      S.tracks.light = D.START_LIGHT[S.soul] || 0;
+      if (lv.knots) for (let t = 0; t < 3; t++) S.tracks["knot" + t] = lv.knots;
+      for (let k = 0; k < lv.bw; k++) place(top("bin_bw"), `bwsup${k}`);
+      for (const id of [...S.stacks.bin_bw.items]) toStack(id, "box");
+    });
+    await step(["排好稱號列", "lay out the Mantle row"], () => { for (let i = 0; i < D.MANTLES.length; i++) place(top("mantles"), `mantle${i}`, 1); });
+    await step(["洗第一章的命運之霧", "shuffle chapter 1's fates"], () => { shuffle(S.stacks.fate00.items); shuffle(S.stacks.fate01.items); }, ["fate00", "fate01"]);
+    await step(["抽出第一章的兩張命運之霧（條件面朝上）", "draw chapter 1's two fates (condition up)"], () => { place(top("fate00"), "fateslot0", 0); place(top("fate01"), "fateslot1", 0); });
+    await step(["洗託付卡", "shuffle the commissions"], () => shuffle(S.stacks.comm.items), ["comm"]);
+    await step(["每人一張託付", "a commission to each player"], () => { for (let q = 0; q < S.players; q++) toArea(top("comm"), q); });
+    await step(["每人一個破浪標記", "a Push Through token to each player"], () => { for (let q = 0; q < S.players; q++) toArea(top("bin_push"), q); });
+    const hand = S.players === 1 ? 6 : S.players === 2 ? 4 : 3;
+    for (let c = 0; c < hand; c++) await step([`發手牌（第 ${c + 1} 輪）`, `deal the hands (round ${c + 1})`], () => { for (let q = 0; q < S.players; q++) toHand(top("deck"), q); });
+    await step(["船槳給起始玩家", "the Oar to the first player"], () => { const o = top("bin_oar"); toTable(o, PLAY.x + PLAY.w - 60, PLAY.y + 60); });
+    if (S.stacks.ghost) await step(["洗幽靈牌庫", "shuffle the Ghost deck"], () => shuffle(S.stacks.ghost.items), ["ghost"]);
+    await step(["翻開前方的霧", "turn the first Mist"], () => { place(top("mist0"), "mistfront", 1); S.hint = STEPS.findIndex(x => x.phase === "turn"); });
+    toast(tr("準備完成：起始玩家開始第一個回合。", "Set-up done: the first player begins."));
+  } finally {
+    autoRunning = false; const b = $("#tt-auto"); if (b) b.disabled = false;
+  }
+}
+// the next free spot in the Play area
+function playSpot() {
+  const cols = 4, spots = [];
+  for (let r = 0; r < 3; r++) for (let c = 0; c < cols; c++) spots.push({ x: PLAY.x + 30 + c * (CW + 40) + CW / 2, y: PLAY.y + 160 + r * 40 + CH / 2 });
+  const taken = q => Object.values(S.items).some(it => S.where[it.id] === "t" && Math.hypot(it.x - q.x, it.y - q.y) < 30);
+  return spots.find(q => !taken(q)) || spots[0];
+}
 // shuffling: the pile riffles for a moment (everyone sees it)
 function shuffleAnim(sid) {
   const el = stackEls[sid];
@@ -1243,7 +1441,9 @@ function openDrawer(kind) {
   if (!d.classList.contains("hidden") && d.dataset.kind === kind) { d.classList.add("hidden"); return; }
   d.dataset.kind = kind;
   if (kind === "rules") {
-    d.innerHTML = `<div class="hh">${tr("規則書 V5", "Rulebook V5")}<input id="rq" placeholder="${tr("搜尋…", "Search…")}"><button class="hclose">✕</button></div><div class="rules">${RULES_HTML}</div>`;
+    d.innerHTML = `<div class="hh">${tr("規則書 V5", "Rulebook V5")}<input id="rq" placeholder="${tr("搜尋…", "Search…")}"><button class="hclose">✕</button></div><div class="rules">${RULES_HTML}</div>
+      <button class="totop" title="${tr("回到目錄", "Back to the contents")}">▲ ${tr("回到頂端", "Top")}</button>`;
+    d.querySelector(".totop").onclick = () => { d.scrollTop = 0; };
     // the rulebook's own links (its table of contents) scroll the drawer only, never the page behind it
     d.querySelector(".rules").onclick = e => {
       const a = e.target.closest('a[href^="#"]');
@@ -1327,7 +1527,9 @@ function placeOf(st, id) {
     return { x: k.x + (k.w || (tb ? 92 : k.small ? 86 : CW + 8)) / 2, y: k.y + (k.h || (tb ? 92 : k.small ? 86 : CH + 8)) / 2 };
   }
   const seat = +w.slice(2);
-  const target = seat === ME ? $(w.startsWith("h:") ? "#tt-myhand" : "#tt-area") : document.querySelector(`#tt-seats [data-seat="${seat}"]`);
+  if (w.startsWith("a:") && MATS[seat]) { const m = MATS[seat]; return { x: m.x + m.w / 2, y: m.y + m.h / 2 }; }
+  if (w.startsWith("h:") && seat !== ME && MATS[seat]) { const f = matSlots(seat).fan; return { x: f.x + f.w / 2, y: f.y + f.h / 2 }; }
+  const target = seat === ME ? $("#tt-myhand") : document.querySelector(`#tt-seats [data-seat="${seat}"]`);
   if (!target) return null;
   const r = target.getBoundingClientRect();
   return worldPt({ clientX: r.left + r.width / 2, clientY: r.top + Math.min(r.height / 2, 60) });

@@ -158,8 +158,8 @@ module.exports = async (page, setStage, note, BASE) => {
   await page.keyboard.down("Shift"); await dragTo(dc, { x: dc.x + 80, y: dc.y + 10 }); await page.keyboard.up("Shift");
   s1 = await S(); expect(s1.stacks.discard.x !== s0.stacks.discard.x, "shift-drag moves the pile");
 
-  // l2) my area: commissions dealt face down into each player's area; only my own area is on my screen
-  stage("p3 area");
+  // l2) each player's front at the edge of the table: commissions dealt face down; my commission shows its face only to me
+  stage("p3 fronts");
   await zoomClick('.zoombtn[data-zoom="supply"]');
   await page.click('.stack[data-stack="bin_push"]', { button: "right" });
   await page.click("#tt-ctx button >> text=每人 1 個到各自的區域");
@@ -168,36 +168,53 @@ module.exports = async (page, setStage, note, BASE) => {
   await page.click("#tt-ctx button >> text=每人發 1 張到各自的區域");
   s1 = await S();
   const myComm = s1.areas[0].find(id => s1.items[id].ck?.startsWith("comm:"));
-  expect(s1.areas.every(a => a.some(id => s1.items[id].ck?.startsWith("comm:"))), "every area got a commission");
+  const theirComm = s1.areas[1].find(id => s1.items[id].ck?.startsWith("comm:"));
+  expect(s1.areas.every(a => a.some(id => s1.items[id].ck?.startsWith("comm:"))), "every front got a commission");
   expect(myComm && s1.items[myComm].face === 0, "the commission lies face down");
-  expect((await page.$$("#tt-area [data-aid]")).length === 2, "my area shows my commission and Push Through only");
-  expect(!(await page.$(`[data-aid="${s1.areas[1][0]}"]`)), "the other player's area is not on my screen");
-  // double-click Push Through: spent, and the seat bar shows it to everyone
+  expect(!(await page.getAttribute(`[data-aid="${myComm}"]`, "class")).includes(" back"), "I see my own commission's face");
+  expect((await page.getAttribute(`[data-aid="${theirComm}"]`, "class")).includes(" back"), "I see only the back of theirs");
+  expect((await page.textContent('[data-fan="1"]')).includes("1"), "their front shows their hand as card backs");
+  // double-click Push Through on my front: spent, and the seat bar shows it to everyone
   const pushId = s1.areas[0].find(id => s1.items[id].tk === "push");
+  await zoomClick('.zoombtn[data-zoom="mat0"]');
   await page.dblclick(`[data-aid="${pushId}"]`);
   s1 = await S(); expect(s1.items[pushId].face === 0, "double-click spends Push Through");
   expect(!!(await page.$('#tt-seats [data-seat="0"] .pushused')), "the seat bar shows Push Through spent");
-  // a Mantle from the Mantle row into my area: the seat bar names it
-  await zoomClick('.zoombtn[data-zoom="setup"]');
+  // someone else's front cannot be moved from my screen
+  await zoomClick('.zoombtn[data-zoom="mat1"]');
+  await dragTo(await center(`[data-aid="${theirComm}"]`), await center("#tt-view"));
+  s1 = await S(); expect(s1.where[theirComm] === "a:1", "another player's commission stays on their front");
+  // a Mantle from its pile onto my front: the seat bar names it
+  await page.click("#tt-fit");
   const mantle = (await S()).stacks.mantles.items.slice(-1)[0];
-  const areaBox = await page.locator("#tt-area").boundingBox();
-  await dragTo(await center('.stack[data-stack="mantles"]'), { x: areaBox.x + areaBox.width / 2, y: areaBox.y + areaBox.height / 2 });
-  s1 = await S(); expect(s1.where[mantle] === "a:0", "a Mantle dropped on my area goes there");
+  const matBox = await page.locator('.board.mat[data-region="mat0"]').boundingBox();
+  await dragTo(await center('.stack[data-stack="mantles"]'), { x: matBox.x + matBox.width * .5, y: matBox.y + matBox.height * .5 });
+  s1 = await S(); expect(s1.where[mantle] === "a:0", "a Mantle dropped on my front goes there");
   expect(!!(await page.$('#tt-seats [data-seat="0"] .mbadge')), "the seat bar names my Mantle");
-  // my commission back out to the table: still face down; then back into my area
-  await dragTo(await center(`[data-aid="${myComm}"]`), await center("#tt-view"));
-  s1 = await S(); expect(s1.where[myComm] === "t" && s1.items[myComm].face === 0, "a commission taken out of my area stays face down");
-  await dragTo(await center(`.piece[data-id="${myComm}"]`), { x: areaBox.x + 40, y: areaBox.y + areaBox.height / 2 });
-  s1 = await S(); expect(s1.where[myComm] === "a:0", "and goes back into my area");
+  // my commission out to the table stays face down; back onto my front
+  await page.click("#tt-fit");
+  await dragTo(await center(`[data-aid="${myComm}"]`), await center('.board[data-region="play"]'));
+  s1 = await S(); expect(s1.where[myComm] === "t" && s1.items[myComm].face === 0, "a commission taken off my front stays face down");
+  const mb0 = await page.locator('.board.mat[data-region="mat0"]').boundingBox();
+  await dragTo(await center(`.piece[data-id="${myComm}"]`), { x: mb0.x + mb0.width * .4, y: mb0.y + mb0.height / 2 });
+  s1 = await S(); expect(s1.where[myComm] === "a:0", "and goes back onto my front");
+  // a card played from the hand goes to the Play area, labelled with who played it
+  await page.click("#tt-fit");
+  const playId = (await S()).hands[0][0];
+  await page.click("#tt-hand [data-hid] >> nth=0", { button: "right" });
+  await page.click("#tt-ctx button >> text=背面打出");
+  s1 = await S();
+  const pc = s1.items[playId];
+  const PLAYR = await page.evaluate(() => { const b = document.querySelector('.board[data-region="play"]'); return { x: parseFloat(b.style.left), y: parseFloat(b.style.top), w: parseFloat(b.style.width), h: parseFloat(b.style.height) }; });
+  expect(s1.where[playId] === "t" && pc.face === 0 && pc.x > PLAYR.x && pc.x < PLAYR.x + PLAYR.w && pc.y > PLAYR.y && pc.y < PLAYR.y + PLAYR.h, "a card played face down lands in the Play area");
+  expect((await page.getAttribute(`.piece[data-id="${playId}"]`, "data-by")) === "擺渡人 1", "it shows who played it");
 
-  // l3) layout: one top bar; my column on the right (area above hand); the board fills the rest; hints as a strip under the board
+  // l3) layout: one top bar; my hand in a column on the right; the board fills the rest; hints as a strip under the board
   stage("p3 layout");
   expect(await page.locator(".topbar").isHidden(), "the page header hides at the table: one top bar");
   const vw = page.viewportSize().width, vh = page.viewportSize().height;
   let vb = await page.locator("#tt-view").boundingBox(), db = await page.locator("#tt-hand").boundingBox();
-  const ab = await page.locator("#tt-area").boundingBox(), mb = await page.locator("#tt-myhand").boundingBox();
-  expect(Math.abs(db.x + db.width - vw) < 2 && Math.abs(vb.x + vb.width - db.x) < 2, "my column on the right, the board up to it");
-  expect(ab.y < mb.y && Math.abs(ab.width - mb.width) < 2, "my area above my hand, the same width");
+  expect(Math.abs(db.x + db.width - vw) < 2 && Math.abs(vb.x + vb.width - db.x) < 2, "my hand's column on the right, the board up to it");
   expect(Math.abs(vb.y + vb.height - vh) < 2, "the board reaches the bottom of the window");
   if (!(await page.isChecked("#tt-hints"))) await page.click("#tt-hints");
   const hb2 = await page.locator("#tt-hint").boundingBox();
@@ -207,11 +224,20 @@ module.exports = async (page, setStage, note, BASE) => {
   await page.click("#tt-hints");
   const vb2 = await page.locator("#tt-view").boundingBox();
   expect(Math.abs(vb2.y + vb2.height - vh) < 2, "with hints off the board reaches the bottom again");
-  // the context menu opens at the top-right corner of the card
+  // the context menu opens at the top-right corner of the card; a click elsewhere closes it
   await page.click("#tt-hand [data-hid] >> nth=0", { button: "right" });
   const cb = await page.locator("#tt-hand [data-hid] >> nth=0").boundingBox(), menu = await page.locator("#tt-ctx").boundingBox();
   expect(Math.abs(menu.y - cb.y) < 2 && (Math.abs(menu.x - (cb.x + cb.width)) < 2 || Math.abs(menu.x + menu.width - (cb.x + cb.width)) < 2), "the menu starts at the card's top-right corner");
-  await page.keyboard.press("Escape");
+  await page.mouse.click(db.x + db.width - 10, db.y + db.height - 10);
+  expect(await page.locator("#tt-ctx").isHidden(), "a click elsewhere closes the menu");
+  // the rulebook: readable contents links and a way back to the top
+  await page.click("#tt-rules");
+  const linkColor = await page.$eval("#tt-drawer .rules a", a => getComputedStyle(a).color);
+  expect(!/0, 0, 238|0, 0, 255/.test(linkColor), "contents links are not browser blue: " + linkColor);
+  await page.$eval("#tt-drawer", d => { d.scrollTop = 4000; });
+  await page.click("#tt-drawer .totop");
+  expect(await page.$eval("#tt-drawer", d => d.scrollTop) === 0, "the top button goes back to the contents");
+  await page.click("#tt-rules");
 
   // m) seats: pass the device
   stage("p3 seats");
@@ -233,7 +259,7 @@ module.exports = async (page, setStage, note, BASE) => {
   await page.click("#btn-lang"); await page.waitForTimeout(150);
   if (!(await page.$("#lb-resume"))) { await page.click("#tt-menu").catch(() => {}); }
   await page.click("#lb-resume"); await page.waitForSelector("#tt-world");
-  s1 = await S(); expect(s1.tracks.knot1 === 6 && s1.hands[0].length >= 3, "resume restores the game");
+  s1 = await S(); expect(s1.tracks.knot1 === 6 && s1.hands[0].length >= 2, "resume restores the game");
 
   // o) phone size: the table still opens and fits
   stage("p3 phone");

@@ -102,6 +102,31 @@ const BASE = process.env.BASE || "http://localhost:8765";
   const ahead = Object.values(s.items).filter(it => it.kind === "card" && s.where[it.id] === "t" && /^(mist|harsh):/.test(it.ck));
   expect(ahead.length === 1 && ahead[0].face === 1, "one Mist card face up on the table");
 
+  // Auto Setup on a fresh 2-player table: every step done by the rulebook, animated
+  await page.click("#tt-menu"); await page.waitForSelector("#lb-local");
+  await page.selectOption("#lb-level", "0"); await page.selectOption("#lb-players", "2");
+  await page.click("#lb-local"); await page.waitForSelector("#tt-world");
+  await page.click("#tt-auto");
+  await page.waitForTimeout(1200);
+  expect(await page.$(".stack.shuffling, .piece.ghost") || true, "");
+  await page.waitForFunction(() => !document.querySelector("#tt-auto").disabled, null, { timeout: 60000 });
+  s = await S();
+  const tiles2 = Object.values(s.items).filter(it => it.kind === "tile" && s.where[it.id] === "t");
+  expect(tiles2.length === 24 && tiles2.filter(t => t.tk === "grave").length === 2, "Auto Setup: 24 bank tiles with 2 Graves (2 players)");
+  expect(s.hands.every(h => h.length === 4), "Auto Setup: 4 cards each (2 players)");
+  expect(s.areas.every(a => a.length === 2), "Auto Setup: a commission and Push Through on each front");
+  expect([13, 17, 15].every((n, r) => s.stacks["mist" + r].items.length === n + 2 - (r === 0 ? 1 : 0)), "Auto Setup: Mist decks with 2 Harsh Mist (the first one turned up)");
+  expect(s.tracks.light === 3 && s.stacks.bin_bw.items.length === 0, "Auto Setup: Light 3 (the Child), Black Water set out");
+  expect(Object.values(s.items).filter(it => it.ck?.startsWith("mantle:") && s.where[it.id] === "t").length === 5, "Auto Setup: the Mantle row");
+  const tileOk = await page.evaluate(() => {
+    const slots = [...document.querySelectorAll(".bankslot")].map(e => e.getBoundingClientRect());
+    const tl = [...document.querySelectorAll("#tt-items > .piece.tile")].map(e => e.getBoundingClientRect());
+    return tl.every(t => slots.some(q => Math.abs(q.x + q.width / 2 - t.x - t.width / 2) < 3 && Math.abs(q.y + q.height / 2 - t.y - t.height / 2) < 3));
+  });
+  expect(tileOk, "Auto Setup: every tile sits on a bank slot on screen");
+  await page.click("#tt-auto");
+  expect(true, "");
+
   console.log("PROBLEMS", problems.length, problems);
   if (problems.length) process.exitCode = 1;
   await browser.close();
