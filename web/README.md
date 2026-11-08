@@ -8,10 +8,14 @@ A **manual virtual table** for Netherbloom V5, for publisher previews, hosted on
 - **The table**: the River (15 spaces, two banks each), the Mist area, the Loom of the Fates, the three chapter pages of
   the Book of Remembrance (each soul's route graph, with memory slots, mist slots, forks and turning points), the Ledger,
   the fate mist, commissions, endings, the Mantle row and the supply. "Fit" fills the window with the boards.
-- **Your own area**: the bottom of your screen holds your hand and your area (commission, Mantle, Push Through token,
-  lasting cards). Nobody else's hand or area is drawn; the seat buttons show only what is public (hand size, Mantle,
-  Push Through spent).
-- **Next-step hints**: when switched on, a narrow column docked down the right side; the table makes room for it.
+- **Your own column**: the right-hand side of your screen holds your area (commission, Mantle, Push Through token,
+  lasting cards) above your hand. Nobody else's hand or area is drawn; the seat buttons show only what is public (hand
+  size, Mantle, Push Through spent). The board fills the rest of the window under a single top bar.
+- **Play area and Box**: put a card you play in the Play area while it is read and carried out; drag anything removed
+  from the game into the Box (right-click it to look through and take things back).
+- **Next-step hints**: when switched on, a strip along the bottom of the board; the board makes room for it.
+- **Seeing the others play**: online, you watch other players drag pieces as they do it, and every change glides from
+  where it was to where it went (cards to or from a hand travel face down).
 - **Moving things**: drag any card, tile or token; it snaps to the nearest space, bank, track cell or book slot. Double-click
   (or `F`) flips; `R` turns a card sideways or upright (unlit / lit). Drag from a pile to take its top card; drop on a pile to
   put a card on top (`Alt` for the bottom); `Shift`+drag moves a whole pile. Right-click for more: draw, deal one each,

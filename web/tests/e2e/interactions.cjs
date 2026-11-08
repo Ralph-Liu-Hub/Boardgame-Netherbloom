@@ -179,16 +179,28 @@ module.exports = async (page, setStage, note, BASE) => {
   await dragTo(await center(`.piece[data-id="${myComm}"]`), { x: areaBox.x + 40, y: areaBox.y + areaBox.height / 2 });
   s1 = await S(); expect(s1.where[myComm] === "a:0", "and goes back into my area");
 
-  // l3) hints: a narrow column docked on the right; the table and the dock make room
-  stage("p3 hints dock");
+  // l3) layout: one top bar; my column on the right (area above hand); the board fills the rest; hints as a strip under the board
+  stage("p3 layout");
+  expect(await page.locator(".topbar").isHidden(), "the page header hides at the table: one top bar");
+  const vw = page.viewportSize().width, vh = page.viewportSize().height;
+  let vb = await page.locator("#tt-view").boundingBox(), db = await page.locator("#tt-hand").boundingBox();
+  const ab = await page.locator("#tt-area").boundingBox(), mb = await page.locator("#tt-myhand").boundingBox();
+  expect(Math.abs(db.x + db.width - vw) < 2 && Math.abs(vb.x + vb.width - db.x) < 2, "my column on the right, the board up to it");
+  expect(ab.y < mb.y && Math.abs(ab.width - mb.width) < 2, "my area above my hand, the same width");
+  expect(Math.abs(vb.y + vb.height - vh) < 2, "the board reaches the bottom of the window");
   if (!(await page.isChecked("#tt-hints"))) await page.click("#tt-hints");
-  const vw = page.viewportSize().width;
-  const hb2 = await page.locator("#tt-hint").boundingBox(), vb = await page.locator("#tt-view").boundingBox(), db = await page.locator("#tt-hand").boundingBox();
-  expect(Math.abs(hb2.x + hb2.width - vw) < 2 && hb2.width < 340, `hint column on the right edge (${Math.round(hb2.x)}+${Math.round(hb2.width)} of ${vw})`);
-  expect(Math.abs(vb.x + vb.width - hb2.x) < 2 && Math.abs(db.x + db.width - hb2.x) < 2, "the table and the dock stop at the hint column");
+  const hb2 = await page.locator("#tt-hint").boundingBox();
+  vb = await page.locator("#tt-view").boundingBox(); db = await page.locator("#tt-hand").boundingBox();
+  expect(Math.abs(hb2.y + hb2.height - vh) < 2 && hb2.height < 260 && Math.abs(hb2.x + hb2.width - db.x) < 2, `hint strip along the bottom of the board (${Math.round(hb2.y)}+${Math.round(hb2.height)})`);
+  expect(Math.abs(vb.y + vb.height - hb2.y) < 2, "the board stops at the hint strip");
   await page.click("#tt-hints");
   const vb2 = await page.locator("#tt-view").boundingBox();
-  expect(Math.abs(vb2.x + vb2.width - vw) < 2, "with hints off the table fills the width");
+  expect(Math.abs(vb2.y + vb2.height - vh) < 2, "with hints off the board reaches the bottom again");
+  // the context menu opens at the top-right corner of the card
+  await page.click("#tt-hand [data-hid] >> nth=0", { button: "right" });
+  const cb = await page.locator("#tt-hand [data-hid] >> nth=0").boundingBox(), menu = await page.locator("#tt-ctx").boundingBox();
+  expect(Math.abs(menu.y - cb.y) < 2 && (Math.abs(menu.x - (cb.x + cb.width)) < 2 || Math.abs(menu.x + menu.width - (cb.x + cb.width)) < 2), "the menu starts at the card's top-right corner");
+  await page.keyboard.press("Escape");
 
   // m) seats: pass the device
   stage("p3 seats");

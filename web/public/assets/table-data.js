@@ -102,6 +102,8 @@ export const SETUP_TABLE = { 1: { graves: 2, need: 1 }, 2: { graves: 1, need: 2 
 export const START_LIGHT = { child: 3, garland: 0, king: 0, bride: 1, open: 2 };
 export const SOUL_ART = { open: "soul-nameless", child: "soul-child", garland: "soul-garland", king: "soul-king", bride: "soul-bride" };
 export const SOUL_ORDER = ["child", "garland", "king", "bride", "open"];
+// English names, as in the English rulebook
+export const SOUL_EN = { child: "The Child of the Last Flame", garland: "The Garland Girl", king: "The King on the Barge", bride: "The Bride Who Stayed Below", open: "Open Crossing" };
 // Loom threshold with 0 / 1 / 2 scars: the level's base for 2-4 players, +3 solo
 export const thresholds = (level, players) => { const b = LEVELS[level].loom + (players === 1 ? 3 : 0); return [b, b - 1, b - 2]; };
 export const BACKLASH = [

@@ -63,6 +63,23 @@ const BASE = process.env.BASE || "http://localhost:8765";
   const lightA = await A.evaluate(() => document.querySelector('.tmarker[data-track="light"]').title);
   console.log("host light after undo", lightA);
   if (!/6$/.test(lightA)) problems.push("host undo wiped the guest's move: " + lightA);
+  // live movement: while the guest drags a card, the host sees it travel; then it lands where the guest put it
+  {
+    await B.click("#tt-fit"); await B.click('.zoombtn[data-zoom="ledger"]');
+    const r = await B.locator('.stack[data-stack="deck"]').boundingBox();
+    const sx = r.x + r.width / 2, sy = r.y + r.height / 2;
+    const deckBefore = await A.evaluate(() => JSON.parse(localStorage.getItem("nb-table-v5e")).stacks.deck.items.length);
+    await B.mouse.move(sx, sy); await B.mouse.down();
+    for (let i = 1; i <= 8; i++) { await B.mouse.move(sx + i * 25, sy + i * 6); await B.waitForTimeout(60); }
+    await A.waitForTimeout(500);
+    const seen = await A.evaluate(() => !!document.querySelector(".piece.ghost, .piece.remote-moving"));
+    console.log("host sees the drag live:", seen);
+    if (!seen) problems.push("host did not see the guest's drag while it happened");
+    await B.mouse.up(); await A.waitForTimeout(1500);
+    const deckAfter = await A.evaluate(() => JSON.parse(localStorage.getItem("nb-table-v5e")).stacks.deck.items.length);
+    console.log("host's deck before/after the drag:", deckBefore, deckAfter);
+    if (deckAfter !== deckBefore - 1) problems.push("the dragged card did not leave the host's deck");
+  }
   // guest reloads (drops) and rejoins: same seat
   await B.reload(); await B.waitForSelector("#lb-local");
   await A.waitForTimeout(1500);

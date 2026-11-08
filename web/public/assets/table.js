@@ -32,6 +32,7 @@ for (const c of CARDS) {
 }
 MEM.C33 = { id: "C33", name: "Lightless Crossing", tag: OBL, eff: [["cross"]], res: [["light", 1]], slot: null, band: "", key: false };
 const zhName = c => (c.id === "C33" ? "無光之渡" : ZH_CARD_NAMES[c.name] || c.name);
+const soulName = s => (LANG === "en" ? D.SOUL_EN[s] : STORY[s]?.name) || "";
 const PACK = { open: "E", child: "L", garland: "G-", king: "K", bride: "B" };
 function deckIds(soul) {
   const core = Object.keys(MEM).filter(id => id[0] === "C");
@@ -60,7 +61,8 @@ const MISTA = { x: 310, y: 650, w: 600, h: 340 };
 const LOOM = { x: 310, y: 1000, w: 960, h: 340 };
 const LEDGER = { x: 310, y: 1360, w: 960, h: 340 };
 const SUPPLY = { x: 310, y: 1720, w: 960, h: 480 };
-const PLAY = { x: 2250, y: 1000, w: 340, h: 1200 };
+const PLAY = { x: 2250, y: 1000, w: 340, h: 700 };
+const BOXA = { x: 2250, y: 1720, w: 340, h: 480 };   // the Box: everything removed from the game
 // where a space sits on the square board, and which way the river flows through it
 function spaceGeo(sp) {
   const row = Math.floor(sp / 5), i = sp % 5;
@@ -116,7 +118,7 @@ function newTable(opts) {
   addStack("deck", { x: LEDGER.x + 20, y: LEDGER.y + 50, label: ["記憶牌庫", "Memory deck"], accepts: "card" });
   addStack("discard", { x: LEDGER.x + 30 + SW, y: LEDGER.y + 50, label: ["棄牌堆", "Discard"], accepts: "card", faceUp: true });
   addStack("forgot", { x: LEDGER.x + 40 + 2 * SW, y: LEDGER.y + 50, label: ["遺忘堆", "Forgotten"], accepts: "card", faceUp: true, counter: "forgot" });
-  addStack("box", { x: LEDGER.x + 20, y: LEDGER.y + 202, label: ["盒中（移出遊戲）", "Box (out of game)"], accepts: "any", faceUp: true });
+  addStack("box", { x: BOXA.x + 20, y: BOXA.y + 96, w: BOXA.w - 40, h: BOXA.h - 116, label: ["盒中（移出遊戲）", "Box (out of game)"], accepts: "any", faceUp: true, big: true });
   for (let r = 0; r < 3; r++) addStack("mist" + r, { x: MISTA.x + 20 + r * (SW + 10), y: MISTA.y + 60, label: [D.DECK_NAMES[r].zh, D.DECK_NAMES[r].en], accepts: "card", showBack: true });
   addStack("mistdis", { x: MISTA.x + 40 + 4 * (SW + 10), y: MISTA.y + 60, label: ["迷霧棄牌", "Mist discard"], accepts: "card", faceUp: true });
   addStack("spare", { x: MISTA.x + 20, y: MISTA.y + 200, label: ["備用板塊", "Spare tiles"], accepts: "tile", faceUp: true, small: true });
@@ -192,17 +194,18 @@ function buildSnaps(players) {
       snap(`bank${sp}L`, g.left.x, g.left.y, R.bank, R.bank, ["tile", "tok"]);
       snap(`bank${sp}R`, g.right.x, g.right.y, R.bank, R.bank, ["tile", "tok"]);
     }
-    snap(`soul${sp}`, g.x + 4, g.laneY + 2, 52, R.lane - 4, ["tok"]);
-    snap(`water${sp}`, g.x + 60, g.laneY + 2, 52, R.lane - 4, ["tok"]);
+    snap(`laneL${sp}`, g.x + 1, g.laneY + 2, 44, R.lane - 4, ["tok"]);
+    snap(`soul${sp}`, g.x + 37, g.laneY + 2, 44, R.lane - 4, ["tok"]);    // the centre of the space
+    snap(`water${sp}`, g.x + 73, g.laneY + 2, 44, R.lane - 4, ["tok"]);
   }
   // mist front
   snap("mistfront", MISTA.x + 30 + 3 * (SW + 10), MISTA.y + 60, SW, SH, ["card"]);
   // loom
   for (let t = 0; t < 3; t++) {
     const y = LOOM.y + 60 + t * 88;
-    for (let k = 0; k <= 12; k++) snap(`knot${t}_${k}`, LOOM.x + 110 + k * 38, y, 36, 40, []);
-    for (let k = 0; k <= 2; k++) snap(`scar${t}_${k}`, LOOM.x + 610 + k * 32, y, 30, 40, []);
-    snap(`echo${t}`, LOOM.x + 84, y + 2, 32, 36, ["tok"]);
+    for (let k = 0; k <= 12; k++) snap(`knot${t}_${k}`, LOOM.x + 146 + k * 35, y, 33, 40, []);
+    for (let k = 0; k <= 2; k++) snap(`scar${t}_${k}`, LOOM.x + 616 + k * 31, y, 29, 40, []);
+    snap(`echo${t}`, LOOM.x + 90, y - 4, 50, 48, ["tok"]);
   }
   snap("echoS", LOOM.x + 20, LOOM.y + 300, 40, 32, ["tok"]);
   // ledger
@@ -298,7 +301,7 @@ function cardInfo(ck) {
   }
   if (type === "soul") {
     const s = STORY[a];
-    return { cls: "soulc", art: D.SOUL_ART[a], html: `<div class="c-top"><b>${esc(s.name)}</b></div><div class="c-eff">${esc(s.trait)}</div>${s.keymem ? `<div class="c-res"><span>${tr("關鍵記憶", "Key memory")}</span>${esc(s.keymem)}</div>` : ""}`, back: "back-soul", title: s.name };
+    return { cls: "soulc", art: D.SOUL_ART[a], html: `<div class="c-top"><b>${esc(soulName(a))}</b></div><div class="c-eff">${esc(s.trait)}</div>${s.keymem ? `<div class="c-res"><span>${tr("關鍵記憶", "Key memory")}</span>${esc(s.keymem)}</div>` : ""}`, back: "back-soul", title: soulName(a) };
   }
   if (type === "mantle") {
     const m = D.MANTLES.find(x => x.key === a), th = D.THREADS[m.th];
@@ -397,15 +400,16 @@ function boardsHtml() {
   const th = D.thresholds(S.level, S.players);
   h += `<div class="board loom" data-region="loom" style="left:${LOOM.x}px;top:${LOOM.y}px;width:${LOOM.w}px;height:${LOOM.h}px">${zoomBtn("loom")}
     <div class="btitle">${tr("命運織機", "Loom of the Fates")}</div>
-    <div class="lab" style="left:110px;top:36px">${tr("結", "Knots")}</div><div class="lab" style="left:610px;top:36px">${tr("傷疤", "Scars")}</div>
-    <div class="lab" style="left:714px;top:36px">${tr("反噬（第一／二／三級）", "Backlash (I / II / III)")}</div>`;
+    <div class="lab" style="left:92px;top:36px">${tr("迴響", "Echo")}</div><div class="lab" style="left:146px;top:36px">${tr("結", "Knots")}</div><div class="lab" style="left:616px;top:36px">${tr("傷疤", "Scars")}</div>
+    <div class="lab" style="left:716px;top:36px">${tr("反噬（第一／二／三級）", "Backlash (I / II / III)")}</div>`;
   for (let t = 0; t < 3; t++) {
     const y = 60 + t * 88;
     h += `<div class="thread th${t}" style="top:${y}px">${icon(D.THREADS[t].icon)}${tr(D.THREADS[t].zh, D.THREADS[t].en)}</div>`;
-    h += `<div class="groove" style="left:110px;top:${y + 17}px;width:${12 * 38 + 36}px"></div>`;
-    for (let k = 0; k <= 12; k++) h += `<div class="cell tcell${th.includes(k) ? " lim" : ""}" data-track="knot${t}" data-val="${k}" style="left:${110 + k * 38}px;top:${y}px;width:36px">${k}${k === th[0] ? `<i>${th[0]}</i>` : ""}</div>`;
-    h += `<div class="groove" style="left:610px;top:${y + 17}px;width:94px"></div>`;
-    for (let k = 0; k <= 2; k++) h += `<div class="cell scar tcell" data-track="scar${t}" data-val="${k}" style="left:${610 + k * 32}px;top:${y}px;width:30px">${k}</div>`;
+    h += `<div class="echoslot th${t}" style="left:90px;top:${y - 4}px" title="${tr("迴響停在這條絲線時，把迴響標記放在這裡", "Put the Echo token here when the Echo is on this thread")}">${tr("迴響", "Echo")}</div>`;
+    h += `<div class="groove" style="left:146px;top:${y + 17}px;width:${12 * 35 + 33}px"></div>`;
+    for (let k = 0; k <= 12; k++) h += `<div class="cell tcell${th.includes(k) ? " lim" : ""}" data-track="knot${t}" data-val="${k}" style="left:${146 + k * 35}px;top:${y}px;width:33px">${k}${k === th[0] ? `<i>${th[0]}</i>` : ""}</div>`;
+    h += `<div class="groove" style="left:616px;top:${y + 17}px;width:91px"></div>`;
+    for (let k = 0; k <= 2; k++) h += `<div class="cell scar tcell" data-track="scar${t}" data-val="${k}" style="left:${616 + k * 31}px;top:${y}px;width:29px">${k}</div>`;
     h += `<div class="blash" style="top:${y - 4}px">${D.BACKLASH[t].map((s, i) => `<div><b>${"ⅠⅡⅢ"[i]}</b>${esc(s)}</div>`).join("")}</div>`;
   }
   h += `<div class="lab" style="left:20px;top:284px">${tr("沉默格", "Silent")}</div>
@@ -432,7 +436,11 @@ function boardsHtml() {
   h += `<div class="board supply" data-region="supply" style="left:${SUPPLY.x}px;top:${SUPPLY.y}px;width:${SUPPLY.w}px;height:${SUPPLY.h}px">${zoomBtn("supply")}<div class="btitle">${tr("稱號列與供應區", "Mantles and supply")}</div>
     <div class="lab" style="left:20px;top:200px">${tr("供應區（拖曳拿取；拖回放回）", "Supply (drag to take, drag back to return)")}</div></div>`;
   // play area in front of the River (cards being played)
-  h += `<div class="board playarea" data-region="play" style="left:${PLAY.x}px;top:${PLAY.y}px;width:${PLAY.w}px;height:${PLAY.h}px">${zoomBtn("play")}<div class="btitle">${tr("出牌區", "Play area")}</div></div>`;
+  h += `<div class="board playarea" data-region="play" style="left:${PLAY.x}px;top:${PLAY.y}px;width:${PLAY.w}px;height:${PLAY.h}px">${zoomBtn("play")}<div class="btitle">${tr("出牌區", "Play area")}</div>
+    <div class="note playnote">${tr("你打出的牌先放在這裡，讓大家看清楚再執行效果。執行完：銘刻的牌放上書頁；沒銘刻的執念、釋懷牌放入棄牌堆，忘卻牌放入遺忘堆。翻開的命運之霧、託付卡也可以先放在這裡朗讀。",
+      "Put the card you play here so everyone can read it before you carry it out. Then: an inscribed card goes onto the page; otherwise Obsession and Acceptance cards go to the discard pile and Oblivion cards to the forgotten pile. Revealed fate cards and commissions can sit here while they are read aloud.")}</div></div>`;
+  h += `<div class="board boxa" data-region="box" style="left:${BOXA.x}px;top:${BOXA.y}px;width:${BOXA.w}px;height:${BOXA.h}px">${zoomBtn("box")}<div class="btitle">${tr("盒中（移出遊戲）", "The Box (out of the game)")}</div>
+    <div class="note" style="left:16px;right:16px;top:40px">${tr("移出遊戲的牌、板塊與指示物都拖到這裡。右鍵「查看與搜尋」可以拿回來。", "Drag anything removed from the game here. Right-click, “Look through”, to take something back.")}</div></div>`;
   return h;
 }
 
@@ -508,7 +516,7 @@ function buildTable() {
   app.innerHTML = `
     <div class="tt-bar">
       <span class="brand">${icon("nb-bloom")}${tr("彼岸花渡・桌面", "Netherbloom · Table")}</span>
-      <span class="muted">${esc(STORY[S.soul].name)}・${tr(D.LEVELS[S.level].zh, D.LEVELS[S.level].en)}・${S.players}${tr(" 人", "p")}</span>
+      <span class="muted">${esc(soulName(S.soul))}・${tr(D.LEVELS[S.level].zh, D.LEVELS[S.level].en)}・${S.players}${tr(" 人", "p")}</span>
       <span id="tt-code" class="muted"></span>
       <span class="sp"></span>
       <div id="tt-seats" class="seats"></div>
@@ -519,18 +527,23 @@ function buildTable() {
       <button id="tt-rules">${tr("規則書", "Rulebook")}</button>
       <button id="tt-log">${tr("紀錄", "Log")}</button>
       <button id="tt-menu">${tr("選單", "Menu")}</button>
+      <span class="tt-sep"></span>
+      <a href="/admin" id="tt-dash" class="${isAdmin ? "" : "hidden"}"><button type="button" tabindex="-1">${tr("後台", "Dashboard")}</button></a>
+      <button id="tt-lang">${LANG === "zh" ? "English" : "中文"}</button>
+      <a href="/api/logout"><button type="button" tabindex="-1">${tr("登出", "Sign out")}</button></a>
     </div>
     <div class="tt-view" id="tt-view"><div class="tt-world" id="tt-world" style="width:${WORLD.w}px;height:${WORLD.h}px">
       <div class="felt" style="left:${BOUNDS.x}px;top:${BOUNDS.y}px;width:${BOUNDS.w}px;height:${BOUNDS.h}px"></div><div id="tt-boards"></div><div id="tt-items"></div></div></div>
     <div class="tt-hand" id="tt-hand">
       <section class="my-area" id="tt-area"><div class="hand-title"></div><div class="area-items"></div></section>
-      <section class="my-hand"><div class="hand-title"></div><div class="hand-cards"></div></section>
+      <section class="my-hand" id="tt-myhand"><div class="hand-title"></div><div class="hand-cards"></div></section>
     </div>
     <aside class="tt-hint hidden" id="tt-hint"></aside>
     <aside class="tt-drawer hidden" id="tt-drawer"></aside>
     <div class="tt-menu hidden" id="tt-ctx"></div>
     <div class="tt-cover hidden" id="tt-cover"></div>
     <div class="tt-modal hidden" id="tt-modal"></div>`;
+  document.body.classList.add("on-table");
   elWorld = $("#tt-world"); elTable = $("#tt-items"); elHand = $("#tt-hand"); elHint = $("#tt-hint"); elMenu = $("#tt-ctx"); elSeats = $("#tt-seats");
   for (const k in els) delete els[k];
   for (const k in stackEls) delete stackEls[k];
@@ -591,14 +604,17 @@ function render() {
     const top = st.items[st.items.length - 1];
     const it = top ? S.items[top] : null;
     const tokenBin = st.accepts.startsWith("tok");
-    const w = tokenBin ? 92 : st.small ? 86 : CW + 8, h = tokenBin ? 92 : st.small ? 86 : CH + 8;
+    const w = st.w || (tokenBin ? 92 : st.small ? 86 : CW + 8), h = st.h || (tokenBin ? 92 : st.small ? 86 : CH + 8);
     el.style.left = st.x + "px"; el.style.top = st.y + "px"; el.style.width = w + "px"; el.style.height = h + "px";
     const sig = `${top}|${it?.face}|${st.faceUp}|${st.items.length}|${LANG}`;
     if (el._sig !== sig) {
       let inner = "";
       if (it) {
         const r = itemHtml(it.kind === "card" ? { ...it, face: st.faceUp ? 1 : 0 } : { ...it, face: it.tk === "root" ? 0 : it.face });
-        inner = `<div class="piece ${r.cls}" style="position:absolute;left:4px;top:4px;width:${w - 8}px;height:${h - 8}px">${r.html}</div>`;
+        if (st.big) {   // the Box: the last thing put in, at its own size, in the middle
+          const iw = it.kind === "card" ? CW : it.kind === "tile" ? RIVER.bank - 6 : TK, ih = it.kind === "card" ? CH : iw;
+          inner = `<div class="piece ${r.cls}" style="position:absolute;left:${(w - iw) / 2}px;top:${(h - ih) / 2}px;width:${iw}px;height:${ih}px">${r.html}</div>`;
+        } else inner = `<div class="piece ${r.cls}" style="position:absolute;left:4px;top:4px;width:${w - 8}px;height:${h - 8}px">${r.html}</div>`;
       }
       el.innerHTML = `${inner}<div class="slabel">${esc(tr(...st.label))}</div><div class="scount">${st.items.length}</div>`;
       el._sig = sig;
@@ -671,7 +687,7 @@ function renderHand() {
   const area = (S.areas[ME] || []).map(id => S.items[id]);
   const order = it => (it.ck?.startsWith("comm:") ? 0 : it.ck?.startsWith("mantle:") ? 1 : it.tk === "push" ? 2 : 3);
   area.sort((a, b) => order(a) - order(b));
-  elHand.querySelector(".my-area .hand-title").innerHTML = `${tr("你的區域", "Your area")}<small>${tr("託付、稱號、破浪、持續中的牌；只有你看得到這裡", "Commission, Mantle, Push Through, lasting cards; only you see this")}</small>`;
+  elHand.querySelector(".my-area .hand-title").innerHTML = `${tr("你的區域", "Your area")}<small>${tr("你的託付（只有你看得到）、稱號、破浪標記、持續中的牌。稱號與破浪是否用過，會顯示在上方你的名字旁，大家都看得到。", "Your commission (only you see it), Mantle, Push Through token and lasting cards. Your Mantle and whether Push Through is spent show next to your name at the top, for everyone.")}</small>`;
   elHand.querySelector(".area-items").innerHTML = area.map(it => {
     if (it.kind === "tok") {
       const r = itemHtml(it);
@@ -741,7 +757,18 @@ function worldPt(e) {
   return { x: q.x, y: q.y };
 }
 function applyView() { elWorld.style.transform = viewMatrix().toString(); }
+// The right-hand column (my area and hand) takes whatever width the board does not need, so the board always fills
+// the space between the top bar and the bottom of the window (or the hint strip). At least three cards across.
+function sizeColumn() {
+  const app = $("#app");
+  if (window.innerWidth <= 760) { app.style.removeProperty("--sidew"); return; }
+  const hintH = app.classList.contains("hints-on") ? 190 : 0;
+  const boardH = app.getBoundingClientRect().height - 42 - hintH;
+  const side = window.innerWidth - boardH * BOUNDS.w / BOUNDS.h;
+  app.style.setProperty("--sidew", Math.round(Math.max(432, Math.min(side, window.innerWidth * 0.42))) + "px");
+}
 function fit() {
+  sizeColumn();
   const r = $("#tt-view").getBoundingClientRect();
   view.r = 0;   // everyone sees the same fixed table
   // the boards fill the window
@@ -794,6 +821,7 @@ function bindTable() {
     showMenuScreen();
   };
   $("#tt-hints").onchange = e => setHints(e.target.checked);
+  $("#tt-lang").onclick = toggleLang;
   elSeats.onclick = e => { const b = e.target.closest("[data-seat]"); if (b && mode === "local") switchSeat(+b.dataset.seat); };
   window.onkeydown = e => {
     if (!onTable() || e.target.closest("input,textarea,select")) return;
@@ -904,15 +932,15 @@ function onMove(e) {
     el.style.transform = `translate(${it.x - w / 2}px,${it.y - h / 2}px) rotate(${it.rot}deg)`;
     el.style.zIndex = 9000;
   }
+  sendMove(drag, it);
   const over = dockPart(e);
   elHand.querySelector(".my-area").classList.toggle("drop", over === "area");
   elHand.querySelector(".my-hand").classList.toggle("drop", over === "hand" && it.kind === "card");
 }
 // is the pointer over my area or my hand (the dock at the bottom of the screen)?
 function dockPart(e) {
-  const r = elHand.getBoundingClientRect();
-  if (!(e.clientY > r.top && e.clientX > r.left && e.clientX < r.right)) return null;
-  return e.clientX < $("#tt-area").getBoundingClientRect().right ? "area" : "hand";
+  const inside = el => { const r = el.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; };
+  return inside($("#tt-area")) ? "area" : inside($("#tt-myhand")) ? "hand" : null;
 }
 
 function onUp(e) {
@@ -927,6 +955,7 @@ function onUp(e) {
   if (d.stackMove) { hist.push(d.snapshot); fut = []; S.rev++; changed(); return; }
   const it = S.items[d.id];
   els[d.id]?.classList.remove("dragging");
+  if (mode !== "local") netSend({ t: "mvend", id: d.id });
   if (!d.moved && d.from === "table") return render();
   hist.push(d.snapshot); if (hist.length > 80) hist.shift(); fut = [];
   let msg = "";
@@ -961,7 +990,7 @@ function stackAt(pt, it) {
   for (const sid in S.stacks) {
     const st = S.stacks[sid];
     const tokenBin = st.accepts.startsWith("tok");
-    const w = tokenBin ? 92 : st.small ? 86 : CW + 8, h = tokenBin ? 92 : st.small ? 86 : CH + 8;
+    const w = st.w || (tokenBin ? 92 : st.small ? 86 : CW + 8), h = st.h || (tokenBin ? 92 : st.small ? 86 : CH + 8);
     if (pt.x < st.x || pt.x > st.x + w || pt.y < st.y || pt.y > st.y + h) continue;
     if (st.accepts === "any") return sid;
     if (st.accepts === "card" && it.kind === "card") return sid;
@@ -1065,8 +1094,14 @@ function openMenu(e) {
     opts.push([tr("全桌檢視", "Fit the table"), fit]);
   }
   elMenu.innerHTML = opts.map(([t, f], i) => `<button data-i="${i}"${f ? "" : " disabled"}>${esc(t)}</button>`).join("");
-  elMenu.style.left = e.clientX + "px"; elMenu.style.top = e.clientY + "px";
   elMenu.classList.remove("hidden");
+  const anchor = (hc || ac || p || s)?.getBoundingClientRect();
+  let x = anchor ? anchor.right : e.clientX, y = anchor ? anchor.top : e.clientY;
+  // keep it on the screen: if it would run off the right edge, open it leftwards from the same corner
+  const mw = elMenu.offsetWidth, mh = elMenu.offsetHeight;
+  if (x + mw > window.innerWidth - 4) x = Math.max(4, (anchor ? anchor.right : x) - mw);
+  if (y + mh > window.innerHeight - 4) y = Math.max(4, window.innerHeight - 4 - mh);
+  elMenu.style.left = x + "px"; elMenu.style.top = Math.max(4, y) + "px";
   elMenu.onclick = ev => { const b = ev.target.closest("[data-i]"); if (!b) return; closeMenus(); opts[+b.dataset.i][1]?.(); };
 }
 const closeMenus = () => elMenu?.classList.add("hidden");
@@ -1175,6 +1210,93 @@ function switchSeat(n) {
 }
 
 // ---------------------------------------------------------------- online
+// ---------------------------------------------------------------- seeing the others move things
+// While someone drags a piece, everyone else sees it travel (a "mv" message about 20 times a second). When a new state
+// arrives, every piece that changed place glides from where it was to where it went, so a draw, a deal, a discard or a
+// card turned up is seen, not just a picture that changes. Cards from or to a hand or area travel face down.
+function netSend(msg) {
+  if (mode === "host") link?.broadcast(msg);
+  if (mode === "guest") link?.send(msg);
+}
+function sendMove(d, it) {
+  if (mode === "local") return;
+  const now = performance.now();
+  if (now - (d.sentAt || 0) < 50) return;
+  d.sentAt = now;
+  const hidden = d.from === "hand" || d.from === "area" || (it.kind === "card" && !it.face);
+  netSend({ t: "mv", id: d.id, x: Math.round(it.x), y: Math.round(it.y), face: hidden ? 0 : it.face, who: ME });
+}
+const ghosts = {};
+function pieceSize(it) { return it.kind === "card" ? [CW, CH] : it.kind === "tile" ? [RIVER.bank - 6, RIVER.bank - 6] : [TK, TK]; }
+function ghostEl(id, it, face) {
+  let g = ghosts[id];
+  if (!g) {
+    g = document.createElement("div");
+    const r = itemHtml({ ...it, face });
+    g.className = `piece ghost ${r.cls}`; g.innerHTML = r.html;
+    const [w, h] = pieceSize(it); g.style.width = w + "px"; g.style.height = h + "px"; g.style.zIndex = 9500;
+    elTable.appendChild(g); ghosts[id] = g;
+  }
+  return g;
+}
+function dropGhost(id) { ghosts[id]?.remove(); delete ghosts[id]; }
+function remoteMove(msg) {
+  const it = S?.items[msg.id];
+  if (!it || drag?.id === msg.id) return;
+  if (msg.t === "mvend") { setTimeout(() => dropGhost(msg.id), 600); return; }
+  const [w, h] = pieceSize(it);
+  const tf = `translate(${msg.x - w / 2}px,${msg.y - h / 2}px) rotate(${it.rot || 0}deg)`;
+  const el = S.where[msg.id] === "t" ? els[msg.id] : null;
+  if (el) { el.classList.add("remote-moving"); el.style.transform = tf; el.style.zIndex = 9500; clearTimeout(el._rm); el._rm = setTimeout(() => el.classList.remove("remote-moving"), 700); return; }
+  const g = ghostEl(msg.id, it, msg.face);
+  g.style.transform = tf;
+}
+// where a piece is, as a point on the table (piles, hands and areas included)
+function placeOf(st, id) {
+  const w = st.where[id];
+  if (!w) return null;
+  if (w === "t") return { x: st.items[id].x, y: st.items[id].y };
+  if (w.startsWith("s:")) {
+    const k = S.stacks[w.slice(2)];
+    if (!k) return null;
+    const tb = k.accepts.startsWith("tok");
+    return { x: k.x + (k.w || (tb ? 92 : k.small ? 86 : CW + 8)) / 2, y: k.y + (k.h || (tb ? 92 : k.small ? 86 : CH + 8)) / 2 };
+  }
+  const seat = +w.slice(2);
+  const target = seat === ME ? $(w.startsWith("h:") ? "#tt-myhand" : "#tt-area") : document.querySelector(`#tt-seats [data-seat="${seat}"]`);
+  if (!target) return null;
+  const r = target.getBoundingClientRect();
+  return worldPt({ clientX: r.left + r.width / 2, clientY: r.top + Math.min(r.height / 2, 60) });
+}
+function animateChanges(old) {
+  if (!old || !elTable) return;
+  let n = 0;
+  for (const id in S.items) {
+    const was = old.where?.[id], now = S.where[id];
+    if (!was || !now) continue;
+    const moved = was !== now || (now === "t" && (old.items[id].x !== S.items[id].x || old.items[id].y !== S.items[id].y));
+    if (!moved || drag?.id === id) continue;
+    if (ghosts[id]) { dropGhost(id); continue; }   // we already watched it travel
+    if (++n > 40) break;                            // a big undo or a deal of many: do not animate everything
+    const from = placeOf(old, id), to = placeOf(S, id);
+    if (!from || !to) continue;
+    const it = S.items[id], [w, h] = pieceSize(it);
+    const tf = p => `translate(${p.x - w / 2}px,${p.y - h / 2}px) rotate(${it.rot || 0}deg)`;
+    if (now === "t" && els[id]) {
+      const el = els[id], final = el.style.transform;
+      el.style.transition = "none"; el.style.transform = tf(from); void el.offsetWidth;
+      el.style.transition = "transform .45s ease"; el.style.transform = final;
+      setTimeout(() => { el.style.transition = ""; }, 500);
+    } else {
+      const hidden = it.kind === "card" && (/^[ha]:/.test(was) || /^[ha]:/.test(now) || !it.face);
+      const g = ghostEl(id + "~", it, hidden ? 0 : it.face);
+      g.style.transition = "none"; g.style.transform = tf(from); void g.offsetWidth;
+      g.style.transition = "transform .45s ease, opacity .45s"; g.style.transform = tf(to); g.style.opacity = ".35";
+      setTimeout(() => dropGhost(id + "~"), 500);
+    }
+  }
+}
+
 function sync() {
   if (mode === "host") link?.broadcast({ t: "state", S });
   if (mode === "guest") link?.send({ t: "state", S });
@@ -1202,7 +1324,10 @@ function startHost(code) {
         S.log.push({ t: Date.now(), who: seat, m: tr(`${S.names[seat]} 加入了`, `${S.names[seat]} joined`) });
         changed();
       } else if (msg.t === "state" && msg.S && seats[cid] !== undefined && msg.S.rev >= S.rev) {
-        S = msg.S; remoteChange(); saveLocal(); render(); link.broadcast({ t: "state", S }, cid);
+        const old = S;
+        S = msg.S; remoteChange(); saveLocal(); render(); animateChanges(old); link.broadcast({ t: "state", S }, cid);
+      } else if ((msg.t === "mv" || msg.t === "mvend") && seats[cid] !== undefined) {
+        remoteMove(msg); link.broadcast(msg, cid);
       }
     },
     leave: cid => { delete seats[cid]; },
@@ -1219,7 +1344,8 @@ function startGuest(code, name) {
     open: () => link.send({ t: "hello", name, cid: net.clientId() }),
     message: msg => {
       if (msg.t === "welcome") { seated = true; ME = msg.seat; S = msg.S; hist = []; fut = []; buildTable(); $("#tt-code").textContent = tr(`房間 ${code}`, `Table ${code}`); }
-      else if (msg.t === "state" && seated && msg.S && msg.S.rev >= S.rev) { S = msg.S; remoteChange(); if (onTable()) render(); }
+      else if (msg.t === "state" && seated && msg.S && msg.S.rev >= S.rev) { const old = S; S = msg.S; remoteChange(); if (onTable()) { render(); animateChanges(old); } }
+      else if ((msg.t === "mv" || msg.t === "mvend") && seated && onTable()) remoteMove(msg);
       else if (msg.t === "full") toast(tr("這張桌子已經坐滿了。", "That table is full."));
     },
     close: () => toast(tr("與主持人的連線中斷了。", "Lost the host.")),
@@ -1229,6 +1355,7 @@ function startGuest(code, name) {
 
 // ---------------------------------------------------------------- lobby
 function showMenuScreen() {
+  document.body.classList.remove("on-table");
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(LS) || "null"); } catch { /* */ }
   if (link) { try { link.close(); } catch { /* */ } link = null; mode = "local"; }
@@ -1236,9 +1363,9 @@ function showMenuScreen() {
   app.innerHTML = `<div class="lobby">
     <h1>${icon("nb-bloom")} ${tr("彼岸花渡", "Netherbloom")} <small>V5 · ${tr("手動桌面", "manual table")}</small></h1>
     <p class="muted">${tr("這是一張虛擬的實體桌面：所有的牌、板塊與指示物都由你們親手移動，程式不會替你們執行任何規則。需要時打開「下一步提示」，它會告訴你們規則的下一步。", "A virtual physical table: you move every card, tile and token yourselves; the page never carries out a rule. Turn on “Next-step hints” to be shown the next step of the rules.")}</p>
-    ${saved?.soul ? `<div class="card-row"><button id="lb-resume" class="primary">${tr("繼續上一局", "Resume the last game")}</button><span class="muted">${esc(STORY[saved.soul]?.name || "")}・${saved.players}${tr(" 人", "p")}</span></div>` : ""}
+    ${saved?.soul ? `<div class="card-row"><button id="lb-resume" class="primary">${tr("繼續上一局", "Resume the last game")}</button><span class="muted">${esc(saved.soul ? soulName(saved.soul) : "")}・${saved.players}${tr(" 人", "p")}</span></div>` : ""}
     <fieldset><legend>${tr("新的一局", "New game")}</legend>
-      <label>${tr("亡魂", "Soul")} <select id="lb-soul">${D.SOUL_ORDER.map(s => `<option value="${s}">${esc(STORY[s].name)}</option>`).join("")}</select></label>
+      <label>${tr("亡魂", "Soul")} <select id="lb-soul">${D.SOUL_ORDER.map(s => `<option value="${s}">${esc(soulName(s))}</option>`).join("")}</select></label>
       <label>${tr("難度", "Difficulty")} <select id="lb-level">${D.LEVELS.map((l, i) => `<option value="${i}"${i === 0 ? " selected" : ""}>${tr(l.zh, l.en)}</option>`).join("")}</select></label>
       <label>${tr("人數", "Players")} <select id="lb-players">${[1, 2, 3, 4].map(n => `<option${n === 2 ? " selected" : ""}>${n}</option>`).join("")}</select></label>
       <div id="lb-names"></div>
@@ -1289,6 +1416,14 @@ function toast(m) {
   const d = document.createElement("div"); d.className = "toast"; d.textContent = m; t.appendChild(d);
   setTimeout(() => d.remove(), 3200);
 }
+let isAdmin = false;
+function toggleLang() {
+  LANG = LANG === "zh" ? "en" : "zh";
+  try { localStorage.setItem("nb-lang", LANG); } catch { /* */ }
+  const lb = $("#btn-lang");
+  if (lb) lb.textContent = LANG === "zh" ? "English" : "中文";
+  S && onTable() ? buildTable() : showMenuScreen();
+}
 async function boot() {
   try {
     const svg = await (await fetch("/assets/symbols.svg")).text();
@@ -1300,10 +1435,10 @@ async function boot() {
   const lb = $("#btn-lang");
   if (lb) {
     lb.textContent = LANG === "zh" ? "English" : "中文";
-    lb.onclick = () => { LANG = LANG === "zh" ? "en" : "zh"; try { localStorage.setItem("nb-lang", LANG); } catch { /* */ } lb.textContent = LANG === "zh" ? "English" : "中文"; S && onTable() ? buildTable() : showMenuScreen(); };
+    lb.onclick = toggleLang;
   }
   window.addEventListener("resize", () => { if (S && onTable()) fit(); });
-  fetch("/api/me", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(me => { if (me?.admin) $("#btn-dash")?.classList.remove("hidden"); }).catch(() => {});
+  fetch("/api/me", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(me => { if (me?.admin) { isAdmin = true; $("#btn-dash")?.classList.remove("hidden"); $("#tt-dash")?.classList.remove("hidden"); } }).catch(() => {});
   showMenuScreen();
 }
 boot();

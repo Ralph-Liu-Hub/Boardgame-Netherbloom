@@ -25,6 +25,10 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
       stage = `open ${lang} ${soul} L${level} ${players}p`;
       await page.click("#tt-menu").catch(() => {});
       await page.waitForSelector("#lb-local");
+      if (lang === "en") {
+        const names = await page.$$eval("#lb-soul option", os => os.map(o => o.textContent));
+        if (names.some(n => /[\u4e00-\u9fff]/.test(n))) note(stage, "Chinese soul names in English mode: " + names.join(", "));
+      }
       await page.selectOption("#lb-soul", soul);
       await page.selectOption("#lb-level", String(level));
       await page.selectOption("#lb-players", String(players));
@@ -75,9 +79,9 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
       const m = txt.match(/.{0,60}(undefined|NaN|\[object Object\]).{0,40}/);
       if (m) note(stage, "text: " + m[0]);
     }
-    if (lang === "zh") { stage = "lang toggle"; await page.click("#btn-lang"); await page.waitForTimeout(200); }
+    if (lang === "zh") { stage = "lang toggle"; await page.click((await page.$("#tt-lang")) ? "#tt-lang" : "#btn-lang"); await page.waitForTimeout(200); }
   }
-  await page.click("#btn-lang"); // back to zh
+  await page.click((await page.$("#tt-lang")) ? "#tt-lang" : "#btn-lang"); // back to zh
   console.log("phase 1 done");
   await page.screenshot({ path: (process.env.OUT || require("os").tmpdir()) + "/nb-e2e-table.png" });
 
