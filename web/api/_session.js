@@ -5,7 +5,7 @@ export const MAX_AGE = 60 * 60 * 24 * 7;
 const enc = new TextEncoder();
 const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 
-async function hmac(secret, data) {
+export async function hmac(secret, data) {
   const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   return b64url(await crypto.subtle.sign("HMAC", key, enc.encode(data)));
 }

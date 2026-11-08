@@ -467,3 +467,23 @@ body.on-table .topbar { display: none; }
 .nb-lily .core { fill: #f2b84f; opacity: 0; animation: nbveil .4s ease .7s forwards; }
 .nb-lily p { font-family: var(--serif); font-size: 17px; letter-spacing: .04em; margin-top: 14px; opacity: 0; animation: nbveil .6s ease .35s forwards; }
 @media (prefers-reduced-motion: reduce) { .nb-loading, .nb-lily * { animation-duration: .01s !important; animation-delay: 0s !important; } }
+
+/* watching, standing in, voice */
+.watchbadge { padding: 3px 9px; border-radius: 12px; font-size: 12.5px; background: rgba(69, 210, 216, .16); color: #9fe8ec; border: 1px solid rgba(69, 210, 216, .5); white-space: nowrap; }
+.seat.offline { opacity: .55; border-style: dashed; }
+.seat.micon::after { content: "🎙"; font-size: 11px; margin-left: 4px; opacity: .75; }
+.seat.talking { box-shadow: 0 0 0 2px #7ee08a, 0 0 12px rgba(126, 224, 138, .7); }
+.seat.talking::after { opacity: 1; }
+#tt-mic.on { border-color: #7ee08a; color: #c9f5cf; background: rgba(126, 224, 138, .12); }
+#tt-sound.off { border-color: var(--crimson); color: #ffb3b8; }
+.vchips { display: flex; gap: 4px; }
+.vchip { font-size: 12px; padding: 2px 7px; border-radius: 10px; border: 1px solid var(--line); color: var(--mist); white-space: nowrap; }
+.vchip.talking { border-color: #7ee08a; color: #c9f5cf; box-shadow: 0 0 10px rgba(126, 224, 138, .5); }
+.lobby .adminopt { width: 100%; font-size: 13.5px; color: var(--mist); }
+.livelist { display: flex; flex-direction: column; gap: 8px; min-width: min(560px, 80vw); margin-top: 8px; }
+.liverow { display: grid; grid-template-columns: auto 1fr auto; gap: 2px 12px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; }
+.liverow b { font-family: "IBM Plex Mono", monospace; color: var(--gold); letter-spacing: .08em; }
+.liverow small { grid-column: 2; color: var(--mist); }
+.liverow button { grid-row: 1 / span 2; grid-column: 3; }
+.tt-bar { overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+.tt-bar > * { flex-shrink: 0; }

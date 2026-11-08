@@ -57,10 +57,26 @@ tr.picked td { background: rgba(230,211,163,.08); }
 .chron h4 { margin: 10px 0 2px; font-family: var(--mono); font-weight: 500; font-size: .7rem; letter-spacing: .1em; color: var(--bone); text-transform: uppercase; }
 .chron div.k-loss, .chron div.k-fracture, .chron div.k-backlash, .chron div.k-forget { color: #f0a0aa; }
 .chron div.k-win, .chron div.k-bloom, .chron div.k-inscribe { color: #bfe9ef; }
+.live-wrap { margin-bottom: 0; }
+.livegrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin: 10px 0 6px; }
+.livecard { border: 1px solid rgba(201, 164, 92, .4); border-radius: 10px; padding: 10px 12px; background: rgba(40, 33, 26, .6); display: flex; flex-direction: column; gap: 6px; }
+.lc-top { display: flex; gap: 10px; align-items: baseline; }
+.lc-code { font-family: "IBM Plex Mono", monospace; color: #e6c27a; letter-spacing: .08em; font-size: 18px; }
+.lc-names { display: flex; flex-wrap: wrap; gap: 6px; }
+.lc-names span { font-size: 13px; padding: 1px 7px; border-radius: 9px; border: 1px solid #5d5040; }
+.lc-names .on { border-color: #7ee08a; }
+.lc-names .off { opacity: .55; border-style: dashed; }
+.lc-stats { font-size: 13px; opacity: .85; }
+.lc-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.watchbtn { padding: 5px 14px; border-radius: 6px; background: #5a1e24; border: 1px solid #b8323a; color: #fff; text-decoration: none; }
 </style>
 </head>
 <body>
 <div class="coverbg" aria-hidden="true"></div>
+<section class="app log-wrap live-wrap" id="liveapp">
+  <div class="log-head"><h1>Live tables</h1><span class="note" id="livenote">Checking…</span></div>
+  <div class="livegrid" id="livegrid"></div>
+</section>
 <main class="app log-wrap" id="logapp">
   <div class="log-head"><h1>Play log</h1><span><a href="/">Back to the game</a></span></div>
   <p class="note" id="status">Loading…</p>
@@ -125,6 +141,26 @@ else if (!d.logging) {
   app.querySelectorAll("button.view").forEach(b => b.onclick = () => openGame(b.dataset.sid, "chron" in b.dataset));
   if (location.hash.length > 1) openGame(location.hash.slice(1).replace(/:chronicle$/, ""), location.hash.endsWith(":chronicle"));
 }
+
+// ---------------------------------------------------------------- live tables: watch a game as it is played
+const LEVELS = ["Gentle", "Standard", "Hard"];
+const ago = iso => { const s = Math.max(0, (Date.now() - new Date(iso)) / 1000); return s < 60 ? "just now" : s < 3600 ? `${Math.floor(s / 60)} min ago` : `${Math.floor(s / 3600)} h ago`; };
+async function refreshLive() {
+  let j = null;
+  try { const r = await fetch("/api/live", { cache: "no-store" }); j = await r.json(); } catch { /* offline */ }
+  const grid = $("#livegrid"), note = $("#livenote");
+  if (!j?.ok) { note.textContent = j?.error || "The live tables could not be read."; grid.innerHTML = ""; return; }
+  if (!j.store) note.textContent = "Live tables need the Blob store (see the play log below).";
+  else note.textContent = j.live.length ? `${j.live.length} being played · refreshed ${new Date().toLocaleTimeString()}` : `No table is being played right now · refreshed ${new Date().toLocaleTimeString()}`;
+  grid.innerHTML = j.live.map(t => `<div class="livecard">
+    <div class="lc-top"><b class="lc-code">${esc(t.code)}</b><span>${esc(SOULS[t.soul] || t.soul)} · ${esc(LEVELS[t.level] || "")} · ${t.players}p</span></div>
+    <div class="lc-names">${(t.names || []).map((n, i) => `<span class="${t.online?.[i] ? "on" : "off"}">${esc(n)}</span>`).join("")}</div>
+    <div class="lc-stats">Chapter ${["I", "II", "III"][t.chapter] || "I"} · Light ${t.light} · Forgotten ${t.forgotten} · Fractures ${t.cracks}${t.watchers ? ` · ${t.watchers} watching` : ""}${t.voice ? ` · ${t.voice} mic on` : ""}${t.watchHost ? " · hosted without playing" : ""}</div>
+    <div class="lc-foot"><span class="note">Hosted by ${esc(t.by)} · started ${t.since ? when(t.since) : "—"} · seen ${ago(t.at)}</span><a class="watchbtn" href="/?watch=${encodeURIComponent(t.code)}">Watch</a></div>
+  </div>`).join("");
+}
+refreshLive();
+setInterval(refreshLive, 15000);
 
 // ---------------------------------------------------------------- one game's record
 let shown = null;
