@@ -695,8 +695,8 @@ function buildTable() {
       <button id="tt-switch" class="hidden" title="${tr("看其他正在進行的線上桌", "Watch another live table")}">${tr("切換牌桌", "Switch table")}</button>
       <span class="sp"></span>
       <span id="tt-vchips" class="vchips"></span>
-      <button id="tt-voice" class="hidden" title="${tr("和同桌的人語音通話", "Talk with everyone at this table")}"></button>
-      <button id="tt-mute" class="hidden"></button>
+      <button id="tt-mic" class="hidden" title="${tr("開或關你的麥克風（同桌的人都聽得到）", "Switch your microphone on or off (everyone at the table hears you)")}"></button>
+      <button id="tt-sound" class="hidden" title="${tr("聽或不聽其他人的聲音", "Hear the others, or not")}"></button>
       <div id="tt-seats" class="seats"></div>
       <label class="switch"><input type="checkbox" id="tt-hints"> <span>${tr("下一步提示", "Next-step hints")}</span></label>
       <button id="tt-auto" title="${tr("照規則書的準備步驟自動擺好牌桌（有動畫）", "Set the table up by the rulebook's steps, animated")}">${tr("自動準備", "Auto Setup")}</button>
@@ -734,6 +734,7 @@ function buildTable() {
   $("#tt-boards").innerHTML = boardsHtml();
   placeBoards();
   bindTable();
+  if (mode !== "local") announceVoice();
   let hintsOn = false;
   try { hintsOn = localStorage.getItem("nb-hints") === "1"; } catch { /* */ }
   $("#tt-hints").checked = hintsOn;
@@ -867,19 +868,19 @@ function renderOnline() {
   wb.textContent = WATCH ? tr(`觀戰中・從 ${S.names[ME] || ""} 的視角`, `Watching · from ${S.names[ME] || ""}'s side`) : tr(`代打 ${S.names[ME] || ""}`, `Playing for ${S.names[ME] || ""}`);
   $("#tt-switch").classList.toggle("hidden", !(WATCH && mode === "guest" && isAdmin));
   $("#tt-auto").disabled = WATCH || autoRunning; $("#tt-undo").disabled = $("#tt-redo").disabled = WATCH;
-  const vb = $("#tt-voice"), mb = $("#tt-mute");
-  vb.classList.toggle("hidden", !online); mb.classList.toggle("hidden", !online || !voice?.on);
-  vb.classList.toggle("on", !!voice?.on);
-  vb.textContent = voice?.on ? tr("🎙 離開語音", "🎙 Leave voice") : tr("🎙 加入語音", "🎙 Join voice");
-  mb.textContent = voice?.muted ? tr("🔇 已靜音", "🔇 Muted") : tr("🔈 靜音", "🔈 Mute");
-  mb.classList.toggle("on", !!voice?.muted);
+  const mb = $("#tt-mic"), sb = $("#tt-sound"), live = online && !!voice?.joined;
+  mb.classList.toggle("hidden", !live); sb.classList.toggle("hidden", !live);
+  mb.classList.toggle("on", !!voice?.micOn);
+  mb.textContent = voice?.micOn ? tr("🎙 麥克風開", "🎙 Mic on") : tr("🎙 麥克風關", "🎙 Mic off");
+  sb.classList.toggle("off", voice ? !voice.hearing : false);
+  sb.textContent = voice && !voice.hearing ? tr("🔇 聲音關", "🔇 Sound off") : tr("🔊 聲音開", "🔊 Sound on");
   const members = voice ? voice.members() : [];
   document.querySelectorAll("#tt-seats [data-seat]").forEach(b => {
     const m = members.find(x => x.seat === +b.dataset.seat);
-    b.classList.toggle("invoice", !!m); b.classList.toggle("talking", !!m && !m.muted && voice.speaking(m.id));
+    b.classList.toggle("micon", !!m?.mic); b.classList.toggle("talking", !!m?.mic && voice.speaking(m.id));
   });
-  // people in voice without a seat (watchers)
-  $("#tt-vchips").innerHTML = members.filter(m => m.seat < 0).map(m => `<span class="vchip${!m.muted && voice.speaking(m.id) ? " talking" : ""}" title="${esc(tr("觀戰者", "Watcher"))}">👁 ${esc(m.name)}${m.muted ? " 🔇" : ""}</span>`).join("");
+  // the people at the table without a seat (watchers), with their microphones
+  $("#tt-vchips").innerHTML = members.filter(m => m.seat < 0).map(m => `<span class="vchip${m.mic && voice.speaking(m.id) ? " talking" : ""}" title="${esc(tr("觀戰者", "Watcher"))}">👁 ${esc(m.name)} ${m.mic ? "🎙" : "🔇"}</span>`).join("");
 }
 
 // ---------------------------------------------------------------- slider tracks
@@ -1078,8 +1079,8 @@ function bindTable() {
   $("#tt-hints").onchange = e => setHints(e.target.checked);
   $("#tt-lang").onclick = toggleLang;
   $("#tt-auto").onclick = autoSetup;
-  $("#tt-voice").onclick = toggleVoice;
-  $("#tt-mute").onclick = () => { if (!voice?.on) return; voice.setMuted(!voice.muted); announceVoice(); renderOnline(); };
+  $("#tt-mic").onclick = toggleMic;
+  $("#tt-sound").onclick = () => { if (voice) { voice.setHearing(!voice.hearing); renderOnline(); } };
   $("#tt-switch").onclick = liveTablesModal;
   elSeats.onclick = e => {
     const b = e.target.closest("[data-seat]");
@@ -1791,22 +1792,24 @@ function setVoiceMember(cid, msg) {
   const id = String(msg.id || "");
   voiceList = voiceList.filter(m => m.id !== id);
   if (cid !== null && hostSide) { if (msg.on) hostSide.voicePeer[cid] = id; else delete hostSide.voicePeer[cid]; }
-  if (msg.on && id) voiceList.push({ id, name: String(msg.name || "").slice(0, 18), seat: Number.isInteger(msg.seat) ? msg.seat : -1, muted: !!msg.muted });
+  if (msg.on && id) voiceList.push({ id, name: String(msg.name || "").slice(0, 18), seat: Number.isInteger(msg.seat) ? msg.seat : -1, mic: !!msg.mic });
   link?.broadcast({ t: "voices", list: voiceList });
   voice?.update(voiceList, link?.peer());
   liveReport(true);
 }
-// tell the host whether I am in voice (and muted); the host tells everyone
+// tell the host that I am at the table, from which seat, and whether my microphone is on; the host tells everyone
 function announceVoice() {
-  if (!link || !voice) return;
-  const msg = { t: "voice", id: link.id(), on: voice.on, muted: voice.muted, seat: WATCH ? -1 : ME,
+  if (!link || !voice?.joined) return;
+  const msg = { t: "voice", id: link.id(), on: true, mic: voice.micOn, seat: WATCH ? -1 : ME,
     name: WATCH ? (myWatchName || tr("觀戰者", "Watcher")) : S.names[ME] };
   mode === "host" ? setVoiceMember(null, msg) : link.send(msg);
 }
-async function toggleVoice() {
+// everyone at an online table is in voice from the start (listening); the microphone is each person's own switch
+function joinVoice() { if (!voice || mode === "local") return; voice.join(); announceVoice(); renderOnline(); }
+async function toggleMic() {
   if (!voice || mode === "local") return;
-  if (voice.on) { voice.stop(); announceVoice(); renderOnline(); return; }
-  if (!(await voice.start())) { toast(tr("無法使用麥克風：請允許這個網站使用麥克風。", "The microphone is not available: allow this site to use it.")); return; }
+  if (voice.micOn) voice.micStop();
+  else if (!(await voice.micStart())) { toast(tr("無法使用麥克風：請允許這個網站使用麥克風。", "The microphone is not available: allow this site to use it.")); return; }
   announceVoice(); renderOnline();
 }
 let myWatchName = "";
@@ -1821,7 +1824,7 @@ function liveReport(force = false) {
   const forgotten = S.stacks?.forgot?.items.length || 0;
   const body = { code: liveCode, since: S.since, soul: S.soul, level: S.level, players: S.players, names: S.names, online: S.online || [],
     watchers: hostSide ? Object.keys(hostSide.watchers).length : 0, watchHost, chapter: S.chapter || 0, light: S.tracks?.light || 0,
-    forgotten, cracks: S.tracks?.crack || 0, voice: voiceList.length };
+    forgotten, cracks: S.tracks?.crack || 0, voice: voiceList.filter(m => m.mic).length };
   fetch("/api/live", { method: "POST", body: JSON.stringify(body), headers: { "Content-Type": "application/json" }, keepalive: true }).catch(() => {});
 }
 function liveEnd() {
@@ -1857,7 +1860,7 @@ async function liveTablesModal() {
   modal(`<h3>${tr("正在進行的線上桌", "Live tables")}</h3>
     ${!j?.ok ? `<p class="muted">${esc(j?.error || tr("無法讀取。", "Could not be read."))}</p>` : !rows.length ? `<p class="muted">${tr("現在沒有其他正在進行的線上桌。", "No other table is being played right now.")}</p>` : ""}
     <div class="livelist">${rows.map(t => `<div class="liverow"><b>${esc(t.code)}</b> <span>${esc(soulName(t.soul))}・${tr(D.LEVELS[t.level]?.zh || "", D.LEVELS[t.level]?.en || "")}・${t.players}${tr(" 人", "p")}</span>
-      <small>${t.names.map((n, i) => `${esc(n)}${t.online[i] ? "" : tr("（離線）", " (away)")}`).join("、")}・${tr(`第${"一二三"[t.chapter] || "一"}章`, `ch. ${t.chapter + 1}`)}${t.watchers ? tr(`・觀戰 ${t.watchers}`, ` · ${t.watchers} watching`) : ""}${t.voice ? tr(`・語音 ${t.voice}`, ` · ${t.voice} in voice`) : ""}</small>
+      <small>${t.names.map((n, i) => `${esc(n)}${t.online[i] ? "" : tr("（離線）", " (away)")}`).join("、")}・${tr(`第${"一二三"[t.chapter] || "一"}章`, `ch. ${t.chapter + 1}`)}${t.watchers ? tr(`・觀戰 ${t.watchers}`, ` · ${t.watchers} watching`) : ""}${t.voice ? tr(`・開麥 ${t.voice}`, ` · ${t.voice} mic on`) : ""}</small>
       <button class="primary" data-watch="${esc(t.code)}">${tr("觀戰", "Watch")}</button></div>`).join("")}</div>`);
   document.querySelectorAll("[data-watch]").forEach(b => b.onclick = () => { closeModal(); startWatch(b.dataset.watch); });
 }
@@ -1875,7 +1878,8 @@ function startGuest(code, name, pass = null) {
       if (msg.t === "nowatch") { toast(tr("主持人無法確認你的觀戰資格。", "The host could not confirm your pass to watch.")); return; }
       if (msg.t === "welcome") { const first = !seated; seated = true; WATCH = !!msg.watch; ME = msg.watch ? 0 : msg.seat; S = msg.S; hist = []; fut = [];
         const go = () => { buildTable(); $("#tt-code").textContent = WATCH ? tr(`牌桌 ${code}`, `Table ${code}`) : tr(`房間 ${code}`, `Table ${code}`); };
-        first ? enterGame(go) : go(); }
+        const arrive = () => { go(); if (first) joinVoice(); };
+        first ? enterGame(arrive) : arrive(); }
       else if (msg.t === "state" && seated && msg.S && msg.S.rev >= S.rev) { const old = S; S = msg.S; remoteChange(); if (onTable()) { render(); animateChanges(old); } }
       else if ((msg.t === "mv" || msg.t === "mvend") && seated && onTable()) remoteMove(msg);
       else if (msg.t === "full") toast(tr("這張桌子已經坐滿了。", "That table is full."));
@@ -1980,7 +1984,8 @@ function showMenuScreen() {
     const o = opts();
     if (o.players < 2) { toast(tr("線上桌需要 2–4 人。", "Online tables need 2–4 players.")); return; }
     const wh = isAdmin && !!$("#lb-watchhost")?.checked;
-    enterGame(() => { newTable(o); ME = 0; hist = []; fut = []; watchHost = wh; WATCH = wh; const code = net.newCode(); startHost(code); buildTable(); saveLocal(); liveReport(true); track("start"); });
+    if (wh) myWatchName = tr("主持人", "Host");
+    enterGame(() => { newTable(o); ME = 0; hist = []; fut = []; watchHost = wh; WATCH = wh; const code = net.newCode(); startHost(code); buildTable(); saveLocal(); joinVoice(); liveReport(true); track("start"); });
   };
   if ($("#lb-live")) $("#lb-live").onclick = liveTablesModal;
   $("#lb-join").onclick = () => {

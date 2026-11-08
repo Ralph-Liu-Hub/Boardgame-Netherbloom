@@ -79,18 +79,33 @@ const BASE = process.env.BASE || "http://localhost:8765";
   await W.waitForTimeout(1200);
   expect(/5$/.test(await W.evaluate(() => document.querySelector('.tmarker[data-track="light"]').title)), "the watcher sees the host's move");
 
-  // 4) voice: the two players and the watcher talk
-  await A.click("#tt-voice"); await B.click("#tt-voice"); await W.click("#tt-voice");
+  // 4) voice: everyone at the table is in voice from the start and hears the others; each switches their own
+  //    microphone on and off whenever they like (players and the watcher alike)
   const calls = async (P, n) => P.waitForFunction(k => [...document.querySelectorAll("audio[data-voice]")].filter(a => a.srcObject?.getAudioTracks().length).length >= k, n, { timeout: 20000 }).then(() => true).catch(() => false);
-  expect(await calls(A, 2) && await calls(B, 2) && await calls(W, 2), "each of the three hears the other two");
-  await A.waitForTimeout(600);
-  expect(await A.$$eval("#tt-seats .seat.invoice", b => b.length) === 2, "the host's seat bar shows both players in voice");
-  expect((await A.textContent("#tt-vchips")).includes("admin"), "the host sees the watcher in voice");
-  await B.click("#tt-mute"); await A.waitForTimeout(800);
-  expect((await B.textContent("#tt-mute")).match(/Muted|已靜音/), "Bea can mute herself");
-  expect(await A.evaluate(() => document.querySelector('#tt-seats [data-seat="1"]').classList.contains("talking")) === false, "a muted player never lights up as talking");
-  await B.click("#tt-voice"); await A.waitForTimeout(1200);
-  expect(await A.$$eval("audio[data-voice]", a => a.length) === 1, "when Bea leaves voice, the host only hears the watcher");
+  expect(await calls(A, 2) && await calls(B, 2) && await calls(W, 2), "without pressing anything, each of the three hears the other two");
+  expect(await A.locator("#tt-mic").isVisible() && await W.locator("#tt-mic").isVisible(), "players and the watcher each have a microphone switch");
+  expect((await A.textContent("#tt-mic")).match(/Mic off|麥克風關/), "microphones start off");
+  const micLive = P => P.evaluate(() => (window.__mics || []).some(t => t.readyState === "live"));
+  for (const P of [A, B, W]) await P.evaluate(() => { const g = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices); navigator.mediaDevices.getUserMedia = async c => { const st = await g(c); (window.__mics ||= []).push(...st.getAudioTracks()); return st; }; });
+  await A.click("#tt-mic"); await B.click("#tt-mic"); await W.click("#tt-mic");
+  await A.waitForTimeout(1500);
+  expect((await A.textContent("#tt-mic")).match(/Mic on|麥克風開/) && await micLive(W), "the microphone switches on (the watcher's too)");
+  expect(await A.$$eval("#tt-seats .seat.micon", b => b.length) === 2, "the host's seat bar shows both players' microphones on");
+  expect(/admin\s*🎙/.test(await A.textContent("#tt-vchips")), "the host sees the watcher's microphone on");
+  await A.waitForFunction(() => document.querySelector('#tt-seats [data-seat="1"]').classList.contains("talking"), null, { timeout: 8000 }).catch(() => problems.push("Bea's seat lights up while her microphone picks up sound"));
+  // off again, whenever: the call stays (no reconnection), the microphone is released
+  await B.click("#tt-mic"); await A.waitForTimeout(1200);
+  expect((await B.textContent("#tt-mic")).match(/Mic off|麥克風關/) && !(await micLive(B)), "Bea switches her microphone off and the browser releases it");
+  expect(await A.evaluate(() => !document.querySelector('#tt-seats [data-seat="1"]').classList.contains("micon") && !document.querySelector('#tt-seats [data-seat="1"]').classList.contains("talking")), "her seat no longer shows a microphone or lights up");
+  expect(await calls(A, 2), "the host still hears both (the calls stay open)");
+  await B.click("#tt-mic"); await A.waitForTimeout(1200);
+  expect(await A.evaluate(() => document.querySelector('#tt-seats [data-seat="1"]').classList.contains("micon")), "and back on again");
+  await W.click("#tt-mic"); await A.waitForTimeout(1000);
+  expect(/admin\s*🔇/.test(await A.textContent("#tt-vchips")), "the watcher switches off too");
+  // sound off: hear no one
+  await A.click("#tt-sound");
+  expect(await A.$$eval("audio[data-voice]", a => a.every(x => x.muted)), "sound off mutes the others");
+  await A.click("#tt-sound");
 
   // 5) View Not Play: the admin hosts without playing; a player takes the first seat; the admin stands in for the empty one
   await W.click("#tt-menu"); await W.waitForSelector("#lb-local");

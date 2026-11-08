@@ -471,11 +471,11 @@ body.on-table .topbar { display: none; }
 /* watching, standing in, voice */
 .watchbadge { padding: 3px 9px; border-radius: 12px; font-size: 12.5px; background: rgba(69, 210, 216, .16); color: #9fe8ec; border: 1px solid rgba(69, 210, 216, .5); white-space: nowrap; }
 .seat.offline { opacity: .55; border-style: dashed; }
-.seat.invoice::after { content: "🎙"; font-size: 11px; margin-left: 4px; opacity: .6; }
+.seat.micon::after { content: "🎙"; font-size: 11px; margin-left: 4px; opacity: .75; }
 .seat.talking { box-shadow: 0 0 0 2px #7ee08a, 0 0 12px rgba(126, 224, 138, .7); }
 .seat.talking::after { opacity: 1; }
-#tt-voice.on { border-color: #7ee08a; color: #c9f5cf; }
-#tt-mute.on { border-color: var(--crimson); color: #ffb3b8; }
+#tt-mic.on { border-color: #7ee08a; color: #c9f5cf; background: rgba(126, 224, 138, .12); }
+#tt-sound.off { border-color: var(--crimson); color: #ffb3b8; }
 .vchips { display: flex; gap: 4px; }
 .vchip { font-size: 12px; padding: 2px 7px; border-radius: 10px; border: 1px solid var(--line); color: var(--mist); white-space: nowrap; }
 .vchip.talking { border-color: #7ee08a; color: #c9f5cf; box-shadow: 0 0 10px rgba(126, 224, 138, .5); }

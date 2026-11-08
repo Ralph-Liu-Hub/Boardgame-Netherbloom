@@ -155,7 +155,7 @@ async function refreshLive() {
   grid.innerHTML = j.live.map(t => `<div class="livecard">
     <div class="lc-top"><b class="lc-code">${esc(t.code)}</b><span>${esc(SOULS[t.soul] || t.soul)} · ${esc(LEVELS[t.level] || "")} · ${t.players}p</span></div>
     <div class="lc-names">${(t.names || []).map((n, i) => `<span class="${t.online?.[i] ? "on" : "off"}">${esc(n)}</span>`).join("")}</div>
-    <div class="lc-stats">Chapter ${["I", "II", "III"][t.chapter] || "I"} · Light ${t.light} · Forgotten ${t.forgotten} · Fractures ${t.cracks}${t.watchers ? ` · ${t.watchers} watching` : ""}${t.voice ? ` · ${t.voice} in voice` : ""}${t.watchHost ? " · hosted without playing" : ""}</div>
+    <div class="lc-stats">Chapter ${["I", "II", "III"][t.chapter] || "I"} · Light ${t.light} · Forgotten ${t.forgotten} · Fractures ${t.cracks}${t.watchers ? ` · ${t.watchers} watching` : ""}${t.voice ? ` · ${t.voice} mic on` : ""}${t.watchHost ? " · hosted without playing" : ""}</div>
     <div class="lc-foot"><span class="note">Hosted by ${esc(t.by)} · started ${t.since ? when(t.since) : "—"} · seen ${ago(t.at)}</span><a class="watchbtn" href="/?watch=${encodeURIComponent(t.code)}">Watch</a></div>
   </div>`).join("");
 }
