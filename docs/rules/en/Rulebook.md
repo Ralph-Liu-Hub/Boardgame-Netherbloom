@@ -125,11 +125,11 @@ Every special term used in the rules and on the cards is here. When a word in bo
 | **Memory card** | The cards in the players' hands. Each belongs to one thread, Obsession, Acceptance or Oblivion, and some also have a slot: Place, Person, Deed or Feeling. |
 | **Play face up, play face down** | The two ways to play a card (see the table of ways to play in section 4). |
 | **Swap** | Exchange 1 card in hand with another player, and play the card you receive face up at once. |
-| **Recall** | Pay 3 Light to inscribe 1 Obsession or Acceptance card from the forgotten pile back into the Book. |
+| **Recall** | Pay 3 Light to inscribe 1 Obsession or Acceptance card from the forgotten pile back into the Book. The forgotten track goes back 1. |
 | **Echo** | A marker on the Loom that rests on the thread of the last card played face up. |
 | **Resonance** | An extra effect a card has when it is played face up as your first action and its thread matches the Echo. |
 | **Inscribe** | Put 1 Obsession or Acceptance card into a memory slot of the Book of Remembrance instead of on the discard pile. |
-| **Forget 1 card** | Put that card face up on the next number of the forgotten track on the Ledger. |
+| **Forget 1 card** | Put that card face up on the next number of the forgotten track on the Ledger. When cards leave the forgotten pile (Recall, the Pull of Lethe), slide the rest down to fill the gap: the forgotten track goes back as many numbers. |
 | **Forget the top card of the deck** | Put the top card of the Memory deck straight onto the forgotten track without resolving it. |
 | **Forgotten pile, discard pile** | Both face up; anyone may look through them. When the Memory deck runs out, only the discard pile is shuffled into a new deck. |
 | **Key Memory** | One of each named Soul's own memory cards, the one that matters most to her. |
@@ -150,7 +150,7 @@ Every special term used in the rules and on the cards is here. When a word in bo
 | **Fate Mist** | Two cards each chapter, condition side up. The one whose condition is met first decides which thread the chapter's turning point leads to. |
 | **Turning point, the fork** | The ◆ on the page. When the route reaches it, the story chooses a thread. |
 | **Defy fate** | The path actually taken differs from the thread of the Fate Mist on the ◆. |
-| **The Pull of Lethe** | The forgotten pile has reached the chapter's limit when the story forks: the story takes Oblivion, and the river carries off 2 forgotten cards. |
+| **The Pull of Lethe** | The forgotten pile has reached the chapter's limit when the story forks: the story takes Oblivion, and the river carries off 2 forgotten cards; the forgotten track goes back 2. |
 | **Turn the page** | When the route reaches the exit, go on to the next chapter. |
 | **The Gate of the Far Shore** | Until the third chapter is written, the Far Shore counts as unlit. |
 | **Commission** | A condition card each player holds in secret. How many are fulfilled decides whether you win. |
@@ -286,6 +286,7 @@ Recalling takes an action, at most once per turn. Pay 3 Light, choose 1 Obsessio
 - It may only go into an empty memory slot on the current route. Slots the route has not reached yet, closed branches and earlier chapters are not allowed; if there is no matching empty slot, you cannot Recall that card.
 - Oblivion cards cannot be Recalled. A forgotten Key Memory can be brought back this way.
 - Recalling does not move the Echo and ties no knot.
+- The forgotten pile is 1 card smaller: slide the cards after it down, and the forgotten track goes back 1.
 
 ### Push Through (free action)
 
@@ -570,6 +571,7 @@ When the route has reached the ◆ and a Fate Mist card is on it, decide which p
 
 1. **The Pull of Lethe**: if the forgotten pile has already reached the chapter's limit (3 cards in chapter 1, 5 in chapter 2, 7 in chapter 3), she takes the path of Oblivion. Then the Fate Mist does not matter, and a lit memory at the Gate cannot pull her back.
     - The river also carries off 2 cards from the forgotten pile, removed from the game for good: back in the box, never to the discard pile, never back into the Memory deck. You choose which 2. **A Key Memory is never carried off**: it is closest to who the soul is.
+    - The forgotten pile is 2 cards smaller: slide the rest down, and the forgotten track goes back 2. The Faded limit and later chapters' Pull limits count from the new number.
     - This fork counts as following fate, not as defying it.
 2. Otherwise, look at the Gate:
 
@@ -935,7 +937,7 @@ Each Soul has 8. "Page 1, page 2, page 3" on the cards means chapters 1, 2 and 3
 | **Play face up** | Resolve the card's effect | +1 on its thread | Moves to its thread |
 | **Play face down** | Place 1 Root (gain 1 Light if there is nowhere to place it) | ★ +1 on its thread | Does not move |
 | **Swap** (once per turn) | Exchange 1 card with a teammate, and play the card you receive face up at once | As face up | As face up |
-| **Recall** (once per turn) | Pay 3 Light to inscribe an Obsession or Acceptance card from the forgotten pile back onto the current route | None | Does not move |
+| **Recall** (once per turn) | Pay 3 Light to inscribe an Obsession or Acceptance card from the forgotten pile back onto the current route; the forgotten track goes back 1 | None | Does not move |
 
 **Playing face up, in order** ★: effect → tie a knot (if the thread is full, **Backlash at once**) → was the Echo already on this thread? Then **Resonate** if this is your first action, and you may **Echo-inscribe** on either action → move the Echo → a card not inscribed: Obsession and Acceptance to the discard pile, Oblivion to the forgotten pile.
 
@@ -981,7 +983,7 @@ When **both banks of the next space have Shades** and it has no Black Water: rem
 | Item | Number |
 |---|---|
 | Loom threshold | Where the Scar marker stands on the knot track: from 7 (2–4 players) or 10 (solo); each Scar moves it one cell down (threshold −1, Backlash one level higher) |
-| The Pull of Lethe (forgotten pile at the fork) | Chapter 1: 3 · chapter 2: 5 · chapter 3: 7 cards |
+| The Pull of Lethe (forgotten pile at the fork) | Chapter 1: 3 · chapter 2: 5 · chapter 3: 7 cards; the river carries off 2, the forgotten track goes back 2 |
 | Turning the page unties (0 / 1 / 2 / 3 memories lit on the page) | 0 / 3 / 6 / 9 knots |
 | Light | 12 at most; light a memory 1 · summon a Mantle 3 (King 2) · Recall 3 |
 | Hand size | Solo 6 · 2 players 4 · 3–4 players 3 |
