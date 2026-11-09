@@ -874,7 +874,7 @@ The "nearest" Shade, Black Water or Root on a card only counts targets within re
 | **Lethe's Gift** | Oblivion | — | — | Gain 3 Light. | Bloom 1 Root. |
 | **Lightless Crossing** | Oblivion | — | — | The soul moves forward a space at once, even if that space is unlit or both its banks have Shades; not onto a space with Black Water. Gain no Light; if she enters an unlit space, the soul takes 1 Fracture. | Gain 1 Light. |
 
-### 最後火光的孩子 (8)
+### The Child of the Last Flame (8)
 
 | Card | Thread | Slot | Memory | Played face up | Resonance |
 |---|---|---|---|---|---|
@@ -887,7 +887,7 @@ The "nearest" Shade, Black Water or Root on a card only counts targets within re
 | **Unremember** | Oblivion | — | — | Remove 1 of your choice: the nearest Shade or the nearest Black Water. | Instead: remove the nearest Shade and the nearest Black Water. |
 | **Lethe's Gift** | Oblivion | — | — | Gain 3 Light. | Bloom 1 Root. |
 
-### 花環少女 (8)
+### The Garland Girl (8)
 
 | Card | Thread | Slot | Memory | Played face up | Resonance |
 |---|---|---|---|---|---|
@@ -900,7 +900,7 @@ The "nearest" Shade, Black Water or Root on a card only counts targets within re
 | **Low Tide** | Oblivion | — | — | Drain all Black Water in this Reach. | Banish the nearest Shade. |
 | **Unremember** | Oblivion | — | — | Remove 1 of your choice: the nearest Shade or the nearest Black Water. | Instead: remove the nearest Shade and the nearest Black Water. |
 
-### 渡船上的國王 (8)
+### The King on the Barge (8)
 
 | Card | Thread | Slot | Memory | Played face up | Resonance |
 |---|---|---|---|---|---|
@@ -913,7 +913,7 @@ The "nearest" Shade, Black Water or Root on a card only counts targets within re
 | **Unremember** | Oblivion | — | — | Remove 1 of your choice: the nearest Shade or the nearest Black Water. | Instead: remove the nearest Shade and the nearest Black Water. |
 | **Wash Away** | Oblivion | — | — | Wash away the Shades beside the soul. | Gain 1 Light. |
 
-### 留在冥府的新娘 (8)
+### The Bride Who Stayed Below (8)
 
 | Card | Thread | Slot | Memory | Played face up | Resonance |
 |---|---|---|---|---|---|
@@ -942,7 +942,7 @@ The "nearest" Shade, Black Water or Root on a card only counts targets within re
 
 Each named Soul has 8 Commission cards, and Open Crossing has 8. The top line is what the soul entrusts to you; the condition below it is checked when the soul reaches the Far Shore, and only lit memories count. "Fits" is how many cards in that Soul's 40-card Memory deck can be inscribed to fulfil it (at least 5 each).
 
-**最後火光的孩子**
+**The Child of the Last Flame**
 
 | Commission | Condition | Fits |
 |---|---|---|
@@ -955,7 +955,7 @@ Each named Soul has 8 Commission cards, and Open Crossing has 8. The top line is
 | "Among the things I did, was even one of them warm?" | Chapter 2 has a lit Acceptance memory | 14 |
 | "In the end, what did I hold as I left?" | Chapter 3 has a lit Feeling | 8 |
 
-**花環少女**
+**The Garland Girl**
 
 | Commission | Condition | Fits |
 |---|---|---|
@@ -968,7 +968,7 @@ Each named Soul has 8 Commission cards, and Open Crossing has 8. The top line is
 | "The most foolish thing I ever did." | A lit Deed | 7 |
 | "I want to leave with a little peace." | Chapter 3 has a lit Acceptance memory | 14 |
 
-**渡船上的國王**
+**The King on the Barge**
 
 | Commission | Condition | Fits |
 |---|---|---|
@@ -981,7 +981,7 @@ Each named Soul has 8 Commission cards, and Open Crossing has 8. The top line is
 | "What was I like when I was young?" | Chapter 1 has a lit memory | 30 |
 | "In the end, did I let go?" | Chapter 3 has a lit Acceptance memory | 14 |
 
-**留在冥府的新娘**
+**The Bride Who Stayed Below**
 
 | Commission | Condition | Fits |
 |---|---|---|
@@ -994,7 +994,7 @@ Each named Soul has 8 Commission cards, and Open Crossing has 8. The top line is
 | "The road I walked behind him." | Chapter 2 has a lit Obsession memory | 16 |
 | "Before the wedding, who was I?" | Chapter 1 has a lit memory | 30 |
 
-**無名渡河**
+**Open Crossing**
 
 | Commission | Condition | Fits |
 |---|---|---|
