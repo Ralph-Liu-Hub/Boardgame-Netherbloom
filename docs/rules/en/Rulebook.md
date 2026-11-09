@@ -1,6 +1,6 @@
 # Netherbloom — Rulebook V5
 
-> This is the English edition of the V5 rulebook, translated from `docs/rules/zh-TW/V5/Rulebook.md`, which is the reference text. V5 replaces V4.0.
+> This is the English edition of the V5 rulebook, translated from `docs/rules/zh-TW/V5/Rulebook.md`, which is the reference text.
 
 - [1. The story and the goal](#1-the-story-and-the-goal)
 - [2. Glossary](#2-glossary)
@@ -21,25 +21,23 @@
 - [Appendix C. Mist cards](#appendix-c-mist-cards)
 - [Appendix D. Card reference](#appendix-d-card-reference)
 - [Appendix E. Commission cards](#appendix-e-commission-cards)
-- [Appendix F. Player aid](#appendix-f-player-aid)
-- [Appendix G. From V4.0 to V5](#appendix-g-from-v40-to-v5)
 
 ## 1. The story and the goal
 
 *Whoever drinks the water of Lethe will forget.*
 
-*Beneath the world of the living flows a black river. The dead must cross it to reach the Far Shore, where a veiled Shore-Keeper waits with a cup of river water in her hands. Drink it, and the weight of a whole life slips quietly away.*
+*Through the world of the dead flows a black river named Lethe. Countless souls linger on its banks, some wandering, some slumped on the shore, and only those who cross Lethe can reach the Far Shore. At the edge of the Far Shore the Shore-Keeper stands waiting for the souls who arrive, holding a cup of Lethe's water. One sip, and the weight of a whole life slips quietly away.*
 
-*An old ferryman carries the dead across, but only those who were buried with a coin for the fare. The others, the coinless dead, wake alone on the near shore and wander the riverbank. The fog seeps into them, and they begin to forget: first the small things, then the faces, and at last their own names.*
+*An old man in a straw cape ferries the dead across Lethe, yet only a few souls can pay for this last journey with the copper coin laid under their tongue at burial. The rest, the dead without a coin, can only wander this shore alone, letting the mists of the underworld seep into them, and so they begin to forget: first the small things, then the faces of the people they knew, and at last their own names, until the soul itself fades away without a trace.*
 
-*You are the Ferrymen: servants of the underworld, neither living nor dead. Spider lilies grow on both banks of Lethe, and their glow is the only light a soul lost in the fog can follow. Whenever the soul stops, the fog swallows the road behind her. And her whole life is written in a Book of Remembrance.*
+*You are the Ferrymen, servants of the underworld, neither living nor dead. Spider lilies grow on both banks of Lethe, glowing with a sombre light: the only guide a soul lost in the fog can follow. Whenever the soul stops, the fog swallows the road behind them. And beyond guiding them, all you can do is piece together their life and write it into their own Book of Remembrance.*
 
 ### The goal
 
-*Netherbloom* is a cooperative game for 1 to 4 players. You play on two boards at once:
+*Netherbloom* is a cooperative game for 1 to 4 players. You play on two boards at once, helping the soul reach the Far Shore and fulfil the memories entrusted to you:
 
-- **The river**: plant Roots and Blooms to light the way ahead of the soul and hold back the fog behind her, and guide her from the Near Shore (space 0) to the Far Shore (space 14).
-- **The Book of Remembrance**: along a route through three chapters, write down her memories and light them. The memories you write decide where her story goes.
+- **The river board**: plant Roots and Blooms on the left and right banks to light the way ahead of the soul and hold back the fog behind them, and guide them from the Near Shore (space 0) to the Far Shore (space 14).
+- **The Book of Remembrance**: across three chapters, play and inscribe Memory cards and light the soul's memories. The memories you light decide where the story finally goes.
 
 **You win** when the soul reaches the Far Shore and you have fulfilled as many Commissions as the set-up table requires (section 3). The Far Shore only opens once the third chapter is written.
 
@@ -56,11 +54,11 @@ The three limits depend on the difficulty; see the difficulty table in section 3
 
 ### The Veiled Memories
 
-You may talk freely about your plans, the river, the Loom, the Book of Remembrance, and what each of you means to do next.
+You may talk freely about strategy, the river, the Loom, the Book of Remembrance, and the action each player will take next.
 
-- **You may say**: which threads you hold, the slots on your cards (Place, Person, Deed, Feeling), and the memory text written on your cards.
-- **You may not say**: a card's name, effect or Resonance; nor may you show your hand.
-- **Commission cards** are completely secret: until one is fulfilled and revealed, you may not say, discuss or hint at it.
+- **You may share**: which threads you hold, the slots on your cards (Place, Person, Deed, Feeling), and the memory text written on your cards.
+- **You may not share**: a card's name, effect or Resonance; nor may you show your hand.
+- **Commission cards are completely secret**: until one is fulfilled and revealed, you may not say, discuss or hint at it.
 
 ## 2. Glossary
 
@@ -836,188 +834,175 @@ The face and the back of every Mist card show its **thread** (which thread its M
 
 ## Appendix D. Card reference
 
-The V4.0 cards are kept. What V5 changes is how they are played: playing face down ties a knot, Swap replaces Burn, and Echo inscription. The card text is unchanged; only these three need a note:
-
-| Card | Played face up | Resonance |
-|---|---|---|
-| **Unremember** | Choose one: banish the nearest Shade, or drain the nearest Black Water. | Instead: remove the nearest Shade and the nearest Black Water. |
-| **Lightless Crossing** (Oblivion) | The soul moves forward a space at once, even if that space is unlit or both its banks have Shades; not onto a space with Black Water. Gain no Light; if she enters an unlit space, the soul takes 1 Fracture. | Gain 1 Light. |
-| **Vigil** | Light 1 memory without paying Light. | Place 1 Root. |
+Each game uses a 40-card Memory deck: the 32 core cards and the 8 cards of the chosen Soul (Open Crossing uses the 8 Echo cards). Obsession and Acceptance cards carry a slot and a memory; Oblivion cards carry neither, so they are never inscribed. A card played face down ignores the effects printed here (section 4).
 
 The "nearest" Shade, Black Water or Root on a card only counts targets within reach of the Root network (section 2).
 
+### Core cards (32)
+
+| Card | Thread | Slot | Memory | Played face up | Resonance |
+|---|---|---|---|---|---|
+| **Deep Roots** | Obsession | Place | *the gate I swore never to leave* | Place 2 Roots. | Place 1 Root. |
+| **Deep Roots** | Obsession | Place | *the hill where I buried my anger* | Place 2 Roots. | Place 1 Root. |
+| **Deep Roots** | Obsession | Person | *the friend who sold my name* | Place 2 Roots. | Place 1 Root. |
+| **Stubborn Root** | Obsession | Place | *a road I walked a thousand times* | Place 1 Root, even on Stony ground. | Place 1 Root, even on Stony ground. |
+| **Stubborn Root** | Obsession | Deed | *kept a promise long after it stopped mattering* | Place 1 Root, even on Stony ground. | Place 1 Root, even on Stony ground. |
+| **Hold Fast** | Obsession | Feeling | *a debt I swore to repay* | The soul waits without forgetting this turn. | Place 1 Root. |
+| **Hold Fast** | Obsession | Deed | *refused to bow when bowing would have saved me* | The soul waits without forgetting this turn. | Place 1 Root. |
+| **Overreach** | Obsession | Place | *the house that should have been mine* | Place 3 Roots. Tie 1 extra Obsession knot. | Bloom 1 Root. |
+| **Overreach** | Obsession | Feeling | *a fist I never unclenched* | Place 3 Roots. Tie 1 extra Obsession knot. | Bloom 1 Root. |
+| **Vigil** | Obsession | Person | *a rival I could never forgive* | Light 1 memory without paying Light. | Place 1 Root. |
+| **Hold the Line** | Obsession | Person | *the teacher I needed to impress* | Prevent the next Fracture before your next turn. | Place 1 Root. |
+| **Hold the Line** | Obsession | Deed | *counted every coin I was owed* | Prevent the next Fracture before your next turn. | Place 1 Root. |
+| **Old Oath** | Obsession | Feeling | *a name I kept repeating in the dark* | Gain 2 Light. | Gain 1 Light. |
+| **Open Hand** | Acceptance | Place | *a kitchen that smelled of bread and woodsmoke* | Bloom 1 Root. Place 1 Root. | Bloom 1 Root. |
+| **Open Hand** | Acceptance | Person | *my mother, humming at the loom* | Bloom 1 Root. Place 1 Root. | Bloom 1 Root. |
+| **Open Hand** | Acceptance | Feeling | *the warmth of an evening with nothing left to do* | Bloom 1 Root. Place 1 Root. | Bloom 1 Root. |
+| **Full Bloom** | Acceptance | Place | *the river where we washed our feet in summer* | Bloom 2 Roots. | Gain 1 Light. |
+| **Full Bloom** | Acceptance | Person | *a stranger who shared his rain hat* | Bloom 2 Roots. | Gain 1 Light. |
+| **Mend** | Acceptance | Deed | *forgave my brother at the ferry landing* | Mend 1 Fracture. | Bloom 1 Root. |
+| **Mend** | Acceptance | Feeling | *a quiet I finally stopped fearing* | Mend 1 Fracture. | Bloom 1 Root. |
+| **Let Go** | Acceptance | Deed | *let the apple blossoms fall without counting them* | Untie 2 knots on the fullest thread (if tied, you choose). | Untie 1 knot on the fullest thread (if tied, you choose). |
+| **Guide** | Acceptance | Person | *the child who called me by the wrong name* | The soul steps forward now, if the next space is Lit. | Bloom 1 Root. |
+| **Guide** | Acceptance | Deed | *planted a tree I knew I would never sit beneath* | The soul steps forward now, if the next space is Lit. | Bloom 1 Root. |
+| **Rekindle** | Acceptance | Feeling | *the first warm evening of spring* | Bloom 1 Root. Gain 1 Light. | Bloom 1 Root. |
+| **Unremember** ×2 | Oblivion | — | — | Remove 1 of your choice: the nearest Shade or the nearest Black Water. | Instead: remove the nearest Shade and the nearest Black Water. |
+| **Blank Fog** | Oblivion | — | — | Lift the fog across this Reach; Graves turn Fertile. | Gain 2 Light. |
+| **Unmake** | Oblivion | — | — | Empty the fullest thread with no Backlash (if tied, you choose). | Gain 1 Light. |
+| **Wash Away** | Oblivion | — | — | Wash away the Shades beside the soul. | Gain 1 Light. |
+| **Low Tide** | Oblivion | — | — | Drain all Black Water in this Reach. | Banish the nearest Shade. |
+| **Lethe's Gift** | Oblivion | — | — | Gain 3 Light. | Bloom 1 Root. |
+| **Lightless Crossing** | Oblivion | — | — | The soul moves forward a space at once, even if that space is unlit or both its banks have Shades; not onto a space with Black Water. Gain no Light; if she enters an unlit space, the soul takes 1 Fracture. | Gain 1 Light. |
+
+### 最後火光的孩子 (8)
+
+| Card | Thread | Slot | Memory | Played face up | Resonance |
+|---|---|---|---|---|---|
+| **Coldest Doorway** | Obsession | Place | *a doorway on the coldest night of the year* | Place 2 Roots. | Place 1 Root. |
+| **Hunger** | Obsession | Feeling | *a hunger that would not let me sleep* | The soul waits without forgetting this turn. | Place 1 Root. |
+| **One More Light** | Obsession | Deed | *struck one more little light, then one more* | Place 1 Root, even on Stony ground. | Place 1 Root, even on Stony ground. |
+| **Held** (Key Memory) | Acceptance | Person | *the one who used to hold me before she was gone* | Mend 1 Fracture. | Bloom 1 Root. |
+| **Frosted Window** | Acceptance | Place | *a warm kitchen glimpsed through a frosted window* | Bloom 2 Roots. | Gain 1 Light. |
+| **Roast Apples** | Acceptance | Feeling | *the smell of roast apples from a house that was not mine* | Bloom 1 Root. Place 1 Root. | Bloom 1 Root. |
+| **Unremember** | Oblivion | — | — | Remove 1 of your choice: the nearest Shade or the nearest Black Water. | Instead: remove the nearest Shade and the nearest Black Water. |
+| **Lethe's Gift** | Oblivion | — | — | Gain 3 Light. | Bloom 1 Root. |
+
+### 花環少女 (8)
+
+| Card | Thread | Slot | Memory | Played face up | Resonance |
+|---|---|---|---|---|---|
+| **Pretended Stranger** | Obsession | Person | *the man who promised and then pretended not to know me* | Place 2 Roots. | Place 1 Root. |
+| **The Song** | Obsession | Feeling | *a song I could not stop singing* | Light 1 memory without paying Light. | Place 1 Root. |
+| **Every Flower** | Obsession | Deed | *wove a flower for every person I ever loved* | Place 1 Root, even on Stony ground. | Place 1 Root, even on Stony ground. |
+| **One Flower Kept** (Key Memory) | Acceptance | Feeling | *the one flower I kept for myself* | Bloom 1 Root. Gain 1 Light. | Bloom 1 Root. |
+| **The Willow** | Acceptance | Place | *the willow that leaned over the brook* | Bloom 2 Roots. | Gain 1 Light. |
+| **Names of Herbs** | Acceptance | Person | *my father, who taught me the names of herbs* | Bloom 1 Root. Place 1 Root. | Bloom 1 Root. |
+| **Low Tide** | Oblivion | — | — | Drain all Black Water in this Reach. | Banish the nearest Shade. |
+| **Unremember** | Oblivion | — | — | Remove 1 of your choice: the nearest Shade or the nearest Black Water. | Instead: remove the nearest Shade and the nearest Black Water. |
+
+### 渡船上的國王 (8)
+
+| Card | Thread | Slot | Memory | Played face up | Resonance |
+|---|---|---|---|---|---|
+| **Last Army** | Obsession | Place | *the field where my last army fell* | Place 2 Roots. | Place 1 Root. |
+| **The Line** | Obsession | Deed | *held the line long after the line was lost* | The soul waits without forgetting this turn. | Place 1 Root. |
+| **Heavy Crown** | Obsession | Feeling | *a crown that grew heavier every year* | Place 3 Roots. Tie 1 extra Obsession knot. | Bloom 1 Root. |
+| **The Lake's Gift** (Key Memory) | Acceptance | Person | *the hand that rose from the lake to give me a sword* | Bloom 1 Root. Place 1 Root. | Bloom 1 Root. |
+| **Honest Love** | Acceptance | Person | *the friend who loved my queen more honestly than I did* | Bloom 2 Roots. | Gain 1 Light. |
+| **Too Late** | Acceptance | Deed | *forgave them both, too late to tell them* | The soul steps forward now, if the next space is Lit. | Bloom 1 Root. |
+| **Unremember** | Oblivion | — | — | Remove 1 of your choice: the nearest Shade or the nearest Black Water. | Instead: remove the nearest Shade and the nearest Black Water. |
+| **Wash Away** | Oblivion | — | — | Wash away the Shades beside the soul. | Gain 1 Light. |
+
+### 留在冥府的新娘 (8)
+
+| Card | Thread | Slot | Memory | Played face up | Resonance |
+|---|---|---|---|---|---|
+| **Without a Word** | Obsession | Deed | *followed his footsteps up through the dark without a word* | The soul waits without forgetting this turn. | Place 1 Root. |
+| **The Narrow Stair** | Obsession | Place | *the narrow stair between the dead and the living* | Place 1 Root, even on Stony ground. | Place 1 Root, even on Stony ground. |
+| **Almost Saved** | Obsession | Feeling | *the anger of being almost saved* | Place 2 Roots. | Place 1 Root. |
+| **His Face** (Key Memory) | Acceptance | Person | *his face, the instant he turned to look at me* | The soul steps forward now, if the next space is Lit. | Bloom 1 Root. |
+| **Noon Meadow** | Acceptance | Place | *the meadow where we were married at noon* | Bloom 1 Root. Place 1 Root. | Bloom 1 Root. |
+| **His Hand** | Acceptance | Feeling | *the warmth of his hand, just before it let go* | Bloom 2 Roots. | Gain 1 Light. |
+| **Unremember** | Oblivion | — | — | Remove 1 of your choice: the nearest Shade or the nearest Black Water. | Instead: remove the nearest Shade and the nearest Black Water. |
+| **Unmake** | Oblivion | — | — | Empty the fullest thread with no Backlash (if tied, you choose). | Gain 1 Light. |
+
+### Echo cards: Open Crossing (8)
+
+| Card | Thread | Slot | Memory | Played face up | Resonance |
+|---|---|---|---|---|---|
+| **Echo** | Obsession | Place | *a lantern left burning in a window* | Place 2 Roots. | Place 1 Root. |
+| **Echo** | Obsession | Feeling | *an anger I mistook for strength* | The soul waits without forgetting this turn. | Place 1 Root. |
+| **Echo** | Obsession | Person | *the ferryman who would not take my coin* | Light 1 memory without paying Light. | Place 1 Root. |
+| **Echo** | Acceptance | Deed | *carried water for someone I never thanked* | Bloom 1 Root. Place 1 Root. | Bloom 1 Root. |
+| **Echo** | Acceptance | Person | *an old woman selling chestnuts in the snow* | Bloom 2 Roots. | Gain 1 Light. |
+| **Echo** | Acceptance | Place | *a bridge I crossed every morning* | Mend 1 Fracture. | Bloom 1 Root. |
+| **Echo** ×2 | Oblivion | — | — | Remove 1 of your choice: the nearest Shade or the nearest Black Water. | Instead: remove the nearest Shade and the nearest Black Water. |
+
 ## Appendix E. Commission cards
 
-Each Soul has 8. "Page 1, page 2, page 3" on the cards means chapters 1, 2 and 3. The top line is what the soul entrusts to you; the line after it is the condition.
+Each named Soul has 8 Commission cards, and Open Crossing has 8. The top line is what the soul entrusts to you; the condition below it is checked when the soul reaches the Far Shore, and only lit memories count. "Fits" is how many cards in that Soul's 40-card Memory deck can be inscribed to fulfil it (at least 5 each).
 
-**The Child of the Last Flame**
+**最後火光的孩子**
 
-| Commission | Condition |
-|---|---|
-| Help me remember how cold that night was. | Chapter 1 has a lit Obsession memory |
-| I want to remember the person I saw in the flames. | A lit Person |
-| Tell me where I fell asleep. | Chapter 1 has a lit Place |
-| What did the little flames I lit shine on? | A lit memory from the soul's own memories |
-| Behind that frosted window, whose home was it? | A lit Place |
-| I want to know how hungry I once was. | A lit Feeling |
-| Among the things I did, was even one of them warm? | Chapter 2 has a lit Acceptance memory |
-| In the end, what did I hold as I left? | Chapter 3 has a lit Feeling |
-
-**The Garland Girl**
-
-| Commission | Condition |
-|---|---|
-| Tell me whom I gave my flowers to. | A lit Person |
-| The song I used to sing, is it still there? | Chapter 3 has a lit Feeling |
-| The brook beneath that willow, where was it? | A lit Place |
-| Why did I come to hate him? | A lit Obsession memory |
-| Of the flowers I wove, how many do you still remember? | A lit memory from the soul's own memories |
-| The herbs my father taught me to know. | Chapter 1 has a lit Acceptance memory |
-| The most foolish thing I ever did. | A lit Deed |
-| I want to leave with a little peace. | Chapter 3 has a lit Acceptance memory |
-
-**The King on the Barge**
-
-| Commission | Condition |
-|---|---|
-| Where was my last battle? | Chapter 2 has a lit Place |
-| Did I forgive them? | A lit Acceptance memory |
-| How heavy was that crown? | A lit Feeling |
-| Tell me who was ever true to me. | A lit Acceptance Person |
-| The sword I borrowed... | A lit memory from the soul's own memories |
-| What did I ever hold? | A lit Deed |
-| What was I like when I was young? | Chapter 1 has a lit memory |
-| In the end, did I let go? | Chapter 3 has a lit Acceptance memory |
-
-**The Bride Who Stayed Below**
-
-| Commission | Condition |
-|---|---|
-| Let me remember his face. | A lit Person |
-| Let me let go. | Chapter 3 has a lit Acceptance memory |
-| Where were we married? | A lit Acceptance memory |
-| That narrow, narrow stair. | A lit Obsession Place |
-| Am I angry with him? | A lit Obsession memory |
-| The last warmth of his hand. | A lit memory from the soul's own memories |
-| The road I walked behind him. | Chapter 2 has a lit Obsession memory |
-| Before the wedding, who was I? | Chapter 1 has a lit memory |
-
-**Open Crossing**
-
-| Commission | Condition |
-|---|---|
-| Whom did they once love? | A lit Person |
-| What could they not let go of, in the end? | Chapter 3 has a lit Obsession memory |
-| Where did they come from? | Chapter 1 has a lit Place |
-| What did they do that made them proud? | A lit Deed |
-| What were they afraid of? | A lit Feeling |
-| Where did they once find peace? | A lit Place |
-| Did they ever regret anything? | Chapter 2 has a lit Obsession memory |
-| What do they carry across the river? | Chapter 3 has a lit Acceptance memory |
-
-## Appendix F. Player aid
-
-> One for each player, printed on both sides. Laid out in the order you need it during play; § refers to the rulebook's sections. Steps marked ★ are the ones most easily missed.
-
-### Front: your turn
-
-**You win** when the soul reaches the Far Shore (space 14) with enough Commissions fulfilled (solo 1, 2–3 players 2, 4 players 3). The Far Shore appears only once chapter 3 is written.
-**You lose**: Faded (forgotten cards reach the limit) · Shattered (Fractures reach the limit) · Deluge (Black Water must be placed but none is left) · Nameless (the soul reaches the Far Shore without enough Commissions).
-
-#### 1. Before your first action (optional, not an action)
-
-- **Summon a Mantle**: pay Light (3, or 2 in the King's game) ★ **and discard 1 card of the same thread**. §9
-- **Redraw your Commission**: once per game. §4
-- **Reaper**: look at the top 2 cards of the deck; you may swap them into your hand.
-
-#### 2. Two actions
-
-| Action | What you do | Knot | Echo |
-|---|---|---|---|
-| **Play face up** | Resolve the card's effect | +1 on its thread | Moves to its thread |
-| **Play face down** | Place 1 Root (gain 1 Light if there is nowhere to place it) | ★ +1 on its thread | Does not move |
-| **Swap** (once per turn) | Exchange 1 card with a teammate, and play the card you receive face up at once | As face up | As face up |
-| **Recall** (once per turn) | Pay 3 Light to inscribe an Obsession or Acceptance card from the forgotten pile back onto the current route; the forgotten track goes back 1 | None | Does not move |
-
-**Playing face up, in order** ★: effect → tie a knot (if the thread is full, **Backlash at once**) → was the Echo already on this thread? Then **Resonate** if this is your first action, and you may **Echo-inscribe** on either action → move the Echo → a card not inscribed: Obsession and Acceptance to the discard pile, Oblivion to the forgotten pile.
-
-- **Resonance** belongs only to the first action. A **Key Memory** played face up may always be inscribed.
-- Oblivion cards can never be inscribed.
-
-#### 3. Light and Commissions (optional)
-
-- **Light memories**: 1 Light each, as many as you like, on any page. Only lit memories count for Commissions.
-- **Reveal a fulfilled Commission**: choose one: untie 2 knots · remove 1 Mist scar · rewrite this chapter's fork.
-
-#### At any time: Push Through (free action, once per game)
-
-When **both banks of the next space have Shades** and it has no Black Water: remove both Shades, the soul moves forward, flip your Push Through token, and **the soul takes 1 Fracture**.
-
-#### The Veiled Memories
-
-- **You may say**: which threads you hold, the slots on your cards (Place · Person · Deed · Feeling), and the memory text on your cards.
-- **You may not say**: a card's name, effect or Resonance; nor show your hand. Commission cards are completely secret: no hints until revealed.
-
-### Back: the end of the turn (after every player's turn)
-
-1. ★ **Bloombringer**: its holder makes 1 Root Bloom for free.
-2. **Soul Step** (see below).
-3. **Shades push the Loom**: Shades on the soul's space tie a knot: left bank Obsession, right bank Acceptance, in the fog Oblivion.
-4. **Mist**: carry out the Mist ahead → if the soul **did not move forward this turn**, the Mist advances (Fog + difficulty bonus) → both banks fog side up means the soul is **Engulfed**: this Mist card becomes a Mist scar (at Hard, also 1 Fracture) → turn over the new Mist ahead.
-5. **The fork and turning the page**: a Fate Mist card on the ◆ means the story forks; a route at its exit means you turn the page. §11
-6. ★ **Cleanup**, space by space: Black Water with a Root or Bloom on both banks → Black Water back in the box; a Shade with Blooms on the same side of the space ahead **and** the space behind → remove the Shade.
-7. **Draw** back up to your hand size.
-8. **Solo**: the Ghost acts, then clean up again. §14
-9. Pass the **Oar** to the player on your left.
-
-#### The Soul Step
-
-1. **Resignation** marker: she does not move; forget the top card; remove the marker.
-2. The next space is **Lit** and free of Black Water: she moves forward (the Spirit Warden may make her Stay). The space she left: **gather the light** (1 Light per Bloom; the Blooms wither) or **leave the light**.
-3. If she moved, look at the forgotten pile: **6–8 Light as Ash**, one more step if the next space is Lit and free of Black Water; **9+ Adrift**, always one more step, and a Fracture if it goes into the dark.
-4. If she cannot move forward she **Lingers**; do only the first that applies: I Hold Fast → II Spirit Warden → III her space is Lit → IV the Bride is pulled back → V forget the top card.
-5. ★ **Shade damage**: a Shade on her space means 1 Fracture (whether or not she moved).
-
-#### Key numbers
-
-| Item | Number |
-|---|---|
-| Loom threshold | Where the Scar marker stands on the knot track: from 7 (2–4 players) or 10 (solo); each Scar moves it one cell down (threshold −1, Backlash one level higher) |
-| The Pull of Lethe (forgotten pile at the fork) | Chapter 1: 3 · chapter 2: 5 · chapter 3: 7 cards; the river carries off 2, the forgotten track goes back 2 |
-| Turning the page unties (0 / 1 / 2 / 3 memories lit on the page) | 0 / 3 / 6 / 9 knots |
-| Light | 12 at most; light a memory 1 · summon a Mantle 3 (King 2) · Recall 3 |
-| Hand size | Solo 6 · 2 players 4 · 3–4 players 3 |
-
-| Difficulty | Faded | Shattered | Black Water | Mist bonus | Starting knots |
-|---|---|---|---|---|---|
-| Gentle | 14 forgotten | 5 Fractures | 7 | +0 | 0 |
-| Standard | 12 forgotten | 4 Fractures | 6 | +1 | 0 |
-| Hard | 12 forgotten | 3 Fractures | 6 | +1 | 1 on each |
-
-## Appendix G. From V4.0 to V5
-
-| Item | V4.0 | V5 |
+| Commission | Condition | Fits |
 |---|---|---|
-| How the difficulty rises | With position (the Reaches) | With the story (the chapters); the borders between Reaches have no effect |
-| Mist decks | Three decks by Reach, carried out when turned over | Pale, Thick and Deep Mist by chapter; the Mist ahead is face up, and the back of the next card can be seen |
-| The fog | Only the Mist cards | When the soul does not move forward, it swallows banks from behind her; when it catches her, she is engulfed |
-| Leaving a space | Gather the light and clear the space | Gather or leave the light; a Bloom on both banks makes a wall of light |
-| Root network | Effects named "the nearest" | Within reach of the network, cut-off Roots, walls of light, Root network traits |
-| Shades | Placed at random by the Mist | Placed on the 1st space ahead, never move, push a different thread by their bank |
-| Loom | Full at 4 / 5 knots, cleared at Reach borders | Full at 7 knots (10 solo); Scars and three levels of Backlash; turning the page unties 3 / 6 / 9 knots by lit memories |
-| Actions | Answer, Steer | First action (may Resonate), second action; lighting comes after the two actions |
-| Inscribing | Cards that Resonate | Resonance or Echo inscription; only into slots on the current route |
-| Playing face down | No knot | Ties 1 knot |
-| Burn | Two players each play a card of the same thread | Swap |
-| Recall | 3 Light to move a forgotten card back to the discard pile | 3 Light to inscribe a forgotten card back onto the route |
-| Push Through | Takes an action | A free action |
-| Book of Remembrance | Four slots per page | Three chapter route maps: branches, turning points, Mist boxes |
-| Soul events | None | One turning point per chapter (Fate Mist) |
-| Oblivion | — | The Pull of Lethe: with 3 / 5 / 7 cards forgotten the story forks to Oblivion, and the river carries off 2 cards |
-| Endings | By the Key Memory and the number forgotten | By the paths of the three chapters (including Interwoven), following or defying fate, and the Key Memory |
-| Commissions | Checked on reaching the Far Shore | May be revealed early, for untying knots, removing a Mist scar or rewriting the fork |
-| The Far Shore | Can be reached at any time | Appears only once chapter 3 is written |
-| Hand size | Solo 4, 2–4 players 3 | Solo 6, 2 players 4, 3–4 players 3; in solo, Swap trades with the deck |
-| Lantern | Three levels, changing Faded, Black Water and harsh Mist | Renamed "difficulty", three of them: changing Fog, engulfing Fractures, starting knots, Faded, Shattered and Black Water; the Loom threshold is always 7 (10 solo) |
-| Terms | Spread through the sections | Section 2 glossary; text printed on the components only in Appendix B |
-| The Garland Girl | Giving Flowers | Scattered Flowers |
+| "Help me remember how cold that night was." | Chapter 1 has a lit Obsession memory | 16 |
+| "I want to remember the person I saw in the flames." | A lit Person | 7 |
+| "Tell me where I fell asleep." | Chapter 1 has a lit Place | 8 |
+| "What did the little flames I lit shine on?" | A lit memory from the soul's own memories | 6 |
+| "Behind that frosted window, whose home was it?" | A lit Place | 8 |
+| "I want to know how hungry I once was." | A lit Feeling | 8 |
+| "Among the things I did, was even one of them warm?" | Chapter 2 has a lit Acceptance memory | 14 |
+| "In the end, what did I hold as I left?" | Chapter 3 has a lit Feeling | 8 |
+
+**花環少女**
+
+| Commission | Condition | Fits |
+|---|---|---|
+| "Tell me whom I gave my flowers to." | A lit Person | 8 |
+| "The song I used to sing, is it still there?" | Chapter 3 has a lit Feeling | 8 |
+| "The brook beneath that willow, where was it?" | A lit Place | 7 |
+| "Why did I come to hate him?" | A lit Obsession memory | 16 |
+| "Of the flowers I wove, how many do you still remember?" | A lit memory from the soul's own memories | 6 |
+| "The herbs my father taught me to know." | Chapter 1 has a lit Acceptance memory | 14 |
+| "The most foolish thing I ever did." | A lit Deed | 7 |
+| "I want to leave with a little peace." | Chapter 3 has a lit Acceptance memory | 14 |
+
+**渡船上的國王**
+
+| Commission | Condition | Fits |
+|---|---|---|
+| "Where was my last battle?" | Chapter 2 has a lit Place | 7 |
+| "Did I forgive them?" | A lit Acceptance memory | 14 |
+| "How heavy was that crown?" | A lit Feeling | 7 |
+| "Tell me who was ever true to me." | A lit Acceptance Person | 5 |
+| "The sword I borrowed..." | A lit memory from the soul's own memories | 6 |
+| "What did I ever hold?" | A lit Deed | 8 |
+| "What was I like when I was young?" | Chapter 1 has a lit memory | 30 |
+| "In the end, did I let go?" | Chapter 3 has a lit Acceptance memory | 14 |
+
+**留在冥府的新娘**
+
+| Commission | Condition | Fits |
+|---|---|---|
+| "Let me remember his face." | A lit Person | 7 |
+| "Let me let go." | Chapter 3 has a lit Acceptance memory | 14 |
+| "Where were we married?" | A lit Acceptance memory | 14 |
+| "That narrow, narrow stair." | A lit Obsession Place | 5 |
+| "Am I angry with him?" | A lit Obsession memory | 16 |
+| "The last warmth of his hand." | A lit memory from the soul's own memories | 6 |
+| "The road I walked behind him." | Chapter 2 has a lit Obsession memory | 16 |
+| "Before the wedding, who was I?" | Chapter 1 has a lit memory | 30 |
+
+**無名渡河**
+
+| Commission | Condition | Fits |
+|---|---|---|
+| "Whom did they once love?" | A lit Person | 8 |
+| "What could they not let go of, in the end?" | Chapter 3 has a lit Obsession memory | 16 |
+| "Where did they come from?" | Chapter 1 has a lit Place | 8 |
+| "What did they do that made them proud?" | A lit Deed | 7 |
+| "What were they afraid of?" | A lit Feeling | 7 |
+| "Where did they once find peace?" | A lit Place | 8 |
+| "Did they ever regret anything?" | Chapter 2 has a lit Obsession memory | 16 |
+| "What do they carry across the river?" | Chapter 3 has a lit Acceptance memory | 14 |
