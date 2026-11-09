@@ -21,7 +21,7 @@ def slug(value, separator="-"):
 
 def html_of(*path):
     src = open(os.path.join(ROOT, "docs", "rules", *path), encoding="utf-8").read()
-    src = re.sub(r"^> (V5 取代|This is the English edition).*?\n\n", "", src, flags=re.S | re.M)   # repository notes are not for players
+    src = re.sub(r"^> (設計理由|This is the English edition).*?\n\n", "", src, flags=re.S | re.M)   # repository notes are not for players
     src = re.sub(r"```mermaid\n.*?```\n", "", src, flags=re.S)            # the flowchart: the list after it says the same
     return markdown.markdown(src, extensions=["tables", "sane_lists", "toc"], extension_configs={"toc": {"slugify": slug}})
 

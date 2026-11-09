@@ -19,7 +19,7 @@ D = tempfile.mkdtemp() + "/"
 OUT = os.path.join(ROOT, "web", "public", "downloads", "netherbloom-rulebook-v5.zh-TW.docx")
 
 src = open(os.path.join(ROOT, "docs", "rules", "zh-TW", "V5", "Rulebook.md"), encoding="utf-8").read()
-src = re.sub(r"^> V5 取代.*?\n\n", "", src, flags=re.S | re.M)              # repository note, not for players
+src = re.sub(r"^> 設計理由.*?\n\n", "", src, flags=re.S | re.M)              # repository note, not for players
 src = re.sub(r"```mermaid\n.*?```\n", "", src, flags=re.S)                  # the flowchart: the numbered list after it says the same
 svg = re.search(r'<div class="figure">(<svg.*?</svg>)</div>', src, flags=re.S).group(1)
 open(D + "fig.svg", "w").write(svg)
