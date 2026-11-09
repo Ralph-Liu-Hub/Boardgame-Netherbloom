@@ -20,7 +20,7 @@
 | **Play face up** | Resolve the card's effect | +1 on its thread | Moves to its thread |
 | **Play face down** | Place 1 Root (gain 1 Light if there is nowhere to place it) | ★ +1 on its thread | Does not move |
 | **Swap** (once per turn) | Exchange 1 card with a teammate, and play the card you receive face up at once | As face up | As face up |
-| **Recall** (once per turn) | Pay 3 Light to inscribe an Obsession or Acceptance card from the forgotten pile back onto the current route | None | Does not move |
+| **Recall** (once per turn) | Pay 3 Light to inscribe an Obsession or Acceptance card from the forgotten pile back onto the current route; the forgotten track goes back 1 | None | Does not move |
 
 **Playing face up, in order** ★: effect → tie a knot (if the thread is full, **Backlash at once**) → was the Echo already on this thread? Then **Resonate** if this is your first action, and you may **Echo-inscribe** on either action → move the Echo → a card not inscribed: Obsession and Acceptance to the discard pile, Oblivion to the forgotten pile.
 
@@ -66,7 +66,7 @@ When **both banks of the next space have Shades** and it has no Black Water: rem
 | Item | Number |
 |---|---|
 | Loom threshold | Where the Scar marker stands on the knot track: from 7 (2–4 players) or 10 (solo); each Scar moves it one cell down (threshold −1, Backlash one level higher) |
-| The Pull of Lethe (forgotten pile at the fork) | Chapter 1: 3 · chapter 2: 5 · chapter 3: 7 cards |
+| The Pull of Lethe (forgotten pile at the fork) | Chapter 1: 3 · chapter 2: 5 · chapter 3: 7 cards; the river carries off 2, the forgotten track goes back 2 |
 | Turning the page unties (0 / 1 / 2 / 3 memories lit on the page) | 0 / 3 / 6 / 9 knots |
 | Light | 12 at most; light a memory 1 · summon a Mantle 3 (King 2) · Recall 3 |
 | Hand size | Solo 6 · 2 players 4 · 3–4 players 3 |
