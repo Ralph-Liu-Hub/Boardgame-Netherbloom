@@ -1767,7 +1767,8 @@ async function autoEndTurn() {
         await step(["河水帶走 1 張遺忘的牌", "the river carries off a forgotten card"], () => { toStack(pick[a], "box"); S.tracks.forgot = S.stacks.forgot.items.length; });
       }
     } else {
-      const gate = [...R.walk].reverse().map(id => R.by[id]).find(n => n.k === "g");
+      // the Bride's chapter 3 turning point has no Gate: only the Fate Mist and the Pull of Lethe count
+      const gate = S.soul === "bride" && ch === 2 ? null : [...R.walk].reverse().map(id => R.by[id]).find(n => n.k === "g");
       const gc = gate && R.at(gate.id).find(it => it.ck?.startsWith("mem:"));
       const gt = gc && !gc.rot ? MEM[gc.ck.split(":")[1]]?.tag : undefined;
       if (gt !== undefined && gt !== fateTh) {
@@ -1827,7 +1828,7 @@ async function autoEndTurn() {
       keyLine = st.keylines[w === "t" && keyIt.pg !== undefined ? 0 : w === "s:forgot" ? 1 : 2];
     }
     let hiddenOk = false;
-    if (st.hidden) hiddenOk = (await ask(tr(`隱藏結局：${st.hidden.title}`, `Hidden ending: ${st.hidden.title}`), `${tr("條件全部符合嗎？", "Are all of its conditions met?")}<br>${st.hidden.conds.map(c => "・" + c).join("<br>")}`, [tr("符合", "Yes"), tr("不符合", "No")])) === 0;
+    if (st.hidden) hiddenOk = (await ask(tr(`隱藏結局：${st.hidden.title}`, `Hidden ending: ${st.hidden.title}`), `${tr("條件全部符合嗎？", "Are all of its conditions met?")}<br>${st.hidden.conds.map(c => "・" + c).join("<br>")}${S.soul === "bride" && S.brideForgot ? "<br><br>" + tr("（提醒：本局曾因徘徊而遺忘，新娘的隱藏結局不成立。）", "(Note: a card was forgotten to Lingering this game, so the Bride's hidden ending is not met.)") : ""}`, [tr("符合", "Yes"), tr("不符合", "No")])) === 0;
     const body = `<b>${hiddenOk ? st.hidden.title : ending.title}</b><br>${hiddenOk ? st.hidden.text : ending.text}<br><br>${st.fatelines[defied ? 1 : 0]}${keyLine ? "<br><br>" + keyLine : ""}`;
     await ask(tr("你們獲勝：結局", "You win: the ending"), tr("隱憶之約解除。先朗讀憶念之書，再朗讀結局：", "The Veiled Memories end. Read the Book, then the ending:") + "<br><br>" + body, [tr("結束", "The end")]);
   };
@@ -1893,12 +1894,25 @@ async function autoEndTurn() {
     } else {
       // Lingering: only the first that applies (at space 13 before chapter 3 is written: the Gate, §11)
       const hold = Object.values(S.items).find(it => it.tk === "hold" && S.where[it.id] === "t");
-      const bride = S.soul === "bride" && !Object.values(S.items).find(it => it.ck === "soul:bride")?.rot;
+      // the Bride (§13): the first time she would forget to Lingering, she is pulled back one space instead, once a game
+      const bride = S.soul === "bride" && !S.bridePulled;
       if (hold) toast(tr("徘徊：亡魂旁有堅守標記，不遺忘。", "Lingering: Hold Fast, nothing is forgotten."));
       else if (warden && !warden.it.rot) await step(["徘徊：橫放守魂者，不遺忘", "Lingering: the Spirit Warden turns sideways; nothing forgotten"], () => { S.items[warden.it.id].rot = 90; });
       else if (lit(B.soul)) toast(tr("徘徊：所在格已照亮，不遺忘。", "Lingering: the soul's space is Lit; nothing is forgotten."));
-      else if (bride && B.soul > 1 && !fogged(B.soul - 1)) await step(["徘徊：新娘被拉回一格，不遺忘", "Lingering: the Bride is pulled back one space"], () => { place(B.soulTok.id, `soul${B.soul - 1}`); const c = Object.values(S.items).find(it => it.ck === "soul:bride"); if (c) c.rot = 90; });
-      else await step(["徘徊：遺忘牌庫頂 1 張", "Lingering: forget the top card"], () => forgetTop(1));
+      else if (bride && B.soul > 1 && !fogged(B.soul - 1)) {
+        await step(["徘徊：新娘被拉回一格，不遺忘", "Lingering: the Bride is pulled back one space"], () => {
+          place(B.soulTok.id, `soul${B.soul - 1}`); S.bridePulled = true;
+          const c = soulCard(); if (c) c.rot = (c.rot + 90) % 360;   // sideways: the special rule is used
+        });
+        toast(tr("新娘的特色規則：祂被拉回黑暗，不遺忘；本回合算沒有前進，霧會推進。", "The Bride's special rule: they are pulled back into the dark and forget nothing; it counts as not moving forward, so the Mist advances."));
+      } else {
+        if (bride) toast(tr("新娘不能被拉回（在第 1 格，或前一格兩岸都是霧面）：照常遺忘，特色規則留到之後。", "The Bride cannot be pulled back (space 1, or both banks behind are fog side up): forget as usual; the rule is saved."));
+        await step(["徘徊：遺忘牌庫頂 1 張", "Lingering: forget the top card"], () => {
+          forgetTop(1);
+          // her hidden ending needs no card forgotten to Lingering all game: the Soul card turns upside down as the reminder
+          if (S.soul === "bride" && !S.brideForgot) { S.brideForgot = true; const c = soulCard(); if (c) c.rot = (c.rot + 180) % 360; }
+        });
+      }
       still = true;
       lingeredAtGate = B.soul === 13 && !S.farOpen;
     }

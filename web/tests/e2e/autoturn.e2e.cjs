@@ -194,6 +194,28 @@ const fr = T.snapPos("mistfront"); T.set(S => { for (const it of Object.values(S
   const bloomsLeft = st => Object.values(st.items).filter(it => it.tk === "root" && it.face === 1 && st.where[it.id] === "t").length;
   expect(bloomsLeft(s) < bloomsLeft(g0), `the Garland Girl: the single Bloom left on space 1 withered as a wall (${bloomsLeft(g0)} -> ${bloomsLeft(s)})`);
 
+  // the Bride: the first time she would forget to Lingering she is pulled back a space; the next time she forgets,
+  // and the Soul card turns upside down for her hidden ending
+  await setupSoul("bride");
+  const brideTurn = async () => {
+    await A.evaluate(() => {
+      const T = window.__nbTest, st = T.state();
+      const fr = T.snapPos("mistfront"); T.set(S => { for (const it of Object.values(S.items)) if (S.where[it.id] === "t" && /^(mist|harsh):/.test(it.ck) && Math.hypot(it.x - fr.x, it.y - fr.y) < 40) { it.ck = "mist:parts"; it.deck = S.chapter || 0; } });
+      for (const side of ["L", "R"]) { const q = T.snapPos("bank2" + side); T.set(S => { for (const it of Object.values(S.items)) if (it.kind === "tile" && S.where[it.id] === "t" && Math.hypot(it.x - q.x, it.y - q.y) < 30) it.face = 1; }); }
+      const so = Object.values(st.items).find(it => it.tk === "soul"); T.put(so.id, "soul3");   // space 3 and 4 are unlit
+    });
+    await endTurn();
+    return S(A);
+  };
+  const f0 = (await S(A)).stacks.forgot.items.length;
+  s = await brideTurn();
+  const soulAt = st => { const so = Object.values(st.items).find(it => it.tk === "soul"); return so; };
+  const at2 = await A.evaluate(() => { const T = window.__nbTest, so = Object.values(T.state().items).find(it => it.tk === "soul"), q = T.snapPos("soul2"); return Math.hypot(so.x - q.x, so.y - q.y) < 10; });
+  expect(at2 && s.bridePulled && s.stacks.forgot.items.length === f0, `the Bride is pulled back to space 2 and forgets nothing (pulled ${s.bridePulled}, forgotten ${f0} -> ${s.stacks.forgot.items.length})`);
+  s = await brideTurn();
+  const card = Object.values(s.items).find(it => it.ck === "soul:bride");
+  expect(s.brideForgot && s.stacks.forgot.items.length === f0 + 1 && card.rot === 270, `the second time she forgets, and the Soul card turns upside down (forgotten ${s.stacks.forgot.items.length}, rot ${card.rot})`);
+
   console.log("PROBLEMS", problems.length, problems);
   if (problems.length) process.exitCode = 1;
   await browser.close();
