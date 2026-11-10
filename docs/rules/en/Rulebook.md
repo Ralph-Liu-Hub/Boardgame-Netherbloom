@@ -48,7 +48,7 @@
 | **Faded** | The forgotten pile reaches the Faded limit. |
 | **Shattered** | The soul's Fractures reach the Shattered limit. |
 | **Deluge** | You must place Black Water, but none is left in the supply. |
-| **Nameless** | The soul reaches the Far Shore, but too few Commissions are fulfilled. |
+| **Lost** | The soul reaches the Far Shore, but too few Commissions are fulfilled. |
 
 The three limits depend on the difficulty; see the difficulty table in section 3.
 
@@ -58,32 +58,33 @@ You may talk freely about strategy, the river, the Loom, the Book of Remembrance
 
 - **You may share**: which threads you hold, the slots on your cards (Place, Person, Deed, Feeling), and the memory text written on your cards.
 - **You may not share**: a card's name, effect or Resonance; nor may you show your hand.
-- **Commission cards are completely secret**: until one is fulfilled and revealed, you may not say, discuss or hint at it.
+- **Commission cards are completely confidential**: until one is fulfilled and revealed, you may not say, discuss or hint at it.
 
 ## 2. Glossary
 
-Every special term used in the rules and on the cards is here. When a word in bold first appears in a later section, it means what it says here.
+Every special term used on the cards, on the components and in this rulebook is explained below.
 
-### Places on the river
+### Places on the river board
 
 | Term | Meaning |
 |---|---|
+| **Soul** <img src="../icons/soul.svg" alt="Soul marker" width="20" height="20"> | The soul marker, called the soul for short. |
 | **Space** | A position on the river. There are 15: the Near Shore (space 0), spaces 1–13, and the Far Shore (space 14). |
-| **Reach** | Spaces 1–4 are Reach 1, spaces 5–8 Reach 2, and spaces 9–13 Reach 3. Reaches are only used to set up the tiles and to name places; their borders have no effect. |
+| **Reach** | Spaces 1–4 are Reach 1, spaces 5–8 Reach 2, and spaces 9–13 Reach 3. Crossing the border of a Reach triggers no effect. |
 | **Left bank, right bank** | The two banks of each space. Facing the Far Shore, the left bank is on your left. |
 | **The soul's space** | The space where the soul marker stands. |
 | **The next space** | The space directly ahead of the soul's space, also called **the 1st space ahead**. **The 2nd space ahead** is the one after it, and so on. |
 | **Ahead of the soul** | Every space with a higher number than the soul's space. |
-| **Nearest, furthest** | Counting only the soul's space and the spaces ahead of the soul, from the soul toward the Far Shore: the one closest to or furthest from the soul. On the same space, the left bank comes first. The "nearest" Shade, Black Water or Root on a card only counts targets **within reach of the Root network**. |
-| **Empty bank** | A bank with no Root, Bloom or Shade on it. Whether the bank's tile is fog side up or revealed does not change whether the bank is empty. |
-| **Fog side** | The face-down side of a bank tile. A bank whose tile is fog side up has been swallowed by the fog. Space 1 has no tiles; when one of its banks is swallowed, place a fog marker there. |
+| **Nearest, furthest** | Counting only the soul's space and the spaces ahead of the soul, from the soul toward the Far Shore: the one closest to or furthest from the soul. When an effect resolves on both banks of one space, resolve the left bank first, then the right. The "nearest" Shade, Black Water or Root on a card only counts targets **within reach of the Root network**. |
+| **Empty bank** | Whether its tile is fog side up or revealed, a bank with no Root, Bloom or Shade on it is an empty bank. |
+| **Fog side** | A bank tile lying face down is fog side up. A bank whose tile is fog side up is called a bank swallowed by the fog. Space 1 has no tiles; when one of its banks is swallowed, place a fog marker there. |
 
-### Things and actions on the river
+### Tokens and actions on the river board
 
 | Term | Meaning |
 |---|---|
-| **Root, Bloom** | The same two-sided token: a Root on one side, a Bloom on the other. Each bank holds at most 1 token: a Root, a Bloom or a Shade. |
-| **Lit** | A space is Lit if at least one of its banks has a Bloom. The soul only walks into Lit spaces. |
+| **Root, Bloom** <img src="../icons/root.svg" alt="Root" width="20" height="20"> <img src="../icons/bloom.svg" alt="Bloom" width="20" height="20"> | The same two-sided token: a Root on one side, a Bloom on the other. Each bank holds at most 1 token: a Root, a Bloom or a Shade. |
+| **Lit** | A space is Lit if at least one of its banks has a Bloom. The soul only walks into Lit spaces, unless another effect says otherwise (such as Adrift). |
 | **Place a Root** | Put 1 Root on an empty bank of the soul's space or a space ahead of the soul. That bank must connect to the Root network (section 6). |
 | **Bloom** | Flip 1 Root to its Bloom side. |
 | **Wither** | Flip 1 Bloom back to its Root side. If that leaves its space with no Bloom, the space is no longer Lit. |
@@ -91,64 +92,68 @@ Every special term used in the rules and on the cards is here. When a word in bo
 | **Cut-off Root** | A Root no longer joined to the network of the soul's space. A cut-off Root cannot Bloom. |
 | **Wall of light** | A space with a Bloom on both banks. The fog cannot pass a wall of light. |
 | **Gather the light, leave the light** | When the soul leaves a space, choose one. Gather: gain 1 Light for each Bloom on that space, and those Blooms wither. Leave: gain no Light; the Blooms stay. |
-| **Shade** | A black token placed on a bank. It never moves, and it pushes the Loom forward; if there is a Shade on the soul's space, the soul takes a Fracture. |
+| **Shade** <img src="../icons/shade.svg" alt="Shade" width="20" height="20"> | A black token placed on a bank. It never moves, but it pushes the knot markers on the Loom forward; if there is a Shade on the soul's space, the soul takes a Fracture. |
 | **Shade in the fog** | A Shade whose bank has been swallowed by the fog. It pushes Oblivion forward and cannot be removed. |
-| **Banish, wash away** | Return 1 Shade to the supply. Washing away can also be used on Roots. |
-| **Black Water** | A marker placed in the channel in the middle of a space. The soul cannot enter a space with Black Water. |
+| **Banish, wash away** | Return 1 Shade to the supply. Washing away also applies to returning a Root to the supply. |
+| **Black Water** <img src="../icons/blackwater.svg" alt="Black Water marker" width="20" height="20"> | A marker placed on a space. The soul cannot enter a space with Black Water. |
 | **Drain** | Remove 1 Black Water from the game: put it back in the box. |
 | **The Mist advances N** | Flip N banks back to the fog side, in the fog's order (section 6). |
 | **Reclaim** | Place a Root on a bank that is fog side up, turning its tile face up again. |
 | **The fog is close** | One bank of the soul's space is fog side up. |
 | **Engulfed by the Mist** | Both banks of the soul's space are fog side up. |
+| **Fog marker** <img src="../icons/fog.svg" alt="Fog marker" width="20" height="20"> | Space 1 has no bank tiles; when a bank of space 1 is swallowed by the fog, a fog marker stands in for the fog side. |
 
-### What the soul does, and what happens to her
+### What the soul does, and what happens to them
 
 | Term | Meaning |
 |---|---|
-| **Move forward** | The soul moves to the next space. When a card says "the soul moves forward a space at once", she moves now. |
-| **Linger** | In the Soul Step, the soul cannot move forward. When she Lingers you usually forget the top card of the deck (section 5). |
-| **Stay** | The Spirit Warden keeps the soul on her space without forgetting any card. |
-| **Resignation** | While the Resignation marker is beside the soul, she does not move on her next Soul Step, and you forget the top card of the deck. |
+| **Move forward** | The soul moves to the next space. When a card says "the soul moves forward a space at once", they move at once. |
+| **Linger** | In the Soul Step, the soul cannot move forward. When they Linger you usually forget the top Memory card of the Memory deck (section 5). |
+| **Stay** | The Spirit Warden keeps the soul on their space, without forgetting any card. |
+| **Resignation** <img src="../icons/resign.svg" alt="Resignation marker" width="20" height="20"> | While the Resignation marker is beside the soul, they do not move on their next Soul Step, and you forget the top card of the deck. |
 | **Move back, be pulled back** | The soul goes back to the previous space. This does not count as leaving a space: no Light is gathered or left. |
 | **Did not move forward this turn** | In this Soul Step the soul moved forward no spaces at all: Resignation, Stay, Linger or being pulled back. When this happens, the Mist advances. |
-| **Light as Ash, Adrift** | With 6–8 cards forgotten the soul is Light as Ash; with 9 or more she is Adrift. After moving forward she takes one more step (section 5). |
-| **Fracture** | A wound the soul takes. When Fractures reach the Shattered limit, you lose. |
+| **Light as Ash, Adrift** | With 6–8 cards forgotten the soul is Light as Ash; with 9 or more they are Adrift. After moving forward they take one more step (section 5). |
+| **Fracture** <img src="../icons/fracture.svg" alt="Fracture marker" width="20" height="20"> | A wound the soul takes, kept with the Fracture marker on the Fracture track of the Ledger. When Fractures reach the Shattered limit, you lose. |
 | **Cancel a Fracture** | A Shield marker or the Child's special rule prevents one Fracture: it is not placed and does not count as taken. |
-| **Hold Fast, Shield** | Markers that cards give. Hold Fast: the soul forgets nothing the next time she Lingers. Shield: cancels the next Fracture. |
+| **Hold Fast, Shield** <img src="../icons/hold.svg" alt="Hold Fast marker" width="20" height="20"> <img src="../icons/shield.svg" alt="Shield marker" width="20" height="20"> | Markers that cards give. Hold Fast: the soul forgets nothing the next time they Linger. Shield: cancels the next Fracture. |
 
-### Cards and piles
+### Cards, the deck and the piles
 
 | Term | Meaning |
 |---|---|
 | **Memory card** | The cards in the players' hands. Each belongs to one thread, Obsession, Acceptance or Oblivion, and some also have a slot: Place, Person, Deed or Feeling. |
+| **Deck** | The Memory deck, called the deck for short. |
 | **Play face up, play face down** | The two ways to play a card (see the table of ways to play in section 4). |
-| **Swap** | Exchange 1 card in hand with another player, and play the card you receive face up at once. |
+| **Swap** | Exchange 1 card in hand with another player, and at once play the card you receive face up. |
 | **Recall** | Pay 3 Light to inscribe 1 Obsession or Acceptance card from the forgotten pile back into the Book. The forgotten track goes back 1. |
-| **Echo** | A marker on the Loom that rests on the thread of the last card played face up. |
+| **Echo** <img src="../icons/echo.svg" alt="Echo marker" width="20" height="20"> | The Echo marker on the Loom, resting on the thread of the last card played face up. |
 | **Resonance** | An extra effect a card has when it is played face up as your first action and its thread matches the Echo. |
+| **Echo inscription** | When you play an Obsession or Acceptance card face up and the Echo marker was already on its thread before you played it, you may inscribe it in an empty memory slot with a matching slot type on the current route. Either your first or your second action may make an Echo inscription (section 4-1). |
 | **Inscribe** | Put 1 Obsession or Acceptance card into a memory slot of the Book of Remembrance instead of on the discard pile. |
-| **Forget 1 card** | Put that card face up on the next number of the forgotten track on the Ledger. When cards leave the forgotten pile (Recall, the Pull of Lethe), slide the rest down to fill the gap: the forgotten track goes back as many numbers. |
-| **Forget the top card of the deck** | Put the top card of the Memory deck straight onto the forgotten track without resolving it. |
+| **Forget 1 card** | Put that Memory card face up on the forgotten pile on the Ledger, and move the forgotten marker on the forgotten track to the next number. When N cards leave the forgotten pile (Recall, the Pull of Lethe), move the forgotten marker back N. |
+| **Forget the top card of the deck** | Put the top card of the Memory deck straight onto the forgotten pile and move the forgotten marker to the next number, without resolving any of its effects. |
 | **Forgotten pile, discard pile** | Both face up; anyone may look through them. When the Memory deck runs out, only the discard pile is shuffled into a new deck. |
-| **Key Memory** | One of each named Soul's own memory cards, the one that matters most to her. |
-| **The Soul's own memories** | The chosen Soul's 8 memory cards. The Nameless soul (Open Crossing) uses the 8 Echo cards instead. |
+| **Forgotten marker, forgotten track** <img src="../icons/forgotten.svg" alt="Forgotten marker" width="20" height="20"> | The forgotten track is printed on the Ledger; the forgotten marker on it shows how many cards are in the forgotten pile, so you need not count them. It moves up when a card is forgotten and back when one leaves; the players move it by hand. |
+| **Key Memory** | One of each named Soul's own memory cards, the one that matters most to them. |
+| **The Soul's own memories** | The chosen Soul's 8 memory cards. When the soul is "Open Crossing", it uses the 8 Echo cards instead. |
 
 ### The Loom, the Book and the ending
 
 | Term | Meaning |
 |---|---|
 | **Thread** | Obsession, Acceptance or Oblivion. Cards, Shades, Mist and the story each belong to one of them. |
-| **Knot, tie, untie** | Progress on the Loom's knot track. Tie: move the marker forward 1. Untie: move it back 1. |
+| **Knot, tie, untie** <img src="../icons/knot-obsession.svg" alt="Knot marker (Obsession)" width="20" height="20"> <img src="../icons/knot-acceptance.svg" alt="Knot marker (Acceptance)" width="20" height="20"> <img src="../icons/knot-oblivion.svg" alt="Knot marker (Oblivion)" width="20" height="20"> | Progress on the Loom's knot track. Tie: move the knot marker forward 1. Untie: move the knot marker back 1. |
 | **Threshold, full** | The threshold is the cell of the knot track where the Scar marker stands. When the knot marker reaches the Scar marker, the thread is full and Backlashes at once. |
-| **Backlash** | The harm a full thread does, in three levels, printed on the Loom. |
-| **Scar** | The mark a full thread leaves: the Scar marker moves one cell down the knot track. Each Scar lowers the threshold by 1 and raises the Backlash one level; Scars never go away. |
-| **Mist scar** | The Mist card placed on the Book's route when the soul is Engulfed by the Mist. It raises the Backlash of its thread one level. |
+| **Backlash** | The harmful effect a full thread causes, in three levels (see the Loom board). |
+| **Scar** <img src="../icons/scar.svg" alt="Scar marker" width="20" height="20"> | The mark a full thread leaves: the Scar marker moves one cell down the knot track. Each Scar lowers the threshold by 1 and raises the Backlash one level; Scars can never be removed. |
+| **Mist scar** | The Mist card placed on the Book's route when the soul is Engulfed by the Mist is called a Mist scar. It raises the Backlash of its thread one level. |
 | **Current route** | The stretch of the page from the entrance to the first memory slot not yet filled, branch not yet decided, or turning point. |
-| **Lit, unlit** | A newly inscribed memory is unlit and lies sideways. Pay 1 Light to light it and turn it upright. Only lit memories count for Commissions. |
+| **Lit, unlit** | A newly inscribed memory is unlit and lies sideways. Pay 1 Light to light it and turn it upright. Only lit memories can count for Commissions. |
 | **Fate Mist** | Two cards each chapter, condition side up. The one whose condition is met first decides which thread the chapter's turning point leads to. |
 | **Turning point, the fork** | The ◆ on the page. When the route reaches it, the story chooses a thread. |
 | **Defy fate** | The path actually taken differs from the thread of the Fate Mist on the ◆. |
-| **The Pull of Lethe** | The forgotten pile has reached the chapter's limit when the story forks: the story takes Oblivion, and the river carries off 2 forgotten cards; the forgotten track goes back 2. |
+| **The Pull of Lethe** | The forgotten pile has reached the chapter's limit when the story forks: the story takes Oblivion, and the river carries off 2 cards from the forgotten pile (removed from the game, back in the box); the forgotten track goes back 2. |
 | **Turn the page** | When the route reaches the exit, go on to the next chapter. |
 | **The Gate of the Far Shore** | Until the third chapter is written, the Far Shore counts as unlit. |
 | **Commission** | A condition card each player holds in secret. How many are fulfilled decides whether you win. |
@@ -157,27 +162,29 @@ Every special term used in the rules and on the cards is here. When a word in bo
 
 | Term | Meaning |
 |---|---|
-| **Light** | A shared resource, kept on the Light track of the Ledger, 12 at most. |
+| **Light** <img src="../icons/light.svg" alt="Light marker" width="20" height="20"> | A shared resource, kept with the Light marker on the Light track of the Ledger, 12 at most. |
 | **Mantle** | An ability card you hold once you summon it. There are 5. |
 | **Mist ahead** | The face-up Mist card in front of the Mist well; everyone can read it. |
-| **Fog** | The number printed on the face and back of a Mist card: how many banks the Mist advances. |
+| **Fog** | The number printed on the face and back of a Mist card: how many banks must be swallowed when the Mist advances. |
 | **Harsh Mist** | Stronger Mist cards; 2 are shuffled at random into each Mist deck. |
 | **Difficulty** | Gentle, Standard or Hard (section 3). |
-| **Oar** | The marker that shows the first player; at the end of each turn it passes to the player on the left. |
+| **Oar** <img src="../icons/oar.svg" alt="Oar" width="20" height="20"> | Marks the active player. The first player holds it at the start of the game; at the end of each turn it passes to the player on the left. |
+| **Push Through, Push Through token** <img src="../icons/push.svg" alt="Push Through token" width="20" height="20"> | A free action each player may take once per game (section 4-5). The token lies blue side up until it is used, then is flipped over. |
+| **Game** | One whole game: from setting up until you win or lose. |
+| **Turn** | One player's turn: from before their first action until every step of the end of the turn is done (sections 4 and 5). The soul acts once every turn. "This turn" is the turn being played; "the active player" is the player holding the Oar and taking that turn. |
+| **Round** | Each player takes 1 turn. "Once per round" on a Mantle means once between the start of its holder's own turn and the start of their next turn. In solo play a round is one turn. |
 
 ## 3. Setting up
 
 ### Choosing a Soul and a difficulty
 
-First choose a Soul (section 13) and a difficulty.
+First choose a Soul (section 13), then one of these difficulties.
 
-| Difficulty | Fog when the Mist advances | When the soul is Engulfed by the Mist | Starting knots | Faded limit | Shattered limit | Black Water | Simulated win rate |
-|---|---|---|---|---|---|---|---|
-| ◆◇◇ Gentle | +0 | Mist scar only | 0 | 14 cards forgotten | 5 Fractures | 7 | 59% |
-| ◆◆◇ Standard | +1 | Mist scar only | 0 | 12 cards forgotten | 4 Fractures | 6 | 52% |
-| ◆◆◆ Hard | +1 | Mist scar, and the soul takes 1 Fracture | 1 on each thread | 12 cards forgotten | 3 Fractures | 6 | 42% |
-
-The same at all three difficulties: the Loom threshold is 7 knots with 2–4 players and 10 knots solo, and both starting cells are printed on the knot tracks; each Mist deck gets 2 harsh Mist cards. Simulated win rates by player count (solo / 2 / 3 / 4 players): Gentle 51 / 61 / 63 / 63%, Standard 43 / 52 / 55 / 56%, Hard 35 / 43 / 42 / 47%. A game sees about 2 Backlashes.
+| Difficulty | Fog when the Mist advances | When the soul is Engulfed by the Mist | Starting knots | Faded limit | Shattered limit | Black Water |
+|---|---|---|---|---|---|---|
+| ◆◇◇ Gentle | +0 | Mist scar only | 0 | 14 cards forgotten | 5 Fractures | 7 |
+| ◆◆◇ Standard | +1 | Mist scar only | 0 | 12 cards forgotten | 4 Fractures | 6 |
+| ◆◆◆ Hard | +1 | Mist scar, and the soul takes 1 Fracture | 1 on each thread | 12 cards forgotten | 3 Fractures | 6 |
 
 **Set-up table**: by player count, how many Graves go in Reach 3, how many Commissions you must fulfil, and how many cards each player holds.
 
@@ -185,32 +192,32 @@ The same at all three difficulties: the Loom threshold is 7 knots with 2–4 pla
 |---|---|---|---|---|
 | Graves in Reach 3 | 2 | 1 | 2 | 2 |
 | Commissions to fulfil | 1 | 2 | 2 | 3 |
-| Cards in each hand | 6 | 4 | 3 | 3 |
+| Cards in each hand (and hand limit) | 6 | 4 | 3 | 3 |
 
-> **Your first game**: we suggest playing **the Child of the Last Flame** at Gentle.
+**A first game for new players**: we suggest playing **the Child of the Last Flame** at Gentle.
 
 ### Set-up steps
 
 1. **River boards**: join the 3 river boards in order: Reach 1 · the Asphodel Road (the Near Shore, space 0, and spaces 1–4), Reach 2 · the Fields of Mourning (spaces 5–8), Reach 3 · the Banks of Lethe (spaces 9–13, ending at the Far Shore, space 14). Space 5 is printed "The story should be at chapter 2", and space 9 "The story should be at chapter 3". These are only reminders; they have no rules effect.
 2. **Bank tiles**: set up each of the three Reaches separately. Space 1 has no tiles.
-    1. Take out this Reach's Graves: none for Reach 1, 1 for Reach 2, and for Reach 3 as the set-up table says.
-    2. Shuffle the tiles of this Reach's tile pool (Appendix A) face down, and draw exactly enough to fill its banks: 6 for Reach 1, 7 for Reach 2, and 10 minus the Graves for Reach 3.
-    3. Shuffle the Graves and the drawn tiles together face down, and lay them at random, fog side up, on this Reach's banks.
+    1. Take out the number of Graves each Reach needs and put them beside its tile pool: none for Reach 1, 1 for Reach 2, and for Reach 3 as the set-up table says.
+    2. Shuffle each Reach's tile pool (Appendix A) face down, and draw as many as its banks need: 6 for Reach 1, 7 for Reach 2, and for Reach 3, 10 minus the Graves the set-up table gives.
+    3. Shuffle each Reach's Graves and drawn tiles together face down, and lay them at random, fog side up, on that Reach's banks.
     4. Return the tiles not drawn to the box without looking at them.
     5. Put the spare tiles (2 Flower Field, 2 Fertile, 2 Memory Spring) face up to one side. Fate Mist and Mist cards use them to replace tiles.
 3. **The first Blooms and the soul**: put 1 token, Bloom side up, on the left bank and on the right bank of space 1. Put the soul marker on the Near Shore (space 0). The fog begins after space 0; no bank has been swallowed by the fog yet.
 4. **Soul card**: put the chosen Soul's card face up next to the board. Its special rule is in effect for the whole game.
-5. **Memory deck**: shuffle the 32 basic memory cards together with the chosen Soul's 8 own memory cards, and put them face down in the deck frame of the Ledger. The Nameless soul uses the 8 Echo cards instead.
+5. **Memory deck**: shuffle the 32 basic memory cards together with the chosen Soul's 8 own memory cards, and put them face down in the deck frame of the Ledger. When the soul is "Open Crossing", use the 8 Echo cards instead.
 6. **Mist decks**: the Mist cards form three decks (Appendix C): Pale Mist for chapter 1, Thick Mist for chapter 2, and Deep Mist for chapter 3.
     1. Add 1 "Rising Water" and 1 "Shade Drawn Near" to each deck, then add 2 harsh Mist cards at random. Return the other harsh Mist cards to the box.
     2. Shuffle the three decks separately and put them face down to one side.
     3. Put the Pale Mist deck in the Mist well, turn its top card over, and put it face up in front of the well: this is the **Mist ahead**. The back of the next card of the Pale Mist deck can also be seen: it shows a thread and a Fog number.
-7. **Loom of the Fates**: set out the Loom. Put 1 knot marker at 0 on the knot track of each of the three threads (at 1 for Hard), and 1 Scar marker on the starting cell of the same knot track: 7 with 2–4 players, 10 solo. Put the Echo marker in the Loom's Silent box.
+7. **Loom of the Fates**: set the Loom out beside the river board. Put 1 knot marker at 0 on the knot track of each of the three threads; at Hard, put it at 1 instead. Then put 1 Scar marker on the starting cell of the same knot track: 7 with 2–4 players, 10 solo. Put the Echo marker in the Loom's Silent box.
 8. **Mantles**: lay the 5 Mantle cards face up in the Mantle row below the Loom.
-9. **Book of Remembrance**: open the chosen Soul's book at chapter 1 and have its corners ready. Split this Soul's 12 Fate Mist cards into three groups by chapter, 4 for each chapter: 2 with river conditions and 2 with Book conditions. Draw 1 at random from chapter 1's river conditions and 1 from its Book conditions, and put them condition side up beside the Book; put the rest face down to one side. Put the ending cards face down to one side without looking at them. The Nameless soul has no ending cards.
+9. **Book of Remembrance**: open the chosen Soul's book at chapter 1, then split this Soul's 12 Fate Mist cards into three groups by chapter, 4 for each chapter: 2 with river conditions and 2 with Book conditions. Draw 1 at random from chapter 1's river conditions and 1 from its Book conditions, and put them condition side up beside the Book; put the rest face down to one side. Put the ending cards face down to one side without looking at them. The soul "Open Crossing" has no ending cards.
 10. **Ledger**: put Black Water markers in the Black Water supply as the difficulty says (7 for Gentle, 6 for Standard and Hard). Put the Light marker on the Light track at the chosen Soul's starting Light (section 13; 0 if none is given). Put the Fracture marker at 0 on the Fracture track. Put the Root/Bloom tokens, Shades, fog markers, and the Hold Fast, Shield and Resignation markers in the supply.
 11. **Commission cards**: shuffle the chosen Soul's 8 Commission cards; each player secretly draws 1 and puts it face down in front of them, where they may look at it. Put the rest face down to one side for redraws.
-12. **Ferrymen**: deal each player a hand as the set-up table says. Each player takes 1 Push Through token, face up. The first player takes the Oar. In solo play, also shuffle the 12 Ghost cards (section 14).
+12. **Ferrymen**: deal each player a hand as the set-up table says. Each player takes 1 Push Through token, blue side up. The first player takes the Oar. In solo play, also shuffle the 12 Ghost cards (section 14).
 
 From this moment the Veiled Memories apply, and the first player takes the first turn.
 
@@ -227,86 +234,108 @@ From this moment the Veiled Memories apply, and the first player takes the first
 
 Starting with the first player, who holds the Oar, players take turns clockwise. On your turn, in order:
 
-1. **Before your first action**, all optional, none of them an action, in any order:
+1. **Before your first action**, you may do any of these, none of them an action, in any order:
     - **Summon a Mantle**: pay Light and **discard 1 card from your hand of the Mantle's thread** (section 9).
     - **Redraw your Commission**, once per game: remove your Commission card from the game face down, and draw 1 new one.
-    - Use the **Reaper**.
-2. **First action (may Resonate)**: play 1 card face up, play 1 card face down or Swap 1 card; or Recall.
-3. **Second action**: play 1 card face up, play 1 card face down or Swap 1 card; or Recall. This action never Resonates.
+    - If you hold the **Reaper**, use its ability.
+2. **First action (may Resonate)**: play 1 card face up (section 4-1), play 1 card face down (section 4-2) or Swap 1 card (section 4-3); or Recall (section 4-4).
+3. **Second action (never Resonates)**: play 1 card face up, play 1 card face down or Swap 1 card; or Recall.
 4. **Light and Commissions**, both optional:
-    - **Light memories**: for each 1 Light you pay, light 1 memory in the Book, as many as you like (section 10).
+    - **Light memories**: for each 1 Light you pay, light 1 memory in the Book, as many per turn as you like (section 10).
     - **Reveal a fulfilled Commission** (section 12).
 5. **The end of the turn** (section 5).
 
-Across your two actions you may Swap at most once and Recall at most once per turn. You may use the free action **Push Through** at any time.
+Across your two actions you may Swap at most once and Recall at most once per turn. You may use the free action **Push Through** at any time (section 4-5).
 
 ### Ways to play a card
 
-| Play | Effect | Knot | Echo | Resonance | May be inscribed | Where the card goes |
+| Play | Effect | Knot | Echo | Resonance | May be inscribed | Where to put the card |
 |---|---|---|---|---|---|---|
-| **Face up** | The card's effect | +1 on the card's thread | Moves to the card's thread | Only as the first action, and only if the Echo was already on the card's thread | If the Echo was already on the card's thread; a Key Memory always may | Inscribed in the Book; otherwise Obsession and Acceptance to the discard pile, Oblivion to the forgotten pile |
+| **Face up** | The card's effect | +1 on the card's thread | Moves to the card's thread (on the first or the second action alike) | Only the first action may Resonate, and only if the Echo marker was already on the card's thread | If the Echo was already on the card's thread; a Key Memory always may | Inscribed in the Book; otherwise Obsession and Acceptance to the discard pile, Oblivion to the forgotten pile |
 | **Face down** | Place 1 Root; if there is nowhere to place it, gain 1 Light instead | +1 on the card's thread | Does not move | Never | No | Face up on the discard pile |
 | **Swap** | Play the card you receive face up | As face up | As face up | As face up | As face up | As face up |
 | **Recall** | Pay 3 Light to inscribe 1 Obsession or Acceptance card from the forgotten pile back into the Book | None | Does not move | Never | Always inscribed | In the Book, unlit |
 
-### Playing a card face up
+<div class="rulebox" markdown="1">
+
+### 4-1. Playing a card face up
 
 In order:
 
 1. Resolve the card's effect.
-2. Tie 1 knot on the card's thread. If the thread becomes full, **Backlash at once first**, then go on to the next step (section 7).
-3. Look at which thread the Echo was on **before** you played this card. If it was on this card's thread:
-    - If this is your first action, also resolve the card's **Resonance**. A Resonance marked "instead" replaces the normal effect.
-    - Whichever action this is, you may **inscribe** the card in an empty memory slot with a matching slot type on the current route, and read its memory aloud. This is called an **Echo inscription**.
-4. Move the Echo to this card's thread.
-5. If the card was not inscribed, Obsession and Acceptance cards go to the discard pile, and Oblivion cards to the forgotten pile.
+2. On the Loom, tie 1 knot on the knot track of the card's thread. If the thread becomes full, **Backlash at once first**, then go on to the next step (section 7).
+3. Check which thread the Echo marker was on **before** you played this card. If it is the same as this card's thread:
+    - and this is your first action, resolve the card's **Resonance**. A Resonance marked "instead" replaces the normal effect.
+    - and this is your second action, you cannot resolve the card's Resonance.
+    - Whichever action this is, you may **inscribe** the card in an empty memory slot with a matching slot type on the current route of the Book, and read its memory aloud. This is called an **Echo inscription**.
+4. Move the Echo marker on the Loom to this card's thread.
+5. If the card was not inscribed, put it on the discard pile if it is an Obsession or Acceptance card, and on the forgotten pile if it is an Oblivion card.
 
-A **Key Memory** played face up may always be inscribed, wherever the Echo is.
+A card with a **Key Memory**, whenever it is played face up, may have its memory inscribed, whichever thread the Echo is on.
+
+</div>
 
 > **Example**: the Echo is on Acceptance. As your first action you play an Obsession card: the Echo is not on Obsession, so the card does not Resonate and cannot be Echo-inscribed; the Echo moves to Obsession. As your second action you play another Obsession card: the Echo is already on Obsession, so this one may be inscribed. It does not Resonate, because Resonance belongs only to the first action.
 
-### Playing a card face down
+<div class="rulebox" markdown="1">
 
-Ignore the effect printed on the card and place 1 Root instead (section 6). If there is no empty bank where a Root can be placed, gain 1 Light instead. Either way, tie 1 knot on the card's thread. The Echo does not move. Put the card face up on the discard pile.
+### 4-2. Playing a card face down
 
-### Swap
+Ignore the effect printed on the card and place 1 Root instead (section 6). If there is no empty bank where a Root can be placed, gain 1 Light instead. Whether you placed a Root or gained Light, tie 1 knot on the card's thread. The Echo marker does not move; put the card face up on the discard pile.
 
-Exchange 1 card from your hand with 1 card of another player, and at once play the card you receive face up, following the steps above, including Resonance and Echo inscription.
+</div>
 
-- The two cards need not share a thread. The other player decides which card to give you; within the Veiled Memories you may describe what you need, for example "I need a Person".
+<div class="rulebox" markdown="1">
+
+### 4-3. Swap
+
+Exchange 1 card from your hand with 1 card of another player you choose, and at once play the card you receive face up, following the steps above, including Resonance and Echo inscription.
+
+- The two cards need not share a thread. The other player decides which card to give you; within the Veiled Memories you may describe what you need, for example "I need a memory of a Person".
 - You may Swap at most once per turn.
 - Swapping in solo play: put 1 card from your hand on the bottom of the Memory deck, turn over the top card of the deck and play it face up at once.
 
-### Recall
+</div>
+
+<div class="rulebox" markdown="1">
+
+### 4-4. Recall
 
 Recalling takes an action, at most once per turn. Pay 3 Light, choose 1 Obsession or Acceptance card from the forgotten pile, inscribe it in an empty memory slot with a matching slot type on the current route, and read its memory aloud. This memory is unlit.
 
 - It may only go into an empty memory slot on the current route. Slots the route has not reached yet, closed branches and earlier chapters are not allowed; if there is no matching empty slot, you cannot Recall that card.
-- Oblivion cards cannot be Recalled. A forgotten Key Memory can be brought back this way.
-- Recalling does not move the Echo and ties no knot.
-- The forgotten pile is 1 card smaller: slide the cards after it down, and the forgotten track goes back 1.
+- Oblivion cards cannot be Recalled.
+- A forgotten Key Memory can be brought back.
+- Recalling does not move the Echo marker and ties no knot.
+- The forgotten pile is 1 card smaller: move the forgotten marker back 1 on the forgotten track.
 
-### Push Through (free action)
+</div>
 
-- **When**: at any time, when **both** banks of the next space have a Shade and the next space has no Black Water.
-- **Effect**: return both Shades to the supply and move the soul onto the next space. When she leaves her old space, choose to gather or leave the light as usual. Flip your Push Through token face down. Then the soul takes 1 Fracture.
-- It takes no action and does not move the Echo. Each player may do it once per game.
+<div class="rulebox" markdown="1">
+
+### 4-5. Push Through (free action)
+
+- **When to use**: at any time, when **both** banks of the next space have a Shade and the next space has no Black Water.
+- **Effect**: return both Shades to the supply and move the soul onto the next space. When the soul leaves their old space, choose to gather or leave the light as usual. Flip your Push Through token face down. Then the soul takes 1 Fracture.
+- It takes no action and does not move the Echo marker. Each player may do it once per game.
+
+</div>
 
 ## 5. The end of the turn
 
 After every player's turn, carry out these steps in order:
 
-1. **Bloombringer**: if the current player holds the Bloombringer, they may make 1 Root Bloom for free.
-2. **Soul Step**: follow the steps below.
-3. **Shades push the Loom**: tie 1 knot for each Shade on the soul's space: on Obsession for one on the left bank, on Acceptance for one on the right bank, and on Oblivion for a Shade in the fog.
+1. **Bloombringer**: if the active player holds the Bloombringer, they may make 1 Root Bloom for free.
+2. **Soul Step**: follow the steps below (section 5-1).
+3. **Shades push the Loom**: for each Shade on the soul's space, tie 1 knot on the Loom: on Obsession for one on the left bank, on Acceptance for one on the right bank, and on Oblivion for a Shade in the fog.
 4. **Mist**:
     1. Carry out the instructions on the Mist ahead.
     2. **The Mist advances**: only if the soul did not move forward this turn. The number of banks it advances is the Fog of this Mist card plus the difficulty's bonus (section 6).
-    3. **Check for engulfing**: if both banks of the soul's space are fog side up, the soul is Engulfed by the Mist: the Mist card just carried out becomes a Mist scar (section 10). At Hard, the soul also takes 1 Fracture.
-    4. Put the Mist card on the Mist discard pile unless it became a Mist scar. Turn over the top card of the Mist deck: it is the new Mist ahead. When the deck is empty, shuffle that chapter's basic Mist cards into a new deck; the harsh Mist cards do not go back in.
+    3. **Check for engulfing**: if both banks of the soul's space are fog side up, the soul is Engulfed by the Mist: the Mist card just carried out becomes a Mist scar (section 10). At Hard difficulty, the soul also takes 1 Fracture.
+    4. Put the Mist card on the Mist discard pile unless it became a Mist scar. Turn over the top card of the Mist deck: it is the new Mist ahead. When the deck is empty, take this chapter's basic Mist cards (Pale, Thick or Deep Mist) from the Mist discard pile and shuffle them into a new Mist deck; the harsh Mist, Rising Water and Shade Drawn Near cards in the discard pile go back to the box and are not used again this chapter. Mist cards that became Mist scars stay in the Book.
 5. **The fork and turning the page** (section 11):
-    - If the route stops before the turning point and a Fate Mist card is already on the ◆: the story forks now.
-    - If the route has reached an exit: turn the page now.
+    - If the route stops before the turning point and a Fate Mist card is already on the ◆: the story forks at once.
+    - If the route has reached an exit: turn the page at once.
 6. **Cleanup**: check the river space by space:
     - **Black Water**: on every space with Black Water and a Root or Bloom on **both** banks, remove the Black Water from the game and put it back in the box.
     - **Shades**: return to the supply every Shade not in the fog that has a Bloom on the same side both on the space directly ahead **and** on the space directly behind.
@@ -314,49 +343,61 @@ After every player's turn, carry out these steps in order:
 8. **Solo play**: the Ghost acts, then clean up once more (section 14).
 9. Pass the Oar to the player on your left.
 
-### The Soul Step
+<div class="rulebox" markdown="1">
+
+### 5-1. The Soul Step
 
 ```mermaid
 flowchart TD
-    A{Resignation marker<br>beside the soul?} -- Yes --> A1[She does not move; forget the top card<br>Remove the Resignation marker] --> E
+    A{Resignation marker<br>beside the soul?} -- Yes --> A1[They do not move; forget the top card<br>Remove the Resignation marker] --> E
     A -- No --> B{Is the next space Lit<br>and free of Black Water?<br>Gate of the Far Shore: section 11}
-    B -- Yes --> W{Does the Spirit Warden<br>make her Stay?}
-    W -- Yes --> W1[The soul stays on her space<br>No card is forgotten<br>Turn the Spirit Warden sideways] --> E
-    W -- No --> B1[The soul moves forward 1 space<br>The space she left: gather or leave the light] --> C
+    B -- Yes --> W{Does the Spirit Warden's holder<br>make them Stay?}
+    W -- Yes --> W1[The soul stays on their space<br>No card is forgotten<br>Turn the Spirit Warden sideways] --> E
+    W -- No --> B1[The soul moves forward 1 space<br>The space they left: gather or leave the light] --> C
     B -- No --> D[The soul Lingers<br>Carry out the first of I–V that applies] --> E
     C{How many cards forgotten?} -- 6–8: Light as Ash --> C1[If the next space is Lit and free of Black Water<br>move forward 1 more space] --> E
     C -- 9 or more: Adrift --> C2[Always move forward 1 more space<br>If the next space is unlit or has Black Water<br>move anyway and take 1 Fracture] --> E
     C -- 5 or fewer --> E
-    E[Shade damage: a Shade on either bank of the soul's space<br>The soul takes 1 Fracture]
+    E[Shade damage: a Shade on either bank of the space<br>where the soul ends, and they take 1 Fracture]
 ```
 
-1. **Resignation**: if the Resignation marker is beside the soul, she does not move; forget the top card of the deck and remove the Resignation marker. Go to step 5.
-2. **Can she move forward?** If the next space is Lit and has no Black Water, the soul moves forward 1 space; a player holding the Spirit Warden may make her Stay. Until the third chapter is written, the Far Shore counts as unlit (section 11).
-3. **Leaving a space**: every time the soul leaves a space you choose to gather or leave the light, including extra moves, card effects and Push Through. Either way, the Roots, Blooms and Shades on that space stay where they are.
-4. **Extra move**: if the soul moved forward this time, look at the number of cards in the forgotten pile:
+1. **Resignation**: if the Resignation marker is beside the soul, they do not move; forget the top card of the deck and remove the Resignation marker. Go to step 5.
+2. **Can the soul move forward?** If the next space is Lit and has no Black Water, the soul moves forward 1 space; a player holding the Spirit Warden (not necessarily the active player) may make them Stay. Until the third chapter of the Book is written, the Far Shore counts as unlit (section 11).
+3. **Leaving a space**: every time the soul leaves a space, choose to gather or leave the light, including extra moves, card effects and Push Through. If you gather, the Blooms on that space wither to Roots; if you leave the light, the Blooms stay. Either way, no token is taken off that space: its Roots, its withered Roots and its Shades stay on their banks, and go on joining the Root network, holding back the fog or pushing the Loom.
+4. **Extra move**: if the soul moved forward this turn, look at the number of cards in the forgotten pile:
     - 6–8, Light as Ash: if the next space is Lit and has no Black Water, move forward 1 more space.
-    - 9 or more, Adrift: always move forward 1 more space. If the next space is unlit or has Black Water, she moves anyway and takes 1 Fracture. A player holding an unused Spirit Warden may stop this extra move: she does not move and takes no Fracture.
-5. **Shade damage**: if either bank of the soul's space has a Shade, the soul takes 1 Fracture. Check this whether she moved forward, Stayed, was Resigned or Lingered.
+    - 9 or more, Adrift: always move forward 1 more space. Even if the next space is unlit or has Black Water, they move anyway and take 1 Fracture. A player who holds the Spirit Warden and has not used it this round (not necessarily the active player) may stop this extra move: the soul does not move and takes no Fracture.
+5. **Shade damage**: once the soul has finished all of this turn's moves (extra moves included), check the space where they ended: if either bank has a Shade, the soul takes 1 Fracture. Spaces passed on the way do not count. Check this whether they moved forward, Stayed, were Resigned or Lingered.
 
 **Lingering**: when the soul cannot move forward, check from I in order and carry out only the first that applies:
 
 - I. The Hold Fast marker is beside the soul: forget nothing.
-- II. Someone holds the Spirit Warden and has not used it this round: turn the Spirit Warden sideways; forget nothing.
+- II. A player holds the Spirit Warden and has not used it this round (not necessarily the active player): turn the Spirit Warden sideways; forget nothing.
 - III. The soul's space is Lit: forget nothing.
-- IV. The soul is the Bride Who Stayed Below and has not used her special rule this game: she is pulled back one space and forgets nothing (section 13).
+- IV. The soul is the Bride Who Stayed Below and has not used their special rule this game: they are pulled back one space and forget nothing (section 13).
 - V. None of the above: forget the top card of the deck.
 
-### At the start of the next turn
+</div>
+
+<div class="rulebox" markdown="1">
+
+### 5-2. At the start of the next turn
 
 - If the Hold Fast marker is out, remove it.
 - The Spirit Warden and the Mistbreaker you hold turn upright at the start of your own turn.
 - A Shield marker that has not cancelled a Fracture is removed at the end of its owner's next turn.
 
-### Effects that happen at once
+</div>
+
+<div class="rulebox" markdown="1">
+
+### 5-3. Effects that happen at once
 
 - A thread that becomes full Backlashes at once; then go on with what you were doing.
 - A Fate Mist card is revealed as soon as its condition is met (section 11).
 - The game ends at once when: the soul reaches the Far Shore (go on to the Shore-Keeper's question); the forgotten pile reaches the Faded limit; Fractures reach the Shattered limit; you must place Black Water but the supply is empty.
+
+</div>
 
 ## 6. The river: Roots, Blooms and the fog
 
@@ -383,22 +424,22 @@ A space with a Bloom on both banks is a wall of light: the fog cannot pass it.
 
 ### The fog
 
-*The fog is the forgetting of Lethe itself: whenever the soul stops, it swallows the road behind her.*
+*The fog is the forgetting of Lethe itself: whenever the soul stops, it swallows the road behind them.*
 
-- **The fog's order**: at the start of the game the fog is behind space 0. When the Mist advances, it starts from **the bank furthest from the soul that the fog has not yet swallowed**, and moves bank by bank toward the soul; on the same space it swallows the left bank first, then the right. The fog follows all the way to the Far Shore; it does not start again at the border of a Reach.
+- **The fog's order**: at the start of the game the fog is behind space 0. When the Mist advances, it starts from **the bank furthest from the soul that the fog has not yet swallowed**, and moves bank by bank toward the soul; on the same space it swallows the left bank first, then the right. The fog follows all the way to the Far Shore; the borders of the Reaches do not affect it.
 - **The Mist advances N**: in the order above, flip N banks back to the fog side:
     - On a bank with a tile, flip the tile back to its fog side. Space 1 has no tiles: put a fog marker there instead.
     - Return the Roots and Blooms on the bank to the supply.
     - A Shade on the bank stays, and becomes a Shade in the fog.
     - Black Water is in the channel and is not affected by the fog.
-    - If it reaches a wall of light, see above.
+    - If it reaches a wall of light, see the wall of light rules above.
 - **Reclaim**: place a Root on a bank that is fog side up, following the rules for placing a Root. Turn its tile over as usual and resolve it by its type. You cannot place a Root on a bank with a Shade in the fog.
 - **The fog is close**: one bank of the soul's space is fog side up. This is a warning, and also the condition of some Fate Mist cards.
 - **Engulfed by the Mist**: both banks of the soul's space are fog side up (see the Mist step in section 5).
 
 ### Moving back
 
-An effect that moves the soul back never moves her back before space 1, nor into a space with both banks fog side up.
+An effect that moves the soul back never moves them back before space 1, nor into a space with both banks fog side up.
 
 ### Bank tiles
 
@@ -563,11 +604,11 @@ Each Soul has 12 Fate Mist cards, 4 for each chapter: 2 with river conditions an
     - If the route reaches the ◆ before a Fate Mist has triggered, the route stops before the ◆ until one does.
     - "This chapter" in a condition counts from when the chapter's entrance was opened; "this page" means the chapter's page.
 
-### The fork: fate, and what she clearly remembers
+### The fork: fate, and what they clearly remember
 
 When the route has reached the ◆ and a Fate Mist card is on it, decide which path the story takes in **step 5 of that turn's end**. So in the Light and Commissions step of the same turn you can still light the Gate first.
 
-1. **The Pull of Lethe**: if the forgotten pile has already reached the chapter's limit (3 cards in chapter 1, 5 in chapter 2, 7 in chapter 3), she takes the path of Oblivion. Then the Fate Mist does not matter, and a lit memory at the Gate cannot pull her back.
+1. **The Pull of Lethe**: if the forgotten pile has already reached the chapter's limit (3 cards in chapter 1, 5 in chapter 2, 7 in chapter 3), they take the path of Oblivion. Then the Fate Mist does not matter, and a lit memory at the Gate cannot pull them back.
     - The river also carries off 2 cards from the forgotten pile, removed from the game for good: back in the box, never to the discard pile, never back into the Memory deck. You choose which 2. **A Key Memory is never carried off**: it is closest to who the soul is.
     - The forgotten pile is 2 cards smaller: slide the rest down, and the forgotten track goes back 2. The Faded limit and later chapters' Pull limits count from the new number.
     - This fork counts as following fate, not as defying it.
@@ -580,8 +621,8 @@ When the route has reached the ◆ and a Fate Mist card is on it, decide which p
 | A lit memory of the same thread | That thread |
 
 - Oblivion cards cannot be inscribed, so the Gate can only turn the path to Obsession or Acceptance. Oblivion only comes from the Fate Mist or the Pull of Lethe.
-- The Fate Mist stays on the ◆. If the path actually taken differs from its thread, she has defied fate once (section 12).
-- The Bride's chapter 3 turning point has no Gate: only the Fate Mist and the Pull of Lethe count.
+- The Fate Mist stays on the ◆. If the path actually taken differs from its thread, they have defied fate once (section 12).
+- When the soul is the Bride Who Stayed Below, the chapter 3 turning point has no Gate: only the Fate Mist and the Pull of Lethe count.
 
 ### The Gate of the Far Shore
 
@@ -616,7 +657,7 @@ When **chapter 3** is written there is no next page: read chapter 3 aloud, and t
 
 ### Commission cards
 
-The top half of each Commission card is a sentence the soul entrusts to you; the bottom half is its condition (Appendix E). A condition only looks at the page (chapter), the thread, the slot type, or "her own memories".
+The top half of each Commission card is a sentence the soul entrusts to you; the bottom half is its condition (Appendix E). A condition only looks at the page (chapter), the thread, the slot type, or "their own memories".
 
 - A Commission is fulfilled when the Book has a lit memory that matches its condition. Each lit memory can fulfil only 1 Commission.
 - A Commission that names a page can only be fulfilled in that chapter.
@@ -630,17 +671,17 @@ The top half of each Commission card is a sentence the soul entrusts to you; the
 
 When the soul reaches the Far Shore (space 14), the game ends:
 
-1. **The Shore-Keeper's question**: everyone shows their Commission cards; revealed Commissions count as fulfilled. If the number fulfilled meets the set-up table, you win; otherwise you lose (Nameless).
+1. **The Shore-Keeper's question**: everyone shows their Commission cards; revealed Commissions count as fulfilled. If the number fulfilled meets the set-up table, you win; otherwise you lose (Lost).
 2. **The Veiled Memories are lifted**: everyone may show their hands and say anything on their cards.
 3. **Read the Book of Remembrance aloud**: from the entrance of chapter 1 to the exit of chapter 3. An empty memory slot is read as "...but this part has already been carried away by the river." A Mist box is read only if it holds a Mist scar. Closed paths are not read. Read the Book even if you lost.
 4. **The ending**: read it only if you won.
 
 ### The ending
 
-Read these in order. The Nameless soul reads only the general lines for parts 1 and 2, given in the storybook.
+Read these in order. When the soul is "Open Crossing", read only the general lines for parts 1 and 2, given in the storybook.
 
 1. **The ending**: look at the paths the three chapters actually took. If two or more chapters took the same thread, read that thread's ending: Obsession, Acceptance or Oblivion. If all three differ, read the Interwoven ending.
-2. **Following or defying fate**: count the chapters where the Fate Mist on the ◆ differs from the path actually taken. If she never defied fate, read the line for following fate; if she defied it once or more, read the line for defying fate.
+2. **Following or defying fate**: count the chapters where the Fate Mist on the ◆ differs from the path actually taken. If they never defied fate, read the line for following fate; if they defied it once or more, read the line for defying fate.
 3. **The Key Memory's close**: one of three. The Key Memory is inscribed in the Book, in the forgotten pile, or elsewhere (never spoken). The Key Memory is never carried off by the river.
 4. **Hidden ending**: each Soul has one, its conditions printed on the back of the ending card. If all its conditions are met, read it instead.
 
@@ -648,7 +689,7 @@ Read these in order. The Nameless soul reads only the general lines for parts 1 
 
 ### The Child of the Last Flame
 
-*On the coldest night of the year, a small child huddles alone in a doorway, holding a handful of little flames to sell; she has not sold a single one. To keep warm, she lights them one by one. In every flame she sees something: a warm stove, a feast; and at last, the only one who ever held her, coming to take her home.*
+*On the coldest night of the year, a small child huddles alone in a doorway, holding a handful of little flames to sell; they have not sold a single one. To keep warm, they light them one by one. In every flame they see something: a warm stove, a feast; and at last, the only one who ever held them, coming to take them home.*
 
 **Special rule**: "Starts with 3 Light. The first Fracture of the game is ignored. Never drifts Adrift."
 
@@ -659,7 +700,7 @@ Read these in order. The Nameless soul reads only the general lines for parts 1 
 
 ### The Garland Girl
 
-*A young woman wove a flower for everyone she loved. Then her father died, and the man who had promised to marry her turned cold; so she gave her flowers away one by one, and then, still softly singing, slipped into the brook. She kept one flower for herself, but no one ever knew which one.*
+*A young woman wove a flower for everyone they loved. Then their father died, and the man who had promised to marry them turned cold; so they gave their flowers away one by one, and then, still softly singing, slipped into the brook. They kept one flower for themselves, but no one ever knew which one.*
 
 **Special rule: Scattered Flowers**. "When the soul leaves a space that has at least 1 Bloom, that space may stay as a wall of light; a wall of light with only one Bloom blocks only 1 Fog."
 
@@ -669,7 +710,7 @@ Read these in order. The Nameless soul reads only the general lines for parts 1 
 
 ### The King on the Barge
 
-*An old king won every battle but the last. His dearest friend fell in love with his queen, his brothers in arms fell apart, and he fell on a battlefield of his own making. As he lay dying, he was laid on a black barge. The sword he had borrowed was never returned to the lake it came from, and so he can find no rest.*
+*An old king won every battle but the last. Their dearest friend fell in love with their queen, their brothers in arms fell apart, and they fell on a battlefield of their own making. As they lay dying, they were laid on a black barge. The sword they had borrowed was never returned to the lake it came from, and so they can find no rest.*
 
 **Special rule**: "Mantles cost 2 Light. The player who causes a Fracture loses their Mantle."
 
@@ -679,22 +720,22 @@ Read these in order. The Nameless soul reads only the general lines for parts 1 
 
 ### The Bride Who Stayed Below
 
-*She died on her wedding day. Her husband walked into the depths of the dark to bring her back to the world of the living, on one condition: until they reached the light, he must never look back. One step from the surface, he turned his head. Ever since, she has stood in the shadows, wondering whether to remember his face or to let it go.*
+*They died on their wedding day. Their husband walked into the depths of the dark to bring them back to the world of the living, on one condition: until they reached the light, he must never look back. One step from the surface, he turned his head. Ever since, they have stood in the shadows, wondering whether to remember his face or to let it go.*
 
-**Special rule**: "Starts with 1 Light. The first time she would Linger in the dark, she does not forget; she is pulled one space back instead."
+**Special rule**: "Starts with 1 Light. The first time they would Linger in the dark, they do not forget; they are pulled one space back instead."
 
 - It only triggers at item V of Lingering, that is, when a card would be forgotten, once per game. When it is used, turn the Soul card sideways.
-- Being pulled back also counts as not moving forward this turn, so the Mist advances: she is pulled back into the dark.
-- If the soul is on space 1, or both banks of the previous space are fog side up, she cannot be pulled back: forget as usual, and the special rule is saved for later.
-- Her hidden ending requires that no card was forgotten to Lingering all game. The first time a card is forgotten to Lingering, turn the Soul card upside down as a reminder.
+- Being pulled back also counts as not moving forward this turn, so the Mist advances: they are pulled back into the dark.
+- If the soul is on space 1, or both banks of the previous space are fog side up, they cannot be pulled back: forget as usual, and the special rule is saved for later.
+- Their hidden ending requires that no card was forgotten to Lingering all game. The first time a card is forgotten to Lingering, turn the Soul card upside down as a reminder.
 
 **Key Memory**: *His face in the instant he looked back at me*, Acceptance · Person.
 
-### Open Crossing (the Nameless soul)
+### Open Crossing
 
-*A nameless soul. You will not learn its story; you will write it yourselves.*
+*A nameless soul. You will not learn their story; you will write it yourselves.*
 
-**Special rule**: "Starts with 2 Light." It uses the 8 Echo cards, and has no Key Memory and no ending cards; its Commission cards are a set of questions, and the Book of Remembrance is its whole story.
+**Special rule**: "Starts with 2 Light." They use the 8 Echo cards, and have no Key Memory and no ending cards; their Commission cards are a set of questions, and the Book of Remembrance is their whole story.
 
 ## 14. Solo play and the Ghost
 
@@ -711,25 +752,23 @@ Solo play follows the normal rules, with only these differences:
 
 | Component | Number |
 |---|---|
-| Memory cards | 72: 32 basic, 8 Echo cards (the Nameless soul), and 8 own memories for each of 4 Souls |
+| Memory cards | 72: 32 basic, 8 Echo cards (for the soul "Open Crossing"), and 8 own memories for each of 4 Souls |
 | Fate Mist | 60: 12 for each Soul; for each chapter, 2 river conditions and 2 Book conditions |
 | Commission cards | 40: 8 for each Soul |
 | Mist cards | Pale Mist 11, Thick Mist 15, Deep Mist 13, Rising Water 3, Shade Drawn Near 3, harsh Mist 11 |
 | Bank tiles | 34: 28 in the tile pools (3 of them Graves), 6 spares (2 Flower Field, 2 Fertile, 2 Memory Spring) |
 | Ending cards | For each named Soul, 1 each: Obsession, Acceptance, Oblivion, Interwoven, hidden ending |
 | Soul cards, Mantle cards, Ghost cards | 5, 5, 12 |
-| Boards | 3 river boards (4 / 4 / 5 spaces), 1 Loom of the Fates (three knot tracks 0–10, the Scar marker standing on each to mark its threshold; Backlash table), 1 Ledger (forgotten track, Fracture track, Black Water supply, Light track 0–12, deck and discard frames) |
+| Boards | 3 river boards (4 / 4 / 5 spaces), 1 Loom of the Fates (three knot tracks 0–10, the Scar marker standing on each to mark its threshold; Backlash table), 1 Ledger (forgotten track 0–14, Fracture track, Black Water supply, Light track 0–12, deck and discard frames) |
 | Book of Remembrance | 5 books, one for each Soul, each with three chapter route maps |
-| Root/Bloom tokens (two-sided) | 24 |
-| Shade tokens, Black Water markers | 8, 7 |
-| Knot markers, Scar markers, Light marker, Fracture marker | 3, 3, 1, 1 |
-| Fog markers | 2 |
-| Echo, Oar, soul marker (Ghost on the back) | 1 each |
-| Push Through, Hold Fast, Shield, Resignation markers | 4, 1, 1, 1 |
+| Root/Bloom tokens (two-sided) <img src="../icons/root.svg" alt="Root" width="20" height="20"> <img src="../icons/bloom.svg" alt="Bloom" width="20" height="20"> | 24 |
+| Shade tokens <img src="../icons/shade.svg" alt="Shade" width="20" height="20">, Black Water markers <img src="../icons/blackwater.svg" alt="Black Water marker" width="20" height="20"> | 8, 7 |
+| Knot markers <img src="../icons/knot-obsession.svg" alt="Knot marker (Obsession)" width="20" height="20"> <img src="../icons/knot-acceptance.svg" alt="Knot marker (Acceptance)" width="20" height="20"> <img src="../icons/knot-oblivion.svg" alt="Knot marker (Oblivion)" width="20" height="20">, Scar markers <img src="../icons/scar.svg" alt="Scar marker" width="20" height="20">, Light marker <img src="../icons/light.svg" alt="Light marker" width="20" height="20">, Fracture marker <img src="../icons/fracture.svg" alt="Fracture marker" width="20" height="20">, forgotten marker <img src="../icons/forgotten.svg" alt="Forgotten marker" width="20" height="20"> | 3, 3, 1, 1, 1 |
+| Fog markers <img src="../icons/fog.svg" alt="Fog marker" width="20" height="20"> | 2 |
+| Echo marker <img src="../icons/echo.svg" alt="Echo marker" width="20" height="20">, Oar <img src="../icons/oar.svg" alt="Oar" width="20" height="20">, soul marker (Ghost on the back) <img src="../icons/soul.svg" alt="Soul marker" width="20" height="20"> | 1 each |
+| Push Through tokens <img src="../icons/push.svg" alt="Push Through token" width="20" height="20">, Hold Fast marker <img src="../icons/hold.svg" alt="Hold Fast marker" width="20" height="20">, Shield marker <img src="../icons/shield.svg" alt="Shield marker" width="20" height="20">, Resignation marker <img src="../icons/resign.svg" alt="Resignation marker" width="20" height="20"> | 4, 1, 1, 1 |
 
-In simulation, at most 24 Root/Bloom tokens were on the river at once, and in 95% of games no more than 20.
-
-**Both sides of the markers are printed**: a Root/Bloom token reads "Root" on one side and "Bloom" on the other; a Push Through token reads "Push Through" on its front and "Used" on its back; the soul marker reads "Ghost" on its back. The Oar is shaped like an oar, so the first player can be seen at a glance. Light, Fractures, knots and Scars are all kept on tracks, not with stacks of markers.
+**Both sides of the markers are printed**: a Root/Bloom token reads "Root" on one side and "Bloom" on the other; a Push Through token reads "Push Through" on its front and "Used" on its back; the soul marker reads "Ghost" on its back. The Oar is shaped like an oar, so the active player can be seen at a glance. Light, Fractures, knots, Scars and the number of forgotten cards are all kept on tracks with markers, not with stacks of markers.
 
 **Tile pools**: for each Reach, draw enough to fill its banks and return the rest to the box.
 
@@ -750,7 +789,7 @@ This text is printed on the components; it is listed here for reference. When to
 | Thread | Level I | Level II | Level III |
 |---|---|---|---|
 | **Obsession · Seizing** | Place 1 Shade on the soul's space | Place 1 Shade on each bank of the 1st space ahead | As level II, and the soul takes 1 Fracture |
-| **Acceptance · Resignation** | Put the Resignation marker beside the soul: on the next Soul Step she does not move, and you forget the top card of the deck | Resignation, forgetting 2 cards from the top of the deck that time | Resignation, forgetting 3 cards from the top of the deck that time; and the Mist advances 2 now |
+| **Acceptance · Resignation** | Put the Resignation marker beside the soul: on the next Soul Step they do not move, and you forget the top card of the deck | Resignation, forgetting 2 cards from the top of the deck that time | Resignation, forgetting 3 cards from the top of the deck that time; and the Mist advances 2 now |
 | **Oblivion · Rising Tide** | Place 1 Black Water on the next space | Place 1 Black Water on the next space and on the 3rd space ahead | As level II, and forget the top card of the deck |
 
 ### Mantle cards
@@ -758,7 +797,7 @@ This text is printed on the components; it is listed here for reference. When to
 | Mantle (thread) | Effect | When |
 |---|---|---|
 | **Rootweaver** (Obsession) | Your Roots can grow on Stony banks. The first "place a Root" effect each turn places 1 more Root. | Always |
-| **Spirit Warden** (Obsession) | Stay: once per round, in the Soul Step, you may keep the soul on her space, forgetting no card. | Soul Step; turn sideways after use |
+| **Spirit Warden** (Obsession) | Stay: once per round, in the Soul Step, you may keep the soul on their space, forgetting no card. | Soul Step; turn sideways after use |
 | **Bloombringer** (Acceptance) | At the end of each of your turns, you may make 1 Root Bloom for free. | Step 1 of the end of the turn |
 | **Mistbreaker** (Oblivion) | See through the Mist: once per round, before the Mist step, look at the top card of the Mist deck; you may put it on the bottom. | Before the Mist step; turn sideways after use |
 | **Reaper** (Oblivion) | Look at the top 2 cards of the Memory deck; you may swap 0, 1 or 2 of them for cards in your hand. Put the cards you swapped out and those you did not take back on the top or bottom of the deck, in any order. | Your turn, before your first action |
@@ -806,7 +845,7 @@ The face and the back of every Mist card show its **thread** (which thread its M
 | The Mist Parts | 2 | — | — | Acceptance | 0 | No effect. |
 | Collapsing Bank | 1 | 1 | — | Obsession | 1 | The nearest Root ahead of the soul is washed away, back to the supply. |
 | Echo Severed | — | 1 | 1 | Acceptance | 1 | Put the Echo back in the Loom's Silent box. |
-| Undertow Returns | — | 1 | 1 | Oblivion | 2 | The soul moves back to the previous space (section 6, "Moving back"); if she cannot move back, forget the top card of the deck. |
+| Undertow Returns | — | 1 | 1 | Oblivion | 2 | The soul moves back to the previous space (section 6, "Moving back"); if they cannot move back, forget the top card of the deck. |
 | Memory Peels | — | 1 | 1 | Acceptance | 1 | The most recently inscribed unlit memory on the current page goes to the forgotten pile. |
 | Lights Out | — | 1 | 1 | Acceptance | 1 | Until the next Mist, no memory can be lit. |
 | Mist of Silence | — | 1 | — | Acceptance | 1 | Until the next Mist, no one may say anything about their hand. |
@@ -872,7 +911,7 @@ The "nearest" Shade, Black Water or Root on a card only counts targets within re
 | **Wash Away** | Oblivion | — | — | Wash away the Shades beside the soul. | Gain 1 Light. |
 | **Low Tide** | Oblivion | — | — | Drain all Black Water in this Reach. | Banish the nearest Shade. |
 | **Lethe's Gift** | Oblivion | — | — | Gain 3 Light. | Bloom 1 Root. |
-| **Lightless Crossing** | Oblivion | — | — | The soul moves forward a space at once, even if that space is unlit or both its banks have Shades; not onto a space with Black Water. Gain no Light; if she enters an unlit space, the soul takes 1 Fracture. | Gain 1 Light. |
+| **Lightless Crossing** | Oblivion | — | — | The soul moves forward a space at once, even if that space is unlit or both its banks have Shades; not onto a space with Black Water. Gain no Light; if they enter an unlit space, the soul takes 1 Fracture. | Gain 1 Light. |
 
 ### The Child of the Last Flame (8)
 

@@ -216,6 +216,10 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 /* flavour text: a paragraph that is all italics is set small (TPE02: 風味文字用斜體小字) */
 .rules p > em:only-child { font-size: 12.5px; color: var(--mist); }
 .rules .figure { margin: 8px 0; color: var(--bone); }
+/* rule boxes (§4-1 … §5-3) and the pictures of tokens in the glossary and component list */
+.rules .rulebox { border: 1.5px solid var(--gold); border-radius: 8px; padding: 2px 12px 6px; margin: 10px 0; background: rgba(201, 164, 92, .07); }
+.rules .rulebox > h3:first-child { margin-top: 8px; }
+.rules img.tok { width: 20px; height: 20px; vertical-align: -5px; margin: 0 1px; }
 .rules .figure svg { display: block; width: 100%; height: auto; }
 .log { padding-left: 18px; font-size: 13px; }
 .log small { color: var(--mist); }
@@ -288,6 +292,8 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .loom .thread { font-size: 15px; }
 .loom .blash { font-size: 12.5px; }
 .stack .slabel { font-size: 13px; top: -19px; }
+/* a label above an empty slot, set like the labels above the piles */
+.slotlab { position: absolute; font-size: 13px; color: var(--mist); text-align: center; white-space: nowrap; pointer-events: none; }
 .lane .spn { font-size: 17px; }
 .tile { font-size: 10px; } .tile b { font-size: 12.5px; } .tile small { font-size: 8.5px; }
 .zoombtn { position: absolute; right: 8px; top: 6px; z-index: 5; width: 34px; height: 34px; padding: 0; font-size: 20px; line-height: 1; border-radius: 50%; background: rgba(42, 37, 48, .9); }

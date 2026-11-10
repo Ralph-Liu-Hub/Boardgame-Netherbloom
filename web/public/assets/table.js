@@ -547,7 +547,7 @@ function boardsHtml() {
   h += `</div>`;
   // mist area
   h += `<div class="board mista" data-region="mist" style="left:${MISTA.x}px;top:${MISTA.y}px;width:${MISTA.w}px;height:${MISTA.h}px">${zoomBtn("mist")}
-    <div class="btitle">${tr("迷霧", "Mist")}</div><div class="slotbox" style="left:${20 + 3 * PG}px;top:60px;width:${SW}px;height:${SH}px">${tr("前方的霧（面朝上）", "Mist ahead (face up)")}</div></div>`;
+    <div class="btitle">${tr("迷霧", "Mist")}</div><div class="slotlab" style="left:${20 + 3 * PG - 4}px;top:41px;width:${SW + 8}px">${tr("前方的霧（面朝上）", "Mist ahead (face up)")}</div><div class="slotbox" style="left:${20 + 3 * PG}px;top:60px;width:${SW}px;height:${SH}px"></div></div>`;
   // loom
   const th = D.thresholds(S.level, S.players);
   h += `<div class="board loom" data-region="loom" style="left:${LOOM.x}px;top:${LOOM.y}px;width:${LOOM.w}px;height:${LOOM.h}px">${zoomBtn("loom")}
@@ -1974,7 +1974,7 @@ function enterGame(build) {
 // "Choosing a Soul and a difficulty" (rulebook section 3), to help the players pick: the difficulties, the set-up by
 // player count, and each Soul's special rule
 function chooseTables() {
-  const L = D.LEVELS, WIN = ["59%", "52%", "42%"], MARK = ["◆◇◇", "◆◆◇", "◆◆◆"];
+  const L = D.LEVELS, MARK = ["◆◇◇", "◆◆◇", "◆◆◆"];
   const row = (h, cells) => `<tr><th>${h}</th>${cells.map(c => `<td>${c}</td>`).join("")}</tr>`;
   return `<section class="choose"><h2>${tr("選擇亡魂與難度", "Choosing a Soul and a difficulty")}</h2>
     <table><thead><tr><th>${tr("難度", "Difficulty")}</th>${L.map((l, i) => `<th>${MARK[i]} ${tr(l.zh, l.en)}</th>`).join("")}</tr></thead><tbody>
@@ -1984,10 +1984,9 @@ function chooseTables() {
       ${row(tr("消散門檻", "Faded at"), L.map(l => tr(`遺忘 ${l.dissolve} 張`, `${l.dissolve} forgotten`)))}
       ${row(tr("破碎門檻", "Shattered at"), L.map(l => tr(`${l.fractures} 道裂痕`, `${l.fractures} Fractures`)))}
       ${row(tr("黑水", "Black Water"), L.map(l => tr(`${l.bw} 個`, String(l.bw))))}
-      ${row(tr("模擬勝率", "Simulated win rate"), WIN)}
     </tbody></table>
-    <p class="muted small">${tr("三種難度相同：織機門檻 2–4 人 7 結、單人 10 結；每副迷霧加 2 張凶霧。你的第一局：建議以溫和難度遊玩最後火光的孩子。",
-      "The same at every difficulty: the Loom threshold is 7 knots with 2–4 players, 10 solo; each Mist deck gets 2 harsh Mist cards. Your first game: we suggest the Child of the Last Flame at Gentle.")}</p>
+    <p class="muted small">${tr("三種難度相同：織機門檻 2–4 人 7 結、單人 10 結；每副迷霧加 2 張凶霧。新手的第一局：建議以溫和難度遊玩最後火光的孩子。",
+      "The same at every difficulty: the Loom threshold is 7 knots with 2–4 players, 10 solo; each Mist deck gets 2 harsh Mist cards. A first game for new players: we suggest the Child of the Last Flame at Gentle.")}</p>
     <table><thead><tr><th>${tr("設定表", "Set-up")}</th>${[1, 2, 3, 4].map(n => `<th>${tr(`${n} 人`, `${n}p`)}</th>`).join("")}</tr></thead><tbody>
       ${row(tr("第三河段的墳墓", "Graves in Reach 3"), [2, 1, 2, 2])}
       ${row(tr("要完成的託付", "Commissions to fulfil"), [1, 2, 2, 3])}
