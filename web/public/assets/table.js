@@ -280,7 +280,8 @@ function newTable(opts) {
   const binX = i => SUPPLY.x + 20 + (i % 8) * 120, binY = i => SUPPLY.y + 264 + Math.floor(i / 8) * 116;
   const bins = [["root", ["根／花", "Root / Bloom"], 24], ["shade", ["怨念", "Shade"], 8], ["bw", ["黑水", "Black Water"], 7],
     ["fog", ["霧標記", "Fog marker"], 2], ["soul", ["亡魂", "Soul"], 1], ["echo", ["迴響", "Echo"], 1], ["push", ["破浪", "Push Through"], 4],
-    ["oar", ["船槳", "Oar"], 1], ["hold", ["堅守", "Hold Fast"], 1], ["shield", ["護盾", "Shield"], 1], ["resign", ["認命", "Resignation"], 1]];
+    ["oar", ["船槳", "Oar"], 1], ["hold", ["堅守", "Hold Fast"], 1], ["shield", ["護盾", "Shield"], 1], ["resign", ["認命", "Resignation"], 1],
+    ["trait", ["根網特性", "Root trait"], 1]];
   bins.forEach(([tk, label, n], i) => {
     addStack("bin_" + tk, { x: binX(i), y: binY(i), label, accepts: "tok:" + tk, faceUp: true, bin: true });
     for (let j = 0; j < n; j++) addItem("tok", { tk, face: tk === "root" ? 0 : 1 }, { stack: "bin_" + tk });
@@ -365,6 +366,7 @@ function buildSnaps(players) {
   // the Mantle row sits along the top of the supply panel
   D.MANTLES.forEach((_, i) => snap(`mantle${i}`, SUPPLY.x + 20 + i * PG, SUPPLY.y + 56, SW, SH, ["card"]));
   for (let k = 0; k < 2; k++) snap(`fateslot${k}`, FATE.x + 20 + (k + 1) * PG, FATE.y + 60, SW, SH, ["card"]);
+  snap("traitslot", BOOK.x + 70, BOOK.y + 600, 80, 80, ["tok"]);   // the Root network trait, beside the page
   // book nodes
   for (let ch = 0; ch < 3; ch++) for (const n of bookLayout(S.soul, ch)) {
     if (n.k === "m" || n.k === "g") snap(`node${ch}_${n.id}`, n.x, n.y, CW + 8, CH + 8, ["card"]);
@@ -375,6 +377,7 @@ function buildSnaps(players) {
 
 // ---------------------------------------------------------------- the book: route graph layout
 const layoutCache = {};
+const NLAB = 46;   // room above a Book slot for its words
 function bookLayout(soul, ch) {
   const key = soul + ch + LANG + "@" + BOOK.x + "," + BOOK.y;
   if (layoutCache[key]) return layoutCache[key];
@@ -385,16 +388,19 @@ function bookLayout(soul, ch) {
   const roots = Object.keys(page.starts || {}).length ? [...new Set(Object.values(page.starts))] : [page.nodes[0].id];
   const visit = (id, d) => { if (depth[id] !== undefined && depth[id] >= d) return; depth[id] = d; for (const m of nexts(byId[id])) visit(m, d + 1); };
   roots.forEach(r => visit(r, 0));
-  const cols = {};
-  for (const n of page.nodes) (cols[depth[n.id] ?? 0] ||= []).push(n);
-  const ncol = Math.max(...Object.keys(cols).map(Number)) + 1;
+  const byDepth = {};
+  for (const n of page.nodes) (byDepth[depth[n.id] ?? 0] ||= []).push(n);
+  // every slot is a card's size with its words above it; a column holds at most 3, more go on in the next column
+  const cols = [];
+  for (const d of Object.keys(byDepth).map(Number).sort((a, b) => a - b))
+    for (let i = 0; i < byDepth[d].length; i += 3) cols.push(byDepth[d].slice(i, i + 3));
   const px = BOOK.x, py = BOOK.y;   // one open page at a time: every chapter uses the same spot
-  const colW = Math.min(250, (BOOK.w - 320) / ncol);   // the route spreads across the whole page
+  const colW = Math.min(250, (BOOK.w - 320) / cols.length);   // the route spreads across the whole page
   const out = [];
-  for (const [d, list] of Object.entries(cols)) {
+  cols.forEach((list, c) => {
     const rowH = (BOOK.h - 100) / list.length;
-    list.forEach((n, i) => out.push({ ...n, x: px + 230 + d * colW, y: py + 70 + i * rowH + (rowH - CH - 8) / 2 }));
-  }
+    list.forEach((n, i) => out.push({ ...n, x: px + 230 + c * colW, y: py + 70 + i * rowH + Math.max(NLAB, (rowH - CH - 8 + NLAB) / 2), w: colW }));
+  });
   layoutCache[key] = out;
   return out;
 }
@@ -476,6 +482,8 @@ const TOKENS = {
   hold: () => ({ cls: "tk misc", ic: "nb-tok-hold", t: tr("堅守", "Hold Fast") }),
   shield: () => ({ cls: "tk misc", ic: "nb-tok-shield", t: tr("護盾", "Shield") }),
   resign: () => ({ cls: "tk misc", ic: "nb-tok-resign", t: tr("認命", "Resignation") }),
+  // the Root network trait for the chapter in play: Deep Roots on one side, Spreading Blooms on the other
+  trait: f => (f ? { cls: "tk trait spread", ic: "nb-bloom", t: tr("根網特性：花開蔓延", "Root trait: Spreading Blooms") } : { cls: "tk trait deep", ic: "nb-root", t: tr("根網特性：根深", "Root trait: Deep Roots") }),
   oar: () => ({ cls: "tk oar", ic: "nb-tok-oar", t: tr("船槳", "Oar") }),
   push: f => ({ cls: f ? "tk push" : "tk push used", ic: "nb-tok-push", t: f ? tr("破浪", "Push Through") : tr("破浪（已用）", "Push Through (used)") }),
 };
@@ -535,8 +543,6 @@ function boardsHtml() {
     const lx = g.x - R.x, ly = g.laneY - R.y;
     h += `<div class="lane reach${reach}${sp === 0 || sp === 14 ? " shore" : ""}" style="left:${lx}px;top:${ly}px;width:${g.laneW}px;height:${R.lane}px">
       <span class="spn">${sp === 0 ? tr("此岸 0", "Near 0") : sp === 14 ? tr("彼岸 14", "Far 14") : sp}</span><span class="flow">${g.east ? "→" : "←"}</span>
-      ${sp === 5 ? `<span class="hintmark">${tr("故事應該寫到第二章", "Story: ch. 2")}</span>` : ""}
-      ${sp === 9 ? `<span class="hintmark">${tr("故事應該寫到第三章", "Story: ch. 3")}</span>` : ""}
       ${sp === 13 ? `<span class="gate">${tr("彼岸的門", "Gate")}</span>` : ""}</div>`;
     if (sp >= 1 && sp <= 13) for (const side of ["left", "right"]) {
       const b = g[side];
@@ -576,22 +582,35 @@ function boardsHtml() {
   // ledger
   h += `<div class="board ledger" data-region="ledger" style="left:${LEDGER.x}px;top:${LEDGER.y}px;width:${LEDGER.w}px;height:${LEDGER.h}px">${zoomBtn("ledger")}
     <div class="btitle">${tr("渡帳", "Ledger")}</div>
-    <div class="lab" style="left:420px;top:38px">${icon("nb-rays")} ${tr("光（推動或點選格子）", "Light (push the marker or click a cell)")}</div>
+    <div class="lab" style="left:420px;top:30px">${icon("nb-rays")} ${tr("光（最多 12 點；推動標記或點選格子）", "Light (12 at most; push the marker or click a cell)")}</div>
     <div class="groove" style="left:420px;top:80px;width:${12 * 44 + 42}px"></div>`;
   for (let k = 0; k <= 12; k++) h += `<div class="cell round tcell" data-track="light" data-val="${k}" style="left:${420 + k * 44}px;top:62px;width:42px;height:42px">${k}</div>`;
-  h += `<div class="lab" style="left:420px;top:136px">${tr(`裂痕（${lv.fractures} 道破碎）`, `Fractures (${lv.fractures} = Shattered)`)}</div>
-    <div class="groove" style="left:420px;top:182px;width:${lv.fractures * 56 + 50}px"></div>`;
-  for (let k = 0; k <= lv.fractures; k++) h += `<div class="cell round tcell crack${k === lv.fractures ? " lim" : ""}" data-track="crack" data-val="${k}" style="left:${420 + k * 56}px;top:160px;width:50px;height:50px">${k === lv.fractures ? tr("碎", "✕") : k}</div>`;
-  h += `<div class="lab" style="left:20px;top:238px">${tr(`黑水供應：放 ${lv.bw} 個（其餘放回盒中）`, `Black Water supply: put ${lv.bw} here (the rest go in the Box)`)}</div>`;
-  for (let k = 0; k < lv.bw; k++) h += `<div class="cell round" style="left:${20 + k * 56}px;top:262px;width:54px;height:54px"></div>`;
+  // every cell shows its number; the difficulty that ends the game on a cell is printed above it, so the board sets itself up
+  const lvName = i => tr(D.LEVELS[i].zh, D.LEVELS[i].en);
+  const tag = (x, y, text, on) => `<div class="ctag${on ? " on" : ""}" style="left:${x}px;top:${y}px">${text}</div>`;
+  h += `<div class="lab" style="left:420px;top:112px">${tr("裂痕（到達所選難度標示的格子即破碎）", "Fractures (Shattered on the cell marked with your difficulty)")}</div>
+    <div class="groove" style="left:420px;top:182px;width:${5 * 56 + 50}px"></div>`;
+  for (let k = 0; k <= 5; k++) {
+    const lvls = D.LEVELS.map((l, i) => (l.fractures === k ? i : -1)).filter(i => i >= 0);
+    if (lvls.length) h += tag(420 + k * 56 + 25, 140, lvls.map(lvName).join("／"), lvls.includes(S.level));
+    h += `<div class="cell round tcell crack${k === lv.fractures ? " lim" : ""}" data-track="crack" data-val="${k}" style="left:${420 + k * 56}px;top:160px;width:50px;height:50px">${k}</div>`;
+  }
+  h += `<div class="lab" style="left:20px;top:226px">${tr("黑水供應（依難度放滿到標示的格子；其餘放回盒中）", "Black Water supply (fill up to the cell marked with your difficulty; the rest go in the Box)")}</div>`;
+  for (let k = 0; k < 7; k++) {
+    const lvls = D.LEVELS.map((l, i) => (l.bw === k + 1 ? i : -1)).filter(i => i >= 0);
+    if (lvls.length) h += tag(20 + k * 56 + 27, 246, lvls.map(lvName).join("／"), lvls.includes(S.level));
+    h += `<div class="cell round${k >= lv.bw ? " off" : ""}" style="left:${20 + k * 56}px;top:262px;width:54px;height:54px">${k + 1}</div>`;
+  }
   // the forgotten track: the players move its marker as cards are forgotten (like Light and Fractures)
-  h += `<div class="lab" style="left:${FX0}px;top:238px">${tr(`遺忘（推動標記或點選格子；${lv.dissolve} 張消散）`, `Forgotten (push the marker or click a cell; Faded at ${lv.dissolve})`)}</div>
+  h += `<div class="lab" style="left:${FX0}px;top:226px">${tr("遺忘（推動標記或點選格子；到達所選難度標示的格子即消散）", "Forgotten (push the marker or click a cell; Faded on the cell marked with your difficulty)")}</div>
     <div class="groove" style="left:${FX0}px;top:${FY + FW / 2 - 1}px;width:${FORGOT_MAX * FP + FW}px"></div>`;
   for (let k = 0; k <= FORGOT_MAX; k++) {
-    const tag = k === lv.dissolve ? "lim" : k === 6 || k === 9 ? "drift" : [3, 5, 7].includes(k) ? "pull" : "";
-    h += `<div class="cell fcell tcell ${tag}${k > lv.dissolve ? " past" : ""}" data-track="forgot" data-val="${k}" style="left:${FX0 + k * FP}px;top:${FY}px;width:${FW}px;height:${FW}px">${k === lv.dissolve ? tr("散", "✕") : k}</div>`;
+    const tag = D.LEVELS.some(l => l.dissolve === k) ? (k === lv.dissolve ? "lim" : "lim2") : k === 6 || k === 9 ? "drift" : [3, 5, 7].includes(k) ? "pull" : "";
+    const lvls = D.LEVELS.map((l, i) => (l.dissolve === k ? i : -1)).filter(i => i >= 0);
+    if (lvls.length) h += `<div class="ctag${lvls.includes(S.level) ? " on" : ""}" style="left:${FX0 + k * FP + FW / 2}px;top:${FY - 16}px">${lvls.map(i => tr(D.LEVELS[i].zh, D.LEVELS[i].en)).join("／")}</div>`;
+    h += `<div class="cell fcell tcell ${tag}" data-track="forgot" data-val="${k}" style="left:${FX0 + k * FP}px;top:${FY}px;width:${FW}px;height:${FW}px">${k}</div>`;
   }
-  h += `<div class="note fkey" style="left:${FX0}px;top:${FY + FW + 8}px;right:16px">${tr(`<b class="k-drift">6</b> 輕如灰燼、<b class="k-drift">9</b> 漂離；<b class="k-pull">${PULL.join("／")}</b> 第一／二／三章的忘川的拉力；<b class="k-lim">${lv.dissolve}</b> 消散。`, `<b class="k-drift">6</b> Light as Ash, <b class="k-drift">9</b> Adrift; <b class="k-pull">${PULL.join(" / ")}</b> the Pull of Lethe in chapters 1 / 2 / 3; <b class="k-lim">${lv.dissolve}</b> Faded.`)}</div></div>`;
+  h += `<div class="note fkey" style="left:${FX0}px;top:${FY + FW + 14}px;right:16px">${tr(`<b class="k-drift">6</b> 輕如灰燼、<b class="k-drift">9</b> 漂離；<b class="k-pull">${PULL.join("／")}</b> 第一／二／三章的忘川的拉力；<b class="k-lim">${D.LEVELS.map(l => l.dissolve).filter((v, i, a) => a.indexOf(v) === i).join("／")}</b> 消散（依難度）。`, `<b class="k-drift">6</b> Light as Ash, <b class="k-drift">9</b> Adrift; <b class="k-pull">${PULL.join(" / ")}</b> the Pull of Lethe in chapters 1 / 2 / 3; <b class="k-lim">${D.LEVELS.map(l => l.dissolve).filter((v, i, a) => a.indexOf(v) === i).join(" / ")}</b> Faded (by difficulty).`)}</div></div>`;
   // fate area
   h += `<div class="board fatea" data-region="fate" style="left:${FATE.x}px;top:${FATE.y}px;width:${FATE.w}px;height:${FATE.h}px">${zoomBtn("fate")}
     <div class="btitle">${tr("亡魂・命運之霧・託付", "Soul · Fate · Commissions")}</div>
@@ -631,26 +650,28 @@ function bookPageHtml(ch) {
   const pos = Object.fromEntries(nodes.map(n => [n.id, n]));
   const entry = typeof page.entry === "string" ? esc(page.entry) : Object.entries(page.entry).map(([t, s]) => `<b class="th${t}">${tr(D.THREADS[t].zh, D.THREADS[t].en)}</b> ${esc(s)}`).join("<br>");
   let lines = "";
-  const ctr = n => [(n.x - px + 40) * STR.kx, (n.y - BOOK.y + 54) * STR.ky];   // a node's centre, spread with the stretch
+  const ctr = n => [(n.x - px + (CW + 8) / 2) * STR.kx, (n.y - BOOK.y + (CH + 8) / 2) * STR.ky];   // a node's centre, spread with the stretch
   for (const n of nodes) {
     const nx = Array.isArray(n.next) ? n.next.map(id => [id, null]) : n.next ? Object.entries(n.next).map(([t, id]) => [id, +t]) : [];
     for (const [id, t] of nx) {
       if (!pos[id]) continue;
       const [x1, y1] = ctr(n), [x2, y2] = ctr(pos[id]);
-      lines += `<path d="M${x1 + 30},${y1} C${(x1 + x2) / 2 + 10},${y1} ${(x1 + x2) / 2 - 10},${y2} ${x2 - 32},${y2}" class="ar${t === null ? "" : " th" + t}" marker-end="url(#arr)"/>`;
+      lines += `<path d="M${x1 + (CW + 8) / 2},${y1} C${(x1 + x2) / 2 + 10},${y1} ${(x1 + x2) / 2 - 10},${y2} ${x2 - (CW + 8) / 2 - 2},${y2}" class="ar${t === null ? "" : " th" + t}" marker-end="url(#arr)"/>`;
     }
   }
+  // a slot is exactly a card's size; its words sit above it, so a card laid in the slot never covers them
   const cells = nodes.map(n => {
-    const l = n.x - px, t = n.y - BOOK.y;
+    const l = n.x - px, t = n.y - BOOK.y, lw = Math.max(CW + 8, n.w - 12);
+    const lab = (html, cls = "") => `<div class="nlab${cls}" style="left:${l + (CW + 8) / 2 - lw / 2}px;top:${t - NLAB}px;width:${lw}px;height:${NLAB - 4}px">${html}</div>`;
     if (n.k === "m" || n.k === "g") {
       const sl = D.SLOT_NAMES[n.slot];
-      return `<div class="node mem${n.k === "g" ? " gate" : ""}" style="left:${l}px;top:${t}px" title="${esc(n.text)}">
-        <div class="nslot">${icon(sl.icon)}${tr(sl.zh, sl.en)}${n.k === "g" ? `<i>${tr("關口", "Gate")}</i>` : ""}</div><div class="ntext">${esc(n.text)}</div></div>`;
+      return lab(`<b>${icon(sl.icon)}${tr(sl.zh, sl.en)}${n.k === "g" ? `<i>${tr("關口", "Gate")}</i>` : ""}</b> ${esc(n.text)}`) +
+        `<div class="node mem${n.k === "g" ? " gate" : ""}" style="left:${l}px;top:${t}px" title="${esc(n.text)}"></div>`;
     }
-    if (n.k === "x") return `<div class="node mistn" style="left:${l}px;top:${t}px" title="${esc(n.text)}"><div class="ntext">⬡ ${esc(n.text)}</div></div>`;
-    if (n.k === "p") return `<div class="node fork" style="left:${l + 6}px;top:${t + 20}px" title="${esc(n.text)}"><span>◇</span><div class="ntext">${esc(n.text)}</div></div>`;
-    if (n.k === "f") return `<div class="node turn" style="left:${l}px;top:${t}px"><span>◆</span><div class="ntext">${tr("轉折", "Turning point")}<br>${tr("忘川的拉力", "Pull")} ${PULL[ch]}</div></div>`;
-    return `<div class="node exitn" style="left:${l}px;top:${t + 10}px" title="${esc(n.text)}"><div class="ntext">⬭ ${esc(n.text)}</div></div>`;
+    if (n.k === "x") return lab(`⬡ ${esc(n.text)}`, " mist") + `<div class="node mistn" style="left:${l}px;top:${t}px" title="${esc(n.text)}"></div>`;
+    if (n.k === "f") return lab(`◆ ${tr("轉折", "Turning point")}・${tr("忘川的拉力", "Pull of Lethe")} ${PULL[ch]}`, " turn") + `<div class="node turn" style="left:${l}px;top:${t}px"><span>◆</span></div>`;
+    if (n.k === "p") return `<div class="node fork" style="left:${l + 25}px;top:${t + 46}px" title="${esc(n.text)}"><span>◇</span><div class="ntext">${esc(n.text)}</div></div>`;
+    return `<div class="node exitn" style="left:${l + 25}px;top:${t + 46}px" title="${esc(n.text)}"><div class="ntext">⬭ ${esc(n.text)}</div></div>`;
   }).join("");
   const tabs = story(S.soul).chapters.map((c, i) => `<button class="booktab${i === ch ? " on" : ""}" data-view="${i}">${S.chapter === i ? "★ " : ""}${tr(`第${"一二三"[i]}章`, `Chapter ${i + 1}`)}・${esc(c.title)}</button>`).join("");
   const here = S.chapter === ch
@@ -659,6 +680,8 @@ function bookPageHtml(ch) {
   return `${zoomBtn("book")}<div class="btitle">${tr("憶念之書", "Book of Remembrance")} <span class="booktabs">${tabs}</span> ${here}</div>
     ${S.chapter !== ch ? `<div class="browse">${tr("你正在翻閱其他章節；放在這頁的牌只會在這頁顯示。", "You are browsing another chapter; cards placed here only show on this page.")}</div>` : ""}
     <div class="entry">${entry}</div>
+    <div class="slotlab" style="left:30px;top:580px;width:160px">${tr("根網特性（本章）", "Root trait (this chapter)")}</div>
+    <div class="slotbox round traitslot" style="left:70px;top:600px;width:80px;height:80px"></div>
     <svg class="arrows" width="${BOOK.w * STR.kx}" height="${BOOK.h * STR.ky}"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9a948c"/></marker></defs>${lines}</svg>
     ${cells}`;
 }
@@ -1326,7 +1349,7 @@ function snapAt(pt, it) {
 function flip(id) {
   const it = S.items[id];
   if (!it || S.where[id] !== "t") return;
-  if (it.kind === "tok" && !["root", "push"].includes(it.tk)) return;
+  if (it.kind === "tok" && !["root", "push", "trait"].includes(it.tk)) return;
   commit(tr(`${who()} 翻轉了 ${nameOf(id)}`, `${who()} flipped ${nameOf(id)}`), () => { it.face = it.face ? 0 : 1; });
 }
 function flipInArea(id) {
@@ -1654,7 +1677,8 @@ async function autoEndTurn() {
     // the Child: the first Fracture of the game is ignored (the Soul card turns sideways as the reminder)
     const sc = soulCard();
     if (S.soul === "child" && sc && !sc.rot) { sc.rot = 90; notes.push(tr("孩子的特色規則：第一道裂痕被忽略，亡魂牌橫放。", "The Child's special rule: the first Fracture is ignored; the Soul card turns sideways.")); return; }
-    const sh = Object.values(S.items).find(it => it.tk === "shield" && S.where[it.id] === "t");
+    // a Shield lies in front of the player who played it (their area), or on the table
+    const sh = Object.values(S.items).find(it => it.tk === "shield" && /^(t|a:)/.test(S.where[it.id] || ""));
     if (sh) { toStack(sh.id, "bin_shield"); return; }
     S.tracks.crack = Math.min(5, (S.tracks.crack || 0) + 1);
     // the King: the player whose turn it is loses their Mantle; it goes back to the Mantle row (a cancelled Fracture does not count)
@@ -1836,6 +1860,8 @@ async function autoEndTurn() {
       for (const k of [0, 1]) for (const id of [...S.stacks[`fate${ch}${k}`].items]) toStack(id, "box");
       for (const k of [0, 1]) { shuffle(S.stacks[`fate${ch + 1}${k}`].items); const id = top(`fate${ch + 1}${k}`); if (id) place(id, `fateslot${k}`, 0); }
       S.chapter = ch + 1; S.trait = obs > acc ? "deep" : acc > obs ? "spread" : null;
+      const tk = Object.values(S.items).find(it => it.tk === "trait");
+      if (tk) { if (S.trait) place(tk.id, "traitslot", S.trait === "spread" ? 1 : 0); else if (S.stacks.bin_trait) toStack(tk.id, "bin_trait"); }
     });
     const entry = story(S.soul).chapters[ch + 1].entry, path = S.paths?.[ch]?.path ?? 0;
     await ask(tr(`第${"一二三"[ch + 1]}章`, `Chapter ${ch + 2}`), `${typeof entry === "string" ? entry : entry[path] || ""}${trait ? "<br><br>" + tr(`根網特性（本章有效）：${trait}`, `Root network trait (this chapter): ${trait}`) : ""}`, [tr("繼續", "Go on")]);

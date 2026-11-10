@@ -41,6 +41,8 @@ const ICONS = {
   resign: ["nb-tok-resign", "#4b4352", "#f2e8d5", "circle"],
   oar: ["nb-tok-oar", "#6d5530", "#f5e2b8", "square"],
   push: ["nb-tok-push", "#2d5160", "#d7f3ff", "circle"],
+  "trait-deep": ["nb-root", "#3b2e1c", "#e3c48f", "square"],
+  "trait-spread": ["nb-bloom", "#7a1f2b", "#ffd6d0", "square"],
 };
 const out = path.join(ROOT, "docs/rules/icons");
 fs.mkdirSync(out, { recursive: true });

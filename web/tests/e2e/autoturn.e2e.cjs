@@ -129,6 +129,11 @@ const BASE = process.env.BASE || "http://localhost:8765";
   await runTurn(neither);
   s = await S(A);
   expect(s.chapter === 1, "the page turned to chapter 2");
+  {
+    const tk = Object.values(s.items).find(it => it.tk === "trait");
+    const onSlot = await A.evaluate(id => { const T = window.__nbTest, it = T.state().items[id], q = T.snapPos("traitslot"); return T.state().where[id] === "t" && Math.hypot(it.x - q.x, it.y - q.y) < 10; }, tk.id);
+    expect(s.trait ? onSlot && tk.face === (s.trait === "spread" ? 1 : 0) : s.where[tk.id] === "s:bin_trait", `the Root trait marker records the trait (${s.trait}, face ${tk.face}, on slot ${onSlot})`);
+  }
   const fates = Object.values(s.items).filter(it => it.ck?.startsWith("fate:") && s.where[it.id] === "t" && it.face === 0);
   expect(fates.length === 2 && fates.every(f => f.ck.split(":")[2] === "1"), "chapter 2's two Fate Mist cards are out");
   // the Far Shore: chapters written, the soul on space 13 steps across; two Commissions fulfilled
