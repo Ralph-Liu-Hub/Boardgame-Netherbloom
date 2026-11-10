@@ -81,7 +81,9 @@ const BASE = process.env.BASE || "http://localhost:8765";
   const bloomsAt1 = st => Object.values(st.items).filter(it => it.tk === "root" && it.face === 1 && st.where[it.id] === "t").length;
   expect(bloomsAt1(s) < bloomsAt1(b2) || /near|shade/.test(mistKey), `the Mist advanced into the wall of light on space 1 (${bloomsAt1(b2)} -> ${bloomsAt1(s)} Blooms)`);
 
-  // the Child: the first Fracture of the game is ignored (a Shade on the soul's space)
+  // the Child: the first Fracture of the game is ignored (a Shade on the soul's space). The earlier turns drew random
+  // Mist cards that may already have wounded the soul, so start this check from an unused special rule.
+  await A.evaluate(() => window.__nbTest.set(S => { S.tracks.crack = 0; const c = Object.values(S.items).find(it => it.ck === "soul:child"); if (c) c.rot = 0; }));
   {
     const b3 = await S(A);
     await A.evaluate(() => { const T = window.__nbTest, st = T.state(); const fr = T.snapPos("mistfront"); T.set(S => { for (const it of Object.values(S.items)) if (S.where[it.id] === "t" && /^(mist|harsh):/.test(it.ck) && Math.hypot(it.x - fr.x, it.y - fr.y) < 40) { it.ck = "mist:parts"; it.deck = S.chapter || 0; } }); const q = T.snapPos("bank1L"); for (const it of Object.values(st.items)) if (it.kind === "tok" && st.where[it.id] === "t" && Math.hypot(it.x - q.x, it.y - q.y) < 30) T.stack(it.id, "bin_" + (it.tk === "root" ? "root" : it.tk)); const sh = st.stacks.bin_shade.items.at(-1); T.put(sh, "bank1L"); });
