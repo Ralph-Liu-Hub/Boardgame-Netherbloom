@@ -526,3 +526,7 @@ mark.rqm.cur { background: #f2b84f; color: #1b1813; box-shadow: 0 0 0 2px rgba(2
 .loom .scargrp { position: absolute; height: 12px; font-size: 10.5px; line-height: 10px; text-align: center; color: var(--paper); }
 .loom .scargrp::before { content: ""; position: absolute; left: 0; right: 0; bottom: -3px; height: 5px; border: 1px solid rgba(242, 232, 213, .8); border-bottom: none; border-radius: 2px 2px 0 0; }
 .loom .note b.k-multi { color: #ffb3b8; } .loom .note b.k-solo { color: #a8eef2; }
+
+/* the automatic end of turn asks with a row of buttons */
+.askrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.askrow button { min-width: 7em; }

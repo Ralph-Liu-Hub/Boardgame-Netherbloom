@@ -46,7 +46,7 @@ When **both banks of the next space have Shades** and it has no Black Water: rem
 1. ★ **Bloombringer**: if the active player holds it, they make 1 Root Bloom for free.
 2. **Soul Step** (see below).
 3. **Shades push the Loom**: Shades on the soul's space tie a knot: left bank Obsession, right bank Acceptance, in the fog Oblivion.
-4. **Mist**: carry out the Mist ahead → if the soul **did not move forward this turn**, the Mist advances (Fog + difficulty bonus) → both banks fog side up means the soul is **Engulfed**: this Mist card becomes a Mist scar (at Hard, also 1 Fracture) → turn over the new Mist ahead (deck empty: shuffle this chapter's basic Mist cards from the discard pile into a new deck; harsh Mist, Rising Water and Shade Drawn Near go back to the box).
+4. **Mist**: carry out the Mist ahead → if the soul **did not move forward this turn**, the Mist advances (Fog + difficulty bonus) → both banks fog side up means the soul is **Engulfed**: this Mist card becomes a Mist scar (at Hard, also 1 Fracture) → turn over the new Mist ahead (deck empty: shuffle this chapter's Mist cards from the discard pile into a new deck; harsh Mist, and the 1 Rising Water and 1 Shade Drawn Near added at set-up, go back to the box).
 5. **The fork and turning the page**: a Fate Mist card on the ◆ means the story forks; a route at its exit means you turn the page. §11
 6. ★ **Cleanup**, space by space: Black Water with a Root or Bloom on both banks → Black Water back in the box; a Shade with Blooms on the same side of the space ahead **and** the space behind → remove the Shade.
 7. **Draw** back up to your hand size.
