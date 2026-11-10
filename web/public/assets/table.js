@@ -1577,6 +1577,34 @@ function routeOf(ch) {
   }
   return { walk, stop: by[cur], at, by, cards };
 }
+// Commissions (§12): a condition only looks at the chapter, the thread, the slot, or "the soul's own memories". Each lit
+// memory in the Book fulfils at most one Commission, so the count is a matching between Commissions and lit memories.
+function commissionCheck() {
+  const SLOT = { 地點: "Place", 人物: "Person", 事蹟: "Deed", 感受: "Feeling" };
+  const comms = Object.values(S.items).filter(it => it.ck?.startsWith("comm:") && /^(a:|t)/.test(S.where[it.id] || "") && it.pg === undefined)
+    .map(it => {
+      const i = +it.ck.split(":")[2], cond = STORY[S.soul].commissions[i].cond;
+      const ch = cond.match(/^第(一|二|三)章有/); const slot = Object.keys(SLOT).find(k => cond.includes(k));
+      return { it, i, cond, owner: S.where[it.id]?.startsWith("a:") ? +S.where[it.id].slice(2) : null, revealed: !!it.face,   // a Commission is dealt face down; face up means revealed early
+        test: m => (!ch || m.pg === "一二三".indexOf(ch[1])) && (!cond.includes("執念") || m.tag === 0) && (!cond.includes("釋懷") || m.tag === 1)
+          && (!slot || m.slot === SLOT[slot]) && (!cond.includes("專屬記憶") || m.own) };
+    });
+  const lit = Object.values(S.items).filter(it => S.where[it.id] === "t" && it.pg !== undefined && it.ck?.startsWith("mem:") && it.face && !it.rot)
+    .map(it => { const c = MEM[it.ck.split(":")[1]]; return { it, pg: it.pg, tag: c?.tag, slot: c?.slot, own: !it.ck.split(":")[1].startsWith("C") }; })
+    .filter(m => m.tag !== 2);
+  // largest matching (a handful of Commissions: simple augmenting paths)
+  const owner = new Array(lit.length).fill(-1);
+  const tryC = (c, seen) => {
+    for (let j = 0; j < lit.length; j++) if (!seen[j] && comms[c].test(lit[j])) {
+      seen[j] = true;
+      if (owner[j] < 0 || tryC(owner[j], seen)) { owner[j] = c; return true; }
+    }
+    return false;
+  };
+  comms.forEach((_, c) => tryC(c, []));
+  comms.forEach((c, k) => { const j = owner.indexOf(k); c.by = j >= 0 ? lit[j] : null; c.done = !!c.by || c.revealed; });
+  return comms;
+}
 const fateInfo = it => { const [, so, c, fi] = it.ck.split(":"); return { ...STORY[so].chapters[+c].fates[+fi], show: story(so).chapters[+c].fates[+fi] }; };
 const THREAD_ZH = ["執念", "釋懷", "忘卻"], THREAD_EN = ["Obsession", "Acceptance", "Oblivion"];
 const thName = t => tr(THREAD_ZH[t], THREAD_EN[t]);
@@ -1592,7 +1620,8 @@ function askAuto(title, body, choices) {
   });
 }
 // for the browser tests: read the table and set pieces down without the mouse
-window.__nbTest = { state: () => S, snapPos, put: (id, snapId, props = {}) => commit("", () => { const q = snapPos(snapId); toTable(id, q.x, q.y); Object.assign(S.items[id], props); }), set: fn => commit("", () => fn(S)), stack: (id, sid) => commit("", () => toStack(id, sid)) };
+window.__nbTest = { state: () => S, snapPos, put: (id, snapId, props = {}) => commit("", () => { const q = snapPos(snapId); toTable(id, q.x, q.y); Object.assign(S.items[id], props); }), set: fn => commit("", () => fn(S)), stack: (id, sid) => commit("", () => toStack(id, sid)),
+  comms: () => commissionCheck().map(c => ({ i: c.i, cond: c.cond, owner: c.owner, done: c.done, by: c.by?.it.id || null })), meta: id => MEM[id] };
 async function autoEndTurn() {
   if (WATCH) return watchToast();
   if (!isAdmin) return toast(tr("只有管理員可以使用自動結算。", "Only an admin can use the automatic end of turn."));
@@ -1814,8 +1843,13 @@ async function autoEndTurn() {
   // the Shore-Keeper's question and the ending (§12)
   const shore = async () => {
     const need = D.SETUP_TABLE[S.players].need, st = story(S.soul);
-    const a = await ask(tr("守岸人之問", "The Shore-Keeper's question"), tr(`亡魂抵達彼岸。所有人亮出託付卡（已翻開的算完成）：完成了幾張？需要 ${need} 張。`, `The soul reaches the Far Shore. Everyone shows their Commission (revealed ones count): how many are fulfilled? ${need} needed.`),
-      [...Array(S.players + 1).keys()].map(String));
+    // everyone shows their Commission; the table matches them against the lit memories in the Book
+    const comms = commissionCheck(), mt = mk => mk ? tr(`第${"一二三"[mk.pg]}章・${cardInfo(mk.it.ck).title}`, `ch ${mk.pg + 1} · ${cardInfo(mk.it.ck).title}`) : "";
+    const rows = comms.map(c => `${c.done ? "✔" : "✘"} ${esc(c.owner !== null ? S.names[c.owner] || tr(`擺渡人 ${c.owner + 1}`, `Ferryman ${c.owner + 1}`) : "")}：「${esc(st.commissions[c.i].text)}」 ${esc(st.commissions[c.i].cond)}${c.by ? " ← " + esc(mt(c.by)) : c.revealed ? tr("（已翻開）", " (revealed)") : ""}`).join("<br>");
+    let a = comms.filter(c => c.done).length;
+    const ok = await ask(tr("守岸人之問", "The Shore-Keeper's question"), tr(`亡魂抵達彼岸。所有人亮出託付卡，每段點亮的記憶只能完成 1 張：<br><br>${rows}<br><br>完成 ${a} 張，需要 ${need} 張。`, `The soul reaches the Far Shore. Everyone shows their Commission; each lit memory fulfils only one:<br><br>${rows}<br><br>${a} fulfilled, ${need} needed.`),
+      [tr("確認", "Confirm"), tr("數字不對，自己輸入", "Wrong: enter it")]);
+    if (ok === 1) a = await ask(tr("守岸人之問", "The Shore-Keeper's question"), tr(`完成了幾張？需要 ${need} 張。`, `How many are fulfilled? ${need} needed.`), [...Array(S.players + 1).keys()].map(String));
     if (a < need) { await ask(tr("落敗（失落）", "You lose (Lost)"), tr("隱憶之約解除。即使落敗，也要從第一章的入口朗讀憶念之書到第三章的出口。", "The Veiled Memories end. Even in defeat, read the Book from chapter 1's entrance to chapter 3's exit."), [tr("好", "OK")]); return; }
     const paths = [0, 1, 2].map(c => S.paths?.[c]?.path).filter(x => x !== undefined);
     const cnt = [0, 1, 2].map(t => paths.filter(x => x === t).length), top2 = cnt.findIndex(c => c >= 2);

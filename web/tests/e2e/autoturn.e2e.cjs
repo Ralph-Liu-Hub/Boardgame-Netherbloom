@@ -133,13 +133,30 @@ const BASE = process.env.BASE || "http://localhost:8765";
   expect(fates.length === 2 && fates.every(f => f.ck.split(":")[2] === "1"), "chapter 2's two Fate Mist cards are out");
   // the Far Shore: chapters written, the soul on space 13 steps across; two Commissions fulfilled
   await A.evaluate(() => { const T = window.__nbTest; T.set(st => { st.farOpen = true; st.paths[1] = { fate: 1, path: 1 }; st.paths[2] = { fate: 1, path: 0 }; }); const so = Object.values(T.state().items).find(it => it.tk === "soul"); T.put(so.id, "soul13"); });
+  // Commissions: the first player's is fulfilled by a lit memory placed in the Book; the second player's was revealed early
+  const placed = await A.evaluate(() => {
+    const T = window.__nbTest, st = T.state();
+    const [c0, c1] = T.comms().sort((x, y) => x.owner - y.owner);
+    const SLOT = { 地點: "Place", 人物: "Person", 事蹟: "Deed", 感受: "Feeling" };
+    const ch = (c0.cond.match(/^第(一|二|三)章有/) || [])[1], pg = ch ? "一二三".indexOf(ch) : 0;
+    const slot = Object.keys(SLOT).find(k => c0.cond.includes(k));
+    const fits = id => { const m = T.meta(id); return m && m.tag !== 2 && (!c0.cond.includes("執念") || m.tag === 0) && (!c0.cond.includes("釋懷") || m.tag === 1) && (!slot || m.slot === SLOT[slot]) && (!c0.cond.includes("專屬記憶") || !id.startsWith("C")); };
+    const card = Object.values(st.items).find(it => it.ck?.startsWith("mem:") && st.where[it.id] !== "t" && fits(it.ck.split(":")[1]));
+    const node = Object.keys(st.items).length && ["b1", "b2", "c1", "c2", "c3", "a1", "a2", "a", "d1", "d2"].map(n => `node${pg}_${n}`).find(n => T.snapPos(n));
+    if (!card || !node) return { ok: false, cond: c0.cond };
+    T.put(card.id, node, { face: 1, rot: 0, pg });
+    const c1it = Object.values(st.items).find(it => it.ck === `comm:${st.soul}:${c1.i}`);
+    T.set(S => { S.items[c1it.id].face = 1; });
+    return { ok: true, cond: c0.cond, after: T.comms() };
+  });
+  expect(placed.ok && placed.after.filter(c => c.done).length === 2, "the table counts both Commissions: one by a lit memory, one revealed: " + JSON.stringify(placed));
   let endText = "";
   await A.click("#tt-endturn");
   for (let i = 0; i < 40; i++) {
     if (await A.evaluate(() => !document.querySelector("#tt-endturn").disabled)) break;
     const title = await A.evaluate(() => document.querySelector("#tt-modal:not(.hidden) h3")?.textContent || "");
     if (/獲勝|You win/.test(title)) endText = await A.evaluate(() => document.querySelector("#tt-modal:not(.hidden)").textContent);
-    const k = /守岸人|Shore-Keeper/.test(title) ? 2 : /隱藏結局|Hidden/.test(title) ? 1 : 0;
+    const k = /守岸人|Shore-Keeper/.test(title) ? 0 : /隱藏結局|Hidden/.test(title) ? 1 : 0;   // confirm the table's count
     const btn = title && (await A.$(`#tt-modal:not(.hidden) [data-ask="${k}"]`)); if (btn) await btn.click();
     await A.waitForTimeout(500);
   }
