@@ -31,6 +31,21 @@ const { chromium } = require("playwright"); const fs = require("fs");
   await p.setContent(`<div id=f style="color:#2b2420;background:#fff;width:720px;padding:6px">${svg}</div>`);
   await (await p.$("#f")).screenshot({ path: process.argv[2] }); await b.close(); })();""", D + "fig.svg", D + "fig-setup.png"], check=True)
 src = re.sub(r'<div class="figure"><svg.*?</svg></div>', "![兩人局的桌面配置](" + D + "fig-setup.png)", src, flags=re.S)
+# token pictures (docs/rules/icons): drawn by Chromium at 64 px, shown about 5 mm wide
+ICONS = os.path.join(ROOT, "docs", "rules", "icons")
+subprocess.run(["node", "-e", """
+const { chromium } = require("playwright"); const fs = require("fs"); const path = require("path");
+(async () => { const b = await chromium.launch(); const p = await b.newPage();
+  for (const f of fs.readdirSync(process.argv[1]).filter(f => f.endsWith(".svg"))) {
+    await p.setContent(`<div id=f style="width:64px;height:64px;background:#fff">${fs.readFileSync(path.join(process.argv[1], f), "utf8").replace('width="48" height="48"', 'width="64" height="64"')}</div>`);
+    await (await p.$("#f")).screenshot({ path: path.join(process.argv[2], "icon-" + f.replace(".svg", ".png")) });
+  }
+  await b.close(); })();""", ICONS, D], check=True)
+for f in os.listdir(D):
+    if f.startswith("icon-"): Image.open(D + f).save(D + f, dpi=(330, 330))
+src = re.sub(r'<img src="(?:\.\./)+icons/([\w-]+)\.svg" alt="([^"]*)"[^>]*>', lambda m: f"![{m.group(2)}]({D}icon-{m.group(1)}.png)", src)
+# rule boxes: marker paragraphs that the pass below turns into a border around everything between them
+src = src.replace('<div class="rulebox" markdown="1">', "BOXSTART").replace("</div>\n", "BOXEND\n")
 open(D + "rulebook.md", "w", encoding="utf-8").write(src)
 # the first heading becomes the document title, the numbered sections Heading 1, their parts Heading 2;
 # the rulebook's own contents list stays (its links jump to the sections)
@@ -103,8 +118,39 @@ for t in doc.tables:
     for row in t.rows:
         for c in row.cells:
             if c._tc.tcPr is not None: order(c._tc.tcPr, TC)
-for shp in doc.inline_shapes:   # the set-up figure: 16 cm wide
-    r = shp.height / shp.width; shp.width = Cm(16); shp.height = int(Cm(16) * r)
+for shp in doc.inline_shapes:   # the set-up figure: 16 cm wide (token pictures keep their own small size)
+    if shp.width > Cm(3):
+        r = shp.height / shp.width; shp.width = Cm(16); shp.height = int(Cm(16) * r)
+# rule boxes: everything between the BOXSTART and BOXEND paragraphs moves into a one-cell table with a gold border
+body = doc.element.body
+for start in [p for p in body.iterchildren(qn("w:p")) if "".join(p.itertext()).strip().startswith("BOXSTART")]:
+    items, node = [], start.getnext()
+    while not (node.tag == qn("w:p") and "".join(node.itertext()).strip().startswith("BOXEND")):
+        items.append(node); node = node.getnext()
+    end = node
+    tbl = OxmlElement("w:tbl")
+    tblPr = OxmlElement("w:tblPr")
+    w = OxmlElement("w:tblW"); w.set(qn("w:w"), "5000"); w.set(qn("w:type"), "pct"); tblPr.append(w)
+    bd = OxmlElement("w:tblBorders")
+    for edge in ("top", "left", "bottom", "right"):
+        e = OxmlElement(f"w:{edge}"); e.set(qn("w:val"), "single"); e.set(qn("w:sz"), "12"); e.set(qn("w:space"), "0"); e.set(qn("w:color"), "B08A4A"); bd.append(e)
+    tblPr.append(bd)
+    mar = OxmlElement("w:tblCellMar")
+    for edge, v in (("top", 80), ("left", 160), ("bottom", 80), ("right", 160)):
+        e = OxmlElement(f"w:{edge}"); e.set(qn("w:w"), str(v)); e.set(qn("w:type"), "dxa"); mar.append(e)
+    tblPr.append(mar)
+    tbl.append(tblPr)
+    grid = OxmlElement("w:tblGrid"); gc = OxmlElement("w:gridCol"); gc.set(qn("w:w"), "9600"); grid.append(gc); tbl.append(grid)
+    tr = OxmlElement("w:tr"); tc = OxmlElement("w:tc"); tcPr = OxmlElement("w:tcPr")
+    tw = OxmlElement("w:tcW"); tw.set(qn("w:w"), "5000"); tw.set(qn("w:type"), "pct"); tcPr.append(tw)
+    sh = OxmlElement("w:shd"); sh.set(qn("w:val"), "clear"); sh.set(qn("w:color"), "auto"); sh.set(qn("w:fill"), "FAF5EA"); tcPr.append(sh)
+    tc.append(tcPr)
+    for it in items: tc.append(it)
+    if items and items[-1].tag != qn("w:p"): tc.append(OxmlElement("w:p"))
+    tr.append(tc); tbl.append(tr)
+    start.addprevious(tbl)
+    body.remove(start); body.remove(end)
+assert not any("BOX" in p.text for p in doc.paragraphs)
 # paragraph properties in schema order (pandoc puts numPr before pStyle in list items)
 PPR = """pStyle keepNext keepLines pageBreakBefore framePr widowControl numPr suppressLineNumbers pBdr shd tabs suppressAutoHyphens kinsoku
 wordWrap overflowPunct topLinePunct autoSpaceDE autoSpaceDN bidi adjustRightInd snapToGrid spacing ind contextualSpacing mirrorIndents

@@ -5,7 +5,7 @@
 ## Front: your turn
 
 **You win** when the soul reaches the Far Shore (space 14) with enough Commissions fulfilled (solo 1, 2–3 players 2, 4 players 3). The Far Shore appears only once chapter 3 is written.
-**You lose**: Faded (forgotten cards reach the limit) · Shattered (Fractures reach the limit) · Deluge (Black Water must be placed but none is left) · Nameless (the soul reaches the Far Shore without enough Commissions).
+**You lose**: Faded (forgotten cards reach the limit) · Shattered (Fractures reach the limit) · Deluge (Black Water must be placed but none is left) · Lost (the soul reaches the Far Shore without enough Commissions).
 
 ### 1. Before your first action (optional, not an action)
 
@@ -15,11 +15,11 @@
 
 ### 2. Two actions
 
-| Action | What you do | Knot | Echo |
+| Action | What you do | Knot | Echo marker |
 |---|---|---|---|
-| **Play face up** | Resolve the card's effect | +1 on its thread | Moves to its thread |
+| **Play face up** | Resolve the card's effect | +1 on its thread | Moves to its thread (on either action) |
 | **Play face down** | Place 1 Root (gain 1 Light if there is nowhere to place it) | ★ +1 on its thread | Does not move |
-| **Swap** (once per turn) | Exchange 1 card with a teammate, and play the card you receive face up at once | As face up | As face up |
+| **Swap** (once per turn) | Exchange 1 card with another player you choose, and play the card you receive face up at once | As face up | As face up |
 | **Recall** (once per turn) | Pay 3 Light to inscribe an Obsession or Acceptance card from the forgotten pile back onto the current route; the forgotten track goes back 1 | None | Does not move |
 
 **Playing face up, in order** ★: effect → tie a knot (if the thread is full, **Backlash at once**) → was the Echo already on this thread? Then **Resonate** if this is your first action, and you may **Echo-inscribe** on either action → move the Echo → a card not inscribed: Obsession and Acceptance to the discard pile, Oblivion to the forgotten pile.
@@ -43,10 +43,10 @@ When **both banks of the next space have Shades** and it has no Black Water: rem
 
 ## Back: the end of the turn (after every player's turn)
 
-1. ★ **Bloombringer**: its holder makes 1 Root Bloom for free.
+1. ★ **Bloombringer**: if the active player holds it, they make 1 Root Bloom for free.
 2. **Soul Step** (see below).
 3. **Shades push the Loom**: Shades on the soul's space tie a knot: left bank Obsession, right bank Acceptance, in the fog Oblivion.
-4. **Mist**: carry out the Mist ahead → if the soul **did not move forward this turn**, the Mist advances (Fog + difficulty bonus) → both banks fog side up means the soul is **Engulfed**: this Mist card becomes a Mist scar (at Hard, also 1 Fracture) → turn over the new Mist ahead.
+4. **Mist**: carry out the Mist ahead → if the soul **did not move forward this turn**, the Mist advances (Fog + difficulty bonus) → both banks fog side up means the soul is **Engulfed**: this Mist card becomes a Mist scar (at Hard, also 1 Fracture) → turn over the new Mist ahead (deck empty: shuffle this chapter's Mist cards from the discard pile into a new deck; harsh Mist, and the 1 Rising Water and 1 Shade Drawn Near added at set-up, go back to the box).
 5. **The fork and turning the page**: a Fate Mist card on the ◆ means the story forks; a route at its exit means you turn the page. §11
 6. ★ **Cleanup**, space by space: Black Water with a Root or Bloom on both banks → Black Water back in the box; a Shade with Blooms on the same side of the space ahead **and** the space behind → remove the Shade.
 7. **Draw** back up to your hand size.
@@ -55,11 +55,11 @@ When **both banks of the next space have Shades** and it has no Black Water: rem
 
 ### The Soul Step
 
-1. **Resignation** marker: she does not move; forget the top card; remove the marker.
-2. The next space is **Lit** and free of Black Water: she moves forward (the Spirit Warden may make her Stay). The space she left: **gather the light** (1 Light per Bloom; the Blooms wither) or **leave the light**.
-3. If she moved, look at the forgotten pile: **6–8 Light as Ash**, one more step if the next space is Lit and free of Black Water; **9+ Adrift**, always one more step, and a Fracture if it goes into the dark.
-4. If she cannot move forward she **Lingers**; do only the first that applies: I Hold Fast → II Spirit Warden → III her space is Lit → IV the Bride is pulled back → V forget the top card.
-5. ★ **Shade damage**: a Shade on her space means 1 Fracture (whether or not she moved).
+1. **Resignation** marker: the soul does not move; forget the top card; remove the marker.
+2. The next space is **Lit** and free of Black Water: the soul moves forward (the Spirit Warden's holder may make them Stay, even on another player's turn). The space they left: **gather the light** (1 Light per Bloom; the Blooms wither to Roots) or **leave the light**; Roots and Shades stay where they are.
+3. If they moved, look at the forgotten pile: **6–8 Light as Ash**, one more step if the next space is Lit and free of Black Water; **9+ Adrift**, always one more step, and a Fracture if it goes into an unlit space or Black Water (the Spirit Warden may stop it).
+4. If the soul cannot move forward they **Linger**; do only the first that applies: I Hold Fast → II Spirit Warden → III their space is Lit → IV the Bride is pulled back → V forget the top card.
+5. ★ **Shade damage**: after all moves, a Shade on the space where the soul ended means 1 Fracture (whether or not they moved).
 
 ### Key numbers
 

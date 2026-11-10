@@ -547,7 +547,7 @@ function boardsHtml() {
   h += `</div>`;
   // mist area
   h += `<div class="board mista" data-region="mist" style="left:${MISTA.x}px;top:${MISTA.y}px;width:${MISTA.w}px;height:${MISTA.h}px">${zoomBtn("mist")}
-    <div class="btitle">${tr("迷霧", "Mist")}</div><div class="slotbox" style="left:${20 + 3 * PG}px;top:60px;width:${SW}px;height:${SH}px">${tr("前方的霧（面朝上）", "Mist ahead (face up)")}</div></div>`;
+    <div class="btitle">${tr("迷霧", "Mist")}</div><div class="slotlab" style="left:${20 + 3 * PG - 4}px;top:41px;width:${SW + 8}px">${tr("前方的霧（面朝上）", "Mist ahead (face up)")}</div><div class="slotbox" style="left:${20 + 3 * PG}px;top:60px;width:${SW}px;height:${SH}px"></div></div>`;
   // loom
   const th = D.thresholds(S.level, S.players);
   h += `<div class="board loom" data-region="loom" style="left:${LOOM.x}px;top:${LOOM.y}px;width:${LOOM.w}px;height:${LOOM.h}px">${zoomBtn("loom")}
@@ -719,6 +719,7 @@ function buildTable() {
       <div id="tt-seats" class="seats"></div>
       <label class="switch"><input type="checkbox" id="tt-hints"> <span>${tr("下一步提示", "Next-step hints")}</span></label>
       <button id="tt-auto" title="${tr("照規則書的準備步驟自動擺好牌桌（有動畫）", "Set the table up by the rulebook's steps, animated")}">${tr("自動準備", "Auto Setup")}</button>
+      <button id="tt-endturn" class="${isAdmin ? "" : "hidden"}" title="${tr("管理員：依規則自動執行回合結束（亡魂行動、怨念、迷霧、整理、抽牌、船槳）；需要選擇時會詢問", "Admin: carry out the end of the turn by the rules (Soul Step, Shades, Mist, cleanup, draw, Oar), asking whenever there is a choice")}">${tr("自動結算回合", "Auto End Turn")}</button>
       <button id="tt-undo" title="Ctrl+Z">${tr("復原", "Undo")}</button>
       <button id="tt-redo" title="Ctrl+Y">${tr("重做", "Redo")}</button>
       <button id="tt-fit">${tr("全桌", "Fit")}</button>
@@ -886,7 +887,7 @@ function renderOnline() {
   wb.classList.toggle("hidden", !WATCH && !(watchHost && !WATCH));
   wb.textContent = WATCH ? tr(`觀戰中・從 ${S.names[ME] || ""} 的視角`, `Watching · from ${S.names[ME] || ""}'s side`) : tr(`代打 ${S.names[ME] || ""}`, `Playing for ${S.names[ME] || ""}`);
   $("#tt-switch").classList.toggle("hidden", !(WATCH && mode === "guest" && isAdmin));
-  $("#tt-auto").disabled = WATCH || autoRunning; $("#tt-undo").disabled = $("#tt-redo").disabled = WATCH;
+  $("#tt-auto").disabled = WATCH || autoRunning; const et = $("#tt-endturn"); if (et) { et.classList.toggle("hidden", !isAdmin); et.disabled = WATCH || autoRunning; } $("#tt-undo").disabled = $("#tt-redo").disabled = WATCH;
   const mb = $("#tt-mic"), sb = $("#tt-sound"), live = online && !!voice?.joined;
   mb.classList.toggle("hidden", !live); sb.classList.toggle("hidden", !live);
   mb.classList.toggle("on", !!voice?.micOn);
@@ -1100,6 +1101,7 @@ function bindTable() {
   $("#tt-hints").onchange = e => setHints(e.target.checked);
   $("#tt-lang").onclick = toggleLang;
   $("#tt-auto").onclick = autoSetup;
+  $("#tt-endturn").onclick = autoEndTurn;
   $("#tt-mic").onclick = toggleMic;
   $("#tt-sound").onclick = () => { if (voice) { voice.setHearing(!voice.hearing); renderOnline(); } };
   $("#tt-switch").onclick = liveTablesModal;
@@ -1532,7 +1534,492 @@ async function autoSetup() {
     await step(["翻開前方的霧", "turn the first Mist"], () => { place(top("mist0"), "mistfront", 1); S.hint = STEPS.findIndex(x => x.phase === "turn"); });
     toast(tr("準備完成：起始玩家開始第一個回合。", "Set-up done: the first player begins."));
   } finally {
-    autoRunning = false; const b = $("#tt-auto"); if (b) b.disabled = false;
+    autoRunning = false; renderOnline();
+  }
+}
+// ---------------------------------------------------------------- automatic end of the turn (superadmin only)
+// The players still choose everything a player chooses (Mantles, cards, lighting memories). This carries out the end of
+// the turn by the rulebook (§5): the Bloombringer, the Soul Step, Shades on the Loom, the Mist, cleanup, drawing and the
+// Oar, asking whenever the rules leave a choice to the players. Each step is one undoable change, animated like Auto Setup.
+const AUTO_KEEP = new Set(["peel", "dim", "silence", "fogret", "page", "gaze", "blind", "night", "thunder"]);   // carried out by hand
+function boardOf() {
+  const on = Object.values(S.items).filter(it => S.where[it.id] === "t");
+  const at = (snapId, d = 30) => { const q = snapPos(snapId); return q ? on.filter(it => Math.hypot(it.x - q.x, it.y - q.y) < d) : []; };
+  const bank = (sp, side) => {
+    const here = at(`bank${sp}${side}`), tile = here.find(it => it.kind === "tile"), tok = here.find(it => it.kind === "tok" && ["root", "shade"].includes(it.tk));
+    const fogTok = here.find(it => it.kind === "tok" && it.tk === "fog");
+    return { sp, side, tile, tok, fogTok, fog: sp === 1 ? !!fogTok : !!tile && !tile.face, bloom: tok?.tk === "root" && tok.face === 1, root: tok?.tk === "root" && !tok.face, shade: tok?.tk === "shade" };
+  };
+  const soulTok = on.find(it => it.kind === "tok" && it.tk === "soul");
+  let soul = null;
+  if (soulTok) for (let sp = 0; sp <= 14; sp++) if (at(`soul${sp}`, 45).includes(soulTok)) soul = sp;
+  return { on, at, bank, soulTok, soul, water: sp => at(`water${sp}`, 45).find(it => it.kind === "tok" && it.tk === "bw") };
+}
+// The current route of a chapter (§10), walked like the rulebook: past filled memory slots, Mist slots and decided forks,
+// up to the first empty memory slot, undecided branch or turning point, or the exit.
+function routeOf(ch) {
+  const page = STORY[S.soul].chapters[ch];
+  const by = Object.fromEntries(page.nodes.map(n => [n.id, n]));
+  const cards = Object.values(S.items).filter(it => S.where[it.id] === "t" && it.kind === "card" && it.pg === ch);
+  const at = id => { const q = snapPos(`node${ch}_${id}`); return q ? cards.filter(it => Math.hypot(it.x - q.x, it.y - q.y) < 45) : []; };
+  const filled = id => at(id).length > 0;
+  const prev = ch > 0 ? S.paths?.[ch - 1]?.path : undefined;
+  let cur = (prev !== undefined && page.starts?.[prev]) || page.nodes[0].id;
+  const walk = [cur];
+  for (let guard = 0; guard < 80; guard++) {
+    const n = by[cur];
+    if (n.k === "m" || n.k === "g") { if (!filled(cur)) return { walk, stop: n, at, by, cards }; cur = n.next[0]; }
+    else if (n.k === "x") cur = n.next[0];
+    else if (n.k === "p") { const c = n.next.find(filled); if (!c) return { walk, stop: n, at, by, cards }; cur = c; }
+    else if (n.k === "f") { const pth = S.paths?.[ch]; if (!pth) return { walk, stop: n, at, by, cards }; cur = n.next[pth.path]; }
+    else return { walk, stop: n, at, by, cards, exit: true };
+    walk.push(cur);
+  }
+  return { walk, stop: by[cur], at, by, cards };
+}
+const fateInfo = it => { const [, so, c, fi] = it.ck.split(":"); return { ...STORY[so].chapters[+c].fates[+fi], show: story(so).chapters[+c].fates[+fi] }; };
+const THREAD_ZH = ["執念", "釋懷", "忘卻"], THREAD_EN = ["Obsession", "Acceptance", "Oblivion"];
+const thName = t => tr(THREAD_ZH[t], THREAD_EN[t]);
+function askAuto(title, body, choices) {
+  return new Promise(res => {
+    modal(`<h3>${title}</h3>${body ? `<p>${body}</p>` : ""}<div class="askrow">${choices.map((c, i) => `<button data-ask="${i}">${c}</button>`).join("")}</div>`);
+    const m = $("#tt-modal");
+    m.onclick = e => {
+      const b = e.target.closest("[data-ask]");
+      if (b) { m.classList.add("hidden"); res(+b.dataset.ask); }
+      else if (e.target === m || e.target.closest(".mclose")) { m.classList.add("hidden"); res(-1); }
+    };
+  });
+}
+// for the browser tests: read the table and set pieces down without the mouse
+window.__nbTest = { state: () => S, snapPos, put: (id, snapId, props = {}) => commit("", () => { const q = snapPos(snapId); toTable(id, q.x, q.y); Object.assign(S.items[id], props); }), set: fn => commit("", () => fn(S)), stack: (id, sid) => commit("", () => toStack(id, sid)) };
+async function autoEndTurn() {
+  if (WATCH) return watchToast();
+  if (!isAdmin) return toast(tr("只有管理員可以使用自動結算。", "Only an admin can use the automatic end of turn."));
+  if (autoRunning) return;
+  let B = boardOf();
+  if (B.soul === null) return toast(tr("找不到亡魂標記：請先完成遊戲準備。", "The soul marker is not on the river: set the game up first."));
+  autoRunning = true; renderOnline();
+  const lv = D.LEVELS[S.level], spaceName = sp => tr(`第 ${sp} 格`, `space ${sp}`);
+  const top = sid => S.stacks[sid].items[S.stacks[sid].items.length - 1];
+  const place = (id, snapId, face) => { const q = snapPos(snapId); toTable(id, q.x, q.y); if (face !== undefined) S.items[id].face = face; };
+  const oar = Object.values(S.items).find(it => it.tk === "oar");
+  const cur = oar && S.where[oar.id]?.startsWith("a:") ? +S.where[oar.id].slice(2) : ME;
+  const curName = S.names[cur] || tr(`擺渡人 ${cur + 1}`, `Ferryman ${cur + 1}`);
+  const mantleOf = key => { for (let q = 0; q < S.players; q++) { const id = S.areas[q].find(x => S.items[x].ck === "mantle:" + key); if (id) return { q, it: S.items[id] }; } return null; };
+  let over = false;
+  const lose = (zh, en) => { over = true; toast(tr(`落敗（${zh}）`, `You lose (${en})`)); };
+  const step = async (msg, fn) => {
+    const old = JSON.parse(JSON.stringify(S));
+    commit(tr(`自動結算：${msg[0]}`, `End of turn: ${msg[1]}`), fn);
+    animateChanges(old);
+    while (notes.length) toast(notes.shift());
+    await new Promise(r => setTimeout(r, 650));
+    B = boardOf();
+  };
+  const STOP = Symbol("stop");
+  const ask = async (title, body, choices) => { const a = await askAuto(title, body, choices); if (a < 0) throw STOP; return a; };
+  // small rules the steps share; they change S and are only called inside step()
+  const soulCard = () => Object.values(S.items).find(it => it.ck === "soul:" + S.soul);
+  const hurt = () => {
+    // the Child: the first Fracture of the game is ignored (the Soul card turns sideways as the reminder)
+    const sc = soulCard();
+    if (S.soul === "child" && sc && !sc.rot) { sc.rot = 90; notes.push(tr("孩子的特色規則：第一道裂痕被忽略，亡魂牌橫放。", "The Child's special rule: the first Fracture is ignored; the Soul card turns sideways.")); return; }
+    const sh = Object.values(S.items).find(it => it.tk === "shield" && S.where[it.id] === "t");
+    if (sh) { toStack(sh.id, "bin_shield"); return; }
+    S.tracks.crack = Math.min(5, (S.tracks.crack || 0) + 1);
+    // the King: the player whose turn it is loses their Mantle; it goes back to the Mantle row (a cancelled Fracture does not count)
+    if (S.soul === "king") {
+      const id = S.areas[cur].find(x => S.items[x].ck?.startsWith("mantle:"));
+      if (id) {
+        const key = S.items[id].ck.split(":")[1], i = D.MANTLES.findIndex(m => m.key === key), q = snapPos(`mantle${i}`);
+        toTable(id, q.x, q.y); S.items[id].rot = 0; S.items[id].face = 1;
+        notes.push(tr(`國王的特色規則：${curName} 造成裂痕，失去稱號「${D.MANTLES[i].zh}」，放回稱號列。`, `The King's special rule: ${curName} caused a Fracture and loses the ${D.MANTLES[i].en}, back to the Mantle row.`));
+      }
+    }
+    if (S.tracks.crack >= lv.fractures) lose("破碎", "Shattered");
+  };
+  const notes = [];
+  const refillDeck = () => {
+    if (S.stacks.deck.items.length) return;
+    for (const id of shuffle([...S.stacks.discard.items])) { S.items[id].face = 0; toStack(id, "deck"); }
+  };
+  const forgetTop = n => {
+    for (let i = 0; i < n; i++) {
+      refillDeck();
+      const id = top("deck"); if (!id) break;
+      S.items[id].face = 1; toStack(id, "forgot");
+    }
+    S.tracks.forgot = S.stacks.forgot.items.length;
+    if (S.tracks.forgot >= lv.dissolve) lose("消散", "Faded");
+  };
+  const tie = t => {
+    S.tracks["knot" + t] = (S.tracks["knot" + t] || 0) + 1;
+    const scars = S.tracks["scar" + t] || 0, th = D.thresholds(S.level, S.players)[Math.min(2, scars)];
+    if (S.tracks["knot" + t] >= th) {
+      S.tracks["knot" + t] = 0; S.tracks["scar" + t] = Math.min(2, scars + 1);
+      backlash.push([t, scars + 1]);
+    }
+  };
+  const backlash = [];
+  const blooms = sp => ["L", "R"].map(s => B.bank(sp, s)).filter(b => b.bloom);
+  const lit = sp => sp >= 1 && sp <= 13 && blooms(sp).length > 0;
+  const fogged = sp => sp >= 1 && sp <= 13 && B.bank(sp, "L").fog && B.bank(sp, "R").fog;
+  const placeBW = sp => {
+    const s = B.soul, free = x => x > s && x <= 13 && !B.water(x);
+    let t = [...Array(14).keys()].find(x => x >= sp && free(x));
+    if (t === undefined) t = [...Array(14).keys()].reverse().find(x => x < sp && free(x));
+    if (t === undefined) return;
+    const sup = [...Array(7).keys()].reverse().map(k => B.at(`bwsup${k}`, 20).find(it => it.tk === "bw")).find(Boolean);
+    if (!sup) { lose("滅頂", "Deluge"); return; }
+    place(sup.id, `water${t}`);
+    for (const b of blooms(t)) if (!(b.tile?.tk === "frost" && b.tile.face)) b.tok.face = 0;
+  };
+  const placeShade = (sp, side) => {
+    for (let x = sp, sd = side; x <= 13; x++, sd = "L") {
+      for (const s of sd === "L" ? ["L", "R"] : ["R", "L"]) {
+        const b = B.bank(x, s);
+        if (b.shade) continue;
+        const sh = top("bin_shade"); if (!sh) return toast(tr("供應區沒有怨念了。", "No Shade left in the supply."));
+        if (b.tok) toStack(b.tok.id, "bin_root");
+        place(sh, `bank${x}${s}`); B = boardOf(); return;
+      }
+    }
+  };
+  const witherFurthest = (n, beyond = 0) => {
+    const all = [];
+    for (let sp = 13; sp > B.soul + beyond; sp--) for (const s of ["R", "L"]) { const b = B.bank(sp, s); if (b.bloom) all.push(b); }
+    (n === Infinity ? all : all.slice(0, n)).forEach(b => { b.tok.face = 0; });
+  };
+  const fogAdv = n => {
+    for (let sp = 1; sp <= 13 && n > 0; sp++) {
+      const L = B.bank(sp, "L"), R = B.bank(sp, "R");
+      // the Garland Girl's Scattered Flowers: a space the soul has left with a single Bloom is a wall that stops 1 point
+      if (S.soul === "garland" && sp < B.soul && !L.fog && !R.fog && [L, R].filter(b => b.bloom).length === 1) {
+        S.items[[L, R].find(b => b.bloom).tok.id].face = 0; n--;
+        B = boardOf();
+        if (n <= 0) break;
+      }
+      if (!L.fog && !R.fog && L.bloom && R.bloom) {   // a wall of light: each point withers a Bloom
+        for (const b of [L, R]) if (n > 0) { S.items[b.tok.id].face = 0; n--; }
+        B = boardOf();
+        if (n <= 0) break;
+      }
+      for (const side of ["L", "R"]) {
+        if (n <= 0) break;
+        const b = B.bank(sp, side);
+        if (b.fog) continue;
+        n--;
+        if (sp === 1) { const f = top("bin_fog"); if (f) place(f, `bank1${side}`); }
+        else if (b.tile) S.items[b.tile.id].face = 0;
+        if (b.tok && b.tok.tk === "root") toStack(b.tok.id, "bin_root");
+      }
+      B = boardOf();
+    }
+  };
+  // a Fate Mist effect the table can carry out; returns false for one the players carry out by hand
+  const fateEffect = txt => {
+    let m;
+    const t = txt.replace(/^(河|書)：/, "").replace(/。$/, "");
+    if ((m = t.match(/^遺忘 (\d+) 張$/))) { forgetTop(+m[1]); return true; }
+    if ((m = t.match(/^(執念|釋懷|忘卻)加 (\d+) 結$/))) { for (let i = 0; i < +m[2]; i++) tie(THREAD_ZH.indexOf(m[1])); return true; }
+    if ((m = t.match(/^解開 (\d+) 結$/))) { for (let i = 0; i < +m[1]; i++) { const k = [0, 1, 2].sort((x, y) => (S.tracks["knot" + y] || 0) - (S.tracks["knot" + x] || 0))[0]; if (S.tracks["knot" + k] > 0) S.tracks["knot" + k]--; } return true; }
+    if ((m = t.match(/^得 (\d+) 光$/))) { S.tracks.light = Math.min(12, (S.tracks.light || 0) + +m[1]); return true; }
+    if ((m = t.match(/^修補 (\d+) 道裂痕$/))) { S.tracks.crack = Math.max(0, (S.tracks.crack || 0) - +m[1]); return true; }
+    if ((m = t.match(/^霧推進 (\d+)$/))) { fogAdv(+m[1]); return true; }
+    return false;
+  };
+  const ch = S.chapter || 0;
+  const fateSlots = () => [0, 1].map(k => B.at(`fateslot${k}`, 60).find(it => it.ck?.startsWith("fate:")));
+  const fateOnTurn = () => routeOf(ch).at("f").find(it => it.ck?.startsWith("fate:"));
+  // reveal a Fate Mist (§11): its condition was met, or the soul lingers at the Gate before the chapter has turned
+  const fateCheck = async forced => {
+    const fs = fateSlots();
+    if (!fs.some(Boolean) || fateOnTurn()) return;
+    const label = (it, k) => it ? tr(`${k ? "書上" : "河流"}：${fateInfo(it).show.cond}`, `${k ? "Book" : "River"}: ${fateInfo(it).show.cond}`) : tr("（沒有）", "(none)");
+    const a = forced
+      ? await ask(tr("在門前徘徊：強制轉折", "Lingering at the Gate: the story must turn"), tr("本章的轉折還沒發生：從兩張命運之霧中選一張翻開並執行。", "This chapter has not turned yet: choose one of the two Fate Mist cards to reveal and carry out."), fs.map(label))
+      : await ask(tr("命運之霧", "Fate Mist"), tr("兩張命運之霧中，有哪一張的條件已經達成？（兩張同時達成時，由本回合玩家選一張）", "Has the condition of either Fate Mist been met? (If both, the active player chooses one.)"), [...fs.map(label), tr("都還沒有", "Neither yet")]);
+    if (a > 1 || !fs[a]) return;
+    const it = fs[a], f = fateInfo(it), manual = [];
+    await step([`翻開命運之霧「${f.show.name}」`, `reveal the Fate Mist "${f.show.name}"`], () => {
+      it.face = 1;
+      place(it.id, `node${ch}_f`); S.items[it.id].pg = ch;
+      const other = fs[1 - a]; if (other) toStack(other.id, "box");
+      for (const e of f.effects) for (const part of /[（(]/.test(e) ? [e] : e.split("，")) if (!fateEffect(part)) manual.push(part);
+    });
+    await ask(tr(`命運之霧「${f.show.name}」`, `Fate Mist "${f.show.name}"`),
+      `${f.show.event}${manual.length ? "<br><br>" + tr(`請手動執行：${manual.join("；")}`, `Carry out by hand: ${manual.join("; ")}`) : ""}`, [tr("繼續", "Go on")]);
+  };
+  // the fork (§11): the Pull of Lethe, then the Gate
+  const doFork = async () => {
+    const R = routeOf(ch), fc = fateOnTurn();
+    if (R.stop.k !== "f" || !fc || S.paths?.[ch]) return;
+    const fateTh = fateInfo(fc).thread;
+    let path = fateTh;
+    if (S.stacks.forgot.items.length >= PULL[ch]) {
+      path = 2;
+      for (let i = 0; i < 2; i++) {
+        const pick = S.stacks.forgot.items.filter(id => !MEM[S.items[id].ck.split(":")[1]]?.key);
+        if (!pick.length) break;
+        const a = await ask(tr("忘川的拉力", "The Pull of Lethe"), tr(`遺忘堆已達本章門檻（${PULL[ch]} 張）：故事走忘卻。選第 ${i + 1} 張被河水帶走的牌（移出遊戲；關鍵記憶不會被帶走）。`, `The forgotten pile has reached this chapter's limit (${PULL[ch]}): the story takes Oblivion. Choose card ${i + 1} the river carries off (out of the game; never the Key Memory).`),
+          pick.map(id => cardInfo(S.items[id].ck).title));
+        await step(["河水帶走 1 張遺忘的牌", "the river carries off a forgotten card"], () => { toStack(pick[a], "box"); S.tracks.forgot = S.stacks.forgot.items.length; });
+      }
+    } else {
+      // the Bride's chapter 3 turning point has no Gate: only the Fate Mist and the Pull of Lethe count
+      const gate = S.soul === "bride" && ch === 2 ? null : [...R.walk].reverse().map(id => R.by[id]).find(n => n.k === "g");
+      const gc = gate && R.at(gate.id).find(it => it.ck?.startsWith("mem:"));
+      const gt = gc && !gc.rot ? MEM[gc.ck.split(":")[1]]?.tag : undefined;
+      if (gt !== undefined && gt !== fateTh) {
+        const a = await ask(tr("分岔：關口", "The fork: the Gate"), tr(`命運之霧指向${thName(fateTh)}；關口點亮的記憶是${thName(gt)}。要走哪一條路？（走關口的路算違抗命運）`, `The Fate Mist points to ${thName(fateTh)}; the lit Gate memory is ${thName(gt)}. Which path? (The Gate's path defies fate.)`),
+          [tr(`命運之霧：${thName(fateTh)}`, `Fate: ${thName(fateTh)}`), tr(`關口：${thName(gt)}`, `Gate: ${thName(gt)}`)]);
+        if (a === 1) path = gt;
+      }
+    }
+    await step([`分岔：故事走${thName(path)}的路`, `the fork: the story takes ${thName(path)}`], () => { S.paths ||= {}; S.paths[ch] = { fate: fateTh, path }; });
+  };
+  // turning the page (§11)
+  const pageTurn = async () => {
+    const R = routeOf(ch);
+    await ask(tr(`翻頁：朗讀第${"一二三"[ch]}章`, `Turning the page: read chapter ${ch + 1}`), tr("朗讀入口、路線上的每一格與出口。", "Read the entrance, every slot on the route and the exit."), [tr("已朗讀，繼續", "Read, go on")]);
+    const lit = R.cards.filter(it => it.ck?.startsWith("mem:") && it.face && !it.rot);
+    let n = [0, 3, 6, 9][Math.min(3, lit.length)];
+    if (n) {
+      const how = await ask(tr("依點亮數解結", "Untie by lit memories"), tr(`本頁點亮 ${lit.length} 段：解開 ${n} 個結，自由分配到任何絲線。`, `${lit.length} lit on this page: untie ${n} knots, on any threads you like.`), [tr("每次解開最滿的絲線", "Always the fullest thread"), tr("自己分配", "Choose each one")]);
+      const untie = k => { if (S.tracks["knot" + k] > 0) S.tracks["knot" + k]--; };
+      if (how === 0) await step([`解開 ${n} 個結`, `untie ${n} knots`], () => { for (let i = 0; i < n; i++) untie([0, 1, 2].sort((x, y) => (S.tracks["knot" + y] || 0) - (S.tracks["knot" + x] || 0))[0]); });
+      else while (n > 0) {
+        const k = await ask(tr(`還可以解開 ${n} 個結`, `${n} knots left to untie`), "", [...[0, 1, 2].map(t => `${thName(t)}（${S.tracks["knot" + t] || 0}）`), tr("其餘不解", "Leave the rest")]);
+        if (k === 3) break;
+        await step([`解開${THREAD_ZH[k]} 1 個結`, `untie 1 ${THREAD_EN[k]} knot`], () => untie(k)); n--;
+      }
+    }
+    if (ch === 2) {
+      await step(["第三章寫完：彼岸出現", "chapter 3 is written: the Far Shore appears"], () => { S.farOpen = true; });
+      return;
+    }
+    const obs = lit.filter(it => MEM[it.ck.split(":")[1]]?.tag === 0).length, acc = lit.filter(it => MEM[it.ck.split(":")[1]]?.tag === 1).length;
+    const trait = obs > acc ? tr("根深：霧把河岸翻回霧面時，根留在原地", "Deep Roots: when the fog flips a bank, its Root stays") : acc > obs ? tr("花開蔓延：每回合第一次綻放時，可以讓一個相鄰的根也綻放", "Spreading Blooms: the first Bloom each turn may also Bloom a neighbouring Root") : "";
+    await step([`翻到第${"一二三"[ch + 1]}章`, `turn to chapter ${ch + 2}`], () => {
+      for (const id of [...S.stacks["mist" + ch].items]) toStack(id, "box");
+      shuffle(S.stacks["mist" + (ch + 1)].items);
+      for (const k of [0, 1]) for (const id of [...S.stacks[`fate${ch}${k}`].items]) toStack(id, "box");
+      for (const k of [0, 1]) { shuffle(S.stacks[`fate${ch + 1}${k}`].items); const id = top(`fate${ch + 1}${k}`); if (id) place(id, `fateslot${k}`, 0); }
+      S.chapter = ch + 1; S.trait = obs > acc ? "deep" : acc > obs ? "spread" : null;
+    });
+    const entry = story(S.soul).chapters[ch + 1].entry, path = S.paths?.[ch]?.path ?? 0;
+    await ask(tr(`第${"一二三"[ch + 1]}章`, `Chapter ${ch + 2}`), `${typeof entry === "string" ? entry : entry[path] || ""}${trait ? "<br><br>" + tr(`根網特性（本章有效）：${trait}`, `Root network trait (this chapter): ${trait}`) : ""}`, [tr("繼續", "Go on")]);
+  };
+  // the Shore-Keeper's question and the ending (§12)
+  const shore = async () => {
+    const need = D.SETUP_TABLE[S.players].need, st = story(S.soul);
+    const a = await ask(tr("守岸人之問", "The Shore-Keeper's question"), tr(`亡魂抵達彼岸。所有人亮出託付卡（已翻開的算完成）：完成了幾張？需要 ${need} 張。`, `The soul reaches the Far Shore. Everyone shows their Commission (revealed ones count): how many are fulfilled? ${need} needed.`),
+      [...Array(S.players + 1).keys()].map(String));
+    if (a < need) { await ask(tr("落敗（失落）", "You lose (Lost)"), tr("隱憶之約解除。即使落敗，也要從第一章的入口朗讀憶念之書到第三章的出口。", "The Veiled Memories end. Even in defeat, read the Book from chapter 1's entrance to chapter 3's exit."), [tr("好", "OK")]); return; }
+    const paths = [0, 1, 2].map(c => S.paths?.[c]?.path).filter(x => x !== undefined);
+    const cnt = [0, 1, 2].map(t => paths.filter(x => x === t).length), top2 = cnt.findIndex(c => c >= 2);
+    const ending = st.endings[top2 >= 0 ? top2 : "mix"];
+    const defied = [0, 1, 2].filter(c => S.paths?.[c] && S.paths[c].fate !== S.paths[c].path).length;
+    let keyLine = "";
+    if (S.soul !== "open") {
+      const keyIt = Object.values(S.items).find(it => it.ck?.startsWith("mem:") && MEM[it.ck.split(":")[1]]?.key);
+      const w = keyIt && S.where[keyIt.id];
+      keyLine = st.keylines[w === "t" && keyIt.pg !== undefined ? 0 : w === "s:forgot" ? 1 : 2];
+    }
+    let hiddenOk = false;
+    if (st.hidden) hiddenOk = (await ask(tr(`隱藏結局：${st.hidden.title}`, `Hidden ending: ${st.hidden.title}`), `${tr("條件全部符合嗎？", "Are all of its conditions met?")}<br>${st.hidden.conds.map(c => "・" + c).join("<br>")}${S.soul === "bride" && S.brideForgot ? "<br><br>" + tr("（提醒：本局曾因徘徊而遺忘，新娘的隱藏結局不成立。）", "(Note: a card was forgotten to Lingering this game, so the Bride's hidden ending is not met.)") : ""}`, [tr("符合", "Yes"), tr("不符合", "No")])) === 0;
+    const body = `<b>${hiddenOk ? st.hidden.title : ending.title}</b><br>${hiddenOk ? st.hidden.text : ending.text}<br><br>${st.fatelines[defied ? 1 : 0]}${keyLine ? "<br><br>" + keyLine : ""}`;
+    await ask(tr("你們獲勝：結局", "You win: the ending"), tr("隱憶之約解除。先朗讀憶念之書，再朗讀結局：", "The Veiled Memories end. Read the Book, then the ending:") + "<br><br>" + body, [tr("結束", "The end")]);
+  };
+  const leave = async sp => {
+    const bl = blooms(sp);
+    if (!bl.length) return;
+    const g = await ask(tr(`亡魂離開${spaceName(sp)}`, `The soul leaves ${spaceName(sp)}`),
+      tr(`這一格有 ${bl.length} 朵花。收光：得 ${bl.length} 點光，花凋零成根；留光：花維持綻放。`, `This space has ${bl.length} Bloom(s). Gather: gain ${bl.length} Light and they wither to Roots; leave: the Blooms stay.`),
+      [tr("收光", "Gather the light"), tr("留光", "Leave the light")]);
+    if (g === 0) await step([`${spaceName(sp)}收光`, `gather the light on ${spaceName(sp)}`], () => { bl.forEach(b => { S.items[b.tok.id].face = 0; }); S.tracks.light = Math.min(12, (S.tracks.light || 0) + bl.length); });
+  };
+  const moveSoul = async (to, why) => step([`亡魂移到${spaceName(to)}${why}`, `the soul moves to ${spaceName(to)}${why}`], () => place(B.soulTok.id, `soul${to}`));
+  const canEnter = async sp => {
+    if (sp === 14 && !S.farOpen) {
+      const a = await ask(tr("彼岸的門", "The Gate of the Far Shore"), tr("第三章已經寫完了嗎？寫完之前，彼岸視為未照亮。", "Is the third chapter written? Until it is, the Far Shore counts as unlit."), [tr("已寫完", "Written"), tr("還沒", "Not yet")]);
+      if (a === 0) S.farOpen = true;
+      return !!S.farOpen;
+    }
+    return sp === 14 || (lit(sp) && !B.water(sp));
+  };
+  try {
+    // 5-2 for the turn that is ending is done at the start of the next one (below); here, the steps of §5 in order
+    // 1. Bloombringer
+    const bringer = mantleOf("bringer");
+    if (bringer && bringer.q === cur) {
+      const roots = [];
+      for (let sp = B.soul; sp <= 13; sp++) for (const s of ["L", "R"]) { const b = B.bank(sp, s); if (b.root && sp >= 1) roots.push(b); }
+      if (roots.length) {
+        const a = await ask(tr("引花人", "Bloombringer"), tr(`${curName} 可以免費使 1 個根綻放（只有與亡魂所在格根網相連的根才能綻放）。`, `${curName} may make 1 Root Bloom for free (only Roots joined to the soul's network).`),
+          [...roots.map(b => tr(`${spaceName(b.sp)}${b.side === "L" ? "左岸" : "右岸"}`, `${spaceName(b.sp)} ${b.side === "L" ? "left" : "right"}`)), tr("不使用", "Skip")]);
+        if (a < roots.length) await step(["引花人使 1 個根綻放", "the Bloombringer makes a Root Bloom"], () => { S.items[roots[a].tok.id].face = 1; });
+      }
+    }
+    // 2. the Soul Step (§5-1)
+    let moved = false, still = false, lingeredAtGate = false;
+    const resign = Object.values(S.items).find(it => it.tk === "resign" && S.where[it.id] === "t");
+    const warden = mantleOf("warden");
+    if (resign) {
+      await step(["認命：亡魂不移動，遺忘牌庫頂 1 張", "Resignation: the soul stays; forget the top card"], () => { toStack(resign.id, "bin_resign"); forgetTop(1); });
+      still = true;
+    } else if (B.soul < 14 && await canEnter(B.soul + 1)) {
+      let stay = false;
+      if (warden && !warden.it.rot)
+        stay = (await ask(tr("守魂者", "Spirit Warden"), tr(`亡魂可以前進。${S.names[warden.q] || tr(`擺渡人 ${warden.q + 1}`, `Ferryman ${warden.q + 1}`)} 持有守魂者：要讓亡魂駐足嗎？（駐足後霧會推進）`, `The soul can move forward. The Spirit Warden's holder may make them Stay (the Mist will then advance).`),
+          [tr("前進", "Move forward"), tr("駐足", "Stay")])) === 1;
+      if (stay) { await step(["守魂者讓亡魂駐足", "the Spirit Warden makes the soul Stay"], () => { S.items[warden.it.id].rot = 90; }); still = true; }
+      else {
+        await leave(B.soul); await moveSoul(B.soul + 1, ""); moved = true;
+        // extra move (§5-1 step 4)
+        const n = S.stacks.forgot.items.length, adrift = n >= 9 && S.soul !== "child", ash = n >= 6 && !adrift;
+        if (!over && B.soul < 14 && ash && await canEnter(B.soul + 1)) { await leave(B.soul); await moveSoul(B.soul + 1, tr("（輕如灰燼）", " (Light as Ash)")); }
+        else if (!over && B.soul < 14 && adrift) {
+          const w = mantleOf("warden");
+          const stop = w && !w.it.rot && (await ask(tr("漂離", "Adrift"), tr("遺忘 9 張以上：亡魂一定再前進 1 格。守魂者的持有者要阻止這次額外移動嗎？", "9 or more forgotten: the soul always moves 1 more space. Does the Spirit Warden's holder stop it?"), [tr("讓祂漂離", "Let them drift"), tr("阻止", "Stop it")])) === 1;
+          if (stop) await step(["守魂者阻止漂離", "the Spirit Warden stops the drift"], () => { S.items[w.it.id].rot = 90; });
+          else {
+            const ok = await canEnter(B.soul + 1);
+            await leave(B.soul); await moveSoul(B.soul + 1, tr("（漂離）", " (Adrift)"));
+            if (!ok) await step(["漂離進入未照亮或有黑水的格子：承受 1 道裂痕", "drifting into the dark: 1 Fracture"], hurt);
+          }
+        }
+      }
+    } else {
+      // Lingering: only the first that applies (at space 13 before chapter 3 is written: the Gate, §11)
+      const hold = Object.values(S.items).find(it => it.tk === "hold" && S.where[it.id] === "t");
+      // the Bride (§13): the first time she would forget to Lingering, she is pulled back one space instead, once a game
+      const bride = S.soul === "bride" && !S.bridePulled;
+      if (hold) toast(tr("徘徊：亡魂旁有堅守標記，不遺忘。", "Lingering: Hold Fast, nothing is forgotten."));
+      else if (warden && !warden.it.rot) await step(["徘徊：橫放守魂者，不遺忘", "Lingering: the Spirit Warden turns sideways; nothing forgotten"], () => { S.items[warden.it.id].rot = 90; });
+      else if (lit(B.soul)) toast(tr("徘徊：所在格已照亮，不遺忘。", "Lingering: the soul's space is Lit; nothing is forgotten."));
+      else if (bride && B.soul > 1 && !fogged(B.soul - 1)) {
+        await step(["徘徊：新娘被拉回一格，不遺忘", "Lingering: the Bride is pulled back one space"], () => {
+          place(B.soulTok.id, `soul${B.soul - 1}`); S.bridePulled = true;
+          const c = soulCard(); if (c) c.rot = (c.rot + 90) % 360;   // sideways: the special rule is used
+        });
+        toast(tr("新娘的特色規則：祂被拉回黑暗，不遺忘；本回合算沒有前進，霧會推進。", "The Bride's special rule: they are pulled back into the dark and forget nothing; it counts as not moving forward, so the Mist advances."));
+      } else {
+        if (bride) toast(tr("新娘不能被拉回（在第 1 格，或前一格兩岸都是霧面）：照常遺忘，特色規則留到之後。", "The Bride cannot be pulled back (space 1, or both banks behind are fog side up): forget as usual; the rule is saved."));
+        await step(["徘徊：遺忘牌庫頂 1 張", "Lingering: forget the top card"], () => {
+          forgetTop(1);
+          // her hidden ending needs no card forgotten to Lingering all game: the Soul card turns upside down as the reminder
+          if (S.soul === "bride" && !S.brideForgot) { S.brideForgot = true; const c = soulCard(); if (c) c.rot = (c.rot + 180) % 360; }
+        });
+      }
+      still = true;
+      lingeredAtGate = B.soul === 13 && !S.farOpen;
+    }
+    // shade damage on the space where the soul ended
+    if (!over && B.soul >= 1 && B.soul <= 13 && (B.bank(B.soul, "L").shade || B.bank(B.soul, "R").shade))
+      await step(["怨念傷害：亡魂承受 1 道裂痕", "Shade damage: the soul takes 1 Fracture"], hurt);
+    if (B.soul === 14) { await shore(); return; }
+    if (lingeredAtGate) { if (!fateOnTurn()) await fateCheck(true); else if (S.paths?.[ch]) S.endChapter = ch; }
+    if (over) return;
+    // 3. Shades push the Loom
+    if (B.soul >= 1 && B.soul <= 13) {
+      const ts = ["L", "R"].map(s => B.bank(B.soul, s)).filter(b => b.shade).map(b => (b.fog ? 2 : b.side === "L" ? 0 : 1));
+      if (ts.length) await step(["怨念推進織機", "Shades push the Loom"], () => ts.forEach(tie));
+    }
+    // 4. the Mist
+    const front = B.at("mistfront", 60).find(it => it.kind === "card");
+    if (front) {
+      const [kind, key] = front.ck.split(":"), card = kind === "harsh" ? D.HARSH_CARDS.find(h => h.key === key) : D.MIST_CARDS[key];
+      const s = B.soul;
+      if (card && !AUTO_KEEP.has(key)) {
+        await step([`執行前方的霧「${card.zh}」`, `carry out the Mist ahead, "${card.en}"`], () => {
+          ({
+            rising: () => placeBW(s + 2), current: () => { placeBW(s + 2); B = boardOf(); blooms(s + 1).forEach(b => { b.tok.face = 0; }); }, flood: () => { placeBW(s + 1); B = boardOf(); placeBW(s + 3); },
+            shade: () => placeShade(s + 1, "L"), near: () => placeShade(Math.max(1, s), "L"), twin: () => { placeShade(s + 2, "L"); placeShade(s + 2, "R"); }, host: () => { placeShade(s + 1, "L"); placeShade(s + 1, "R"); },
+            wither: () => witherFurthest(2), great: () => witherFurthest(3), storm: () => witherFurthest(Infinity, 2),
+            cold: () => forgetTop(1), bitter: () => forgetTop(2), parts: () => {},
+            collapse: () => { for (let x = s + 1; x <= 13; x++) for (const sd of ["L", "R"]) { const b = B.bank(x, sd); if (b.root) { toStack(b.tok.id, "bin_root"); return; } } },
+            sever: () => { const e = Object.values(S.items).find(it => it.tk === "echo"); if (e) place(e.id, "echoS"); },
+            undertow: () => { if (s - 1 >= 1 && !fogged(s - 1)) place(B.soulTok.id, `soul${s - 1}`); else forgetTop(1); },
+            karma: () => [0, 1, 2].forEach(tie),
+            dark: () => { if ((S.tracks.light || 0) >= 2) S.tracks.light -= 2; else hurt(); },
+            bwret: () => { const id = S.stacks.box.items.find(x => S.items[x].tk === "bw"); const free = [...Array(7).keys()].find(k => !B.at(`bwsup${k}`, 20).some(it => it.tk === "bw")); if (id && free !== undefined) place(id, `bwsup${free}`); },
+          })[key]?.();
+        });
+      } else if (card) {
+        await ask(tr(`前方的霧「${card.zh}」`, `The Mist ahead, "${card.en}"`), tr(`這張要由你們手動執行：${card.tz}`, `Carry this one out by hand: ${card.te}`), [tr("已執行，繼續", "Done, go on")]);
+      }
+      if (over) return;
+      // the fog advances only if the soul did not move forward this turn
+      if (still || !moved) {
+        let n = (card?.fog || 0) + lv.fog;
+        await step([`霧推進 ${n}`, `the Mist advances ${n}`], () => fogAdv(n));
+      }
+      // engulfed?
+      if (fogged(B.soul)) {
+        await step(["亡魂被迷霧籠罩：這張迷霧牌成為霧痕", "the soul is Engulfed: this Mist card becomes a Mist scar"], () => { const q = playSpot(); toTable(front.id, q.x, q.y); if (lv.crack) hurt(); });
+        toast(tr("請把這張霧痕放到書上路線前方第一個空的迷霧格（見第 10 節）。", "Put this Mist scar on the first empty Mist slot ahead on the route (section 10)."));
+      } else await step(["迷霧牌放入迷霧棄牌", "the Mist card to the Mist discard"], () => toStack(front.id, "mistdis"));
+      if (over) return;
+      // the next Mist ahead (an empty deck is rebuilt from this chapter's basic Mist cards in the discard)
+      await step(["翻開新的前方的霧", "turn the new Mist ahead"], () => {
+        const sid = "mist" + (S.chapter || 0);
+        if (!S.stacks[sid].items.length) {
+          let rise = 1, near = 1;
+          for (const id of [...S.stacks.mistdis.items]) {
+            const it = S.items[id];
+            if (it.ck.startsWith("harsh:")) { toStack(id, "box"); continue; }
+            if (it.deck !== (S.chapter || 0)) continue;
+            if (it.ck === "mist:rising" && rise) { rise--; toStack(id, "box"); continue; }
+            if (it.ck === "mist:near" && near) { near--; toStack(id, "box"); continue; }
+            it.face = 0; toStack(id, sid);
+          }
+          shuffle(S.stacks[sid].items);
+        }
+        const id = top(sid); if (id) place(id, "mistfront", 1);
+      });
+    }
+    if (backlash.length) for (const [t, lvl] of backlash)
+      await ask(tr("絲線打滿：反噬", "A thread is full: Backlash"), tr(`${D.THREADS[t].zh}絲線打滿，已留下傷疤、結標記回到 0。請執行第 ${lvl} 級反噬（見命運織機圖板；霧痕可能讓它再升一級）。`, `The ${D.THREADS[t].en} thread is full: a Scar is marked and its knot marker is back at 0. Carry out the level ${lvl} Backlash (see the Loom board; a Mist scar may raise it one level).`), [tr("已執行，繼續", "Done, go on")]);
+    // a Fate Mist whose condition is met is revealed at once; the table asks here, once a turn
+    if (!over) await fateCheck(false);
+    // 5. the fork and turning the page
+    if (!over) await doFork();
+    if (!over && (routeOf(ch).exit || S.endChapter === ch)) { await pageTurn(); delete S.endChapter; }
+    B = boardOf();
+    // 6. cleanup
+    await step(["整理河流", "clean up the river"], () => {
+      for (let sp = 1; sp <= 13; sp++) {
+        const L = B.bank(sp, "L"), R = B.bank(sp, "R"), w = B.water(sp);
+        if (w && (L.root || L.bloom) && (R.root || R.bloom)) toStack(w.id, "box");
+        for (const b of [L, R]) {
+          if (!b.shade || b.fog) continue;
+          const prev = sp > 1 ? B.bank(sp - 1, b.side) : null, next = sp < 13 ? B.bank(sp + 1, b.side) : null;
+          if (prev?.bloom && next?.bloom) toStack(b.tok.id, "bin_shade");
+        }
+      }
+    });
+    // 7. draw up to the hand size
+    const size = S.players === 1 ? 6 : S.players === 2 ? 4 : 3;
+    if (S.hands[cur].length < size) await step([`${curName} 抽牌補滿手牌`, `${curName} draws up`], () => { while (S.hands[cur].length < size) { refillDeck(); const id = top("deck"); if (!id) break; toHand(id, cur); } });
+    // 8. solo: the Ghost, by hand
+    if (S.players === 1) await ask(tr("幽靈", "The Ghost"), tr("翻開幽靈牌庫頂的 1 張並執行，在它的絲線上打 1 個結、把迴響移過去，再整理一次（見第 14 節）。", "Turn the top Ghost card, carry it out, tie a knot on its thread and move the Echo there, then clean up again (section 14)."), [tr("已執行，繼續", "Done, go on")]);
+    // 9. the Oar, and the start of the next turn (§5-2)
+    const next = (cur + 1) % S.players;
+    await step(["船槳傳給左手邊的玩家", "the Oar passes left"], () => {
+      if (oar) toArea(oar.id, next);
+      const hold = Object.values(S.items).find(it => it.tk === "hold" && S.where[it.id] === "t");
+      if (hold) toStack(hold.id, "bin_hold");
+      for (const key of ["warden", "breaker"]) { const m = mantleOf(key); if (m && m.q === next) S.items[m.it.id].rot = 0; }
+      S.hint = STEPS.findIndex(x => x.phase === "turn");
+    });
+    toast(tr(`回合結束完成：輪到 ${S.names[next] || tr(`擺渡人 ${next + 1}`, `Ferryman ${next + 1}`)}。`, `The end of the turn is done: ${S.names[next] || `Ferryman ${next + 1}`} is next.`));
+  } catch (e) {
+    if (e !== STOP) throw e;
+    toast(tr("自動結算已停止；之後的步驟請手動執行。", "The automatic end of turn stopped; carry out the rest by hand."));
+  } finally {
+    autoRunning = false; renderOnline();
   }
 }
 // the next free spot in the Play area
@@ -1974,7 +2461,7 @@ function enterGame(build) {
 // "Choosing a Soul and a difficulty" (rulebook section 3), to help the players pick: the difficulties, the set-up by
 // player count, and each Soul's special rule
 function chooseTables() {
-  const L = D.LEVELS, WIN = ["59%", "52%", "42%"], MARK = ["◆◇◇", "◆◆◇", "◆◆◆"];
+  const L = D.LEVELS, MARK = ["◆◇◇", "◆◆◇", "◆◆◆"];
   const row = (h, cells) => `<tr><th>${h}</th>${cells.map(c => `<td>${c}</td>`).join("")}</tr>`;
   return `<section class="choose"><h2>${tr("選擇亡魂與難度", "Choosing a Soul and a difficulty")}</h2>
     <table><thead><tr><th>${tr("難度", "Difficulty")}</th>${L.map((l, i) => `<th>${MARK[i]} ${tr(l.zh, l.en)}</th>`).join("")}</tr></thead><tbody>
@@ -1984,10 +2471,9 @@ function chooseTables() {
       ${row(tr("消散門檻", "Faded at"), L.map(l => tr(`遺忘 ${l.dissolve} 張`, `${l.dissolve} forgotten`)))}
       ${row(tr("破碎門檻", "Shattered at"), L.map(l => tr(`${l.fractures} 道裂痕`, `${l.fractures} Fractures`)))}
       ${row(tr("黑水", "Black Water"), L.map(l => tr(`${l.bw} 個`, String(l.bw))))}
-      ${row(tr("模擬勝率", "Simulated win rate"), WIN)}
     </tbody></table>
-    <p class="muted small">${tr("三種難度相同：織機門檻 2–4 人 7 結、單人 10 結；每副迷霧加 2 張凶霧。你的第一局：建議以溫和難度遊玩最後火光的孩子。",
-      "The same at every difficulty: the Loom threshold is 7 knots with 2–4 players, 10 solo; each Mist deck gets 2 harsh Mist cards. Your first game: we suggest the Child of the Last Flame at Gentle.")}</p>
+    <p class="muted small">${tr("三種難度相同：織機門檻 2–4 人 7 結、單人 10 結；每副迷霧加 2 張凶霧。新手的第一局：建議以溫和難度遊玩最後火光的孩子。",
+      "The same at every difficulty: the Loom threshold is 7 knots with 2–4 players, 10 solo; each Mist deck gets 2 harsh Mist cards. A first game for new players: we suggest the Child of the Last Flame at Gentle.")}</p>
     <table><thead><tr><th>${tr("設定表", "Set-up")}</th>${[1, 2, 3, 4].map(n => `<th>${tr(`${n} 人`, `${n}p`)}</th>`).join("")}</tr></thead><tbody>
       ${row(tr("第三河段的墳墓", "Graves in Reach 3"), [2, 1, 2, 2])}
       ${row(tr("要完成的託付", "Commissions to fulfil"), [1, 2, 2, 3])}
