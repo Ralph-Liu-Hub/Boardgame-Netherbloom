@@ -1555,6 +1555,31 @@ function boardOf() {
   if (soulTok) for (let sp = 0; sp <= 14; sp++) if (at(`soul${sp}`, 45).includes(soulTok)) soul = sp;
   return { on, at, bank, soulTok, soul, water: sp => at(`water${sp}`, 45).find(it => it.kind === "tok" && it.tk === "bw") };
 }
+// The current route of a chapter (§10), walked like the rulebook: past filled memory slots, Mist slots and decided forks,
+// up to the first empty memory slot, undecided branch or turning point, or the exit.
+function routeOf(ch) {
+  const page = STORY[S.soul].chapters[ch];
+  const by = Object.fromEntries(page.nodes.map(n => [n.id, n]));
+  const cards = Object.values(S.items).filter(it => S.where[it.id] === "t" && it.kind === "card" && it.pg === ch);
+  const at = id => { const q = snapPos(`node${ch}_${id}`); return q ? cards.filter(it => Math.hypot(it.x - q.x, it.y - q.y) < 45) : []; };
+  const filled = id => at(id).length > 0;
+  const prev = ch > 0 ? S.paths?.[ch - 1]?.path : undefined;
+  let cur = (prev !== undefined && page.starts?.[prev]) || page.nodes[0].id;
+  const walk = [cur];
+  for (let guard = 0; guard < 80; guard++) {
+    const n = by[cur];
+    if (n.k === "m" || n.k === "g") { if (!filled(cur)) return { walk, stop: n, at, by, cards }; cur = n.next[0]; }
+    else if (n.k === "x") cur = n.next[0];
+    else if (n.k === "p") { const c = n.next.find(filled); if (!c) return { walk, stop: n, at, by, cards }; cur = c; }
+    else if (n.k === "f") { const pth = S.paths?.[ch]; if (!pth) return { walk, stop: n, at, by, cards }; cur = n.next[pth.path]; }
+    else return { walk, stop: n, at, by, cards, exit: true };
+    walk.push(cur);
+  }
+  return { walk, stop: by[cur], at, by, cards };
+}
+const fateInfo = it => { const [, so, c, fi] = it.ck.split(":"); return { ...STORY[so].chapters[+c].fates[+fi], show: story(so).chapters[+c].fates[+fi] }; };
+const THREAD_ZH = ["執念", "釋懷", "忘卻"], THREAD_EN = ["Obsession", "Acceptance", "Oblivion"];
+const thName = t => tr(THREAD_ZH[t], THREAD_EN[t]);
 function askAuto(title, body, choices) {
   return new Promise(res => {
     modal(`<h3>${title}</h3>${body ? `<p>${body}</p>` : ""}<div class="askrow">${choices.map((c, i) => `<button data-ask="${i}">${c}</button>`).join("")}</div>`);
@@ -1566,6 +1591,8 @@ function askAuto(title, body, choices) {
     };
   });
 }
+// for the browser tests: read the table and set pieces down without the mouse
+window.__nbTest = { state: () => S, snapPos, put: (id, snapId, props = {}) => commit("", () => { const q = snapPos(snapId); toTable(id, q.x, q.y); Object.assign(S.items[id], props); }), set: fn => commit("", () => fn(S)) };
 async function autoEndTurn() {
   if (WATCH) return watchToast();
   if (!isAdmin) return toast(tr("只有管理員可以使用自動結算。", "Only an admin can use the automatic end of turn."));
@@ -1649,6 +1676,140 @@ async function autoEndTurn() {
     for (let sp = 13; sp > B.soul + beyond; sp--) for (const s of ["R", "L"]) { const b = B.bank(sp, s); if (b.bloom) all.push(b); }
     (n === Infinity ? all : all.slice(0, n)).forEach(b => { b.tok.face = 0; });
   };
+  const fogAdv = n => {
+    for (let sp = 1; sp <= 13 && n > 0; sp++) {
+      const L = B.bank(sp, "L"), R = B.bank(sp, "R");
+      if (!L.fog && !R.fog && L.bloom && R.bloom) {   // a wall of light: each point withers a Bloom
+        for (const b of [L, R]) if (n > 0) { S.items[b.tok.id].face = 0; n--; }
+        B = boardOf();
+        if (n <= 0) break;
+      }
+      for (const side of ["L", "R"]) {
+        if (n <= 0) break;
+        const b = B.bank(sp, side);
+        if (b.fog) continue;
+        n--;
+        if (sp === 1) { const f = top("bin_fog"); if (f) place(f, `bank1${side}`); }
+        else if (b.tile) S.items[b.tile.id].face = 0;
+        if (b.tok && b.tok.tk === "root") toStack(b.tok.id, "bin_root");
+      }
+      B = boardOf();
+    }
+  };
+  // a Fate Mist effect the table can carry out; returns false for one the players carry out by hand
+  const fateEffect = txt => {
+    let m;
+    const t = txt.replace(/^(河|書)：/, "").replace(/。$/, "");
+    if ((m = t.match(/^遺忘 (\d+) 張$/))) { forgetTop(+m[1]); return true; }
+    if ((m = t.match(/^(執念|釋懷|忘卻)加 (\d+) 結$/))) { for (let i = 0; i < +m[2]; i++) tie(THREAD_ZH.indexOf(m[1])); return true; }
+    if ((m = t.match(/^解開 (\d+) 結$/))) { for (let i = 0; i < +m[1]; i++) { const k = [0, 1, 2].sort((x, y) => (S.tracks["knot" + y] || 0) - (S.tracks["knot" + x] || 0))[0]; if (S.tracks["knot" + k] > 0) S.tracks["knot" + k]--; } return true; }
+    if ((m = t.match(/^得 (\d+) 光$/))) { S.tracks.light = Math.min(12, (S.tracks.light || 0) + +m[1]); return true; }
+    if ((m = t.match(/^修補 (\d+) 道裂痕$/))) { S.tracks.crack = Math.max(0, (S.tracks.crack || 0) - +m[1]); return true; }
+    if ((m = t.match(/^霧推進 (\d+)$/))) { fogAdv(+m[1]); return true; }
+    return false;
+  };
+  const ch = S.chapter || 0;
+  const fateSlots = () => [0, 1].map(k => B.at(`fateslot${k}`, 60).find(it => it.ck?.startsWith("fate:")));
+  const fateOnTurn = () => routeOf(ch).at("f").find(it => it.ck?.startsWith("fate:"));
+  // reveal a Fate Mist (§11): its condition was met, or the soul lingers at the Gate before the chapter has turned
+  const fateCheck = async forced => {
+    const fs = fateSlots();
+    if (!fs.some(Boolean) || fateOnTurn()) return;
+    const label = (it, k) => it ? tr(`${k ? "書上" : "河流"}：${fateInfo(it).show.cond}`, `${k ? "Book" : "River"}: ${fateInfo(it).show.cond}`) : tr("（沒有）", "(none)");
+    const a = forced
+      ? await ask(tr("在門前徘徊：強制轉折", "Lingering at the Gate: the story must turn"), tr("本章的轉折還沒發生：從兩張命運之霧中選一張翻開並執行。", "This chapter has not turned yet: choose one of the two Fate Mist cards to reveal and carry out."), fs.map(label))
+      : await ask(tr("命運之霧", "Fate Mist"), tr("兩張命運之霧中，有哪一張的條件已經達成？（兩張同時達成時，由本回合玩家選一張）", "Has the condition of either Fate Mist been met? (If both, the active player chooses one.)"), [...fs.map(label), tr("都還沒有", "Neither yet")]);
+    if (a > 1 || !fs[a]) return;
+    const it = fs[a], f = fateInfo(it), manual = [];
+    await step([`翻開命運之霧「${f.show.name}」`, `reveal the Fate Mist "${f.show.name}"`], () => {
+      it.face = 1;
+      place(it.id, `node${ch}_f`); S.items[it.id].pg = ch;
+      const other = fs[1 - a]; if (other) toStack(other.id, "box");
+      for (const e of f.effects) for (const part of /[（(]/.test(e) ? [e] : e.split("，")) if (!fateEffect(part)) manual.push(part);
+    });
+    await ask(tr(`命運之霧「${f.show.name}」`, `Fate Mist "${f.show.name}"`),
+      `${f.show.event}${manual.length ? "<br><br>" + tr(`請手動執行：${manual.join("；")}`, `Carry out by hand: ${manual.join("; ")}`) : ""}`, [tr("繼續", "Go on")]);
+  };
+  // the fork (§11): the Pull of Lethe, then the Gate
+  const doFork = async () => {
+    const R = routeOf(ch), fc = fateOnTurn();
+    if (R.stop.k !== "f" || !fc || S.paths?.[ch]) return;
+    const fateTh = fateInfo(fc).thread;
+    let path = fateTh;
+    if (S.stacks.forgot.items.length >= PULL[ch]) {
+      path = 2;
+      for (let i = 0; i < 2; i++) {
+        const pick = S.stacks.forgot.items.filter(id => !MEM[S.items[id].ck.split(":")[1]]?.key);
+        if (!pick.length) break;
+        const a = await ask(tr("忘川的拉力", "The Pull of Lethe"), tr(`遺忘堆已達本章門檻（${PULL[ch]} 張）：故事走忘卻。選第 ${i + 1} 張被河水帶走的牌（移出遊戲；關鍵記憶不會被帶走）。`, `The forgotten pile has reached this chapter's limit (${PULL[ch]}): the story takes Oblivion. Choose card ${i + 1} the river carries off (out of the game; never the Key Memory).`),
+          pick.map(id => cardInfo(S.items[id].ck).title));
+        await step(["河水帶走 1 張遺忘的牌", "the river carries off a forgotten card"], () => { toStack(pick[a], "box"); S.tracks.forgot = S.stacks.forgot.items.length; });
+      }
+    } else {
+      const gate = [...R.walk].reverse().map(id => R.by[id]).find(n => n.k === "g");
+      const gc = gate && R.at(gate.id).find(it => it.ck?.startsWith("mem:"));
+      const gt = gc && !gc.rot ? MEM[gc.ck.split(":")[1]]?.tag : undefined;
+      if (gt !== undefined && gt !== fateTh) {
+        const a = await ask(tr("分岔：關口", "The fork: the Gate"), tr(`命運之霧指向${thName(fateTh)}；關口點亮的記憶是${thName(gt)}。要走哪一條路？（走關口的路算違抗命運）`, `The Fate Mist points to ${thName(fateTh)}; the lit Gate memory is ${thName(gt)}. Which path? (The Gate's path defies fate.)`),
+          [tr(`命運之霧：${thName(fateTh)}`, `Fate: ${thName(fateTh)}`), tr(`關口：${thName(gt)}`, `Gate: ${thName(gt)}`)]);
+        if (a === 1) path = gt;
+      }
+    }
+    await step([`分岔：故事走${thName(path)}的路`, `the fork: the story takes ${thName(path)}`], () => { S.paths ||= {}; S.paths[ch] = { fate: fateTh, path }; });
+  };
+  // turning the page (§11)
+  const pageTurn = async () => {
+    const R = routeOf(ch);
+    await ask(tr(`翻頁：朗讀第${"一二三"[ch]}章`, `Turning the page: read chapter ${ch + 1}`), tr("朗讀入口、路線上的每一格與出口。", "Read the entrance, every slot on the route and the exit."), [tr("已朗讀，繼續", "Read, go on")]);
+    const lit = R.cards.filter(it => it.ck?.startsWith("mem:") && it.face && !it.rot);
+    let n = [0, 3, 6, 9][Math.min(3, lit.length)];
+    if (n) {
+      const how = await ask(tr("依點亮數解結", "Untie by lit memories"), tr(`本頁點亮 ${lit.length} 段：解開 ${n} 個結，自由分配到任何絲線。`, `${lit.length} lit on this page: untie ${n} knots, on any threads you like.`), [tr("每次解開最滿的絲線", "Always the fullest thread"), tr("自己分配", "Choose each one")]);
+      const untie = k => { if (S.tracks["knot" + k] > 0) S.tracks["knot" + k]--; };
+      if (how === 0) await step([`解開 ${n} 個結`, `untie ${n} knots`], () => { for (let i = 0; i < n; i++) untie([0, 1, 2].sort((x, y) => (S.tracks["knot" + y] || 0) - (S.tracks["knot" + x] || 0))[0]); });
+      else while (n > 0) {
+        const k = await ask(tr(`還可以解開 ${n} 個結`, `${n} knots left to untie`), "", [...[0, 1, 2].map(t => `${thName(t)}（${S.tracks["knot" + t] || 0}）`), tr("其餘不解", "Leave the rest")]);
+        if (k === 3) break;
+        await step([`解開${THREAD_ZH[k]} 1 個結`, `untie 1 ${THREAD_EN[k]} knot`], () => untie(k)); n--;
+      }
+    }
+    if (ch === 2) {
+      await step(["第三章寫完：彼岸出現", "chapter 3 is written: the Far Shore appears"], () => { S.farOpen = true; });
+      return;
+    }
+    const obs = lit.filter(it => MEM[it.ck.split(":")[1]]?.tag === 0).length, acc = lit.filter(it => MEM[it.ck.split(":")[1]]?.tag === 1).length;
+    const trait = obs > acc ? tr("根深：霧把河岸翻回霧面時，根留在原地", "Deep Roots: when the fog flips a bank, its Root stays") : acc > obs ? tr("花開蔓延：每回合第一次綻放時，可以讓一個相鄰的根也綻放", "Spreading Blooms: the first Bloom each turn may also Bloom a neighbouring Root") : "";
+    await step([`翻到第${"一二三"[ch + 1]}章`, `turn to chapter ${ch + 2}`], () => {
+      for (const id of [...S.stacks["mist" + ch].items]) toStack(id, "box");
+      shuffle(S.stacks["mist" + (ch + 1)].items);
+      for (const k of [0, 1]) for (const id of [...S.stacks[`fate${ch}${k}`].items]) toStack(id, "box");
+      for (const k of [0, 1]) { shuffle(S.stacks[`fate${ch + 1}${k}`].items); const id = top(`fate${ch + 1}${k}`); if (id) place(id, `fateslot${k}`, 0); }
+      S.chapter = ch + 1; S.trait = obs > acc ? "deep" : acc > obs ? "spread" : null;
+    });
+    const entry = story(S.soul).chapters[ch + 1].entry, path = S.paths?.[ch]?.path ?? 0;
+    await ask(tr(`第${"一二三"[ch + 1]}章`, `Chapter ${ch + 2}`), `${typeof entry === "string" ? entry : entry[path] || ""}${trait ? "<br><br>" + tr(`根網特性（本章有效）：${trait}`, `Root network trait (this chapter): ${trait}`) : ""}`, [tr("繼續", "Go on")]);
+  };
+  // the Shore-Keeper's question and the ending (§12)
+  const shore = async () => {
+    const need = D.SETUP_TABLE[S.players].need, st = story(S.soul);
+    const a = await ask(tr("守岸人之問", "The Shore-Keeper's question"), tr(`亡魂抵達彼岸。所有人亮出託付卡（已翻開的算完成）：完成了幾張？需要 ${need} 張。`, `The soul reaches the Far Shore. Everyone shows their Commission (revealed ones count): how many are fulfilled? ${need} needed.`),
+      [...Array(S.players + 1).keys()].map(String));
+    if (a < need) { await ask(tr("落敗（失落）", "You lose (Lost)"), tr("隱憶之約解除。即使落敗，也要從第一章的入口朗讀憶念之書到第三章的出口。", "The Veiled Memories end. Even in defeat, read the Book from chapter 1's entrance to chapter 3's exit."), [tr("好", "OK")]); return; }
+    const paths = [0, 1, 2].map(c => S.paths?.[c]?.path).filter(x => x !== undefined);
+    const cnt = [0, 1, 2].map(t => paths.filter(x => x === t).length), top2 = cnt.findIndex(c => c >= 2);
+    const ending = st.endings[top2 >= 0 ? top2 : "mix"];
+    const defied = [0, 1, 2].filter(c => S.paths?.[c] && S.paths[c].fate !== S.paths[c].path).length;
+    let keyLine = "";
+    if (S.soul !== "open") {
+      const keyIt = Object.values(S.items).find(it => it.ck?.startsWith("mem:") && MEM[it.ck.split(":")[1]]?.key);
+      const w = keyIt && S.where[keyIt.id];
+      keyLine = st.keylines[w === "t" && keyIt.pg !== undefined ? 0 : w === "s:forgot" ? 1 : 2];
+    }
+    let hiddenOk = false;
+    if (st.hidden) hiddenOk = (await ask(tr(`隱藏結局：${st.hidden.title}`, `Hidden ending: ${st.hidden.title}`), `${tr("條件全部符合嗎？", "Are all of its conditions met?")}<br>${st.hidden.conds.map(c => "・" + c).join("<br>")}`, [tr("符合", "Yes"), tr("不符合", "No")])) === 0;
+    const body = `<b>${hiddenOk ? st.hidden.title : ending.title}</b><br>${hiddenOk ? st.hidden.text : ending.text}<br><br>${st.fatelines[defied ? 1 : 0]}${keyLine ? "<br><br>" + keyLine : ""}`;
+    await ask(tr("你們獲勝：結局", "You win: the ending"), tr("隱憶之約解除。先朗讀憶念之書，再朗讀結局：", "The Veiled Memories end. Read the Book, then the ending:") + "<br><br>" + body, [tr("結束", "The end")]);
+  };
   const leave = async sp => {
     const bl = blooms(sp);
     if (!bl.length) return;
@@ -1680,7 +1841,7 @@ async function autoEndTurn() {
       }
     }
     // 2. the Soul Step (§5-1)
-    let moved = false, still = false;
+    let moved = false, still = false, lingeredAtGate = false;
     const resign = Object.values(S.items).find(it => it.tk === "resign" && S.where[it.id] === "t");
     const warden = mantleOf("warden");
     if (resign) {
@@ -1709,7 +1870,7 @@ async function autoEndTurn() {
         }
       }
     } else {
-      // Lingering: only the first that applies
+      // Lingering: only the first that applies (at space 13 before chapter 3 is written: the Gate, §11)
       const hold = Object.values(S.items).find(it => it.tk === "hold" && S.where[it.id] === "t");
       const bride = S.soul === "bride" && !Object.values(S.items).find(it => it.ck === "soul:bride")?.rot;
       if (hold) toast(tr("徘徊：亡魂旁有堅守標記，不遺忘。", "Lingering: Hold Fast, nothing is forgotten."));
@@ -1718,11 +1879,13 @@ async function autoEndTurn() {
       else if (bride && B.soul > 1 && !fogged(B.soul - 1)) await step(["徘徊：新娘被拉回一格，不遺忘", "Lingering: the Bride is pulled back one space"], () => { place(B.soulTok.id, `soul${B.soul - 1}`); const c = Object.values(S.items).find(it => it.ck === "soul:bride"); if (c) c.rot = 90; });
       else await step(["徘徊：遺忘牌庫頂 1 張", "Lingering: forget the top card"], () => forgetTop(1));
       still = true;
+      lingeredAtGate = B.soul === 13 && !S.farOpen;
     }
     // shade damage on the space where the soul ended
     if (!over && B.soul >= 1 && B.soul <= 13 && (B.bank(B.soul, "L").shade || B.bank(B.soul, "R").shade))
       await step(["怨念傷害：亡魂承受 1 道裂痕", "Shade damage: the soul takes 1 Fracture"], hurt);
-    if (B.soul === 14) { toast(tr("亡魂抵達彼岸：進行守岸人之問（見第 12 節）。", "The soul reaches the Far Shore: the Shore-Keeper's question (section 12).")); return; }
+    if (B.soul === 14) { await shore(); return; }
+    if (lingeredAtGate) { if (!fateOnTurn()) await fateCheck(true); else if (S.paths?.[ch]) S.endChapter = ch; }
     if (over) return;
     // 3. Shades push the Loom
     if (B.soul >= 1 && B.soul <= 13) {
@@ -1756,26 +1919,7 @@ async function autoEndTurn() {
       // the fog advances only if the soul did not move forward this turn
       if (still || !moved) {
         let n = (card?.fog || 0) + lv.fog;
-        await step([`霧推進 ${n}`, `the Mist advances ${n}`], () => {
-          for (let sp = 1; sp <= 13 && n > 0; sp++) {
-            const L = B.bank(sp, "L"), R = B.bank(sp, "R");
-            if (!L.fog && !R.fog && L.bloom && R.bloom) {   // a wall of light: each point withers a Bloom
-              for (const b of [L, R]) if (n > 0) { S.items[b.tok.id].face = 0; n--; }
-              B = boardOf();
-              if (n <= 0) break;
-            }
-            for (const side of ["L", "R"]) {
-              if (n <= 0) break;
-              const b = B.bank(sp, side);
-              if (b.fog) continue;
-              n--;
-              if (sp === 1) { const f = top("bin_fog"); if (f) place(f, `bank1${side}`); }
-              else if (b.tile) S.items[b.tile.id].face = 0;
-              if (b.tok && b.tok.tk === "root") toStack(b.tok.id, "bin_root");
-            }
-            B = boardOf();
-          }
-        });
+        await step([`霧推進 ${n}`, `the Mist advances ${n}`], () => fogAdv(n));
       }
       // engulfed?
       if (fogged(B.soul)) {
@@ -1803,8 +1947,11 @@ async function autoEndTurn() {
     }
     if (backlash.length) for (const [t, lvl] of backlash)
       await ask(tr("絲線打滿：反噬", "A thread is full: Backlash"), tr(`${D.THREADS[t].zh}絲線打滿，已留下傷疤、結標記回到 0。請執行第 ${lvl} 級反噬（見命運織機圖板；霧痕可能讓它再升一級）。`, `The ${D.THREADS[t].en} thread is full: a Scar is marked and its knot marker is back at 0. Carry out the level ${lvl} Backlash (see the Loom board; a Mist scar may raise it one level).`), [tr("已執行，繼續", "Done, go on")]);
-    // 5. the fork and turning the page: by hand (the next round of automation)
-    await ask(tr("分岔與翻頁", "The fork and turning the page"), tr("若路線停在轉折前且命運之霧已在 ◆ 上，現在分岔；若路線走到出口，現在翻頁（見第 11 節）。完成後繼續。", "If the route waits at the turning point with a Fate Mist on the ◆, fork now; if it has reached the exit, turn the page now (section 11). Then go on."), [tr("繼續", "Go on")]);
+    // a Fate Mist whose condition is met is revealed at once; the table asks here, once a turn
+    if (!over) await fateCheck(false);
+    // 5. the fork and turning the page
+    if (!over) await doFork();
+    if (!over && (routeOf(ch).exit || S.endChapter === ch)) { await pageTurn(); delete S.endChapter; }
     B = boardOf();
     // 6. cleanup
     await step(["整理河流", "clean up the river"], () => {
