@@ -1592,7 +1592,7 @@ function askAuto(title, body, choices) {
   });
 }
 // for the browser tests: read the table and set pieces down without the mouse
-window.__nbTest = { state: () => S, snapPos, put: (id, snapId, props = {}) => commit("", () => { const q = snapPos(snapId); toTable(id, q.x, q.y); Object.assign(S.items[id], props); }), set: fn => commit("", () => fn(S)) };
+window.__nbTest = { state: () => S, snapPos, put: (id, snapId, props = {}) => commit("", () => { const q = snapPos(snapId); toTable(id, q.x, q.y); Object.assign(S.items[id], props); }), set: fn => commit("", () => fn(S)), stack: (id, sid) => commit("", () => toStack(id, sid)) };
 async function autoEndTurn() {
   if (WATCH) return watchToast();
   if (!isAdmin) return toast(tr("只有管理員可以使用自動結算。", "Only an admin can use the automatic end of turn."));
@@ -1613,18 +1613,33 @@ async function autoEndTurn() {
     const old = JSON.parse(JSON.stringify(S));
     commit(tr(`自動結算：${msg[0]}`, `End of turn: ${msg[1]}`), fn);
     animateChanges(old);
+    while (notes.length) toast(notes.shift());
     await new Promise(r => setTimeout(r, 650));
     B = boardOf();
   };
   const STOP = Symbol("stop");
   const ask = async (title, body, choices) => { const a = await askAuto(title, body, choices); if (a < 0) throw STOP; return a; };
   // small rules the steps share; they change S and are only called inside step()
+  const soulCard = () => Object.values(S.items).find(it => it.ck === "soul:" + S.soul);
   const hurt = () => {
+    // the Child: the first Fracture of the game is ignored (the Soul card turns sideways as the reminder)
+    const sc = soulCard();
+    if (S.soul === "child" && sc && !sc.rot) { sc.rot = 90; notes.push(tr("孩子的特色規則：第一道裂痕被忽略，亡魂牌橫放。", "The Child's special rule: the first Fracture is ignored; the Soul card turns sideways.")); return; }
     const sh = Object.values(S.items).find(it => it.tk === "shield" && S.where[it.id] === "t");
     if (sh) { toStack(sh.id, "bin_shield"); return; }
     S.tracks.crack = Math.min(5, (S.tracks.crack || 0) + 1);
+    // the King: the player whose turn it is loses their Mantle; it goes back to the Mantle row (a cancelled Fracture does not count)
+    if (S.soul === "king") {
+      const id = S.areas[cur].find(x => S.items[x].ck?.startsWith("mantle:"));
+      if (id) {
+        const key = S.items[id].ck.split(":")[1], i = D.MANTLES.findIndex(m => m.key === key), q = snapPos(`mantle${i}`);
+        toTable(id, q.x, q.y); S.items[id].rot = 0; S.items[id].face = 1;
+        notes.push(tr(`國王的特色規則：${curName} 造成裂痕，失去稱號「${D.MANTLES[i].zh}」，放回稱號列。`, `The King's special rule: ${curName} caused a Fracture and loses the ${D.MANTLES[i].en}, back to the Mantle row.`));
+      }
+    }
     if (S.tracks.crack >= lv.fractures) lose("破碎", "Shattered");
   };
+  const notes = [];
   const refillDeck = () => {
     if (S.stacks.deck.items.length) return;
     for (const id of shuffle([...S.stacks.discard.items])) { S.items[id].face = 0; toStack(id, "deck"); }
@@ -1679,6 +1694,12 @@ async function autoEndTurn() {
   const fogAdv = n => {
     for (let sp = 1; sp <= 13 && n > 0; sp++) {
       const L = B.bank(sp, "L"), R = B.bank(sp, "R");
+      // the Garland Girl's Scattered Flowers: a space the soul has left with a single Bloom is a wall that stops 1 point
+      if (S.soul === "garland" && sp < B.soul && !L.fog && !R.fog && [L, R].filter(b => b.bloom).length === 1) {
+        S.items[[L, R].find(b => b.bloom).tok.id].face = 0; n--;
+        B = boardOf();
+        if (n <= 0) break;
+      }
       if (!L.fog && !R.fog && L.bloom && R.bloom) {   // a wall of light: each point withers a Bloom
         for (const b of [L, R]) if (n > 0) { S.items[b.tok.id].face = 0; n--; }
         B = boardOf();

@@ -81,6 +81,22 @@ const BASE = process.env.BASE || "http://localhost:8765";
   const bloomsAt1 = st => Object.values(st.items).filter(it => it.tk === "root" && it.face === 1 && st.where[it.id] === "t").length;
   expect(bloomsAt1(s) < bloomsAt1(b2) || /near|shade/.test(mistKey), `the Mist advanced into the wall of light on space 1 (${bloomsAt1(b2)} -> ${bloomsAt1(s)} Blooms)`);
 
+  // the Child: the first Fracture of the game is ignored (a Shade on the soul's space)
+  {
+    const b3 = await S(A);
+    await A.evaluate(() => { const T = window.__nbTest, st = T.state(); const fr = T.snapPos("mistfront"); T.set(S => { for (const it of Object.values(S.items)) if (S.where[it.id] === "t" && /^(mist|harsh):/.test(it.ck) && Math.hypot(it.x - fr.x, it.y - fr.y) < 40) { it.ck = "mist:parts"; it.deck = S.chapter || 0; } }); const q = T.snapPos("bank1L"); for (const it of Object.values(st.items)) if (it.kind === "tok" && st.where[it.id] === "t" && Math.hypot(it.x - q.x, it.y - q.y) < 30) T.stack(it.id, "bin_" + (it.tk === "root" ? "root" : it.tk)); const sh = st.stacks.bin_shade.items.at(-1); T.put(sh, "bank1L"); });
+    await A.click("#tt-endturn");
+    for (let i = 0; i < 30; i++) {
+      if (await A.evaluate(() => !document.querySelector("#tt-endturn").disabled)) break;
+      const btn = await A.$('#tt-modal:not(.hidden) [data-ask="0"]'); if (btn) await btn.click();
+      await A.waitForTimeout(500);
+    }
+    await A.waitForFunction(() => !document.querySelector("#tt-endturn").disabled, null, { timeout: 30000 });
+    s = await S(A);
+    const card = Object.values(s.items).find(it => it.ck === "soul:child");
+    expect(s.tracks.crack === b3.tracks.crack && card.rot === 90, `the Child ignores the first Fracture (Fractures ${b3.tracks.crack} -> ${s.tracks.crack}, Soul card turned ${card.rot}) ` + s.log.slice(-8).map(l => l.m).join(" | "));
+  }
+
   // round 2: the fork, turning the page, and the ending
   const runTurn = async answer => {
     await A.click("#tt-endturn");
@@ -126,6 +142,57 @@ const BASE = process.env.BASE || "http://localhost:8765";
     await A.waitForTimeout(500);
   }
   expect(/釋懷|Acceptance|回家|鬆開手/.test(endText) || endText.length > 20, "the ending is read out (two chapters of Acceptance): " + endText.slice(0, 80));
+
+  // the King and the Garland Girl, each on a fresh table set up automatically
+  const setupSoul = async soul => {
+    await A.click("#tt-menu"); await A.waitForSelector("#lb-local");
+    await A.selectOption("#lb-soul", soul); await A.selectOption("#lb-level", "1"); await A.selectOption("#lb-players", "2");
+    await A.click("#lb-local"); await A.waitForSelector("#tt-world");
+    await A.click("#tt-auto");
+    await A.waitForFunction(() => !document.querySelector("#tt-auto").disabled, null, { timeout: 60000 });
+  };
+  const endTurn = async () => {
+    await A.click("#tt-endturn");
+    for (let i = 0; i < 30; i++) {
+      if (await A.evaluate(() => !document.querySelector("#tt-endturn").disabled)) break;
+      const title = await A.evaluate(() => document.querySelector("#tt-modal:not(.hidden) h3")?.textContent || "");
+      const k = /命運之霧|Fate Mist/.test(title) ? 2 : /離開|leaves/.test(title) ? 1 : 0;   // no Fate Mist; leave the light
+      const btn = title && (await A.$(`#tt-modal:not(.hidden) [data-ask="${k}"]`)); if (btn) await btn.click();
+      await A.waitForTimeout(500);
+    }
+    await A.waitForFunction(() => !document.querySelector("#tt-endturn").disabled, null, { timeout: 30000 });
+  };
+  // the King: the first player holds a Mantle; a Shade on the soul's space wounds the soul on their turn
+  await setupSoul("king");
+  await A.evaluate(() => {
+    const T = window.__nbTest, st = T.state();
+const fr = T.snapPos("mistfront"); T.set(S => { for (const it of Object.values(S.items)) if (S.where[it.id] === "t" && /^(mist|harsh):/.test(it.ck) && Math.hypot(it.x - fr.x, it.y - fr.y) < 40) { it.ck = "mist:parts"; it.deck = S.chapter || 0; } });
+    const m = Object.values(st.items).find(it => it.ck === "mantle:weaver");
+    T.set(S => { const w = S.where[m.id]; S.where[m.id] = "a:0"; S.areas[0].push(m.id); });
+    const so = Object.values(st.items).find(it => it.tk === "soul"); T.put(so.id, "soul1");
+    const q = T.snapPos("bank1L"); for (const it of Object.values(st.items)) if (it.kind === "tok" && st.where[it.id] === "t" && Math.hypot(it.x - q.x, it.y - q.y) < 30) T.stack(it.id, "bin_" + (it.tk === "root" ? "root" : it.tk));
+    T.put(st.stacks.bin_shade.items.at(-1), "bank1L");
+  });
+  await endTurn();
+  s = await S(A);
+  const weaver = Object.values(s.items).find(it => it.ck === "mantle:weaver");
+  expect(s.tracks.crack === 1 && s.where[weaver.id] === "t", `the King: the Fracture costs the first player their Mantle (Fractures ${s.tracks.crack}, Mantle ${s.where[weaver.id]})`);
+  // the Garland Girl: space 1 is left with one Bloom; the advancing Mist is stopped by it for 1 point
+  await setupSoul("garland");
+  await A.evaluate(() => {
+    const T = window.__nbTest, st = T.state();
+const fr = T.snapPos("mistfront"); T.set(S => { for (const it of Object.values(S.items)) if (S.where[it.id] === "t" && /^(mist|harsh):/.test(it.ck) && Math.hypot(it.x - fr.x, it.y - fr.y) < 40) { it.ck = "mist:parts"; it.deck = S.chapter || 0; } });
+    const bl = Object.values(st.items).filter(it => it.tk === "root" && it.face === 1 && st.where[it.id] === "t");
+    T.set(S => { S.items[bl[0].id].face = 0; });                    // space 1 keeps a single Bloom
+    const so = Object.values(st.items).find(it => it.tk === "soul"); T.put(so.id, "soul2");   // the soul has moved past it
+    T.put(st.stacks.bin_root.items.at(-1), "bank2L", { face: 1 });   // and stands on a Lit space 2 (space 3 is unlit: they Linger)
+  });
+  const g0 = await S(A);
+  await endTurn();
+  s = await S(A);
+  const tileOf = (st, side) => Object.values(st.items).find(it => it.kind === "tile" && st.where[it.id] === "t" && false);
+  const bloomsLeft = st => Object.values(st.items).filter(it => it.tk === "root" && it.face === 1 && st.where[it.id] === "t").length;
+  expect(bloomsLeft(s) < bloomsLeft(g0), `the Garland Girl: the single Bloom left on space 1 withered as a wall (${bloomsLeft(g0)} -> ${bloomsLeft(s)})`);
 
   console.log("PROBLEMS", problems.length, problems);
   if (problems.length) process.exitCode = 1;
