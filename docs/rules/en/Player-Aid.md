@@ -4,7 +4,7 @@
 
 ## Front: your turn
 
-**You win** when the soul reaches the Far Shore (space 14) with enough Commissions fulfilled (solo 1, 2–3 players 2, 4 players 3). The Far Shore appears only once chapter 3 is written.
+**You win** when the soul reaches the Far Shore (space 14) with enough Commissions fulfilled (2–3 players 2, 4 players 3). The Far Shore appears only once chapter 3 is written.
 **You lose**: Faded (forgotten cards reach the limit) · Shattered (Fractures reach the limit) · Deluge (Black Water must be placed but none is left) · Lost (the soul reaches the Far Shore without enough Commissions).
 
 ### 1. Before your first action (optional, not an action)
@@ -50,8 +50,7 @@ When **both banks of the next space have Shades** and it has no Black Water: rem
 5. **The fork and turning the page**: a Fate Mist card on the ◆ means the story forks; a route at its exit means you turn the page. §11
 6. ★ **Cleanup**, space by space: Black Water with a Root or Bloom on both banks → Black Water back in the box; a Shade with Blooms on the same side of the space ahead **and** the space behind → remove the Shade.
 7. **Draw** back up to your hand size.
-8. **Solo**: the Ghost acts, then clean up again. §14
-9. Pass the **Oar** to the player on your left.
+8. Pass the **Oar** to the player on your left.
 
 ### The Soul Step
 
@@ -65,11 +64,11 @@ When **both banks of the next space have Shades** and it has no Black Water: rem
 
 | Item | Number |
 |---|---|
-| Loom threshold | Where the Scar marker stands on the knot track: from 7 (2–4 players) or 10 (solo); each Scar moves it one cell down (threshold −1, Backlash one level higher) |
+| Loom threshold | Where the Scar marker stands on the knot track: from 7; each Scar moves it one cell down (threshold −1, Backlash one level higher) |
 | The Pull of Lethe (forgotten pile at the fork) | Chapter 1: 3 · chapter 2: 5 · chapter 3: 7 cards; the river carries off 2, the forgotten track goes back 2 |
 | Turning the page unties (0 / 1 / 2 / 3 memories lit on the page) | 0 / 3 / 6 / 9 knots |
 | Light | 12 at most; light a memory 1 · summon a Mantle 3 (King 2) · Recall 3 |
-| Hand size | Solo 6 · 2 players 4 · 3–4 players 3 |
+| Hand size | 2 players 4 · 3–4 players 3 |
 
 | Difficulty | Faded | Shattered | Black Water | Mist bonus | Starting knots |
 |---|---|---|---|---|---|

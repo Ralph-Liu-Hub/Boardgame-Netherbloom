@@ -16,12 +16,16 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 D = tempfile.mkdtemp() + "/"
-OUT = os.path.join(ROOT, "web", "public", "downloads", "netherbloom-rulebook-v5.zh-TW.docx")
+import sys
+SOLO = "solo" in sys.argv[1:]   # python3 web/tools/build_rulebook_docx.py solo  -> the Solo Rulebook
+OUT = os.path.join(ROOT, "web", "public", "downloads", "netherbloom-solo-rulebook-v5.zh-TW.docx" if SOLO else "netherbloom-rulebook-v5.zh-TW.docx")
 
-src = open(os.path.join(ROOT, "docs", "rules", "zh-TW", "V5", "Rulebook.md"), encoding="utf-8").read()
+src = open(os.path.join(ROOT, "docs", "rules", "zh-TW", "V5", "Solo-Rulebook.md" if SOLO else "Rulebook.md"), encoding="utf-8").read()
+src = re.sub(r"^> 單人模式依照.*?\n\n", "", src, flags=re.S | re.M) if SOLO else src
 src = re.sub(r"^> 設計理由.*?\n\n", "", src, flags=re.S | re.M)              # repository note, not for players
 src = re.sub(r"```mermaid\n.*?```\n", "", src, flags=re.S)                  # the flowchart: the numbered list after it says the same
-svg = re.search(r'<div class="figure">(<svg.*?</svg>)</div>', src, flags=re.S).group(1)
+m_fig = re.search(r'<div class="figure">(<svg.*?</svg>)</div>', src, flags=re.S)
+svg = m_fig.group(1) if m_fig else "<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'></svg>"
 open(D + "fig.svg", "w").write(svg)
 # the figure: drawn by Chromium at twice its size, dark lines on white
 subprocess.run(["node", "-e", """
@@ -45,6 +49,7 @@ for f in os.listdir(D):
     if f.startswith("icon-"): Image.open(D + f).save(D + f, dpi=(330, 330))
 src = re.sub(r'<img src="(?:\.\./)+icons/([\w-]+)\.svg" alt="([^"]*)"[^>]*>', lambda m: f"![{m.group(2)}]({D}icon-{m.group(1)}.png)", src)
 # rule boxes: marker paragraphs that the pass below turns into a border around everything between them
+src = src.replace("<br>", "⏎")   # a line break inside a table cell; turned into a Word line break below
 src = src.replace('<div class="rulebox" markdown="1">', "BOXSTART").replace("</div>\n", "BOXEND\n")
 open(D + "rulebook.md", "w", encoding="utf-8").write(src)
 # the first heading becomes the document title, the numbered sections Heading 1, their parts Heading 2;
@@ -106,6 +111,47 @@ def borders(tbl):
         for p in cell.paragraphs:
             for r in p.runs: r.bold = True
 for t in doc.tables: borders(t)
+# line breaks inside table cells (⏎ from <br>): python-docx writes "\n" in a run as a Word line break
+for tbl in doc.tables:
+    for row in tbl.rows:
+        for cell in row.cells:
+            for para in cell.paragraphs:
+                for run in para.runs:
+                    if "⏎" in run.text: run.text = run.text.replace("⏎", "\n")
+# column widths by how much each column holds, so the table fills the printed width without crowding any column;
+# a table with five or more columns is set a size smaller
+PAGE = 9400   # A4 less the margins, in twentieths of a point
+def fit_widths(tbl):
+    rows = tbl.rows
+    n = len(tbl.columns)
+    if n < 2: return
+    want = [0] * n
+    for r in rows:
+        for i, c in enumerate(r.cells[:n]):
+            want[i] = max(want[i], min(max(len(x) for x in c.text.strip().split("\n")) if c.text.strip() else 0, 40) + 4)
+    tot = sum(want)
+    widths = [max(int(PAGE * w / tot), 1500 if n >= 4 else 1100) for w in want]
+    over = sum(widths) - PAGE
+    if over > 0:   # take the excess from the widest column
+        widths[widths.index(max(widths))] -= over
+    widths[-1] += PAGE - sum(widths)
+    tblPr = tbl._tbl.tblPr
+    lay = tblPr.find(qn("w:tblLayout"))
+    if lay is None: lay = OxmlElement("w:tblLayout"); tblPr.append(lay)
+    lay.set(qn("w:type"), "fixed")
+    grid = tbl._tbl.find(qn("w:tblGrid"))
+    if grid is not None:
+        for gc, w in zip(grid.findall(qn("w:gridCol")), widths): gc.set(qn("w:w"), str(w))
+    for r in rows:
+        for c, w in zip(r.cells[:n], widths):
+            tcPr = c._tc.get_or_add_tcPr()
+            tw = tcPr.find(qn("w:tcW"))
+            if tw is None: tw = OxmlElement("w:tcW"); tcPr.insert(0, tw)
+            tw.set(qn("w:w"), str(w)); tw.set(qn("w:type"), "dxa")
+            if n >= 5:
+                for p in c.paragraphs:
+                    for run in p.runs: run.font.size = Pt(9)
+for t in doc.tables: fit_widths(t)
 # children of table and cell properties in the order the schema requires
 TBL = "tblStyle tblpPr tblOverlap bidiVisual tblStyleRowBandSize tblStyleColBandSize tblW jc tblCellSpacing tblInd tblBorders shd tblLayout tblCellMar tblLook tblCaption tblDescription".split()
 TC = "cnfStyle tcW gridSpan hMerge vMerge tcBorders shd noWrap tcMar textDirection tcFitText vAlign hideMark".split()
@@ -156,7 +202,7 @@ PPR = """pStyle keepNext keepLines pageBreakBefore framePr widowControl numPr su
 wordWrap overflowPunct topLinePunct autoSpaceDE autoSpaceDN bidi adjustRightInd snapToGrid spacing ind contextualSpacing mirrorIndents
 suppressOverlap jc textDirection textAlignment textboxTightWrap outlineLvl divId cnfStyle rPr sectPr pPrChange""".split()
 for ppr in doc.element.body.iter(qn("w:pPr")): order(ppr, PPR)
-doc.core_properties.title = "《彼岸花渡》Netherbloom — 規則書 V5"
+doc.core_properties.title = "《彼岸花渡》Netherbloom — " + ("單人模式規則書 V5" if SOLO else "規則書 V5")
 doc.core_properties.author = "Netherbloom"
 doc.save(D + "built.docx")
 

@@ -82,7 +82,7 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .bookp .ar { fill: none; stroke: #6b645c; stroke-width: 1.4; }
 .bookp .ar.th0 { stroke: var(--t0); } .bookp .ar.th1 { stroke: var(--t1); } .bookp .ar.th2 { stroke: var(--t2); }
 .chbtn { font-size: 11px; padding: 2px 8px; }
-.node { position: absolute; width: 80px; height: 108px; border: 1px dashed #5d554c; border-radius: 8px; font-size: 10px; color: var(--mist); padding: 4px; overflow: hidden; }
+.node { position: absolute; width: 118px; height: 160px; border: 1px dashed #5d554c; border-radius: 8px; font-size: 10px; color: var(--mist); padding: 4px; overflow: hidden; }
 .node.mem { background: rgba(242, 232, 213, .04); }
 .node.gate { border-color: var(--gold); border-style: solid; }
 .node .nslot { display: flex; gap: 3px; align-items: center; color: var(--bone); font-size: 11px; }
@@ -286,8 +286,6 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .btitle { font-size: 19px; }
 .lab, .note { font-size: 14px; }
 .cell { font-size: 12px; }
-.node { width: 96px; height: 130px; font-size: 12px; }
-.node .nslot { font-size: 13px; }
 .bookp .entry { font-size: 13px; }
 .loom .thread { font-size: 15px; }
 .loom .blash { font-size: 12.5px; }
@@ -530,3 +528,25 @@ mark.rqm.cur { background: #f2b84f; color: #1b1813; box-shadow: 0 0 0 2px rgba(2
 /* the automatic end of turn asks with a row of buttons */
 .askrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .askrow button { min-width: 7em; }
+
+/* the Ledger: the difficulty that ends the game on a cell is printed above it; the one in play is bright */
+.ctag { position: absolute; transform: translateX(-50%); font-size: 11px; line-height: 1; white-space: nowrap; color: #a99c86; letter-spacing: .5px; pointer-events: none; }
+.ctag.on { color: var(--gold); font-weight: 700; }
+.ledger .cell.lim2 { border-color: rgba(201, 164, 92, .45); }
+.ledger .cell.round.off { opacity: .45; border-style: dashed; }
+.ledger .cell.round { font-size: 13px; color: #b9ad99; }
+
+/* the words of a Book slot sit above it */
+/* the sentence of a Book slot, above it: left-aligned, at most three lines (the whole line is in the tooltip) */
+.nlab { position: absolute; font-size: 12px; line-height: 1.35; color: #e6dccd; text-align: left; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; padding: 0 2px; }
+.nlab.mist { color: #a9d6d8; font-style: italic; }
+/* the kind of slot, inside it, large enough to read across the table */
+.node .nkind { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; color: var(--bone); font-size: 19px; font-weight: 600; line-height: 1.25; letter-spacing: 1px; }
+.node .nkind .ic { display: block; width: 34px; height: 34px; margin: 0 auto 6px; opacity: .8; }
+.node .nkind i { display: block; font-style: normal; font-size: 15px; color: var(--gold); margin-top: 6px; }
+.node.mistn .nkind { color: #a9d6d8; font-size: 17px; }
+.node.turn .nkind { color: var(--cyan); }
+.node.turn .nkind small { display: block; font-size: 13px; font-weight: 400; color: #bfe3e5; margin-top: 6px; letter-spacing: 0; }
+.tk.trait.deep { background: #3b2e1c; color: #e3c48f; border-radius: 10px; } .tk.trait.spread { background: #7a1f2b; color: #ffd6d0; border-radius: 10px; }
+.board.landing .rowlab { position: absolute; font-size: 15px; color: var(--bone); letter-spacing: 2px; border-bottom: 1px solid rgba(201, 164, 92, .35); width: 960px; padding-bottom: 2px; }

@@ -79,7 +79,7 @@ export const STEPS = [
   { phase: "page", zh: "加深迷霧", en: "Deepen the Mist", focus: ["mist"],
     body: z("把剩下的迷霧牌庫移到盒中，改用下一章的那一副（已經洗好）。已經翻開的前方的霧不換。", "Move the rest of this Mist deck to the box and use the next chapter's deck (already shuffled). The Mist ahead stays.") },
   { phase: "page", zh: "根網特性", en: "Root-network trait", focus: ["book"],
-    body: z("看剛結束那一頁的點亮記憶：執念較多 → 根深（霧翻回霧面時根留下）；釋懷較多 → 花開蔓延（每回合第一次綻放時，相鄰的 1 個根也綻放）；一樣多 → 沒有。", "Count this page's lit memories: more Obsession → Deep Roots (Roots stay when the fog takes a bank); more Acceptance → Spreading Bloom (your first Bloom each turn may also bloom a neighbouring Root); a tie → none.") },
+    body: z("看剛結束那一章的點亮記憶：執念較多 → 根深（霧翻回霧面時根留下）；釋懷較多 → 花開蔓延（每回合第一次綻放時，相鄰的 1 個根也綻放）；一樣多 → 沒有。把根網特性標記放到書旁的「根網特性」格，翻到對應的一面；沒有特性就放回供應區。", "Count the lit memories of the chapter just finished: more Obsession → Deep Roots (Roots stay when the fog takes a bank); more Acceptance → Spreading Bloom (your first Bloom each turn may also bloom a neighbouring Root); a tie → none. Put the Root trait marker on the trait slot beside the Book, matching side up; with no trait, back to the supply.") },
   { phase: "page", zh: "下一章的命運之霧", en: "The next chapter's fates", focus: ["fate"],
     body: z("從下一章的河流條件與書上條件各拖出 1 張，條件面朝上。在書的分頁按下一章，再按「把這章設為目前的章節」，朗讀依上一章走的絲線的入口句。", "Drag one card each from the next chapter's River and Book piles, condition up. Open the next chapter's tab, press “Make this the chapter in play”, and read the entry for the thread you took.") },
   { phase: "page", zh: "第三章寫完時", en: "When chapter 3 is done", focus: ["river"], loop: 10,
