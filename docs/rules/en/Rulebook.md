@@ -53,13 +53,13 @@ The three limits depend on the difficulty; see the difficulty table in section 3
 
 ### How the river and the story go together
 
-The two boards are not played separately: every Memory card you play moves both the river and the story.
+The river and the Book of Remembrance are two sides of one journey: every step the soul takes on the river leaves a mark in the Book, and every memory written in the Book decides how far they can still go.
 
-- **One card, two uses**: when you play a Memory card face up, its effect works on the river (placing Roots, making Blooms, banishing Shades, draining Black Water and so on); if the Echo marker was already on its thread, the same Obsession or Acceptance card may also be inscribed in the Book of Remembrance as one of the soul's memories. A card played face down only places a Root on the river.
-- **The river gives Light; Light lights the story**: when the soul leaves a space with Blooms you may gather the light, and Light lights the memories in the Book. Only lit memories fulfil Commissions, and only they untie knots on the Loom when you turn the page.
-- **The story decides whether the soul can land**: until the third chapter is written the Gate of the Far Shore stays shut, and a soul on space 13 can only Linger there, forgetting memories. So the river must not run ahead, nor the story fall behind.
-- **Each side pulls on the other**: when the fog engulfs the soul's space, the Mist card becomes a Mist scar in the Book; some Fate Mist conditions look at the river and some at the Book; when you turn the page, the chapter's lit memories decide the next chapter's Root network trait.
-- **Pacing**: turn a page roughly every 4 to 5 spaces. Before the soul reaches space 5, the Book should be at chapter 2; before space 9, at chapter 3.
+**From memory to the river**: every Memory card you play is something the soul remembers. What they remember becomes Roots and Blooms that light the way ahead on the banks; what is written in the Book of Remembrance slowly tells them who they are. The thread the story follows also changes the river in turn: Obsession sinks the Roots deeper, Acceptance makes the Blooms spread faster.
+
+**From the river back to memory**: the Light the soul carries away from blooming banks lights the memories in the Book, and only lit memories are acknowledged by the Shore-Keeper at the end. But whenever the soul stops, the fog closes in from behind: a road swallowed by the fog leaves a Mist scar in the Book, and a memory forgotten while Lingering is hard to write back.
+
+**Reaching the Far Shore together**: the Far Shore opens only to a soul whose story is written. If the river runs ahead, the soul can only wait at the Gate, forgetting bit by bit; if the story falls behind, the fog swallows the road they came by first. Bring their steps and their memories to the Far Shore together.
 
 ### The Veiled Memories
 
