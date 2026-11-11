@@ -277,12 +277,14 @@ input, select { font: inherit; background: var(--ink2); color: var(--paper); bor
 .booktab.on { border-color: var(--bone); background: #3a2f22; }
 .curnote { font-size: 12px; color: var(--gold); font-family: var(--sans); }
 .bookp.onprologue { background-size: cover; }
-.bookp .prologue { position: absolute; left: 50%; top: 56px; max-height: calc(100% - 80px); transform: translateX(-50%); width: min(720px, 86%); overflow: auto; padding: 22px 34px; background: rgba(28, 24, 18, .78); border: 1px solid rgba(232, 214, 180, .35); border-radius: 6px; color: var(--paper); font-family: var(--serif); }
-.bookp .prologue .ptitle { font-size: 22px; color: var(--bone); text-align: center; letter-spacing: .08em; margin-bottom: 10px; }
-.bookp .prologue .motto { font-size: 16px; text-align: center; font-style: italic; color: #e8d6b4; margin: 0 0 16px; }
-.bookp .prologue p { font-size: 15px; line-height: 1.9; margin: 0 0 12px; text-indent: 2em; }
-.bookp .prologue .psep { text-align: center; color: #e8d6b4; opacity: .7; margin: 14px 0; letter-spacing: .5em; }
-.bookp .prologue .pnext { display: block; margin: 14px auto 0; font-size: 14px; padding: 6px 16px; }
+.bookp .prologue { position: absolute; left: 0; right: 0; top: 40px; bottom: 0; padding: 18px 52px 22px; overflow-x: auto; overflow-y: hidden;
+  background: linear-gradient(180deg, rgba(20, 17, 12, .55), rgba(20, 17, 12, .78) 30%, rgba(20, 17, 12, .82)); color: var(--paper); font-family: var(--serif);
+  columns: 4 300px; column-gap: 56px; column-fill: auto; column-rule: 1px solid rgba(232, 214, 180, .14); }
+.bookp .prologue .ptitle { column-span: all; font-size: 26px; color: var(--bone); text-align: center; letter-spacing: .1em; margin-bottom: 6px; }
+.bookp .prologue .motto { column-span: all; font-size: 17px; text-align: center; font-style: italic; color: #e8d6b4; margin: 0 0 18px; }
+.bookp .prologue p { font-size: 16px; line-height: 1.95; margin: 0 0 10px; text-indent: 2em; orphans: 2; widows: 2; }
+.bookp .prologue .psep { text-align: center; color: #e8d6b4; opacity: .7; margin: 12px 0; letter-spacing: .5em; }
+.bookp .prologue .pnext { display: block; margin: 16px auto 0; font-size: 15px; padding: 6px 18px; }
 .browse { position: absolute; right: 16px; top: 44px; font-size: 12px; color: var(--cyan); }
 
 /* the table itself */

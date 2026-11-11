@@ -1097,8 +1097,8 @@ function fit() {
 function bindTable() {
   const v = $("#tt-view");
   v.addEventListener("wheel", e => {
-    const pr = e.target.closest?.(".prologue");   // the prologue's text scrolls under the wheel; the table does not zoom
-    if (pr && pr.scrollHeight > pr.clientHeight) return;
+    const pr = e.target.closest?.(".prologue");   // a prologue too long for the page scrolls sideways under the wheel; the table does not zoom
+    if (pr && pr.scrollWidth > pr.clientWidth + 1) { e.preventDefault(); pr.scrollLeft += e.deltaY + e.deltaX; return; }
     e.preventDefault();
     const r = v.getBoundingClientRect();
     const mx = e.clientX - r.left, my = e.clientY - r.top;
