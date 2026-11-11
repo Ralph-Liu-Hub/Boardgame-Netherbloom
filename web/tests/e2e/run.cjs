@@ -57,7 +57,7 @@ function startPeer() {
 (async () => {
   await new Promise(ok => site.listen(8765, "127.0.0.1", ok));
   const havePeer = await startPeer();
-  const all = ["table.e2e.cjs", "setup.e2e.cjs", "autoturn.e2e.cjs", "touch.e2e.cjs", "pinch.e2e.cjs", ...(havePeer ? ["online.e2e.cjs", "watch.e2e.cjs"] : [])];
+  const all = ["table.e2e.cjs", "setup.e2e.cjs", "autoturn.e2e.cjs", "touch.e2e.cjs", "pinch.e2e.cjs", ...(havePeer ? ["online.e2e.cjs", "watch.e2e.cjs", "endgame.e2e.cjs"] : [])];
   const tests = process.env.ONLY ? all.filter(t => process.env.ONLY.split(",").includes(t)) : all;   // ONLY=autoturn.e2e.cjs to run one file
   if (!havePeer) console.log("online.e2e.cjs skipped: install the dev packages peer and peerjs to run it");
   let failed = 0;

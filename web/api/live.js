@@ -1,9 +1,12 @@
 // Live tables, for an admin to watch games as they are played.
-//   POST   /api/live            a host reports its table (every 45 s while it is open): code, Soul, seats, who is online
+//   POST   /api/live            a host reports its table (every 45 s while it is open): code, Soul, seats, who is online;
+//                                the answer says {ended: true} once an admin has ended the table, and the host closes it
+//   POST   /api/live {end: [CODE, ...]}   (admin) end one or more live tables
 //   DELETE /api/live?code=XXXXX the host closed its table
 //   GET    /api/live            (admin) the tables reported in the last 2.5 minutes
 //   GET    /api/live?token=CODE (admin) a pass to watch that table; the host checks it before letting a watcher in
 //   GET    /api/live?verify=PASS&code=CODE   (any signed-in host) is this a real pass for my table?
+//   GET    /api/live?status=CODE (any signed-in player) is that table still being played, or did an admin end it?
 // Online games still run browser to browser: only this summary is kept, in the play log's Blob store (live/CODE.json).
 import { COOKIE, readCookie, sessionUser, isAdmin, hmac, safeEqual } from "./_session.js";
 import { logging, listAll, readJson, writeJson } from "./_playlog.js";
@@ -19,6 +22,11 @@ const useMemory = () => !logging() && process.env.NB_LIVE_MEMORY === "1";
 async function save(code, value) {
   if (useMemory()) { memory().set(code, value); return; }
   if (logging()) await writeJson(`live/${code}.json`, value);
+}
+async function one(code) {
+  if (useMemory()) return memory().get(code) || null;
+  if (!logging()) return null;
+  return readJson(`live/${code}.json`);
 }
 async function all() {
   if (useMemory()) return [...memory().values()];
@@ -41,6 +49,14 @@ export async function POST(request) {
   if (!user) return json({ ok: false, error: "Sign in first." }, 401);
   let b = {};
   try { b = await request.json(); } catch { /* empty */ }
+  if (Array.isArray(b.end)) {   // an admin ends tables: each host hears of it at its next report and closes the table
+    if (!isAdmin(process.env, user)) return json({ ok: false, error: "Only an admin account can end tables." }, 403);
+    const codes = [...new Set(b.end.map(c => String(c || "").toUpperCase()).filter(c => CODE.test(c)))].slice(0, 50);
+    try {
+      for (const c of codes) await save(c, { ...((await one(c)) || {}), code: c, at: new Date().toISOString(), ended: true, endedBy: user });
+    } catch (e) { return json({ ok: false, error: String(e?.message || e) }, 502); }
+    return json({ ok: true, ended: codes });
+  }
   const code = String(b.code || "").toUpperCase();
   if (!CODE.test(code)) return json({ ok: false, error: "Bad table code." }, 400);
   const clip = (v, n) => String(v ?? "").slice(0, n);
@@ -53,7 +69,11 @@ export async function POST(request) {
     light: Math.max(0, Math.min(12, +b.light || 0)), forgotten: Math.max(0, Math.min(40, +b.forgotten || 0)), cracks: Math.max(0, Math.min(5, +b.cracks || 0)),
     voice: Math.max(0, Math.min(24, +b.voice || 0)),
   };
-  try { await save(code, entry); } catch (e) { return json({ ok: false, error: String(e?.message || e) }, 502); }
+  try {
+    const was = await one(code);
+    if (was?.endedBy) return json({ ok: true, ended: true, endedBy: was.endedBy });   // an admin ended it: it stays ended
+    await save(code, entry);
+  } catch (e) { return json({ ok: false, error: String(e?.message || e) }, 502); }
   return json({ ok: true });
 }
 
@@ -72,6 +92,14 @@ export async function GET(request) {
   const q = new URL(request.url).searchParams;
   const secret = process.env.NB_SECRET;
   if (q.has("verify")) return json({ ok: await passOk(secret, (q.get("code") || "").toUpperCase(), q.get("verify")) });
+  if (q.has("status")) {
+    const code = (q.get("status") || "").toUpperCase();
+    if (!CODE.test(code)) return json({ ok: false }, 400);
+    try {
+      const t = await one(code);
+      return json({ ok: true, known: !!t, live: !!t && !t.ended && Date.now() - new Date(t.at).getTime() < FRESH, endedByAdmin: !!t?.endedBy });
+    } catch { return json({ ok: false }, 502); }
+  }
   if (!isAdmin(process.env, user)) return json({ ok: false, error: "Only an admin account can watch tables." }, 403);
   if (q.has("token")) {
     const code = (q.get("token") || "").toUpperCase();

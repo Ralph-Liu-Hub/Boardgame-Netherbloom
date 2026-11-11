@@ -27,4 +27,16 @@ assert.equal(await verify("ABCDE", `${Math.floor(Date.now() / 1000) - 10}.${pass
 // a closed table leaves the list
 await DELETE(await req("pat", "?code=ABCDE", { method: "DELETE" }));
 assert.equal((await (await GET(await req("boss", ""))).json()).live.length, 0);
+// an admin ends tables (one or more); a player cannot; the host hears it at its next report and the table stays ended
+const report = (u, code) => req(u, "", { method: "POST", body: JSON.stringify({ code, soul: "child", players: 2, names: ["Pat", "Bea"] }) });
+await POST(await report("pat", "FGHJK")); await POST(await report("pat", "MNPQR"));
+const status = async c => (await (await GET(await req("pat", `?status=${c}`))).json());
+assert.deepEqual(await status("FGHJK"), { ok: true, known: true, live: true, endedByAdmin: false });
+assert.equal((await POST(await req("pat", "", { method: "POST", body: JSON.stringify({ end: ["FGHJK"] }) }))).status, 403);
+const ended = await (await POST(await req("boss", "", { method: "POST", body: JSON.stringify({ end: ["FGHJK", "MNPQR", "bad!"] }) }))).json();
+assert.deepEqual(ended.ended, ["FGHJK", "MNPQR"]);
+assert.deepEqual(await status("FGHJK"), { ok: true, known: true, live: false, endedByAdmin: true });
+assert.deepEqual(await (await POST(await report("pat", "FGHJK"))).json(), { ok: true, ended: true, endedBy: "boss" });
+assert.equal((await (await GET(await req("boss", ""))).json()).live.length, 0);
+assert.deepEqual(await status("ZZZZZ"), { ok: true, known: false, live: false, endedByAdmin: false });
 console.log("live ok");

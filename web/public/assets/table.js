@@ -758,15 +758,15 @@ function buildTable() {
       <button id="tt-mic" class="hidden" title="${tr("開或關你的麥克風（同桌的人都聽得到）", "Switch your microphone on or off (everyone at the table hears you)")}"></button>
       <button id="tt-sound" class="hidden" title="${tr("聽或不聽其他人的聲音", "Hear the others, or not")}"></button>
       <div id="tt-seats" class="seats"></div>
-      <label class="switch"><input type="checkbox" id="tt-hints"> <span>${tr("下一步提示", "Next-step hints")}</span></label>
-      <button id="tt-auto" title="${tr("照規則書的準備步驟自動擺好牌桌（有動畫）", "Set the table up by the rulebook's steps, animated")}">${tr("自動準備", "Auto Setup")}</button>
+      <label class="switch${isAdmin ? "" : " hidden"}" id="tt-hintsw"><input type="checkbox" id="tt-hints"> <span>${tr("下一步提示", "Next-step hints")}</span></label>
+      <button id="tt-auto" class="${isAdmin ? "" : "hidden"}" title="${tr("照規則書的準備步驟自動擺好牌桌（有動畫）", "Set the table up by the rulebook's steps, animated")}">${tr("自動準備", "Auto Setup")}</button>
       <button id="tt-endturn" class="${isAdmin ? "" : "hidden"}" title="${tr("管理員：依規則自動執行回合結束（亡魂行動、怨念、迷霧、整理、抽牌、船槳）；需要選擇時會詢問", "Admin: carry out the end of the turn by the rules (Soul Step, Shades, Mist, cleanup, draw, Oar), asking whenever there is a choice")}">${tr("自動結算回合", "Auto End Turn")}</button>
-      <button id="tt-undo" title="Ctrl+Z">${tr("復原", "Undo")}</button>
-      <button id="tt-redo" title="Ctrl+Y">${tr("重做", "Redo")}</button>
+      <button id="tt-undo" title="Ctrl+Z">${tr("回復上一步", "Undo")}</button>
+      <button id="tt-redo" title="Ctrl+Y">${tr("取消回復", "Redo")}</button>
       <button id="tt-fit">${tr("全桌", "Fit")}</button>
       <button id="tt-rules">${tr("規則書", "Rulebook")}</button>
       <button id="tt-aid">${tr("玩家輔助卡", "Player Aid")}</button>
-      <button id="tt-log">${tr("紀錄", "Log")}</button>
+      <button id="tt-log" class="${isAdmin ? "" : "hidden"}">${tr("紀錄", "Log")}</button>
       <button id="tt-menu">${tr("選單", "Menu")}</button>
       <span class="tt-sep"></span>
       <a href="/admin" id="tt-dash" class="${isAdmin ? "" : "hidden"}"><button type="button" tabindex="-1">${tr("後台", "Dashboard")}</button></a>
@@ -799,7 +799,7 @@ function buildTable() {
   bindTable();
   if (mode !== "local") announceVoice();
   let hintsOn = false;
-  try { hintsOn = localStorage.getItem("nb-hints") === "1"; } catch { /* */ }
+  try { hintsOn = isAdmin && localStorage.getItem("nb-hints") === "1"; } catch { /* */ }
   $("#tt-hints").checked = hintsOn;
   setHints(hintsOn, false);
   render();
@@ -922,6 +922,11 @@ function render() {
   renderHint();
   renderOnline();
 }
+// Next-step hints, Auto Setup, the Log and Auto End Turn are the superadmin's tools, whether playing or watching
+function adminTools() {
+  for (const id of ["tt-hintsw", "tt-auto", "tt-log", "tt-endturn"]) $("#" + id)?.classList.toggle("hidden", !isAdmin);
+  if (!isAdmin && $("#tt-hints")?.checked) { $("#tt-hints").checked = false; setHints(false, false); }
+}
 // the watching badge, the voice buttons and who is talking (re-drawn whenever voice changes, too)
 function renderOnline() {
   if (!onTable()) return;
@@ -930,7 +935,8 @@ function renderOnline() {
   wb.classList.toggle("hidden", !WATCH && !(watchHost && !WATCH));
   wb.textContent = WATCH ? tr(`觀戰中・從 ${S.names[ME] || ""} 的視角`, `Watching · from ${S.names[ME] || ""}'s side`) : tr(`代打 ${S.names[ME] || ""}`, `Playing for ${S.names[ME] || ""}`);
   $("#tt-switch").classList.toggle("hidden", !(WATCH && mode === "guest" && isAdmin));
-  $("#tt-auto").disabled = WATCH || autoRunning; const et = $("#tt-endturn"); if (et) { et.classList.toggle("hidden", !isAdmin); et.disabled = WATCH || autoRunning; } $("#tt-undo").disabled = $("#tt-redo").disabled = WATCH;
+  adminTools();
+  $("#tt-auto").disabled = WATCH || autoRunning; const et = $("#tt-endturn"); if (et) et.disabled = WATCH || autoRunning; $("#tt-undo").disabled = $("#tt-redo").disabled = WATCH;
   const mb = $("#tt-mic"), sb = $("#tt-sound"), live = online && !!voice?.joined;
   mb.classList.toggle("hidden", !live); sb.classList.toggle("hidden", !live);
   mb.classList.toggle("on", !!voice?.micOn);
@@ -1029,7 +1035,7 @@ function commit(msg, fn) {
   changed();
 }
 function changed() { saveLocal(); render(); sync(); }
-function undo() { if (WATCH || !hist.length) return; fut.push(JSON.stringify(S)); S = JSON.parse(hist.pop()); S.rev = Date.now(); changed(); toast(tr("已復原", "Undone")); }
+function undo() { if (WATCH || !hist.length) return; fut.push(JSON.stringify(S)); S = JSON.parse(hist.pop()); S.rev = Date.now(); changed(); toast(tr("已回復上一步", "Undone")); }
 function redo() { if (WATCH || !fut.length) return; hist.push(JSON.stringify(S)); S = JSON.parse(fut.pop()); S.rev = Date.now(); changed(); }
 
 function detach(id) {
@@ -1138,14 +1144,14 @@ function bindTable() {
   $("#tt-undo").onclick = undo; $("#tt-redo").onclick = redo; $("#tt-fit").onclick = fit;
   $("#tt-rules").onclick = () => openDrawer(S?.players === 1 ? "solo" : "rules");
   $("#tt-aid").onclick = () => openDrawer("aid");
-  $("#tt-log").onclick = () => openDrawer("log");
+  $("#tt-log").onclick = () => { if (isAdmin) openDrawer("log"); };
   $("#tt-menu").onclick = () => {
     if (mode !== "local" && !WATCH && !confirm(tr("離開這張線上桌？其他人會和你斷線。", "Leave this online table? The others lose their link to you."))) return;
     showMenuScreen();
   };
-  $("#tt-hints").onchange = e => setHints(e.target.checked);
+  $("#tt-hints").onchange = e => setHints(isAdmin && e.target.checked);
   $("#tt-lang").onclick = toggleLang;
-  $("#tt-auto").onclick = autoSetup;
+  $("#tt-auto").onclick = () => { if (isAdmin) autoSetup(); };
   $("#tt-endturn").onclick = autoEndTurn;
   $("#tt-mic").onclick = toggleMic;
   $("#tt-sound").onclick = () => { if (voice) { voice.setHearing(!voice.hearing); renderOnline(); } };
@@ -2361,7 +2367,8 @@ function startHost(code) {
   const voicePeer = {}; // connection id -> that browser's peer id, while it is in voice
   liveCode = code; voiceList = [];
   S.since ||= new Date().toISOString();
-  const markOnline = () => { S.online = S.names.map((_, q) => (q === 0 && !watchHost) || Object.values(seats).includes(q)); };
+  S.code = code;   // the saved game remembers its table, so the menu can tell whether an admin ended it
+  const markOnline = () => { if (!S) return; S.online = S.names.map((_, q) => (q === 0 && !watchHost) || Object.values(seats).includes(q)); };
   markOnline();
   hostSide = { seats, watchers, voicePeer, markOnline };
   voice = createVoice({ myId: () => link?.id(), onChange: renderOnline });
@@ -2381,6 +2388,7 @@ function startHost(code) {
         });
         return;
       }
+      if (hostEnded) { link.send(cid, { t: "ended" }); return; }   // the table is closing: whoever arrives now hears it ended
       if (msg.t === "voice") { setVoiceMember(cid, msg); return; }
       if (msg.t === "hello") {
         const taken = new Set(Object.values(seats)), first = watchHost ? 0 : 1;
@@ -2461,8 +2469,23 @@ function liveReport(force = false) {
   const body = { code: liveCode, since: S.since, soul: S.soul, level: S.level, players: S.players, names: S.names, online: S.online || [],
     watchers: hostSide ? Object.keys(hostSide.watchers).length : 0, watchHost, chapter: S.chapter || 0, light: S.tracks?.light || 0,
     forgotten, cracks: S.tracks?.crack || 0, voice: voiceList.filter(m => m.mic).length };
-  fetch("/api/live", { method: "POST", body: JSON.stringify(body), headers: { "Content-Type": "application/json" }, keepalive: true }).catch(() => {});
+  fetch("/api/live", { method: "POST", body: JSON.stringify(body), headers: { "Content-Type": "application/json" }, keepalive: true })
+    .then(r => (r.ok ? r.json() : null)).then(j => { if (j?.ended && mode === "host") endedByAdmin(); }).catch(() => {});
 }
+// an admin ended this table (from the menu or the Dashboard): everyone at it goes back to the menu, and the game is over
+let hostEnded = false;
+function endedByAdmin() {
+  if (hostEnded) return;
+  hostEnded = true;
+  link?.broadcast({ t: "ended" });
+  try { localStorage.removeItem(LS); } catch { /* */ }
+  liveCode = null;   // nothing more is reported, and leaving does not overwrite the admin's end
+  setTimeout(() => { leaveOnline(); hostEnded = false; S = null; hist = []; fut = []; showMenuScreen(); toast(tr("管理員已結束這一局。", "An admin has ended this game.")); }, 300);
+}
+// the online table a guest last sat at, so the menu can offer to go back to it (a guest cannot end it)
+const GUEST = "nb-guest-table";
+const guestTable = () => { try { return JSON.parse(localStorage.getItem(GUEST) || "null"); } catch { return null; } };
+const forgetGuestTable = () => { try { localStorage.removeItem(GUEST); } catch { /* */ } };
 function liveEnd() {
   clearInterval(liveTimer); liveTimer = 0; clearTimeout(liveLater);
   if (mode === "host" && liveCode) fetch(`/api/live?code=${liveCode}`, { method: "DELETE", keepalive: true }).catch(() => {});
@@ -2495,10 +2518,26 @@ async function liveTablesModal() {
   const rows = (j?.live || []).filter(t => t.code !== (WATCH ? watchingCode : ""));
   modal(`<h3>${tr("正在進行的線上桌", "Live tables")}</h3>
     ${!j?.ok ? `<p class="muted">${esc(j?.error || tr("無法讀取。", "Could not be read."))}</p>` : !rows.length ? `<p class="muted">${tr("現在沒有其他正在進行的線上桌。", "No other table is being played right now.")}</p>` : ""}
-    <div class="livelist">${rows.map(t => `<div class="liverow"><b>${esc(t.code)}</b> <span>${esc(soulName(t.soul))}・${tr(D.LEVELS[t.level]?.zh || "", D.LEVELS[t.level]?.en || "")}・${t.players}${tr(" 人", "p")}</span>
+    <div class="livelist">${rows.map(t => `<div class="liverow"><label class="liveend"><input type="checkbox" data-endpick="${esc(t.code)}"> <b>${esc(t.code)}</b></label> <span>${esc(soulName(t.soul))}・${tr(D.LEVELS[t.level]?.zh || "", D.LEVELS[t.level]?.en || "")}・${t.players}${tr(" 人", "p")}</span>
       <small>${t.names.map((n, i) => `${esc(n)}${t.online[i] ? "" : tr("（離線）", " (away)")}`).join("、")}・${tr(`第${"一二三"[t.chapter] || "一"}章`, `ch. ${t.chapter + 1}`)}${t.watchers ? tr(`・觀戰 ${t.watchers}`, ` · ${t.watchers} watching`) : ""}${t.voice ? tr(`・開麥 ${t.voice}`, ` · ${t.voice} mic on`) : ""}</small>
-      <button class="primary" data-watch="${esc(t.code)}">${tr("觀戰", "Watch")}</button></div>`).join("")}</div>`);
+      <button class="primary" data-watch="${esc(t.code)}">${tr("觀戰", "Watch")}</button></div>`).join("")}</div>
+    ${rows.length ? `<div class="card-row"><button id="live-end" disabled>${tr("結束所選的遊戲", "End the selected games")}</button><span class="muted small">${tr("勾選一到多張桌子；每張桌子的玩家會回到選單，那一局就此結束。", "Tick one or more tables; their players go back to the menu and the game is over.")}</span></div>` : ""}`);
   document.querySelectorAll("[data-watch]").forEach(b => b.onclick = () => { closeModal(); startWatch(b.dataset.watch); });
+  const picks = () => [...document.querySelectorAll("[data-endpick]:checked")].map(c => c.dataset.endpick);
+  document.querySelectorAll("[data-endpick]").forEach(c => c.onchange = () => { $("#live-end").disabled = !picks().length; });
+  if ($("#live-end")) $("#live-end").onclick = () => endTables(picks()).then(ok => { if (ok) liveTablesModal(); });
+}
+// an admin ends one or more live tables; each host closes its table at its next report (within a minute)
+async function endTables(codes) {
+  if (!isAdmin || !codes.length) return false;
+  if (!confirm(tr(`結束這 ${codes.length} 張桌子的遊戲（${codes.join("、")}）？玩家會回到選單，之後無法再繼續。`, `End the game at ${codes.length} table${codes.length > 1 ? "s" : ""} (${codes.join(", ")})? Their players go back to the menu and cannot continue.`))) return false;
+  try {
+    const r = await fetch("/api/live", { method: "POST", body: JSON.stringify({ end: codes }), headers: { "Content-Type": "application/json" } });
+    const j = await r.json();
+    if (!j?.ok) throw new Error(j?.error || r.status);
+    toast(tr(`已結束 ${j.ended.length} 張桌子；玩家會在一分鐘內回到選單。`, `Ended ${j.ended.length} table${j.ended.length > 1 ? "s" : ""}; the players go back to the menu within a minute.`));
+    return true;
+  } catch (e) { toast(tr("無法結束：", "Could not end them: ") + (e?.message || e)); return false; }
 }
 let watchingCode = "";
 function startGuest(code, name, pass = null) {
@@ -2512,7 +2551,9 @@ function startGuest(code, name, pass = null) {
     message: msg => {
       if (msg.t === "voices") { voiceList = msg.list || []; voice?.update(voiceList, link?.peer()); return; }
       if (msg.t === "nowatch") { toast(tr("主持人無法確認你的觀戰資格。", "The host could not confirm your pass to watch.")); return; }
+      if (msg.t === "ended") { if (!pass) forgetGuestTable(); leaveOnline(); S = null; showMenuScreen(); toast(tr("這一局已被結束。", "This game has been ended.")); return; }
       if (msg.t === "welcome") { const first = !seated; seated = true; WATCH = !!msg.watch; ME = msg.watch ? 0 : msg.seat; S = msg.S; hist = []; fut = [];
+        if (!msg.watch) try { localStorage.setItem(GUEST, JSON.stringify({ code, name, soul: msg.S.soul, players: msg.S.players, seat: msg.seat, at: Date.now() })); } catch { /* */ }
         const go = () => { buildTable(); $("#tt-code").textContent = WATCH ? tr(`牌桌 ${code}`, `Table ${code}`) : tr(`房間 ${code}`, `Table ${code}`); };
         const arrive = () => { go(); if (first) joinVoice(); };
         first ? enterGame(arrive) : arrive(); }
@@ -2575,10 +2616,18 @@ function showMenuScreen() {
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(LS) || "null"); } catch { /* */ }
   if (link) leaveOnline();
+  const gt = guestTable();
+  // a saved table or a joined one that an admin has ended (or that is no longer open) leaves the menu
+  for (const [c, own] of [[saved?.code, true], [gt?.code, false]]) if (c) fetch(`/api/live?status=${c}`, { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(j => {
+    if (!j?.ok || onTable()) return;
+    if (own && j.endedByAdmin) { try { localStorage.removeItem(LS); } catch { /* */ } showMenuScreen(); toast(tr("管理員已結束你開的那一局。", "An admin has ended the game you hosted.")); }
+    if (!own && j.known && !j.live) { forgetGuestTable(); showMenuScreen(); }
+  }).catch(() => {});
   const app = $("#app");
   app.innerHTML = `<div class="lobby">
     <h1>${icon("nb-bloom")} ${tr("彼岸花渡", "Netherbloom")} <small>V5 · ${tr("手動桌面", "manual table")}</small></h1>
     <p class="muted">${tr("這是一張虛擬的實體桌面：所有的牌、板塊與指示物都由你們親手移動，程式不會替你們執行任何規則。需要時打開「下一步提示」，它會告訴你們規則的下一步。", "A virtual physical table: you move every card, tile and token yourselves; the page never carries out a rule. Turn on “Next-step hints” to be shown the next step of the rules.")}</p>
+    ${gt ? `<div class="card-row"><button id="lb-rejoin" class="primary">${tr("繼續遊戲", "Continue the game")}</button><span class="muted">${tr(`線上桌 ${esc(gt.code)}`, `Online table ${esc(gt.code)}`)}・${esc(soulName(gt.soul))}・${gt.players}${tr(" 人", "p")}</span></div>` : ""}
     ${saved?.soul ? `<div class="card-row"><button id="lb-resume" class="primary">${tr("繼續遊戲", "Continue the game")}</button><button id="lb-end">${tr("結束遊戲", "End the game")}</button><span class="muted">${esc(saved.soul ? soulName(saved.soul) : "")}・${saved.players}${tr(" 人", "p")}</span></div>` : ""}
     <fieldset><legend>${tr("新的一局", "New game")}</legend>
       <label>${tr("亡魂", "Soul")} <select id="lb-soul">${D.SOUL_ORDER.map(s => `<option value="${s}">${esc(soulName(s))}</option>`).join("")}</select></label>
@@ -2589,7 +2638,7 @@ function showMenuScreen() {
       <div class="card-row"><button id="lb-local" class="primary">${tr("在這台裝置開桌", "Open the table here")}</button>
       <button id="lb-host">${tr("開線上桌（其他人用代碼加入）", "Host online (others join with a code)")}</button></div>
     </fieldset>
-    ${isAdmin ? `<fieldset><legend>${tr("觀戰（管理員）", "Watch (admin)")}</legend><button id="lb-live">${tr("查看正在進行的線上桌", "See the live tables")}</button><span class="muted small">${tr("也可以從後台觀戰。", "You can also watch from the Dashboard.")}</span></fieldset>` : ""}
+    ${isAdmin ? `<fieldset><legend>${tr("觀戰與結束（管理員）", "Watch and end (admin)")}</legend><button id="lb-live">${tr("查看正在進行的線上桌", "See the live tables")}</button><span class="muted small">${tr("可以觀戰，也可以結束一到多張桌子；後台也能這麼做。", "Watch them, or end one or more; the Dashboard can do the same.")}</span></fieldset>` : ""}
     <fieldset><legend>${tr("加入線上桌", "Join an online table")}</legend>
       <label>${tr("代碼", "Code")} <input id="lb-code" maxlength="5" size="6"></label>
       <label>${tr("你的名字", "Your name")} <input id="lb-myname" maxlength="18" size="12"></label>
@@ -2606,11 +2655,13 @@ function showMenuScreen() {
   $("#lb-players").onchange = names; names();
   const opts = () => ({ soul: $("#lb-soul").value, level: +$("#lb-level").value, players: +$("#lb-players").value,
     names: [...document.querySelectorAll("[data-name]")].map(i => i.value.trim() || i.defaultValue) });
+  if ($("#lb-rejoin")) $("#lb-rejoin").onclick = () => { startGuest(gt.code, gt.name); toast(tr("連線中…", "Connecting…")); };
   if ($("#lb-resume")) $("#lb-resume").onclick = () => enterGame(() => { S = saved; ME = 0; mode = "local"; hist = []; fut = []; buildTable(); });
   // end the saved game for good (it cannot be continued afterwards)
   if ($("#lb-end")) $("#lb-end").onclick = () => {
     if (!confirm(tr("結束這一局？存檔會被刪除，之後無法再繼續。", "End this game? Its save is deleted and it cannot be continued."))) return;
     try { localStorage.removeItem(LS); } catch { /* */ }
+    if (saved.code) fetch(`/api/live?code=${saved.code}`, { method: "DELETE", keepalive: true }).catch(() => {});
     S = null; hist = []; fut = [];
     showMenuScreen(); toast(tr("這一局已結束。", "The game has ended."));
   };
@@ -2679,7 +2730,7 @@ async function boot() {
   const watchParam = new URLSearchParams(location.search).get("watch");
   if (watchParam) history.replaceState(null, "", location.pathname);
   fetch("/api/me", { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(me => {
-    if (me?.admin) { isAdmin = true; $("#btn-dash")?.classList.remove("hidden"); $("#tt-dash")?.classList.remove("hidden"); if (!onTable()) showMenuScreen(); }
+    if (me?.admin) { isAdmin = true; $("#btn-dash")?.classList.remove("hidden"); $("#tt-dash")?.classList.remove("hidden"); if (!onTable()) showMenuScreen(); else adminTools(); }
     if (watchParam) startWatch(watchParam);
   }).catch(() => {});
   showMenuScreen();

@@ -21,7 +21,11 @@ const BASE = process.env.BASE || "http://localhost:8765";
     await page.mouse.move((from.x + to.x) / 2, (from.y + to.y) / 2, { steps: 4 }); await page.mouse.move(to.x, to.y, { steps: 4 }); await page.mouse.up();
     await page.waitForTimeout(60);
   };
-  await page.goto(BASE + "/index.html"); await page.waitForSelector("#lb-local");
+  await page.goto(BASE + "/index.html");
+  // Next-step hints, Auto Setup and the Log are the admin's tools: sign in as the test admin
+  await page.evaluate(() => fetch("/api/login", { method: "POST", body: JSON.stringify({ user: "admin", pass: "pw" }) }));
+  await page.reload();
+  await page.waitForSelector("#lb-local");
   await page.selectOption("#lb-level", "2"); await page.selectOption("#lb-players", "3");
   await page.click("#lb-local"); await page.waitForSelector("#tt-world");
   expect(!!(await page.$(".nb-loading")), "a loading veil covers the table as it opens");
