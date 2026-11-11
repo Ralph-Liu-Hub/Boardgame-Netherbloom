@@ -657,7 +657,7 @@ function prologueHtml() {
   const p = (PROLOGUE[S.soul] || PROLOGUE.open)[LANG === "en" ? "en" : "zh"];
   return `${zoomBtn("book")}<div class="btitle">${tr("憶念之書", "Book of Remembrance")} <span class="booktabs">${bookTabs(-1)}</span></div>
     <div class="prologue"><div class="ptitle">${esc(soulName(S.soul))}${tr("・", " · ")}${tr("序章", "Prologue")}</div>
-      <div class="motto">${esc(p.motto)}</div>${p.paras.map(t => `<p>${esc(t)}</p>`).join("")}
+      <div class="motto">${esc(p.motto)}</div>${p.paras.map(t => t === "—" ? `<div class="psep">◇</div>` : `<p>${esc(t)}</p>`).join("")}
       <button class="pnext" data-view="0">${tr("翻開第一章 →", "Turn to chapter 1 →")}</button></div>`;
 }
 
@@ -1097,6 +1097,8 @@ function fit() {
 function bindTable() {
   const v = $("#tt-view");
   v.addEventListener("wheel", e => {
+    const pr = e.target.closest?.(".prologue");   // the prologue's text scrolls under the wheel; the table does not zoom
+    if (pr && pr.scrollHeight > pr.clientHeight) return;
     e.preventDefault();
     const r = v.getBoundingClientRect();
     const mx = e.clientX - r.left, my = e.clientY - r.top;
@@ -1187,6 +1189,7 @@ function onDown(e) {
     if (touches.size === 2 && (!drag || drag.pan || drag.pending)) { pinchStart(); return; }
   }
   if (e.button !== 0) return;
+  if (e.target.closest?.(".prologue")) return;   // reading the prologue (select, scroll) does not pan the table
   closeMenus();
   if (WATCH) {   // a watcher can only look around
     if (e.target.closest("button")) return;

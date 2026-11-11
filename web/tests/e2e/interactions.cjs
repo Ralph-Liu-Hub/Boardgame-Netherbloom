@@ -61,7 +61,7 @@ module.exports = async (page, setStage, note, BASE) => {
   stage("p3 inscribe");
   await zoomClick('.zoombtn[data-zoom="book"]');
   // a new game's Book opens on the prologue; the players turn to chapter 1 themselves
-  expect(await page.locator("#tt-book .prologue p").count() === 3, "the Book opens on the prologue");
+  expect(await page.locator("#tt-book .prologue p").count() >= 3, "the Book opens on the prologue");
   await page.click("#tt-book .pnext");
   expect(await page.locator("#tt-book .prologue").count() === 0 && await page.locator("#tt-book .node.mem").count() > 0, "the prologue's button turns to chapter 1");
   const hid = await page.getAttribute("#tt-hand [data-hid] >> nth=0", "data-hid");
