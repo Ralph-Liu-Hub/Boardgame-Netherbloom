@@ -38,7 +38,10 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
         const zh = await page.evaluate(() => { const m = document.querySelector("#tt-world").innerText.match(/[^\s]*[\u4e00-\u9fff][^\s]*/g); return m ? m.slice(0, 5) : []; });
         if (zh.length) note(stage, "Chinese on the table in English mode: " + zh.join(" "));
         if (soul === souls[0] && level === 0 && players === 1) {   // the Rulebook drawer shows the English edition
-          await page.click("#tt-rules");
+          await page.click("#tt-rules");   // a solo game opens the Solo Rulebook; its button switches to the Rulebook
+          const sz = await page.evaluate(() => { const t = document.querySelector("#tt-drawer .rules").innerText; return { cjk: (t.match(/[\u4e00-\u9fff]/g) || []).length, solo: t.includes("Ghost cards") }; });
+          if (sz.cjk || !sz.solo) note(stage, `the Solo Rulebook drawer in English mode: ${sz.cjk} Chinese characters, Ghost cards ${sz.solo}`);
+          await page.click("#rswap");
           const rz = await page.evaluate(() => { const t = document.querySelector("#tt-drawer .rules").innerText; return { cjk: (t.match(/[\u4e00-\u9fff]/g) || []).length, en: t.includes("Glossary") }; });
           if (rz.cjk || !rz.en) note(stage, `the Rulebook drawer in English mode: ${rz.cjk} Chinese characters, glossary ${rz.en}`);
           await page.click("#tt-rules");

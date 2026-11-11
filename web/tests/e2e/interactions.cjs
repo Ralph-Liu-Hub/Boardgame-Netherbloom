@@ -222,7 +222,7 @@ module.exports = async (page, setStage, note, BASE) => {
   await zoomClick('.zoombtn[data-zoom="supply"]');
   await page.click('.stack[data-stack="bin_push"]', { button: "right" });
   await page.click("#tt-ctx button >> text=每人 1 個到各自的區域");
-  await zoomClick('.zoombtn[data-zoom="fate"]');
+  await zoomClick('.zoombtn[data-zoom="landing"]');
   await page.click('.stack[data-stack="comm"]', { button: "right" });
   await page.click("#tt-ctx button >> text=每人發 1 張到各自的區域");
   s1 = await S();

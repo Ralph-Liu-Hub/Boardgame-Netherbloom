@@ -41,10 +41,10 @@ const BASE = process.env.BASE || "http://localhost:8765";
   expect(s.stacks.deck.items.every(id => s.items[id].face === 0), "the deck is face down");
 
   // 2. Mist: 2 Harsh Mist into each deck, shuffle, the rest to the Box
-  await menu('.stack[data-stack="harsh"]', "洗牌", "mist");
+  await menu('.stack[data-stack="harsh"]', "洗牌", "landing");
   for (const r of [0, 1, 2]) for (let i = 0; i < 2; i++) await drag(await center('.stack[data-stack="harsh"]'), await center(`.stack[data-stack="mist${r}"]`));
-  for (const r of [0, 1, 2]) await menu(`.stack[data-stack="mist${r}"]`, "洗牌", "mist");
-  await menu('.stack[data-stack="harsh"]', "整疊放到…", "mist");
+  for (const r of [0, 1, 2]) await menu(`.stack[data-stack="mist${r}"]`, "洗牌", "landing");
+  await menu('.stack[data-stack="harsh"]', "整疊放到…", "landing");
   await page.click('#tt-modal [data-to="box"]');
   s = await S();
   expect([13, 17, 15].every((n, r) => s.stacks["mist" + r].items.length === n + 2), "each Mist deck has its cards plus 2 Harsh Mist: " + [0, 1, 2].map(r => s.stacks["mist" + r].items.length));
@@ -91,15 +91,15 @@ const BASE = process.env.BASE || "http://localhost:8765";
   }
 
   // 8. commissions to every area; 9. Push Through to every area
-  await menu('.stack[data-stack="comm"]', "洗牌", "fate");
-  await menu('.stack[data-stack="comm"]', "每人發 1 張到各自的區域", "fate");
+  await menu('.stack[data-stack="comm"]', "洗牌", "landing");
+  await menu('.stack[data-stack="comm"]', "每人發 1 張到各自的區域", "landing");
   await menu('.stack[data-stack="bin_push"]', "每人 1 個到各自的區域", "supply");
   s = await S();
   expect(s.areas.every(a => a.length === 2), "each area holds a commission and a Push Through token");
   expect(s.stacks.bin_push.items.length === 1, "one Push Through token is left (4 in the box, 3 players)");
 
   // 10. the first Mist goes to "Mist ahead"
-  await menu('.stack[data-stack="mist0"]', "翻開頂牌放到桌上", "mist");
+  await menu('.stack[data-stack="mist0"]', "翻開頂牌放到桌上", "landing");
   s = await S();
   const ahead = Object.values(s.items).filter(it => it.kind === "card" && s.where[it.id] === "t" && /^(mist|harsh):/.test(it.ck));
   expect(ahead.length === 1 && ahead[0].face === 1, "one Mist card face up on the table");

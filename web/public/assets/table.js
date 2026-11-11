@@ -7,7 +7,7 @@ import { STORY_EN } from "./table-story-en.js";
 import * as D from "./table-data.js";
 import * as net from "./net.js";
 import { createVoice } from "./voice.js";
-import { RULES_HTML, RULES_HTML_EN, AID_HTML, AID_HTML_EN } from "./rules-v5.js";
+import { RULES_HTML, RULES_HTML_EN, AID_HTML, AID_HTML_EN, SOLO_HTML, SOLO_HTML_EN } from "./rules-v5.js";
 import { STEPS, PHASES } from "./table-hints.js";
 
 // ---------------------------------------------------------------- language
@@ -366,7 +366,7 @@ function buildSnaps(players) {
   // the Mantle row sits along the top of the supply panel
   D.MANTLES.forEach((_, i) => snap(`mantle${i}`, SUPPLY.x + 20 + i * PG, SUPPLY.y + 56, SW, SH, ["card"]));
   for (let k = 0; k < 2; k++) snap(`fateslot${k}`, FATE.x + 20 + (k + 1) * PG, FATE.y + 60, SW, SH, ["card"]);
-  snap("traitslot", BOOK.x + 70, BOOK.y + 600, 80, 80, ["tok"]);   // the Root network trait, beside the page
+  snap("traitslot", FATE.x + 20 + 5 * PG + (SW - 80) / 2, FATE.y + 60 + (SH - 80) / 2, 80, 80, ["tok"]);   // this chapter's Root trait, beside its Fate Mist
   // book nodes
   for (let ch = 0; ch < 3; ch++) for (const n of bookLayout(S.soul, ch)) {
     if (n.k === "m" || n.k === "g") snap(`node${ch}_${n.id}`, n.x, n.y, CW + 8, CH + 8, ["card"]);
@@ -377,7 +377,7 @@ function buildSnaps(players) {
 
 // ---------------------------------------------------------------- the book: route graph layout
 const layoutCache = {};
-const NLAB = 46;   // room above a Book slot for its words
+const NLAB = 54;   // room above a Book slot for its sentence (three lines)
 function bookLayout(soul, ch) {
   const key = soul + ch + LANG + "@" + BOOK.x + "," + BOOK.y;
   if (layoutCache[key]) return layoutCache[key];
@@ -551,9 +551,6 @@ function boardsHtml() {
   }
   h += [[1, 0], [5, 1], [10, 2]].map(([sp, r]) => { const g = spaceGeo(sp); return `<div class="reachname" style="left:${g.x - R.x}px;top:${g.top - R.y - 30}px">${tr(`第${"一二三"[r]}河段・${D.REACHES[r].zh}`, `Reach ${r + 1} · ${D.REACHES[r].en}`)}${r === 1 ? tr("（第 5–8 格）", " (5–8)") : r === 2 ? tr("（第 9–13 格）", " (9–13)") : ""}</div>`; }).join("");
   h += `</div>`;
-  // mist area
-  h += `<div class="board mista" data-region="mist" style="left:${MISTA.x}px;top:${MISTA.y}px;width:${MISTA.w}px;height:${MISTA.h}px">${zoomBtn("mist")}
-    <div class="btitle">${tr("迷霧", "Mist")}</div><div class="slotlab" style="left:${20 + 3 * PG - 4}px;top:41px;width:${SW + 8}px">${tr("前方的霧（面朝上）", "Mist ahead (face up)")}</div><div class="slotbox" style="left:${20 + 3 * PG}px;top:60px;width:${SW}px;height:${SH}px"></div></div>`;
   // loom
   const th = D.thresholds(S.level, S.players);
   h += `<div class="board loom" data-region="loom" style="left:${LOOM.x}px;top:${LOOM.y}px;width:${LOOM.w}px;height:${LOOM.h}px">${zoomBtn("loom")}
@@ -611,13 +608,19 @@ function boardsHtml() {
     h += `<div class="cell fcell tcell ${tag}" data-track="forgot" data-val="${k}" style="left:${FX0 + k * FP}px;top:${FY}px;width:${FW}px;height:${FW}px">${k}</div>`;
   }
   h += `<div class="note fkey" style="left:${FX0}px;top:${FY + FW + 14}px;right:16px">${tr(`<b class="k-drift">6</b> 輕如灰燼、<b class="k-drift">9</b> 漂離；<b class="k-pull">${PULL.join("／")}</b> 第一／二／三章的忘川的拉力；<b class="k-lim">${D.LEVELS.map(l => l.dissolve).filter((v, i, a) => a.indexOf(v) === i).join("／")}</b> 消散（依難度）。`, `<b class="k-drift">6</b> Light as Ash, <b class="k-drift">9</b> Adrift; <b class="k-pull">${PULL.join(" / ")}</b> the Pull of Lethe in chapters 1 / 2 / 3; <b class="k-lim">${D.LEVELS.map(l => l.dissolve).filter((v, i, a) => a.indexOf(v) === i).join(" / ")}</b> Faded (by difficulty).`)}</div></div>`;
-  // fate area
-  h += `<div class="board fatea" data-region="fate" style="left:${FATE.x}px;top:${FATE.y}px;width:${FATE.w}px;height:${FATE.h}px">${zoomBtn("fate")}
-    <div class="btitle">${tr("亡魂・命運之霧・託付", "Soul · Fate · Commissions")}</div>
+  // the Misty Landing: where the soul waits to cross. The Soul card, this chapter's Fate Mist and Root trait, the Commissions
+  // and endings above; the Mist decks, the Mist ahead and the discard below
+  const LY = MISTA.y - FATE.y;   // the Mist row sits this far below the top of the board
+  h += `<div class="board landing" data-region="landing" style="left:${FATE.x}px;top:${FATE.y}px;width:${FATE.w}px;height:${MISTA.y + MISTA.h - FATE.y}px">${zoomBtn("landing")}
+    <div class="btitle">${tr("迷霧渡口", "The Misty Landing")}</div>
     ${[0, 1].map(k => `<div class="slotbox" style="left:${20 + (k + 1) * PG}px;top:60px;width:${SW}px;height:${SH}px">${tr(`本章的命運之霧 ${k + 1}（條件面朝上）`, `This chapter's fate ${k + 1} (condition up)`)}</div>`).join("")}
-    <div class="slotbox soulslot" style="left:20px;top:60px;width:${SW}px;height:${SH}px">${tr("亡魂牌", "Soul card")}</div></div>`;
+    <div class="slotbox soulslot" style="left:20px;top:60px;width:${SW}px;height:${SH}px">${tr("亡魂牌", "Soul card")}</div>
+    <div class="slotlab" style="left:${20 + 5 * PG - 16}px;top:${60 + (SH - 80) / 2 - 22}px;width:${SW + 32}px">${tr("本章根網特性", "This chapter's Root trait")}</div>
+    <div class="slotbox round traitslot" style="left:${20 + 5 * PG + (SW - 80) / 2}px;top:${60 + (SH - 80) / 2}px;width:80px;height:80px"></div>
+    <div class="rowlab" style="left:20px;top:${LY - 18}px">${tr("迷霧", "Mist")}</div>
+    <div class="slotlab" style="left:${20 + 3 * PG - 4}px;top:${LY + 41}px;width:${SW + 8}px">${tr("前方的霧（面朝上）", "Mist ahead (face up)")}</div><div class="slotbox" style="left:${20 + 3 * PG}px;top:${LY + 60}px;width:${SW}px;height:${SH}px"></div></div>`;
   // supply
-  h += `<div class="board supply" data-region="supply" style="left:${SUPPLY.x}px;top:${SUPPLY.y}px;width:${SUPPLY.w}px;height:${SUPPLY.h}px">${zoomBtn("supply")}<div class="btitle">${tr("稱號列與供應區", "Mantles and supply")}</div>
+  h += `<div class="board supply" data-region="supply" style="left:${SUPPLY.x}px;top:${SUPPLY.y}px;width:${SUPPLY.w}px;height:${SUPPLY.h}px">${zoomBtn("supply")}<div class="btitle">${tr("供應區", "Supply")}</div>
     ${D.MANTLES.map((_, i) => `<div class="slotbox" style="left:${20 + i * PG}px;top:56px;width:${SW}px;height:${SH}px">${tr("稱號", "Mantle")}</div>`).join("")}
     <div class="lab" style="left:740px;top:60px;white-space:normal;width:240px">${tr("供應區在下方：拖曳拿取，拖回放回。", "The supply is below: drag to take, drag back to return.")}</div></div>`;
   // the set-up strip
@@ -665,11 +668,11 @@ function bookPageHtml(ch) {
     const lab = (html, cls = "") => `<div class="nlab${cls}" style="left:${l + (CW + 8) / 2 - lw / 2}px;top:${t - NLAB}px;width:${lw}px;height:${NLAB - 4}px">${html}</div>`;
     if (n.k === "m" || n.k === "g") {
       const sl = D.SLOT_NAMES[n.slot];
-      return lab(`<b>${icon(sl.icon)}${tr(sl.zh, sl.en)}${n.k === "g" ? `<i>${tr("關口", "Gate")}</i>` : ""}</b> ${esc(n.text)}`) +
-        `<div class="node mem${n.k === "g" ? " gate" : ""}" style="left:${l}px;top:${t}px" title="${esc(n.text)}"></div>`;
+      return lab(esc(n.text)) + `<div class="node mem${n.k === "g" ? " gate" : ""}" style="left:${l}px;top:${t}px" title="${esc(n.text)}">
+        <div class="nkind">${icon(sl.icon)}${tr(sl.zh, sl.en)}${n.k === "g" ? `<i>${tr("關口", "Gate")}</i>` : ""}</div></div>`;
     }
-    if (n.k === "x") return lab(`⬡ ${esc(n.text)}`, " mist") + `<div class="node mistn" style="left:${l}px;top:${t}px" title="${esc(n.text)}"></div>`;
-    if (n.k === "f") return lab(`◆ ${tr("轉折", "Turning point")}・${tr("忘川的拉力", "Pull of Lethe")} ${PULL[ch]}`, " turn") + `<div class="node turn" style="left:${l}px;top:${t}px"><span>◆</span></div>`;
+    if (n.k === "x") return lab(esc(n.text), " mist") + `<div class="node mistn" style="left:${l}px;top:${t}px" title="${esc(n.text)}"><div class="nkind">⬡<br>${tr("迷霧格", "Mist slot")}</div></div>`;
+    if (n.k === "f") return `<div class="node turn" style="left:${l}px;top:${t}px"><div class="nkind">◆<br>${tr("轉折", "Turning point")}<small>${tr("忘川的拉力", "Pull of Lethe")}<br>${tr(`遺忘 ${PULL[ch]} 張`, `${PULL[ch]} forgotten`)}</small></div></div>`;
     if (n.k === "p") return `<div class="node fork" style="left:${l + 25}px;top:${t + 46}px" title="${esc(n.text)}"><span>◇</span><div class="ntext">${esc(n.text)}</div></div>`;
     return `<div class="node exitn" style="left:${l + 25}px;top:${t + 46}px" title="${esc(n.text)}"><div class="ntext">⬭ ${esc(n.text)}</div></div>`;
   }).join("");
@@ -680,8 +683,6 @@ function bookPageHtml(ch) {
   return `${zoomBtn("book")}<div class="btitle">${tr("憶念之書", "Book of Remembrance")} <span class="booktabs">${tabs}</span> ${here}</div>
     ${S.chapter !== ch ? `<div class="browse">${tr("你正在翻閱其他章節；放在這頁的牌只會在這頁顯示。", "You are browsing another chapter; cards placed here only show on this page.")}</div>` : ""}
     <div class="entry">${entry}</div>
-    <div class="slotlab" style="left:30px;top:580px;width:160px">${tr("根網特性（本章）", "Root trait (this chapter)")}</div>
-    <div class="slotbox round traitslot" style="left:70px;top:600px;width:80px;height:80px"></div>
     <svg class="arrows" width="${BOOK.w * STR.kx}" height="${BOOK.h * STR.ky}"><defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9a948c"/></marker></defs>${lines}</svg>
     ${cells}`;
 }
@@ -1114,7 +1115,7 @@ function bindTable() {
   elHand.addEventListener("dblclick", e => { const c = e.target.closest("[data-aid]"); if (c) flipInArea(c.dataset.aid); });
   elHand.addEventListener("contextmenu", e => { e.preventDefault(); openMenu(e); });
   $("#tt-undo").onclick = undo; $("#tt-redo").onclick = redo; $("#tt-fit").onclick = fit;
-  $("#tt-rules").onclick = () => openDrawer("rules");
+  $("#tt-rules").onclick = () => openDrawer(S?.players === 1 ? "solo" : "rules");
   $("#tt-aid").onclick = () => openDrawer("aid");
   $("#tt-log").onclick = () => openDrawer("log");
   $("#tt-menu").onclick = () => {
@@ -1624,7 +1625,7 @@ function commissionCheck() {
     }
     return false;
   };
-  comms.forEach((_, c) => tryC(c, []));
+  comms.forEach((c, k) => { if (!c.revealed) tryC(k, []); });   // revealed ones are done already and keep no memory here
   comms.forEach((c, k) => { const j = owner.indexOf(k); c.by = j >= 0 ? lit[j] : null; c.done = !!c.by || c.revealed; });
   return comms;
 }
@@ -2143,7 +2144,8 @@ function focusRegions() {
   document.querySelectorAll(".board.focus").forEach(e => e.classList.remove("focus"));
   if (!elHint || elHint.classList.contains("hidden")) return;
   const step = STEPS[S.hint || 0];
-  for (const r of step.focus || []) document.querySelectorAll(`[data-region="${r}"]`).forEach(e => e.classList.add("focus"));
+  const alias = { fate: "landing", mist: "landing" };   // the Mist and the Fate area share one board, the Misty Landing
+  for (const r of step.focus || []) document.querySelectorAll(`[data-region="${alias[r] || r}"]`).forEach(e => e.classList.add("focus"));
 }
 
 // ---------------------------------------------------------------- drawers: rules and log
@@ -2151,10 +2153,13 @@ function openDrawer(kind) {
   const d = $("#tt-drawer");
   if (!d.classList.contains("hidden") && d.dataset.kind === kind) { d.classList.add("hidden"); return; }
   d.dataset.kind = kind;
-  if (kind === "rules") {
-    d.innerHTML = `<div class="hh">${tr("規則書 V5", "Rulebook V5")}<input id="rq" placeholder="${tr("搜尋…（Enter 下一個）", "Search… (Enter: next)")}"><span id="rqc" class="rqc"></span><button id="rqprev" title="${tr("上一個（Shift+Enter）", "Previous (Shift+Enter)")}">‹</button><button id="rqnext" title="${tr("下一個（Enter）", "Next (Enter)")}">›</button><button class="hclose">✕</button></div><div class="rules">${LANG === "en" ? RULES_HTML_EN : RULES_HTML}</div>
+  if (kind === "rules" || kind === "solo") {
+    // the Rulebook (2-4 players) and the Solo Rulebook share the drawer; a button switches between them
+    const solo = kind === "solo";
+    d.innerHTML = `<div class="hh">${solo ? tr("單人模式規則書 V5", "Solo Rulebook V5") : tr("規則書 V5", "Rulebook V5")}<button id="rswap" class="small">${solo ? tr("規則書", "Rulebook") : tr("單人模式規則書", "Solo Rulebook")}</button><input id="rq" placeholder="${tr("搜尋…（Enter 下一個）", "Search… (Enter: next)")}"><span id="rqc" class="rqc"></span><button id="rqprev" title="${tr("上一個（Shift+Enter）", "Previous (Shift+Enter)")}">‹</button><button id="rqnext" title="${tr("下一個（Enter）", "Next (Enter)")}">›</button><button class="hclose">✕</button></div><div class="rules">${solo ? (LANG === "en" ? SOLO_HTML_EN : SOLO_HTML) : LANG === "en" ? RULES_HTML_EN : RULES_HTML}</div>
       <button class="totop" title="${tr("回到目錄", "Back to the contents")}">▲ ${tr("回到頂端", "Top")}</button>`;
     d.querySelector(".totop").onclick = () => { d.scrollTop = 0; };
+    d.querySelector("#rswap").onclick = () => { openDrawer(solo ? "rules" : "solo"); d.scrollTop = 0; };
     // the rulebook's own links (its table of contents) scroll the drawer only, never the page behind it
     d.querySelector(".rules").onclick = e => {
       const a = e.target.closest('a[href^="#"]');
