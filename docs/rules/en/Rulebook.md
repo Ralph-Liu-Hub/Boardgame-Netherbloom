@@ -704,7 +704,7 @@ Read these in order. When the soul is "Open Crossing", read only the general lin
 
 ### The Child of the Last Flame
 
-*On the coldest night of the year, a small child huddles alone in a doorway, holding a handful of little flames to sell; they have not sold a single one. To keep warm, they light them one by one. In every flame they see something: a warm stove, a feast; and at last, the only one who ever held them, coming to take them home.*
+*On the coldest night of the year, a small child huddles alone in a doorway, holding a handful of little flames to sell; she has not sold a single one. To keep warm, she lights them one by one. In every flame she sees something: a warm stove, a feast; and at last, the only one who ever held her, coming to take her home.*
 
 **Special rule**: "Starts with 3 Light. The first Fracture of the game is ignored. Never drifts Adrift."
 
@@ -715,7 +715,7 @@ Read these in order. When the soul is "Open Crossing", read only the general lin
 
 ### The Garland Girl
 
-*A young woman wove a flower for everyone they loved. Then their father died, and the man who had promised to marry them turned cold; so they gave their flowers away one by one, and then, still softly singing, slipped into the brook. They kept one flower for themselves, but no one ever knew which one.*
+*A young woman wove a flower for everyone she loved. Then her father died, and the man who had promised to marry her turned cold; so she gave her flowers away one by one, and then, still softly singing, slipped into the brook. She kept one flower for herself, but no one ever knew which one.*
 
 **Special rule: Scattered Flowers**. "When the soul leaves a space that has at least 1 Bloom, that space may stay as a wall of light; a wall of light with only one Bloom blocks only 1 Fog."
 
@@ -725,7 +725,7 @@ Read these in order. When the soul is "Open Crossing", read only the general lin
 
 ### The King on the Barge
 
-*An old king won every battle but the last. Their dearest friend fell in love with their queen, their brothers in arms fell apart, and they fell on a battlefield of their own making. As they lay dying, they were laid on a black barge. The sword they had borrowed was never returned to the lake it came from, and so they can find no rest.*
+*An old king won every battle but the last. His dearest friend fell in love with his queen, his brothers in arms fell apart, and he fell on a battlefield of his own making. As he lay dying, he was laid on a black barge. The sword he had borrowed was never returned to the lake it came from, and so he can find no rest.*
 
 **Special rule**: "Mantles cost 2 Light. The player who causes a Fracture loses their Mantle."
 
@@ -735,22 +735,22 @@ Read these in order. When the soul is "Open Crossing", read only the general lin
 
 ### The Bride Who Stayed Below
 
-*They died on their wedding day. Their husband walked into the depths of the dark to bring them back to the world of the living, on one condition: until they reached the light, he must never look back. One step from the surface, he turned his head. Ever since, they have stood in the shadows, wondering whether to remember his face or to let it go.*
+*She died on her wedding day. Her husband walked into the depths of the dark to bring her back to the world of the living, on one condition: until they reached the light, he must never look back. One step from the surface, he turned his head. Ever since, she has stood in the shadows, wondering whether to remember his face or to let it go.*
 
-**Special rule**: "Starts with 1 Light. The first time they would Linger in the dark, they do not forget; they are pulled one space back instead."
+**Special rule**: "Starts with 1 Light. The first time she would Linger in the dark, she does not forget; she is pulled one space back instead."
 
 - It only triggers at item V of Lingering, that is, when a card would be forgotten, once per game. When it is used, turn the Soul card sideways.
-- Being pulled back also counts as not moving forward this turn, so the Mist advances: they are pulled back into the dark.
-- If the soul is on space 1, or both banks of the previous space are fog side up, they cannot be pulled back: forget as usual, and the special rule is saved for later.
-- Their hidden ending requires that no card was forgotten to Lingering all game. The first time a card is forgotten to Lingering, turn the Soul card upside down as a reminder.
+- Being pulled back also counts as not moving forward this turn, so the Mist advances: she is pulled back into the dark.
+- If the soul is on space 1, or both banks of the previous space are fog side up, she cannot be pulled back: forget as usual, and the special rule is saved for later.
+- Her hidden ending requires that no card was forgotten to Lingering all game. The first time a card is forgotten to Lingering, turn the Soul card upside down as a reminder.
 
 **Key Memory**: *His face in the instant he looked back at me*, Acceptance · Person.
 
 ### Open Crossing
 
-*A nameless soul. You will not learn their story; you will write it yourselves.*
+*A nameless soul. You will not learn this soul's story; you will write it yourselves.*
 
-**Special rule**: "Starts with 2 Light." They use the 8 Echo cards, and have no Key Memory and no ending cards; their Commission cards are a set of questions, and the Book of Remembrance is their whole story.
+**Special rule**: "Starts with 2 Light." This soul uses the 8 Echo cards, and has no Key Memory and no ending cards; its Commission cards are a set of questions, and the Book of Remembrance is its whole story.
 
 ## Appendix A. Components
 
@@ -1027,11 +1027,11 @@ Each named Soul has 8 Commission cards, and Open Crossing has 8. The top line is
 
 | Commission | Condition |
 |---|---|
-| "Whom did they once love?" | A lit Person |
-| "What could they not let go of, in the end?" | Chapter 3 has a lit Obsession memory |
-| "Where did they come from?" | Chapter 1 has a lit Place |
-| "What did they do that made them proud?" | A lit Deed |
-| "What were they afraid of?" | A lit Feeling |
-| "Where did they once find peace?" | A lit Place |
-| "Did they ever regret anything?" | Chapter 2 has a lit Obsession memory |
-| "What do they carry across the river?" | Chapter 3 has a lit Acceptance memory |
+| "Whom did the soul once love?" | A lit Person |
+| "What could the soul not let go of, in the end?" | Chapter 3 has a lit Obsession memory |
+| "Where did the soul come from?" | Chapter 1 has a lit Place |
+| "What did the soul do that brought pride?" | A lit Deed |
+| "What was the soul afraid of?" | A lit Feeling |
+| "Where did the soul once find peace?" | A lit Place |
+| "Did the soul ever regret anything?" | Chapter 2 has a lit Obsession memory |
+| "What does the soul carry across the river?" | Chapter 3 has a lit Acceptance memory |
