@@ -60,6 +60,10 @@ module.exports = async (page, setStage, note, BASE) => {
   // c) play a hand card onto a memory slot of the open page
   stage("p3 inscribe");
   await zoomClick('.zoombtn[data-zoom="book"]');
+  // a new game's Book opens on the prologue; the players turn to chapter 1 themselves
+  expect(await page.locator("#tt-book .prologue p").count() === 3, "the Book opens on the prologue");
+  await page.click("#tt-book .pnext");
+  expect(await page.locator("#tt-book .prologue").count() === 0 && await page.locator("#tt-book .node.mem").count() > 0, "the prologue's button turns to chapter 1");
   const hid = await page.getAttribute("#tt-hand [data-hid] >> nth=0", "data-hid");
   await dragTo(await center("#tt-hand [data-hid] >> nth=0"), await center("#tt-book .node.mem >> nth=0"));
   s1 = await S();
