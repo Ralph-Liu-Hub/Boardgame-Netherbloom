@@ -4,6 +4,7 @@ import { CARDS, OBS, ACC, OBL, opText } from "./cards.js";
 import { ZH_CARD_NAMES, ZH_BANDS, zhOpText } from "./zh.js";
 import { STORY, PULL } from "./table-story.js";
 import { STORY_EN } from "./table-story-en.js";
+import { PROLOGUE } from "./table-prologue.js";
 import * as D from "./table-data.js";
 import * as net from "./net.js";
 import { createVoice } from "./voice.js";
@@ -139,7 +140,7 @@ function D2C(x, y) {
 // spread what is drawn inside a board with it: each thing's centre moves with the stretch, its size stays
 function stretchInside(board) {
   for (const el of board.children) {
-    if (el.tagName === "svg" || el.tagName === "BUTTON" || el.classList.contains("btitle")) continue;
+    if (el.tagName === "svg" || el.tagName === "BUTTON" || el.classList.contains("btitle") || el.classList.contains("prologue")) continue;
     const st = el.style;
     if (getComputedStyle(el).position !== "absolute") continue;
     if (el.dataset.l0 === undefined) {   // placed inline or by the stylesheet: start from where it is now
@@ -646,7 +647,22 @@ function boardsHtml() {
   return h;
 }
 
+// the Book's tabs: the prologue first, then the three chapters
+function bookTabs(ch) {
+  return `<button class="booktab${ch < 0 ? " on" : ""}" data-view="-1">${tr("序章", "Prologue")}</button>` + story(S.soul).chapters.map((c, i) => `<button class="booktab${i === ch ? " on" : ""}" data-view="${i}">${S.chapter === i ? "★ " : ""}${tr(`第${"一二三"[i]}章`, `Chapter ${i + 1}`)}・${esc(c.title)}</button>`).join("");
+}
+
+// the prologue: the page the Book opens on at the start of a game; the players turn to chapter 1 themselves
+function prologueHtml() {
+  const p = (PROLOGUE[S.soul] || PROLOGUE.open)[LANG === "en" ? "en" : "zh"];
+  return `${zoomBtn("book")}<div class="btitle">${tr("憶念之書", "Book of Remembrance")} <span class="booktabs">${bookTabs(-1)}</span></div>
+    <div class="prologue"><div class="ptitle">${esc(soulName(S.soul))}${tr("・", " · ")}${tr("序章", "Prologue")}</div>
+      <div class="motto">${esc(p.motto)}</div>${p.paras.map(t => t === "—" ? `<div class="psep">◇</div>` : `<p>${esc(t)}</p>`).join("")}
+      <button class="pnext" data-view="0">${tr("翻開第一章 →", "Turn to chapter 1 →")}</button></div>`;
+}
+
 function bookPageHtml(ch) {
+  if (ch < 0) return prologueHtml();
   const page = story(S.soul).chapters[ch];
   const px = BOOK.x;
   const nodes = bookLayout(S.soul, ch);
@@ -676,7 +692,7 @@ function bookPageHtml(ch) {
     if (n.k === "p") return `<div class="node fork" style="left:${l + 25}px;top:${t + 46}px" title="${esc(n.text)}"><span>◇</span><div class="ntext">${esc(n.text)}</div></div>`;
     return `<div class="node exitn" style="left:${l + 25}px;top:${t + 46}px" title="${esc(n.text)}"><div class="ntext">⬭ ${esc(n.text)}</div></div>`;
   }).join("");
-  const tabs = story(S.soul).chapters.map((c, i) => `<button class="booktab${i === ch ? " on" : ""}" data-view="${i}">${S.chapter === i ? "★ " : ""}${tr(`第${"一二三"[i]}章`, `Chapter ${i + 1}`)}・${esc(c.title)}</button>`).join("");
+  const tabs = bookTabs(ch);
   const here = S.chapter === ch
     ? `<span class="curnote">★ ${tr("目前的章節", "The chapter in play")}</span>`
     : `<button class="chbtn" data-ch="${ch}">${tr("把這章設為目前的章節（翻頁）", "Make this the chapter in play (turn the page)")}</button>`;
@@ -697,10 +713,11 @@ function renderBook() {
   el._sig = sig;
   el.innerHTML = bookPageHtml(bookView);
   stretchInside(el);
-  el.style.backgroundImage = `linear-gradient(90deg,rgba(60,52,40,.1) 0,rgba(60,52,40,.5) 200px,rgba(52,46,36,.62) 300px),url(${ART((SOUL_PAINT[S.soul] || SOUL_PAINT.open)[bookView])})`;
+  el.style.backgroundImage = `linear-gradient(90deg,rgba(60,52,40,.1) 0,rgba(60,52,40,.5) 200px,rgba(52,46,36,.62) 300px),url(${ART((SOUL_PAINT[S.soul] || SOUL_PAINT.open)[Math.max(0, bookView)])})`;
   markZoom();
   el.classList.toggle("current", bookView === S.chapter);
-  el.querySelectorAll(".booktab").forEach(b => b.onclick = () => { bookView = +b.dataset.view; render(); });
+  el.classList.toggle("onprologue", bookView < 0);
+  el.querySelectorAll(".booktab, .pnext").forEach(b => b.onclick = () => { bookView = +b.dataset.view; render(); });
   el.querySelectorAll(".chbtn").forEach(b => b.onclick = () => commit(tr(`${who()} 把第${"一二三"[+b.dataset.ch]}章設為目前的章節`, `${who()} turned to chapter ${+b.dataset.ch + 1}`), () => { S.chapter = +b.dataset.ch; }));
 }
 
@@ -774,7 +791,9 @@ function buildTable() {
   layoutWorld(S.players, ME);
   buildSnaps(S.players);
   $("#tt-world").style.width = WORLD.w + "px"; $("#tt-world").style.height = WORLD.h + "px";
-  bookView = lastChapter = S.chapter;
+  // a game that has not started writing its Book opens on the prologue
+  lastChapter = S.chapter;
+  bookView = !S.chapter && !Object.values(S.items).some(it => it.pg !== undefined) ? -1 : S.chapter;
   $("#tt-boards").innerHTML = boardsHtml();
   placeBoards();
   bindTable();
@@ -1078,6 +1097,8 @@ function fit() {
 function bindTable() {
   const v = $("#tt-view");
   v.addEventListener("wheel", e => {
+    const pr = e.target.closest?.(".prologue");   // a prologue too long for the page scrolls sideways under the wheel; the table does not zoom
+    if (pr && pr.scrollWidth > pr.clientWidth + 1) { e.preventDefault(); pr.scrollLeft += e.deltaY + e.deltaX; return; }
     e.preventDefault();
     const r = v.getBoundingClientRect();
     const mx = e.clientX - r.left, my = e.clientY - r.top;
@@ -1168,6 +1189,7 @@ function onDown(e) {
     if (touches.size === 2 && (!drag || drag.pan || drag.pending)) { pinchStart(); return; }
   }
   if (e.button !== 0) return;
+  if (e.target.closest?.(".prologue")) return;   // reading the prologue (select, scroll) does not pan the table
   closeMenus();
   if (WATCH) {   // a watcher can only look around
     if (e.target.closest("button")) return;

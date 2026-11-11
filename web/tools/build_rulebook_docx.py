@@ -18,11 +18,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 D = tempfile.mkdtemp() + "/"
 import sys
 SOLO = "solo" in sys.argv[1:]   # python3 web/tools/build_rulebook_docx.py solo  -> the Solo Rulebook
-OUT = os.path.join(ROOT, "web", "public", "downloads", "netherbloom-solo-rulebook-v5.zh-TW.docx" if SOLO else "netherbloom-rulebook-v5.zh-TW.docx")
+EN = "en" in sys.argv[1:]       # ... en  -> the English book
+LANG = "en" if EN else "zh-TW"
+OUT = os.path.join(ROOT, "web", "public", "downloads", ("netherbloom-solo-rulebook-v5." if SOLO else "netherbloom-rulebook-v5.") + LANG + ".docx")
 
-src = open(os.path.join(ROOT, "docs", "rules", "zh-TW", "V5", "Solo-Rulebook.md" if SOLO else "Rulebook.md"), encoding="utf-8").read()
+SRC_DIR = os.path.join(ROOT, "docs", "rules", "en") if EN else os.path.join(ROOT, "docs", "rules", "zh-TW", "V5")
+src = open(os.path.join(SRC_DIR, "Solo-Rulebook.md" if SOLO else "Rulebook.md"), encoding="utf-8").read()
 src = re.sub(r"^> 單人模式依照.*?\n\n", "", src, flags=re.S | re.M) if SOLO else src
-src = re.sub(r"^> 設計理由.*?\n\n", "", src, flags=re.S | re.M)              # repository note, not for players
+src = re.sub(r"^> (設計理由|Design note).*?\n\n", "", src, flags=re.S | re.M)              # repository note, not for players
 src = re.sub(r"```mermaid\n.*?```\n", "", src, flags=re.S)                  # the flowchart: the numbered list after it says the same
 m_fig = re.search(r'<div class="figure">(<svg.*?</svg>)</div>', src, flags=re.S)
 svg = m_fig.group(1) if m_fig else "<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'></svg>"
@@ -34,7 +37,7 @@ const { chromium } = require("playwright"); const fs = require("fs");
   const svg = fs.readFileSync(process.argv[1], "utf8").replace(/max-width:720px/, "width:720px");
   await p.setContent(`<div id=f style="color:#2b2420;background:#fff;width:720px;padding:6px">${svg}</div>`);
   await (await p.$("#f")).screenshot({ path: process.argv[2] }); await b.close(); })();""", D + "fig.svg", D + "fig-setup.png"], check=True)
-src = re.sub(r'<div class="figure"><svg.*?</svg></div>', "![兩人局的桌面配置](" + D + "fig-setup.png)", src, flags=re.S)
+src = re.sub(r'<div class="figure"><svg.*?</svg></div>', ("![The table laid out for two players](" if EN else "![兩人局的桌面配置](") + D + "fig-setup.png)", src, flags=re.S)
 # token pictures (docs/rules/icons): drawn by Chromium at 64 px, shown about 5 mm wide
 ICONS = os.path.join(ROOT, "docs", "rules", "icons")
 subprocess.run(["node", "-e", """
@@ -202,7 +205,7 @@ PPR = """pStyle keepNext keepLines pageBreakBefore framePr widowControl numPr su
 wordWrap overflowPunct topLinePunct autoSpaceDE autoSpaceDN bidi adjustRightInd snapToGrid spacing ind contextualSpacing mirrorIndents
 suppressOverlap jc textDirection textAlignment textboxTightWrap outlineLvl divId cnfStyle rPr sectPr pPrChange""".split()
 for ppr in doc.element.body.iter(qn("w:pPr")): order(ppr, PPR)
-doc.core_properties.title = "《彼岸花渡》Netherbloom — " + ("單人模式規則書 V5" if SOLO else "規則書 V5")
+doc.core_properties.title = ("Netherbloom — " + ("Solo Rulebook V5" if SOLO else "Rulebook V5")) if EN else "《彼岸花渡》Netherbloom — " + ("單人模式規則書 V5" if SOLO else "規則書 V5")
 doc.core_properties.author = "Netherbloom"
 doc.save(D + "built.docx")
 
