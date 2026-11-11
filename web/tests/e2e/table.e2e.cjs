@@ -15,6 +15,9 @@ const note = (where, what) => { problems.push(`${where}: ${what}`); console.log(
   page.on("response", r => { if (r.url().startsWith(BASE) && r.status() >= 400 && !/\/api\/|_vercel/.test(r.url())) note(stage, `HTTP ${r.status()} ${r.url()}`); });
 
   await page.goto(BASE + "/index.html");
+  // Next-step hints, Auto Setup and the Log are the admin's tools: sign in as the test admin
+  await page.evaluate(() => fetch("/api/login", { method: "POST", body: JSON.stringify({ user: "admin", pass: "pw" }) }));
+  await page.reload();
   await page.waitForSelector("#lb-local");
 
   if (process.env.ONLY3) { await require("./interactions.cjs")(page, s => { stage = s; }, note, BASE); console.log("TOTAL PROBLEMS", problems.length); await browser.close(); return; }

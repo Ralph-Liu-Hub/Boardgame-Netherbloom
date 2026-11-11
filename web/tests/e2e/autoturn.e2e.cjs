@@ -20,12 +20,15 @@ const BASE = process.env.BASE || "http://localhost:8765";
   const P = await mk("player");
   await P.selectOption("#lb-players", "2"); await P.click("#lb-local"); await P.waitForSelector("#tt-world");
   expect(await P.locator("#tt-endturn").isHidden(), "a player does not see Auto End Turn");
+  for (const id of ["#tt-hintsw", "#tt-auto", "#tt-log"]) expect(await P.locator(id).isHidden(), "a player does not see " + id);
+  expect(await P.textContent("#tt-undo") === "回復上一步" && await P.textContent("#tt-redo") === "取消回復", "Undo and Redo read 回復上一步 / 取消回復");
 
   // an admin: set up, then end the first turn automatically
   const A = await mk("admin");
   await A.selectOption("#lb-level", "1"); await A.selectOption("#lb-players", "2");
   await A.click("#lb-local"); await A.waitForSelector("#tt-world");
   expect(await A.locator("#tt-endturn").isVisible(), "an admin sees Auto End Turn");
+  for (const id of ["#tt-hintsw", "#tt-auto", "#tt-log"]) expect(await A.locator(id).isVisible(), "an admin sees " + id);
   await A.click("#tt-endturn");
   await A.waitForTimeout(500);
   let s = await S(A);
