@@ -49,7 +49,7 @@ ABLATION = [("現行規則", {}),
             ("拿掉忘川的拉力", {"v5_obl_pull": None}),
             ("翻頁不解結", {"v5_turn_table": (0, 0, 0, 0)}),
             ("拿掉迴響銘刻", {"v5_insc_echo": False}),
-            ("拿掉託付（不會失落）", {"commission_need": 0})]
+            ("拿掉託付（不會失落）", {"commission_need": -1})]   # -1, since 0 falls back to the default table
 
 
 def run(a):
