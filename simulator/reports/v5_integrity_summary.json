@@ -1,0 +1,1192 @@
+{
+ "n": 12000,
+ "per_cell": 200,
+ "win": {
+  "Gentle": {
+   "all": 59.4,
+   "ci": 1.5,
+   "p": {
+    "1": 49.0,
+    "2": 60.9,
+    "3": 63.8,
+    "4": 64.0
+   },
+   "soul": {
+    "child": 59.6,
+    "garland": 67.8,
+    "king": 51.9,
+    "bride": 59.9,
+    "open": 58.0
+   },
+   "grid": {
+    "child": {
+     "1": 51.0,
+     "2": 59.0,
+     "3": 64.0,
+     "4": 64.5
+    },
+    "garland": {
+     "1": 63.0,
+     "2": 70.5,
+     "3": 66.0,
+     "4": 71.5
+    },
+    "king": {
+     "1": 42.0,
+     "2": 47.5,
+     "3": 61.0,
+     "4": 57.0
+    },
+    "bride": {
+     "1": 45.0,
+     "2": 67.5,
+     "3": 63.0,
+     "4": 64.0
+    },
+    "open": {
+     "1": 44.0,
+     "2": 60.0,
+     "3": 65.0,
+     "4": 63.0
+    }
+   }
+  },
+  "Standard": {
+   "all": 51.6,
+   "ci": 1.5,
+   "p": {
+    "1": 42.6,
+    "2": 52.3,
+    "3": 55.4,
+    "4": 56.2
+   },
+   "soul": {
+    "child": 55.0,
+    "garland": 56.0,
+    "king": 44.6,
+    "bride": 50.6,
+    "open": 51.9
+   },
+   "grid": {
+    "child": {
+     "1": 46.0,
+     "2": 54.0,
+     "3": 61.0,
+     "4": 59.0
+    },
+    "garland": {
+     "1": 53.5,
+     "2": 56.0,
+     "3": 58.5,
+     "4": 56.0
+    },
+    "king": {
+     "1": 36.5,
+     "2": 40.5,
+     "3": 50.0,
+     "4": 51.5
+    },
+    "bride": {
+     "1": 39.0,
+     "2": 56.0,
+     "3": 50.0,
+     "4": 57.5
+    },
+    "open": {
+     "1": 38.0,
+     "2": 55.0,
+     "3": 57.5,
+     "4": 57.0
+    }
+   }
+  },
+  "Hard": {
+   "all": 41.9,
+   "ci": 1.5,
+   "p": {
+    "1": 33.9,
+    "2": 43.1,
+    "3": 43.1,
+    "4": 47.4
+   },
+   "soul": {
+    "child": 52.5,
+    "garland": 44.1,
+    "king": 33.8,
+    "bride": 36.8,
+    "open": 42.2
+   },
+   "grid": {
+    "child": {
+     "1": 43.5,
+     "2": 55.0,
+     "3": 59.5,
+     "4": 52.0
+    },
+    "garland": {
+     "1": 44.5,
+     "2": 44.0,
+     "3": 40.5,
+     "4": 47.5
+    },
+    "king": {
+     "1": 25.5,
+     "2": 29.0,
+     "3": 36.0,
+     "4": 44.5
+    },
+    "bride": {
+     "1": 26.5,
+     "2": 42.0,
+     "3": 32.0,
+     "4": 46.5
+    },
+    "open": {
+     "1": 29.5,
+     "2": 45.5,
+     "3": 47.5,
+     "4": 46.5
+    }
+   }
+  }
+ },
+ "causes": {
+  "Gentle": {
+   "Nameless": 9.2,
+   "Shattered": 8.7,
+   "Deluge": 8.8,
+   "Faded": 14.0
+  },
+  "Standard": {
+   "Nameless": 8.8,
+   "Shattered": 18.2,
+   "Deluge": 9.8,
+   "Faded": 11.6
+  },
+  "Hard": {
+   "Nameless": 6.2,
+   "Shattered": 42.1,
+   "Deluge": 6.0,
+   "Faded": 4.0
+  }
+ },
+ "causes_soul_std": {
+  "child": {
+   "Nameless": 15.4,
+   "Shattered": 12.5,
+   "Deluge": 7.6,
+   "Faded": 9.5
+  },
+  "garland": {
+   "Deluge": 11.1,
+   "Shattered": 14.8,
+   "Faded": 11.0,
+   "Nameless": 7.1
+  },
+  "king": {
+   "Deluge": 11.4,
+   "Shattered": 23.0,
+   "Faded": 13.1,
+   "Nameless": 7.9
+  },
+  "bride": {
+   "Nameless": 5.8,
+   "Faded": 13.4,
+   "Deluge": 6.5,
+   "Shattered": 23.8
+  },
+  "open": {
+   "Deluge": 12.4,
+   "Shattered": 17.1,
+   "Nameless": 7.6,
+   "Faded": 11.0
+  }
+ },
+ "pace": {
+  "Gentle": {
+   "turns": 21.0,
+   "turns_win": 18.4,
+   "ch": [
+    5.0,
+    6.4,
+    6.2
+   ],
+   "reach_ch": [
+    100.0,
+    97.0,
+    91.0
+   ]
+  },
+  "Standard": {
+   "turns": 19.7,
+   "turns_win": 17.9,
+   "ch": [
+    4.9,
+    6.3,
+    6.2
+   ],
+   "reach_ch": [
+    99.7,
+    95.3,
+    86.4
+   ]
+  },
+  "Hard": {
+   "turns": 17.6,
+   "turns_win": 17.7,
+   "ch": [
+    4.9,
+    6.3,
+    6.0
+   ],
+   "reach_ch": [
+    98.6,
+    86.7,
+    68.2
+   ]
+  }
+ },
+ "loss_chapter": {
+  "Gentle": {
+   "2": 1511,
+   "1": 110,
+   "0": 2
+  },
+  "Standard": {
+   "2": 1753,
+   "1": 171,
+   "0": 11
+  },
+  "Hard": {
+   "2": 1802,
+   "1": 468,
+   "0": 55
+  }
+ },
+ "close_wins": {
+  "forgot_ge_10": 11.7,
+  "cracks_ge_3": 33.0,
+  "either": 39.4
+ },
+ "per_game": {
+  "Gentle": {
+   "face_up": 32.17,
+   "face_down": 8.72,
+   "swaps": 11.13,
+   "recalls": 1.1,
+   "pushes": 1.02,
+   "summons": 2.86,
+   "lit": 7.0,
+   "inscribed": 7.47,
+   "reveals": 2.1,
+   "lingers": 8.59,
+   "backlash": 2.17,
+   "shrouds": 0.41,
+   "mist_scars": 0.41,
+   "walls_kept": 0.92,
+   "wall_absorbed": 1.76,
+   "fog_flips": 8.91,
+   "knots_play": 40.11,
+   "knots_down": 8.72,
+   "knots_griev": 2.68,
+   "knots_fate": 0.64,
+   "max_forgotten": 9.01,
+   "blank_slots": 0,
+   "heals": 0,
+   "spreads": 0.89
+  },
+  "Standard": {
+   "face_up": 30.2,
+   "face_down": 8.06,
+   "swaps": 10.75,
+   "recalls": 1.0,
+   "pushes": 0.97,
+   "summons": 2.74,
+   "lit": 6.74,
+   "inscribed": 7.23,
+   "reveals": 2.06,
+   "lingers": 7.75,
+   "backlash": 1.72,
+   "shrouds": 1.55,
+   "mist_scars": 1.55,
+   "walls_kept": 0.95,
+   "wall_absorbed": 3.55,
+   "fog_flips": 12.98,
+   "knots_play": 37.54,
+   "knots_down": 8.06,
+   "knots_griev": 2.11,
+   "knots_fate": 0.63,
+   "max_forgotten": 8.31,
+   "blank_slots": 0,
+   "heals": 0,
+   "spreads": 1.03
+  },
+  "Hard": {
+   "face_up": 27.08,
+   "face_down": 7.24,
+   "swaps": 9.78,
+   "recalls": 0.93,
+   "pushes": 0.87,
+   "summons": 2.53,
+   "lit": 6.33,
+   "inscribed": 6.82,
+   "reveals": 1.95,
+   "lingers": 6.86,
+   "backlash": 1.68,
+   "shrouds": 1.02,
+   "mist_scars": 1.02,
+   "walls_kept": 0.92,
+   "wall_absorbed": 3.32,
+   "fog_flips": 11.69,
+   "knots_play": 33.54,
+   "knots_down": 7.24,
+   "knots_griev": 1.73,
+   "knots_fate": 0.62,
+   "max_forgotten": 7.47,
+   "blank_slots": 0,
+   "heals": 0,
+   "spreads": 0.9
+  }
+ },
+ "per_game_soul": {
+  "child": {
+   "face_up": 28.75,
+   "face_down": 7.24,
+   "swaps": 9.99,
+   "recalls": 1.19,
+   "pushes": 0.82,
+   "summons": 2.45,
+   "lit": 7.27,
+   "inscribed": 7.82,
+   "reveals": 1.95,
+   "lingers": 6.38,
+   "backlash": 1.44,
+   "shrouds": 1.06,
+   "mist_scars": 1.06,
+   "walls_kept": 1,
+   "wall_absorbed": 3.08,
+   "fog_flips": 11.16,
+   "knots_play": 35.7,
+   "knots_down": 7.24,
+   "knots_griev": 2.31,
+   "knots_fate": 0.62,
+   "max_forgotten": 8.06,
+   "blank_slots": 0,
+   "heals": 0,
+   "spreads": 0.97
+  },
+  "garland": {
+   "face_up": 29.9,
+   "face_down": 7.62,
+   "swaps": 10.73,
+   "recalls": 1.11,
+   "pushes": 0.94,
+   "summons": 2.27,
+   "lit": 6.92,
+   "inscribed": 7.45,
+   "reveals": 2.12,
+   "lingers": 7.86,
+   "backlash": 1.45,
+   "shrouds": 1.29,
+   "mist_scars": 1.29,
+   "walls_kept": 0.9,
+   "wall_absorbed": 3.56,
+   "fog_flips": 12.45,
+   "knots_play": 36.79,
+   "knots_down": 7.62,
+   "knots_griev": 1.94,
+   "knots_fate": 0.24,
+   "max_forgotten": 8.58,
+   "blank_slots": 0,
+   "heals": 0,
+   "spreads": 1.16
+  },
+  "king": {
+   "face_up": 31.22,
+   "face_down": 9.19,
+   "swaps": 11.59,
+   "recalls": 1.01,
+   "pushes": 1.1,
+   "summons": 4.24,
+   "lit": 6.79,
+   "inscribed": 7.45,
+   "reveals": 2.05,
+   "lingers": 8.97,
+   "backlash": 1.93,
+   "shrouds": 2.1,
+   "mist_scars": 2.1,
+   "walls_kept": 0.93,
+   "wall_absorbed": 3.92,
+   "fog_flips": 14.4,
+   "knots_play": 39.44,
+   "knots_down": 9.19,
+   "knots_griev": 2.06,
+   "knots_fate": 0.6,
+   "max_forgotten": 8.57,
+   "blank_slots": 0,
+   "heals": 0,
+   "spreads": 0.85
+  },
+  "bride": {
+   "face_up": 31.04,
+   "face_down": 8.47,
+   "swaps": 10.87,
+   "recalls": 0.78,
+   "pushes": 1.07,
+   "summons": 2.34,
+   "lit": 5.95,
+   "inscribed": 6.25,
+   "reveals": 2.05,
+   "lingers": 8.05,
+   "backlash": 1.97,
+   "shrouds": 1.65,
+   "mist_scars": 1.64,
+   "walls_kept": 0.97,
+   "wall_absorbed": 3.75,
+   "fog_flips": 14.08,
+   "knots_play": 38.51,
+   "knots_down": 8.47,
+   "knots_griev": 1.98,
+   "knots_fate": 0.32,
+   "max_forgotten": 8.29,
+   "blank_slots": 0,
+   "heals": 0,
+   "spreads": 1.16
+  },
+  "open": {
+   "face_up": 30.09,
+   "face_down": 7.76,
+   "swaps": 10.59,
+   "recalls": 0.94,
+   "pushes": 0.91,
+   "summons": 2.41,
+   "lit": 6.79,
+   "inscribed": 7.19,
+   "reveals": 2.1,
+   "lingers": 7.5,
+   "backlash": 1.79,
+   "shrouds": 1.64,
+   "mist_scars": 1.64,
+   "walls_kept": 0.94,
+   "wall_absorbed": 3.42,
+   "fog_flips": 12.81,
+   "knots_play": 37.27,
+   "knots_down": 7.76,
+   "knots_griev": 2.25,
+   "knots_fate": 1.38,
+   "max_forgotten": 8.04,
+   "blank_slots": 0,
+   "heals": 0,
+   "spreads": 1.0
+  }
+ },
+ "lv": {
+  "Gentle": [
+   1.49,
+   0.47,
+   0.21
+  ],
+  "Standard": [
+   1.32,
+   0.32,
+   0.07
+  ],
+  "Hard": [
+   1.34,
+   0.29,
+   0.04
+  ]
+ },
+ "shroud_any": {
+  "Gentle": 14.9,
+  "Standard": 40.2,
+  "Hard": 41.7
+ },
+ "crack_src": {
+  "feed": 1.23,
+  "push_through": 0.84,
+  "ch_mist_scar": 0.68,
+  "do_op": 0.07,
+  "mist_card": 0.05,
+  "backlash": 0.04,
+  "soul_step": 0.03
+ },
+ "comm": {
+  "Gentle": {
+   "1": 490,
+   "2": 831,
+   "3": 687,
+   "4": 369
+  },
+  "Standard": {
+   "1": 426,
+   "2": 716,
+   "3": 608,
+   "4": 315
+  },
+  "Hard": {
+   "1": 339,
+   "2": 568,
+   "3": 510,
+   "4": 258
+  }
+ },
+ "fate_kind": {
+  "0": {
+   "book": 9714,
+   "river": 2218
+  },
+  "1": {
+   "book": 6765,
+   "river": 4006,
+   "forced": 389
+  },
+  "2": {
+   "river": 5304,
+   "forced": 1836,
+   "book": 2688
+  }
+ },
+ "path_thread": {
+  "0": {
+   "釋懷": 2610,
+   "執念": 2924,
+   "忘卻": 583
+  },
+  "1": {
+   "忘卻": 2361,
+   "執念": 1879,
+   "釋懷": 1868
+  },
+  "2": {
+   "執念": 1148,
+   "忘卻": 3783,
+   "釋懷": 1046
+  }
+ },
+ "ending": {
+  "child": {
+   "交織": 344,
+   "執念": 411,
+   "忘卻": 343,
+   "釋懷": 239
+  },
+  "garland": {
+   "執念": 291,
+   "忘卻": 461,
+   "釋懷": 234,
+   "交織": 357
+  },
+  "king": {
+   "執念": 226,
+   "忘卻": 407,
+   "釋懷": 168,
+   "交織": 241
+  },
+  "bride": {
+   "交織": 318,
+   "釋懷": 299,
+   "執念": 170,
+   "忘卻": 391
+  },
+  "open": {
+   "釋懷": 395,
+   "交織": 281,
+   "執念": 347,
+   "忘卻": 194
+  }
+ },
+ "ending_all": {
+  "交織": 1541,
+  "執念": 1445,
+  "忘卻": 1796,
+  "釋懷": 1335
+ },
+ "defied": {
+  "1": 2248,
+  "0": 3424,
+  "2": 445
+ },
+ "hidden": {
+  "child": 4.4,
+  "garland": 4.3,
+  "king": 2.7,
+  "bride": 14.7,
+  "open": 32.2
+ },
+ "key_place": {
+  "unspoken": 2112,
+  "inscribed": 2481,
+  "forgotten": 307,
+  "None": 1217
+ },
+ "routes": {
+  "child": [
+   {
+    "n": 1337,
+    "path": {
+     "釋懷": 423,
+     "執念": 841,
+     "忘卻": 73
+    },
+    "pair": {
+     "釋懷>釋懷": 395,
+     "執念>執念": 654,
+     "釋懷>執念": 187,
+     "忘卻>忘卻": 73,
+     "執念>釋懷": 28
+    }
+   },
+   {
+    "n": 1337,
+    "path": {
+     "忘卻": 427,
+     "執念": 435,
+     "釋懷": 475
+    },
+    "pair": {
+     "忘卻>忘卻": 427,
+     "釋懷>執念": 50,
+     "執念>執念": 356,
+     "釋懷>釋懷": 320,
+     "忘卻>執念": 29,
+     "執念>釋懷": 146,
+     "忘卻>釋懷": 9
+    }
+   },
+   {
+    "n": 1337,
+    "path": {
+     "執念": 264,
+     "忘卻": 865,
+     "釋懷": 208
+    },
+    "pair": {
+     "忘卻>執念": 48,
+     "執念>執念": 197,
+     "忘卻>忘卻": 865,
+     "釋懷>執念": 19,
+     "執念>釋懷": 54,
+     "忘卻>釋懷": 37,
+     "釋懷>釋懷": 117
+    }
+   }
+  ],
+  "garland": [
+   {
+    "n": 1343,
+    "path": {
+     "執念": 465,
+     "忘卻": 215,
+     "釋懷": 663
+    },
+    "pair": {
+     "執念>執念": 416,
+     "忘卻>忘卻": 215,
+     "釋懷>釋懷": 427,
+     "執念>釋懷": 201,
+     "釋懷>執念": 27,
+     "忘卻>執念": 22,
+     "忘卻>釋懷": 35
+    }
+   },
+   {
+    "n": 1343,
+    "path": {
+     "執念": 478,
+     "忘卻": 606,
+     "釋懷": 259
+    },
+    "pair": {
+     "執念>執念": 436,
+     "忘卻>忘卻": 606,
+     "忘卻>釋懷": 13,
+     "釋懷>釋懷": 140,
+     "執念>釋懷": 106,
+     "忘卻>執念": 19,
+     "釋懷>執念": 23
+    }
+   },
+   {
+    "n": 1283,
+    "path": {
+     "釋懷": 202,
+     "忘卻": 817,
+     "執念": 264
+    },
+    "pair": {
+     "執念>釋懷": 49,
+     "忘卻>忘卻": 817,
+     "執念>執念": 203,
+     "釋懷>釋懷": 129,
+     "忘卻>執念": 19,
+     "釋懷>執念": 42,
+     "忘卻>釋懷": 24
+    }
+   }
+  ],
+  "king": [
+   {
+    "n": 1042,
+    "path": {
+     "執念": 486,
+     "釋懷": 303,
+     "忘卻": 253
+    },
+    "pair": {
+     "執念>執念": 259,
+     "釋懷>執念": 211,
+     "釋懷>釋懷": 268,
+     "執念>釋懷": 28,
+     "忘卻>忘卻": 253,
+     "忘卻>執念": 16,
+     "忘卻>釋懷": 7
+    }
+   },
+   {
+    "n": 1042,
+    "path": {
+     "執念": 249,
+     "忘卻": 534,
+     "釋懷": 259
+    },
+    "pair": {
+     "執念>執念": 181,
+     "忘卻>忘卻": 534,
+     "釋懷>釋懷": 210,
+     "釋懷>執念": 68,
+     "執念>釋懷": 48,
+     "忘卻>釋懷": 1
+    }
+   },
+   {
+    "n": 1007,
+    "path": {
+     "執念": 240,
+     "忘卻": 569,
+     "釋懷": 198
+    },
+    "pair": {
+     "執念>執念": 211,
+     "忘卻>忘卻": 569,
+     "忘卻>釋懷": 43,
+     "釋懷>釋懷": 100,
+     "釋懷>執念": 17,
+     "執念>釋懷": 55,
+     "忘卻>執念": 12
+    }
+   }
+  ],
+  "bride": [
+   {
+    "n": 1178,
+    "path": {
+     "釋懷": 646,
+     "執念": 518,
+     "忘卻": 14
+    },
+    "pair": {
+     "釋懷>釋懷": 453,
+     "執念>執念": 399,
+     "執念>釋懷": 193,
+     "釋懷>執念": 119,
+     "忘卻>忘卻": 14
+    }
+   },
+   {
+    "n": 1170,
+    "path": {
+     "執念": 257,
+     "釋懷": 416,
+     "忘卻": 497
+    },
+    "pair": {
+     "釋懷>執念": 54,
+     "釋懷>釋懷": 190,
+     "忘卻>執念": 109,
+     "忘卻>忘卻": 497,
+     "忘卻>釋懷": 169,
+     "執念>執念": 94,
+     "執念>釋懷": 57
+    }
+   },
+   {
+    "n": 1146,
+    "path": {
+     "忘卻": 871,
+     "釋懷": 144,
+     "執念": 131
+    },
+    "pair": {
+     "忘卻>忘卻": 871,
+     "釋懷>釋懷": 144,
+     "執念>執念": 131
+    }
+   }
+  ],
+  "open": [
+   {
+    "n": 1217,
+    "path": {
+     "釋懷": 575,
+     "執念": 614,
+     "忘卻": 28
+    },
+    "pair": {
+     "釋懷>釋懷": 425,
+     "執念>執念": 434,
+     "釋懷>執念": 180,
+     "執念>釋懷": 150,
+     "忘卻>忘卻": 28
+    }
+   },
+   {
+    "n": 1216,
+    "path": {
+     "釋懷": 459,
+     "忘卻": 297,
+     "執念": 460
+    },
+    "pair": {
+     "釋懷>釋懷": 410,
+     "忘卻>忘卻": 297,
+     "執念>執念": 235,
+     "忘卻>執念": 49,
+     "忘卻>釋懷": 34,
+     "釋懷>執念": 176,
+     "執念>釋懷": 15
+    }
+   },
+   {
+    "n": 1204,
+    "path": {
+     "忘卻": 661,
+     "釋懷": 294,
+     "執念": 249
+    },
+    "pair": {
+     "忘卻>忘卻": 661,
+     "釋懷>釋懷": 232,
+     "忘卻>執念": 50,
+     "執念>執念": 151,
+     "執念>釋懷": 35,
+     "釋懷>執念": 48,
+     "忘卻>釋懷": 27
+    }
+   }
+  ]
+ },
+ "struct": {
+  "child": [
+   {
+    "title": "最冷的那一夜",
+    "nodes": 12,
+    "routes": 6,
+    "mem_min": 2,
+    "mem_max": 2,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 1,
+    "gates": 2,
+    "mists": 2,
+    "slots": 5,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   },
+   {
+    "title": "火光裡的東西",
+    "nodes": 15,
+    "routes": 12,
+    "mem_min": 3,
+    "mem_max": 3,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 2,
+    "gates": 2,
+    "mists": 2,
+    "slots": 7,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   },
+   {
+    "title": "來帶我回家的人",
+    "nodes": 12,
+    "routes": 6,
+    "mem_min": 3,
+    "mem_max": 3,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 1,
+    "gates": 1,
+    "mists": 2,
+    "slots": 6,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   }
+  ],
+  "garland": [
+   {
+    "title": "每個人一朵花",
+    "nodes": 13,
+    "routes": 9,
+    "mem_min": 2,
+    "mem_max": 2,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 1,
+    "gates": 3,
+    "mists": 2,
+    "slots": 6,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   },
+   {
+    "title": "裝作不認識我的人",
+    "nodes": 12,
+    "routes": 6,
+    "mem_min": 3,
+    "mem_max": 3,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 1,
+    "gates": 1,
+    "mists": 2,
+    "slots": 6,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   },
+   {
+    "title": "溪上的垂柳",
+    "nodes": 12,
+    "routes": 6,
+    "mem_min": 3,
+    "mem_max": 3,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 1,
+    "gates": 1,
+    "mists": 2,
+    "slots": 6,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   }
+  ],
+  "king": [
+   {
+    "title": "最後一支軍隊",
+    "nodes": 16,
+    "routes": 6,
+    "mem_min": 2,
+    "mem_max": 2,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 3,
+    "gates": 1,
+    "mists": 2,
+    "slots": 7,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   },
+   {
+    "title": "王后與摯友",
+    "nodes": 14,
+    "routes": 12,
+    "mem_min": 3,
+    "mem_max": 3,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 1,
+    "gates": 2,
+    "mists": 2,
+    "slots": 7,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   },
+   {
+    "title": "湖中之手",
+    "nodes": 12,
+    "routes": 6,
+    "mem_min": 3,
+    "mem_max": 3,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 1,
+    "gates": 1,
+    "mists": 2,
+    "slots": 6,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   }
+  ],
+  "bride": [
+   {
+    "title": "正午的婚禮",
+    "nodes": 12,
+    "routes": 6,
+    "mem_min": 2,
+    "mem_max": 2,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 1,
+    "gates": 2,
+    "mists": 2,
+    "slots": 5,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   },
+   {
+    "title": "向上的窄梯",
+    "nodes": 14,
+    "routes": 12,
+    "mem_min": 3,
+    "mem_max": 3,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 2,
+    "gates": 2,
+    "mists": 2,
+    "slots": 7,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   },
+   {
+    "title": "回頭的那一瞬間",
+    "nodes": 10,
+    "routes": 6,
+    "mem_min": 2,
+    "mem_max": 2,
+    "mist_min": 1,
+    "mist_max": 1,
+    "forks": 1,
+    "gates": 0,
+    "mists": 1,
+    "slots": 5,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   }
+  ],
+  "open": [
+   {
+    "title": "我曾是誰",
+    "nodes": 12,
+    "routes": 6,
+    "mem_min": 2,
+    "mem_max": 2,
+    "mist_min": 0,
+    "mist_max": 2,
+    "forks": 1,
+    "gates": 2,
+    "mists": 2,
+    "slots": 5,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   },
+   {
+    "title": "我做過什麼",
+    "nodes": 12,
+    "routes": 6,
+    "mem_min": 3,
+    "mem_max": 3,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 1,
+    "gates": 1,
+    "mists": 2,
+    "slots": 6,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   },
+   {
+    "title": "我所懷抱的",
+    "nodes": 12,
+    "routes": 6,
+    "mem_min": 3,
+    "mem_max": 3,
+    "mist_min": 1,
+    "mist_max": 2,
+    "forks": 1,
+    "gates": 1,
+    "mists": 2,
+    "slots": 6,
+    "fates": 4,
+    "river_fates": 2,
+    "fate_threads": [
+     0,
+     1,
+     2
+    ]
+   }
+  ]
+ },
+ "struct_issues": []
+}
