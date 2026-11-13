@@ -1,0 +1,371 @@
+[
+ {
+  "name": "現行困難（籠罩加裂痕）",
+  "games": 4000,
+  "win": 41.9,
+  "by_p": {
+   "1": 33.9,
+   "2": 43.1,
+   "3": 43.1,
+   "4": 47.4
+  },
+  "by_soul": {
+   "child": 52.5,
+   "garland": 44.1,
+   "king": 33.8,
+   "bride": 36.8,
+   "open": 42.2
+  },
+  "causes": {
+   "Shattered": 42.1,
+   "Nameless": 6.2,
+   "Deluge": 6.0,
+   "Faded": 4.0
+  },
+  "turns": 17.6,
+  "shroud_any": 41.7,
+  "backlash": 1.68,
+  "lit": 6.33,
+  "inscribed": 6.82,
+  "lingers": 6.86,
+  "summons": 2.53,
+  "max_forgotten": 7.47,
+  "endings": {
+   "忘卻": 28.3,
+   "交織": 25.6,
+   "執念": 23.1,
+   "釋懷": 23.0
+  },
+  "ending_evenness": 0.997,
+  "ch3_oblivion": 62.7,
+  "defied_1plus": 42.9
+ },
+ {
+  "name": "拿掉籠罩裂痕",
+  "games": 4000,
+  "win": 45.4,
+  "by_p": {
+   "1": 36.6,
+   "2": 46.6,
+   "3": 47.1,
+   "4": 51.1
+  },
+  "by_soul": {
+   "child": 54.9,
+   "garland": 47.5,
+   "king": 37.9,
+   "bride": 40.5,
+   "open": 46.0
+  },
+  "causes": {
+   "Shattered": 28.8,
+   "Deluge": 10.0,
+   "Faded": 9.3,
+   "Nameless": 6.5
+  },
+  "turns": 19.1,
+  "shroud_any": 41.7,
+  "backlash": 1.9,
+  "lit": 6.59,
+  "inscribed": 7.1,
+  "lingers": 7.67,
+  "summons": 2.66,
+  "max_forgotten": 8.14,
+  "endings": {
+   "忘卻": 28.9,
+   "交織": 25.1,
+   "執念": 23.3,
+   "釋懷": 22.7
+  },
+  "ending_evenness": 0.997,
+  "ch3_oblivion": 62.9,
+  "defied_1plus": 42.9
+ },
+ {
+  "name": "拿掉籠罩裂痕＋每副凶霧 +1",
+  "games": 4000,
+  "win": 46.1,
+  "by_p": {
+   "1": 39.9,
+   "2": 46.3,
+   "3": 47.4,
+   "4": 50.9
+  },
+  "by_soul": {
+   "child": 54.4,
+   "garland": 50.5,
+   "king": 40.5,
+   "bride": 39.1,
+   "open": 46.1
+  },
+  "causes": {
+   "Shattered": 29.7,
+   "Faded": 8.8,
+   "Deluge": 8.7,
+   "Nameless": 6.7
+  },
+  "turns": 18.9,
+  "shroud_any": 40.6,
+  "backlash": 1.9,
+  "lit": 6.54,
+  "inscribed": 7.03,
+  "lingers": 7.55,
+  "summons": 2.63,
+  "max_forgotten": 8.02,
+  "endings": {
+   "忘卻": 28.9,
+   "交織": 24.9,
+   "執念": 24.3,
+   "釋懷": 21.8
+  },
+  "ending_evenness": 0.996,
+  "ch3_oblivion": 62.4,
+  "defied_1plus": 40.6
+ },
+ {
+  "name": "拿掉籠罩裂痕＋每副凶霧 +2",
+  "games": 4000,
+  "win": 46.0,
+  "by_p": {
+   "1": 40.1,
+   "2": 46.4,
+   "3": 46.8,
+   "4": 50.7
+  },
+  "by_soul": {
+   "child": 56.0,
+   "garland": 51.8,
+   "king": 37.5,
+   "bride": 37.8,
+   "open": 47.0
+  },
+  "causes": {
+   "Shattered": 29.9,
+   "Deluge": 8.8,
+   "Faded": 8.2,
+   "Nameless": 7.0
+  },
+  "turns": 18.9,
+  "shroud_any": 41.0,
+  "backlash": 1.93,
+  "lit": 6.52,
+  "inscribed": 7.01,
+  "lingers": 7.51,
+  "summons": 2.63,
+  "max_forgotten": 7.94,
+  "endings": {
+   "忘卻": 29.7,
+   "執念": 25.5,
+   "交織": 25.3,
+   "釋懷": 19.5
+  },
+  "ending_evenness": 0.992,
+  "ch3_oblivion": 60.6,
+  "defied_1plus": 41.5
+ },
+ {
+  "name": "拿掉籠罩裂痕＋黑水 5",
+  "games": 4000,
+  "win": 43.5,
+  "by_p": {
+   "1": 35.2,
+   "2": 44.5,
+   "3": 45.8,
+   "4": 48.4
+  },
+  "by_soul": {
+   "child": 53.1,
+   "garland": 44.8,
+   "king": 36.2,
+   "bride": 39.2,
+   "open": 44.0
+  },
+  "causes": {
+   "Shattered": 24.3,
+   "Deluge": 18.8,
+   "Faded": 7.2,
+   "Nameless": 6.3
+  },
+  "turns": 18.5,
+  "shroud_any": 38.1,
+  "backlash": 1.79,
+  "lit": 6.49,
+  "inscribed": 7.0,
+  "lingers": 7.25,
+  "summons": 2.62,
+  "max_forgotten": 7.91,
+  "endings": {
+   "忘卻": 28.8,
+   "交織": 25.4,
+   "執念": 22.9,
+   "釋懷": 22.9
+  },
+  "ending_evenness": 0.997,
+  "ch3_oblivion": 62.8,
+  "defied_1plus": 42.9
+ },
+ {
+  "name": "拿掉籠罩裂痕＋消散門檻 11",
+  "games": 4000,
+  "win": 42.8,
+  "by_p": {
+   "1": 35.5,
+   "2": 43.6,
+   "3": 44.1,
+   "4": 47.8
+  },
+  "by_soul": {
+   "child": 51.5,
+   "garland": 45.1,
+   "king": 35.8,
+   "bride": 37.6,
+   "open": 43.8
+  },
+  "causes": {
+   "Shattered": 26.8,
+   "Faded": 13.8,
+   "Deluge": 10.4,
+   "Nameless": 6.2
+  },
+  "turns": 19.1,
+  "shroud_any": 42.1,
+  "backlash": 1.9,
+  "lit": 6.58,
+  "inscribed": 7.08,
+  "lingers": 7.68,
+  "summons": 2.64,
+  "max_forgotten": 7.91,
+  "endings": {
+   "忘卻": 28.5,
+   "交織": 24.7,
+   "執念": 23.6,
+   "釋懷": 23.2
+  },
+  "ending_evenness": 0.997,
+  "ch3_oblivion": 61.6,
+  "defied_1plus": 43.3
+ },
+ {
+  "name": "拿掉籠罩裂痕＋霧勢 +2",
+  "games": 4000,
+  "win": 42.8,
+  "by_p": {
+   "1": 35.2,
+   "2": 43.8,
+   "3": 44.9,
+   "4": 47.2
+  },
+  "by_soul": {
+   "child": 50.1,
+   "garland": 46.1,
+   "king": 35.4,
+   "bride": 38.2,
+   "open": 44.0
+  },
+  "causes": {
+   "Shattered": 34.8,
+   "Deluge": 8.0,
+   "Faded": 7.8,
+   "Nameless": 6.6
+  },
+  "turns": 18.6,
+  "shroud_any": 52.5,
+  "backlash": 1.8,
+  "lit": 6.43,
+  "inscribed": 6.96,
+  "lingers": 7.32,
+  "summons": 2.61,
+  "max_forgotten": 8.05,
+  "endings": {
+   "忘卻": 28.8,
+   "交織": 25.9,
+   "執念": 23.1,
+   "釋懷": 22.3
+  },
+  "ending_evenness": 0.996,
+  "ch3_oblivion": 63.7,
+  "defied_1plus": 42.0
+ },
+ {
+  "name": "拿掉籠罩裂痕＋凶霧 +1＋黑水 5",
+  "games": 4000,
+  "win": 43.8,
+  "by_p": {
+   "1": 37.8,
+   "2": 43.5,
+   "3": 45.3,
+   "4": 48.4
+  },
+  "by_soul": {
+   "child": 52.0,
+   "garland": 46.8,
+   "king": 37.8,
+   "bride": 38.1,
+   "open": 44.1
+  },
+  "causes": {
+   "Shattered": 25.5,
+   "Deluge": 18.1,
+   "Nameless": 6.5,
+   "Faded": 6.1
+  },
+  "turns": 18.3,
+  "shroud_any": 37.5,
+  "backlash": 1.8,
+  "lit": 6.44,
+  "inscribed": 6.94,
+  "lingers": 7.16,
+  "summons": 2.59,
+  "max_forgotten": 7.76,
+  "endings": {
+   "忘卻": 29.5,
+   "交織": 24.3,
+   "執念": 24.1,
+   "釋懷": 22.1
+  },
+  "ending_evenness": 0.996,
+  "ch3_oblivion": 62.4,
+  "defied_1plus": 39.9
+ },
+ {
+  "name": "拿掉籠罩裂痕＋黑水 5＋消散門檻 11",
+  "games": 4000,
+  "win": 41.2,
+  "by_p": {
+   "1": 34.0,
+   "2": 41.8,
+   "3": 43.1,
+   "4": 45.9
+  },
+  "by_soul": {
+   "child": 50.1,
+   "garland": 43.0,
+   "king": 34.1,
+   "bride": 36.8,
+   "open": 42.0
+  },
+  "causes": {
+   "Shattered": 23.2,
+   "Deluge": 18.7,
+   "Faded": 10.8,
+   "Nameless": 6.0
+  },
+  "turns": 18.5,
+  "shroud_any": 38.5,
+  "backlash": 1.79,
+  "lit": 6.48,
+  "inscribed": 6.98,
+  "lingers": 7.27,
+  "summons": 2.6,
+  "max_forgotten": 7.7,
+  "endings": {
+   "忘卻": 28.3,
+   "交織": 25.2,
+   "釋懷": 23.4,
+   "執念": 23.2
+  },
+  "ending_evenness": 0.998,
+  "ch3_oblivion": 61.4,
+  "defied_1plus": 43.3
+ }
+]
