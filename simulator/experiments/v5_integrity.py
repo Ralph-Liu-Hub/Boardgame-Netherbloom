@@ -14,7 +14,7 @@ from experiments.v5_chapters import cfg, one, BASE_EXTRA, SOULS, DECIDED, PLAYER
 from netherbloom.storybook_data import SOULS as SD  # noqa: E402
 
 THREAD_OF = {s["key"]: {v[0]: k for k, v in s["endings"].items()} for s in SD}
-DISSOLVE = {"Gentle": -2, "Standard": -4, "Hard": -4}   # 14 / 12 / 12
+DISSOLVE = {"Gentle": -2, "Standard": -4, "Hard": -5}   # 14 / 12 / 11 (11/13; the 11/13 summary was run with 12)
 
 
 def extra_for(level, p):

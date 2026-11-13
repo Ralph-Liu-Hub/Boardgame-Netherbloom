@@ -27,14 +27,17 @@ A.EchoAgent.__init__ = _no_burn
 from experiments.v5_integrity import extra_for, THREAD_OF  # noqa: E402
 from experiments.v5_chapters import cfg, one, SOULS  # noqa: E402
 
-HARD = [("現行困難（籠罩加裂痕）", {}),
-        ("拿掉籠罩裂痕", {"v5_shroud_crack": False}),
-        ("拿掉籠罩裂痕＋每副凶霧 +1", {"v5_shroud_crack": False, "harsh_per_reach": 3}),
-        ("拿掉籠罩裂痕＋每副凶霧 +2", {"v5_shroud_crack": False, "harsh_per_reach": 4}),
-        ("拿掉籠罩裂痕＋黑水 5", {"v5_shroud_crack": False, "bw_supply": 5}),
-        ("拿掉籠罩裂痕＋消散門檻 11", {"v5_shroud_crack": False, "dissolve": -5}),
-        ("拿掉籠罩裂痕＋霧勢 +2", {"v5_shroud_crack": False, "v5_fog_plus": 2}),
-        ("拿掉籠罩裂痕＋凶霧 +1＋黑水 5", {"v5_shroud_crack": False, "harsh_per_reach": 3, "bw_supply": 5})]
+# the Hard of 11/7 (before the 11/13 change) is spelled out, since extra_for now gives the new Hard
+OLD_HARD = {"v5_shroud_crack": True, "bw_supply": 6, "dissolve": -4}
+HARD = [("11/7 的困難（籠罩加裂痕）", dict(OLD_HARD)),
+        ("拿掉籠罩裂痕", {**OLD_HARD, "v5_shroud_crack": False}),
+        ("拿掉籠罩裂痕＋每副凶霧 +1", {**OLD_HARD, "v5_shroud_crack": False, "harsh_per_reach": 3}),
+        ("拿掉籠罩裂痕＋每副凶霧 +2", {**OLD_HARD, "v5_shroud_crack": False, "harsh_per_reach": 4}),
+        ("拿掉籠罩裂痕＋黑水 5", {**OLD_HARD, "v5_shroud_crack": False, "bw_supply": 5}),
+        ("拿掉籠罩裂痕＋消散門檻 11", {**OLD_HARD, "v5_shroud_crack": False, "dissolve": -5}),
+        ("拿掉籠罩裂痕＋霧勢 +2", {**OLD_HARD, "v5_shroud_crack": False, "v5_fog_plus": 2}),
+        ("拿掉籠罩裂痕＋凶霧 +1＋黑水 5", {**OLD_HARD, "v5_shroud_crack": False, "harsh_per_reach": 3, "bw_supply": 5}),
+        ("11/13 的困難（拿掉籠罩裂痕＋黑水 5＋消散門檻 11）", {})]
 ABLATION = [("現行規則", {}),
             ("拿掉根網特性", {"v5_traits": False}),
             ("拿掉光牆（離開時不能留光）", {"v5_keep": False}),

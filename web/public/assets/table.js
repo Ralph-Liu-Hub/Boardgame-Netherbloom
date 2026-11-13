@@ -2047,7 +2047,7 @@ async function autoEndTurn() {
       }
       // engulfed?
       if (fogged(B.soul)) {
-        await step(["亡魂被迷霧籠罩：這張迷霧牌成為霧痕", "the soul is Engulfed: this Mist card becomes a Mist scar"], () => { const q = playSpot(); toTable(front.id, q.x, q.y); if (lv.crack) hurt(); });
+        await step(["亡魂被迷霧籠罩：這張迷霧牌成為霧痕", "the soul is Engulfed: this Mist card becomes a Mist scar"], () => { const q = playSpot(); toTable(front.id, q.x, q.y); });
         toast(tr("請把這張霧痕放到書上路線前方第一個空的迷霧格（見第 10 節）。", "Put this Mist scar on the first empty Mist slot ahead on the route (section 10)."));
       } else await step(["迷霧牌放入迷霧棄牌", "the Mist card to the Mist discard"], () => toStack(front.id, "mistdis"));
       if (over) return;
@@ -2594,7 +2594,6 @@ function chooseTables() {
   return `<section class="choose"><h2>${tr("選擇亡魂與難度", "Choosing a Soul and a difficulty")}</h2>
     <table><thead><tr><th>${tr("難度", "Difficulty")}</th>${L.map((l, i) => `<th>${MARK[i]} ${tr(l.zh, l.en)}</th>`).join("")}</tr></thead><tbody>
       ${row(tr("霧推進時霧勢", "Fog when the Mist advances"), L.map(l => "+" + l.fog))}
-      ${row(tr("被迷霧籠罩時", "When the Mist engulfs the soul"), L.map(l => l.crack ? tr("留霧痕，並承受 1 道裂痕", "Mist scar, and 1 Fracture") : tr("只留霧痕", "Mist scar only")))}
       ${row(tr("起始結", "Starting knots"), L.map(l => l.knots ? tr(`每條絲線 ${l.knots} 結`, `${l.knots} on each thread`) : "0"))}
       ${row(tr("消散門檻", "Faded at"), L.map(l => tr(`遺忘 ${l.dissolve} 張`, `${l.dissolve} forgotten`)))}
       ${row(tr("破碎門檻", "Shattered at"), L.map(l => tr(`${l.fractures} 道裂痕`, `${l.fractures} Fractures`)))}

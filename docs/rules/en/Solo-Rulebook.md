@@ -32,11 +32,10 @@ First choose a Soul (section 13 of the *Rulebook*), then one of these difficulti
 | **Difficulty** | ◆◇◇ Gentle | ◆◆◇ Standard | ◆◆◆ Hard |
 |---|---|---|---|
 | Fog when the Mist advances | +0 | +1 | +1 |
-| When the soul is Engulfed by the Mist | Mist scar only | Mist scar only | Mist scar, and the soul takes 1 Fracture |
 | Starting knots | 0 | 0 | 1 on each thread |
-| Faded limit | 14 cards forgotten | 12 cards forgotten | 12 cards forgotten |
+| Faded limit | 14 cards forgotten | 12 cards forgotten | 11 cards forgotten |
 | Shattered limit | 5 Fractures | 4 Fractures | 3 Fractures |
-| Black Water | 7 | 6 | 6 |
+| Black Water | 7 | 6 | 5 |
 
 **Solo set-up**:
 
@@ -67,7 +66,7 @@ First choose a Soul (section 13 of the *Rulebook*), then one of these difficulti
 7. **Loom of the Fates**: set the Loom out beside the river board. Put 1 knot marker at 0 on the knot track of each of the three threads; at Hard, put it at 1 instead. Then put 1 Scar marker on cell 10 of the same knot track (the pale teal "Scar 0" cell: the solo threshold, see section 6 of this book). Put the Echo marker in the Loom's Silent box.
 8. **Mantles**: lay the 5 Mantle cards face up in the Mantle row along the top of the Supply.
 9. **Book of Remembrance**: open the chosen Soul's book at chapter 1, then split this Soul's 12 Fate Mist cards into three groups by chapter, 4 for each chapter: 2 with river conditions and 2 with Book conditions. Draw 1 at random from chapter 1's river conditions and 1 from its Book conditions, and put them condition side up beside the Book; put the rest face down to one side. Put the ending cards face down to one side without looking at them. The soul "Open Crossing" has no ending cards.
-10. **Ledger**: put Black Water markers in the Black Water supply as the difficulty says (7 for Gentle, 6 for Standard and Hard). Put the Light marker on the Light track at the chosen Soul's starting Light (section 13 of the *Rulebook*; 0 if none is given). Put the Fracture marker at 0 on the Fracture track. Put the Root/Bloom tokens, Shades, fog markers, and the Hold Fast, Shield and Resignation markers and the Root network trait marker in the supply.
+10. **Ledger**: put Black Water markers in the Black Water supply as the difficulty says (7 for Gentle, 6 for Standard, 5 for Hard). Put the Light marker on the Light track at the chosen Soul's starting Light (section 13 of the *Rulebook*; 0 if none is given). Put the Fracture marker at 0 on the Fracture track. Put the Root/Bloom tokens, Shades, fog markers, and the Hold Fast, Shield and Resignation markers and the Root network trait marker in the supply.
 11. **Commission card**: shuffle the chosen Soul's 8 Commission cards, draw 1 and put it face down in front of you, where you may look at it. Put the rest face down to one side for redraws. You must fulfil this one.
 12. **Ferryman**: draw a hand of 6 cards. Take 1 Push Through token, blue side up. The Oar stays in front of you all game.
 13. **Ghost deck**: shuffle the 12 Ghost cards and put them face down to one side (section 8 of this book).
@@ -175,7 +174,7 @@ After each of your turns, carry out these steps in order:
 4. **Mist**:
     1. Carry out the instructions on the Mist ahead.
     2. **The Mist advances**: only if the soul did not move forward this turn. The number of banks it advances is the Fog of this Mist card plus the difficulty's bonus (section 6 of the *Rulebook*).
-    3. **Check for engulfing**: if both banks of the soul's space are fog side up, the soul is Engulfed by the Mist: the Mist card just carried out becomes a Mist scar (section 10 of the *Rulebook*). At Hard difficulty, the soul also takes 1 Fracture.
+    3. **Check for engulfing**: if both banks of the soul's space are fog side up, the soul is Engulfed by the Mist: the Mist card just carried out becomes a Mist scar (section 10 of the *Rulebook*).
     4. Put the Mist card on the Mist discard pile unless it became a Mist scar. Turn over the top card of the Mist deck: it is the new Mist ahead. When the deck is empty, take this chapter's Mist cards (Pale, Thick or Deep Mist) from the Mist discard pile and shuffle them into a new Mist deck; the harsh Mist cards in the discard pile, and the 1 Rising Water and 1 Shade Drawn Near added at set-up (any card of that name), go back to the box and are not used again this chapter. Mist cards that became Mist scars stay in the Book.
 5. **The fork and turning the page** (section 11 of the *Rulebook*):
     - If the route stops before the turning point and a Fate Mist card is already on the ◆: the story forks at once.
