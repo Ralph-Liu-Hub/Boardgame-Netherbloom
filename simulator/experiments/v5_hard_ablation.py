@@ -86,11 +86,22 @@ if __name__ == "__main__":
     part = sys.argv[1] if len(sys.argv) > 1 else "hard"
     seeds = int(os.environ.get("SEEDS", 150))
     level = "Hard" if part == "hard" else "Standard"
+    # each finished variant is appended to $PARTIAL (one JSON per line), so a stopped run picks up where it left off
+    partial = os.environ.get("PARTIAL", f"v5_{part}_partial.jsonl")
+    done = {}
+    if os.path.exists(partial):
+        for line in open(partial, encoding="utf-8"):
+            if line.strip():
+                r = json.loads(line); done[r["name"]] = r
     out = []
     with Pool(int(os.environ.get("PROCS", os.cpu_count() or 4))) as pool:
         for name, extra in (HARD if part == "hard" else ABLATION):
+            if name in done:
+                out.append(done[name]); continue
             rows = pool.map(run, [(s, p, sd, level, extra) for s in SOULS for p in (1, 2, 3, 4) for sd in range(seeds)], chunksize=8)
             res = dict(name=name, **summarize(rows)); out.append(res)
+            with open(partial, "a", encoding="utf-8") as f:
+                f.write(json.dumps(res, ensure_ascii=False) + "\n")
             print(json.dumps({k: res[k] for k in ("name", "win", "causes", "by_p", "shroud_any", "ch3_oblivion", "ending_evenness")}, ensure_ascii=False), flush=True)
     path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "reports", "v5_hard.json" if part == "hard" else "v5_ablation_1113.json")
     json.dump(out, open(path, "w"), ensure_ascii=False, indent=1)
