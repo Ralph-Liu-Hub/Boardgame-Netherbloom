@@ -95,6 +95,9 @@ const BASE = process.env.BASE || "http://localhost:8765";
   if (await B.locator("#lb-rejoin").count()) await B.click("#lb-rejoin");
   else { await B.fill("#lb-code", code4); await B.fill("#lb-myname", "Bea"); await B.click("#lb-join"); }
   await B.waitForSelector("#tt-world", { timeout: 30000 }).then(() => true, () => problems.push("the guest gets back in after the host's Continue"));
+  // voice comes back with the table: both see the microphone button again
+  await A.waitForSelector("#tt-mic:not(.hidden)", { timeout: 10000 }).catch(() => problems.push("the host has the microphone after Continue"));
+  await B.waitForSelector("#tt-mic:not(.hidden)", { timeout: 10000 }).catch(() => problems.push("the returning guest has the microphone"));
   await B.click("#tt-menu"); await atMenu(B);
   await A.click("#tt-menu"); await atMenu(A);
   await A.click("#lb-end");   // the dialog is accepted
