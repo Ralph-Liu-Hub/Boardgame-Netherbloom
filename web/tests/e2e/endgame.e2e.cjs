@@ -83,6 +83,31 @@ const BASE = process.env.BASE || "http://localhost:8765";
   expect(await atMenu(A), "the Dashboard's End sends the host to the menu");
   expect(await atMenu(B), "and the guest");
 
+  // 4) the host leaves and comes back: Continue reopens the table online under the same code, and the guest rejoins
+  const code4 = await host2(A, B);
+  await A.click("#tt-menu"); await atMenu(A);
+  expect((await A.textContent("body")).includes(code4), "the host's menu names the online table");
+  await A.click("#lb-resume"); await A.waitForSelector("#tt-world");
+  await A.waitForFunction(c => (document.querySelector("#tt-code")?.textContent || "").includes(c), code4, { timeout: 30000 }).catch(() => problems.push("the host reopens the table under the same code"));
+  await A.waitForTimeout(1500);
+  await B.click("#tt-menu"); await atMenu(B);
+  await B.waitForTimeout(1500);
+  if (await B.locator("#lb-rejoin").count()) await B.click("#lb-rejoin");
+  else { await B.fill("#lb-code", code4); await B.fill("#lb-myname", "Bea"); await B.click("#lb-join"); }
+  await B.waitForSelector("#tt-world", { timeout: 30000 }).then(() => true, () => problems.push("the guest gets back in after the host's Continue"));
+  // voice comes back with the table: both see the microphone button again
+  await A.waitForSelector("#tt-mic:not(.hidden)", { timeout: 10000 }).catch(() => problems.push("the host has the microphone after Continue"));
+  await B.waitForSelector("#tt-mic:not(.hidden)", { timeout: 10000 }).catch(() => problems.push("the returning guest has the microphone"));
+  await B.click("#tt-menu"); await atMenu(B);
+  await A.click("#tt-menu"); await atMenu(A);
+  await A.click("#lb-end");   // the dialog is accepted
+
+  // 5) a code with no table: a few quiet retries, then words the player can act on
+  await B.evaluate(() => { window.__toasts = []; new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => n.classList?.contains("toast") && window.__toasts.push(n.textContent)))).observe(document.body, { childList: true, subtree: true }); });
+  await B.fill("#lb-code", "ZZZZZ"); await B.fill("#lb-myname", "Bea"); await B.click("#lb-join");
+  await B.waitForFunction(() => [...document.querySelectorAll(".toast")].some(t => t.textContent.includes("找不到這張桌子")), null, { timeout: 60000 })
+    .catch(async () => problems.push("a missing table explains itself: " + JSON.stringify(await B.evaluate(() => window.__toasts))));
+
   await A.selectOption("#lb-players", "1"); await A.click("#lb-local"); await A.waitForSelector("#tt-world");
   await A.click("#tt-menu"); await atMenu(A);
   expect(await A.locator("#lb-resume").isVisible() && await A.locator("#lb-end").isVisible(), "the player who opened a table sees Continue and End");

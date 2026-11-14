@@ -2374,7 +2374,12 @@ function startHost(code) {
   voice = createVoice({ myId: () => link?.id(), onChange: renderOnline });
   clearInterval(liveTimer); liveTimer = setInterval(() => liveReport(true), 45000);
   link = net.host(code, {
-    open: () => { $("#tt-code") && ($("#tt-code").textContent = tr(`房間代碼 ${code}`, `Table code ${code}`)); },
+    open: () => {
+      $("#tt-code") && ($("#tt-code").textContent = tr(`房間代碼 ${code}`, `Table code ${code}`));
+      if (hostAway) toast(tr("已重新連上，其他人可以用代碼加入了。", "Back online: the others can join with the code again."));
+      hostAway = false; hostRetry = 0;
+    },
+    away: () => { if (!hostAway) toast(tr("與配對伺服器的連線中斷，正在重新連線…這段時間其他人找不到這張桌子。", "Lost the line to the matchmaking server; reconnecting… Nobody can find the table until it is back.")); hostAway = true; },
     call: c => voice?.incoming(c),
     message: (cid, msg) => {
       if (msg.t === "hello" && msg.watch) {   // an admin asks to watch: the server says whether the pass is real
@@ -2423,8 +2428,29 @@ function startHost(code) {
       if (wasSeat) { markOnline(); changed(); }
       if (wasSeat || wasWatcher) liveReport(true);
     },
-    error: e => toast(tr("連線錯誤：", "Connection error: ") + (e?.type || "")),
+    error: e => {
+      // the code is still held by this table's last session (a closed tab is released after a short while): try again
+      if (e?.type === "unavailable-id" && hostRetry < 8 && mode === "host" && liveCode === code) {
+        hostRetry++;
+        if (hostRetry === 1) toast(tr(`代碼 ${code} 還被上一次的連線佔著，正在重試…`, `The code ${code} is still held by the last session; retrying…`));
+        try { link?.close(); } catch { /* */ }
+        setTimeout(() => { if (mode === "host" && liveCode === code && S) startHost(code); }, 4000);
+        return;
+      }
+      toast(netError(e));
+    },
   });
+}
+let hostAway = false, hostRetry = 0;
+// a connection error in words a player can act on
+function netError(e) {
+  const t = e?.type || "";
+  if (t === "peer-unavailable") return tr("找不到這張桌子：請確認代碼，或請主持人回到桌上（主持人在選單按「繼續遊戲」會用同一個代碼重新開桌）。", "That table cannot be found: check the code, or ask the host to come back to the table (Continue the game in the host's menu reopens it under the same code).");
+  if (t === "unavailable-id") return tr("這個代碼正被另一張桌子使用。請回到選單重新開一張線上桌。", "That code is in use by another table. Go back to the menu and host a new online table.");
+  if (t === "network" || t === "server-error" || t === "socket-error" || t === "socket-closed") return tr("連不上配對伺服器：請檢查網路後再試一次。", "Cannot reach the matchmaking server: check the network and try again.");
+  if (t === "negotiation-failed" || t === "webrtc") return tr("兩邊的網路無法直接連線（可能是公司或學校網路的防火牆）。換一個網路或用手機熱點再試。", "The two networks cannot connect directly (often a work or school firewall). Try another network or a phone hotspot.");
+  if (t === "browser-incompatible") return tr("這個瀏覽器不支援線上桌，請改用最新版的 Chrome、Edge、Firefox 或 Safari。", "This browser cannot play online; use a current Chrome, Edge, Firefox or Safari.");
+  return tr("連線錯誤：", "Connection error: ") + t;
 }
 // Undo steps back through this screen's own history. Once someone else has changed the table, that history no
 // longer matches it, and undoing would wipe out their move, so it is cleared.
@@ -2540,7 +2566,7 @@ async function endTables(codes) {
   } catch (e) { toast(tr("無法結束：", "Could not end them: ") + (e?.message || e)); return false; }
 }
 let watchingCode = "";
-function startGuest(code, name, pass = null) {
+function startGuest(code, name, pass = null, attempt = 0) {
   mode = "guest";
   let seated = false;
   watchingCode = pass ? code : "";
@@ -2562,7 +2588,17 @@ function startGuest(code, name, pass = null) {
       else if (msg.t === "full") toast(tr("這張桌子已經坐滿了。", "That table is full."));
     },
     close: () => toast(tr("與主持人的連線中斷了。", "Lost the host.")),
-    error: e => toast(tr("連線錯誤：", "Connection error: ") + (e?.type || "")),
+    error: e => {
+      if (e?.type === "peer-unavailable" && !seated && attempt < 2) {   // the host may be reconnecting: two more tries
+        if (attempt === 0) toast(tr(`正在尋找桌子 ${code}…`, `Looking for table ${code}…`));
+        voice?.stop(); voice = null;
+        try { link?.close(); } catch { /* */ }
+        link = null;
+        setTimeout(() => { if (!onTable() || WATCH) startGuest(code, name, pass, attempt + 1); }, 2000);
+        return;
+      }
+      toast(netError(e));
+    },
   });
 }
 
@@ -2627,7 +2663,7 @@ function showMenuScreen() {
     <h1>${icon("nb-bloom")} ${tr("彼岸花渡", "Netherbloom")} <small>V5 · ${tr("手動桌面", "manual table")}</small></h1>
     <p class="muted">${tr("這是一張虛擬的實體桌面：所有的牌、板塊與指示物都由你們親手移動，程式不會替你們執行任何規則。需要時打開「下一步提示」，它會告訴你們規則的下一步。", "A virtual physical table: you move every card, tile and token yourselves; the page never carries out a rule. Turn on “Next-step hints” to be shown the next step of the rules.")}</p>
     ${gt ? `<div class="card-row"><button id="lb-rejoin" class="primary">${tr("繼續遊戲", "Continue the game")}</button><span class="muted">${tr(`線上桌 ${esc(gt.code)}`, `Online table ${esc(gt.code)}`)}・${esc(soulName(gt.soul))}・${gt.players}${tr(" 人", "p")}</span></div>` : ""}
-    ${saved?.soul ? `<div class="card-row"><button id="lb-resume" class="primary">${tr("繼續遊戲", "Continue the game")}</button><button id="lb-end">${tr("結束遊戲", "End the game")}</button><span class="muted">${esc(saved.soul ? soulName(saved.soul) : "")}・${saved.players}${tr(" 人", "p")}</span></div>` : ""}
+    ${saved?.soul ? `<div class="card-row"><button id="lb-resume" class="primary">${tr("繼續遊戲", "Continue the game")}</button><button id="lb-end">${tr("結束遊戲", "End the game")}</button><span class="muted">${esc(saved.soul ? soulName(saved.soul) : "")}・${saved.players}${tr(" 人", "p")}${saved.code && saved.players > 1 ? tr(`・線上桌 ${esc(saved.code)}（繼續會用同一個代碼重新開桌）`, ` · online table ${esc(saved.code)} (Continue reopens it under the same code)`) : ""}</span></div>` : ""}
     <fieldset><legend>${tr("新的一局", "New game")}</legend>
       <label>${tr("亡魂", "Soul")} <select id="lb-soul">${D.SOUL_ORDER.map(s => `<option value="${s}">${esc(soulName(s))}</option>`).join("")}</select></label>
       <label>${tr("難度", "Difficulty")} <select id="lb-level">${D.LEVELS.map((l, i) => `<option value="${i}"${i === 0 ? " selected" : ""}>${tr(l.zh, l.en)}</option>`).join("")}</select></label>
@@ -2655,7 +2691,12 @@ function showMenuScreen() {
   const opts = () => ({ soul: $("#lb-soul").value, level: +$("#lb-level").value, players: +$("#lb-players").value,
     names: [...document.querySelectorAll("[data-name]")].map(i => i.value.trim() || i.defaultValue) });
   if ($("#lb-rejoin")) $("#lb-rejoin").onclick = () => { startGuest(gt.code, gt.name); toast(tr("連線中…", "Connecting…")); };
-  if ($("#lb-resume")) $("#lb-resume").onclick = () => enterGame(() => { S = saved; ME = 0; mode = "local"; hist = []; fut = []; buildTable(); });
+  // an online game the host saved reopens online under the same code, so the others can come back to their seats
+  if ($("#lb-resume")) $("#lb-resume").onclick = () => enterGame(() => {
+    S = saved; ME = 0; hist = []; fut = [];
+    if (saved.code && saved.players > 1) { watchHost = false; WATCH = false; hostRetry = 0; startHost(saved.code); buildTable(); saveLocal(); joinVoice(); liveReport(true); }
+    else { mode = "local"; buildTable(); }
+  });
   // end the saved game for good (it cannot be continued afterwards)
   if ($("#lb-end")) $("#lb-end").onclick = () => {
     if (!confirm(tr("結束這一局？存檔會被刪除，之後無法再繼續。", "End this game? Its save is deleted and it cannot be continued."))) return;
