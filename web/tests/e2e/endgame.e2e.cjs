@@ -86,12 +86,14 @@ const BASE = process.env.BASE || "http://localhost:8765";
   // 4) the host leaves and comes back: Continue reopens the table online under the same code, and the guest rejoins
   const code4 = await host2(A, B);
   await A.click("#tt-menu"); await atMenu(A);
-  expect((await A.textContent("body")).includes(code4), "the host's menu names the online table");
+  expect((await A.textContent("#lb-resume")).includes(code4), "the host's button names the online table it reopens");
+  // while the host is away the guest's menu keeps the table, says the host is not there, and has no other Continue
+  await B.click("#tt-menu"); await atMenu(B); await B.waitForTimeout(1500);
+  expect(await B.locator("#lb-rejoin").isVisible() && (await B.textContent("#lb-rejoin")).includes(code4), "the guest still sees Back to online table while the host is away");
+  expect((await B.textContent("#lb-gt-note")).includes("不在桌上"), "the guest is told the host is not at the table");
   await A.click("#lb-resume"); await A.waitForSelector("#tt-world");
   await A.waitForFunction(c => (document.querySelector("#tt-code")?.textContent || "").includes(c), code4, { timeout: 30000 }).catch(() => problems.push("the host reopens the table under the same code"));
   await A.waitForTimeout(1500);
-  await B.click("#tt-menu"); await atMenu(B);
-  await B.waitForTimeout(1500);
   if (await B.locator("#lb-rejoin").count()) await B.click("#lb-rejoin");
   else { await B.fill("#lb-code", code4); await B.fill("#lb-myname", "Bea"); await B.click("#lb-join"); }
   await B.waitForSelector("#tt-world", { timeout: 30000 }).then(() => true, () => problems.push("the guest gets back in after the host's Continue"));
