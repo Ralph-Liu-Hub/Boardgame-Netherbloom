@@ -2,7 +2,7 @@
 //   POST   /api/live            a host reports its table (every 45 s while it is open): code, Soul, seats, who is online;
 //                                the answer says {ended: true} once an admin has ended the table, and the host closes it
 //   POST   /api/live {end: [CODE, ...]}   (admin) end one or more live tables
-//   DELETE /api/live?code=XXXXX the host closed its table
+//   DELETE /api/live?code=XXXXX the host left its table (it may reopen it); &final=1: the host ended the game for good
 //   GET    /api/live            (admin) the tables reported in the last 2.5 minutes
 //   GET    /api/live?token=CODE (admin) a pass to watch that table; the host checks it before letting a watcher in
 //   GET    /api/live?verify=PASS&code=CODE   (any signed-in host) is this a real pass for my table?
@@ -82,7 +82,8 @@ export async function DELETE(request) {
   if (!user) return json({ ok: false }, 401);
   const code = (new URL(request.url).searchParams.get("code") || "").toUpperCase();
   if (!CODE.test(code)) return json({ ok: false }, 400);
-  try { await save(code, { code, by: user, at: new Date().toISOString(), ended: true }); } catch { /* the entry simply goes stale */ }
+  const final = new URL(request.url).searchParams.get("final") === "1";
+  try { await save(code, { code, by: user, at: new Date().toISOString(), ended: true, ...(final ? { final: true } : {}) }); } catch { /* the entry simply goes stale */ }
   return json({ ok: true });
 }
 
@@ -97,7 +98,7 @@ export async function GET(request) {
     if (!CODE.test(code)) return json({ ok: false }, 400);
     try {
       const t = await one(code);
-      return json({ ok: true, known: !!t, live: !!t && !t.ended && Date.now() - new Date(t.at).getTime() < FRESH, endedByAdmin: !!t?.endedBy });
+      return json({ ok: true, known: !!t, live: !!t && !t.ended && Date.now() - new Date(t.at).getTime() < FRESH, endedByAdmin: !!t?.endedBy, final: !!t?.final });
     } catch { return json({ ok: false }, 502); }
   }
   if (!isAdmin(process.env, user)) return json({ ok: false, error: "Only an admin account can watch tables." }, 403);

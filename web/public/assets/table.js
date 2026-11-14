@@ -2445,7 +2445,7 @@ let hostAway = false, hostRetry = 0;
 // a connection error in words a player can act on
 function netError(e) {
   const t = e?.type || "";
-  if (t === "peer-unavailable") return tr("找不到這張桌子：請確認代碼，或請主持人回到桌上（主持人在選單按「繼續遊戲」會用同一個代碼重新開桌）。", "That table cannot be found: check the code, or ask the host to come back to the table (Continue the game in the host's menu reopens it under the same code).");
+  if (t === "peer-unavailable") return tr("找不到這張桌子：請確認代碼，或請開桌者回到桌上（開桌者在選單按「重新開啟我開的線上桌」，會用同一個代碼重新開桌）。", "That table cannot be found: check the code, or ask the host to come back to the table (“Reopen my online table” in the host's menu reopens it under the same code).");
   if (t === "unavailable-id") return tr("這個代碼正被另一張桌子使用。請回到選單重新開一張線上桌。", "That code is in use by another table. Go back to the menu and host a new online table.");
   if (t === "network" || t === "server-error" || t === "socket-error" || t === "socket-closed") return tr("連不上配對伺服器：請檢查網路後再試一次。", "Cannot reach the matchmaking server: check the network and try again.");
   if (t === "negotiation-failed" || t === "webrtc") return tr("兩邊的網路無法直接連線（可能是公司或學校網路的防火牆）。換一個網路或用手機熱點再試。", "The two networks cannot connect directly (often a work or school firewall). Try another network or a phone hotspot.");
@@ -2652,18 +2652,23 @@ function showMenuScreen() {
   try { saved = JSON.parse(localStorage.getItem(LS) || "null"); } catch { /* */ }
   if (link) leaveOnline();
   const gt = guestTable();
-  // a saved table or a joined one that an admin has ended (or that is no longer open) leaves the menu
+  // A saved table, or one joined, leaves the menu only when its game is over (its host ended it, or an admin did). A host
+  // who merely stepped away keeps the joined table on the menu, with a note that it is not open right now.
   for (const [c, own] of [[saved?.code, true], [gt?.code, false]]) if (c) fetch(`/api/live?status=${c}`, { cache: "no-store" }).then(r => (r.ok ? r.json() : null)).then(j => {
     if (!j?.ok || onTable()) return;
-    if (own && j.endedByAdmin) { try { localStorage.removeItem(LS); } catch { /* */ } showMenuScreen(); toast(tr("管理員已結束你開的那一局。", "An admin has ended the game you hosted.")); }
-    if (!own && j.known && !j.live) { forgetGuestTable(); showMenuScreen(); }
+    if (own && j.endedByAdmin) { try { localStorage.removeItem(LS); } catch { /* */ } showMenuScreen(); toast(tr("管理員已結束你開的那一局。", "An admin has ended the game you hosted.")); return; }
+    if (!own && (j.endedByAdmin || j.final)) { forgetGuestTable(); showMenuScreen(); toast(tr(`線上桌 ${c} 的這一局已經結束。`, `The game at online table ${c} has ended.`)); return; }
+    const note = !own && $("#lb-gt-note");
+    if (note) note.textContent = j.live ? tr("・開桌者在桌上，可以回去", " · the host is at the table") : tr("・開桌者目前不在桌上：請他在選單按「重新開啟我開的線上桌」", " · the host is not at the table right now: ask them to press “Reopen my online table” in their menu");
   }).catch(() => {});
   const app = $("#app");
   app.innerHTML = `<div class="lobby">
     <h1>${icon("nb-bloom")} ${tr("彼岸花渡", "Netherbloom")} <small>V5 · ${tr("手動桌面", "manual table")}</small></h1>
     <p class="muted">${tr("這是一張虛擬的實體桌面：所有的牌、板塊與指示物都由你們親手移動，程式不會替你們執行任何規則。需要時打開「下一步提示」，它會告訴你們規則的下一步。", "A virtual physical table: you move every card, tile and token yourselves; the page never carries out a rule. Turn on “Next-step hints” to be shown the next step of the rules.")}</p>
-    ${gt ? `<div class="card-row"><button id="lb-rejoin" class="primary">${tr("繼續遊戲", "Continue the game")}</button><span class="muted">${tr(`線上桌 ${esc(gt.code)}`, `Online table ${esc(gt.code)}`)}・${esc(soulName(gt.soul))}・${gt.players}${tr(" 人", "p")}</span></div>` : ""}
-    ${saved?.soul ? `<div class="card-row"><button id="lb-resume" class="primary">${tr("繼續遊戲", "Continue the game")}</button><button id="lb-end">${tr("結束遊戲", "End the game")}</button><span class="muted">${esc(saved.soul ? soulName(saved.soul) : "")}・${saved.players}${tr(" 人", "p")}${saved.code && saved.players > 1 ? tr(`・線上桌 ${esc(saved.code)}（繼續會用同一個代碼重新開桌）`, ` · online table ${esc(saved.code)} (Continue reopens it under the same code)`) : ""}</span></div>` : ""}
+    ${gt || saved?.soul ? `<fieldset class="resume"><legend>${tr("繼續之前的遊戲", "Pick up a game")}</legend>
+      ${gt ? `<div class="card-row"><button id="lb-rejoin" class="primary">${tr(`回到線上桌 ${esc(gt.code)}`, `Back to online table ${esc(gt.code)}`)}</button><span class="muted">${tr("你加入的桌", "A table you joined")}・${esc(soulName(gt.soul))}・${gt.players}${tr(" 人", "p")}<span id="lb-gt-note"></span></span></div>` : ""}
+      ${saved?.soul ? `<div class="card-row"><button id="lb-resume" class="primary">${saved.code && saved.players > 1 ? tr(`重新開啟我開的線上桌 ${esc(saved.code)}`, `Reopen my online table ${esc(saved.code)}`) : tr("繼續這台裝置上的遊戲", "Continue the game on this device")}</button><button id="lb-end">${tr("結束遊戲", "End the game")}</button><span class="muted">${saved.code && saved.players > 1 ? tr("你開的桌，用同一個代碼重新開桌", "The table you hosted, reopened under the same code") : tr("在這台裝置上玩的桌", "A table played on this device")}・${esc(soulName(saved.soul))}・${saved.players}${tr(" 人", "p")}</span></div>` : ""}
+    </fieldset>` : ""}
     <fieldset><legend>${tr("新的一局", "New game")}</legend>
       <label>${tr("亡魂", "Soul")} <select id="lb-soul">${D.SOUL_ORDER.map(s => `<option value="${s}">${esc(soulName(s))}</option>`).join("")}</select></label>
       <label>${tr("難度", "Difficulty")} <select id="lb-level">${D.LEVELS.map((l, i) => `<option value="${i}"${i === 0 ? " selected" : ""}>${tr(l.zh, l.en)}</option>`).join("")}</select></label>
@@ -2701,7 +2706,7 @@ function showMenuScreen() {
   if ($("#lb-end")) $("#lb-end").onclick = () => {
     if (!confirm(tr("結束這一局？存檔會被刪除，之後無法再繼續。", "End this game? Its save is deleted and it cannot be continued."))) return;
     try { localStorage.removeItem(LS); } catch { /* */ }
-    if (saved.code) fetch(`/api/live?code=${saved.code}`, { method: "DELETE", keepalive: true }).catch(() => {});
+    if (saved.code) fetch(`/api/live?code=${saved.code}&final=1`, { method: "DELETE", keepalive: true }).catch(() => {});   // its guests' menus drop it
     S = null; hist = []; fut = [];
     showMenuScreen(); toast(tr("這一局已結束。", "The game has ended."));
   };
