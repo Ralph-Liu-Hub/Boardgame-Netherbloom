@@ -1,0 +1,11 @@
+{
+"child": {"fate": ["She walked the road that night had laid out for her.", "Again and again fate wanted the flame to die, and again and again she struck it alight."],
+          "key": ["She spoke her grandmother's name, and the keeper of the shore nodded.", "She could not remember who had held her, only that the hands were warm.", "She never said who it was, as if saying it aloud would put the flame out."]},
+"garland": {"fate": ["Every flower went where fate pointed her.", "Fate chose a place for every flower, but she gave them to others."],
+            "key": ["At last someone knows which flower it was.", "She searched her open hands and could not remember which flower she had kept.", "She hid that flower against her heart and carried it across the river, and let no one see it."]},
+"king": {"fate": ["Like an old soldier, he obeyed every order fate gave him.", "He defied fate, as he had once defied everyone who said he would lose."],
+         "key": ["He remembers the hand, so he remembers what he owed, and that the debt is paid.", "His hands are empty; he cannot remember what they once held.", "He never told where the sword came from. The hand still waits at the bottom of the lake."]},
+"bride": {"fate": ["She walked the road fate had laid out for her.", "Fate sent her east, and she went west, again and again."],
+          "key": ["She remembers the moment he turned back, and at last she understands what it meant.", "She remembers that someone turned back, but cannot recall the face.", "She never told what his face looked like when he turned. That she kept for herself."]},
+"open": {"fate": ["It followed the river and walked the road someone else had written for it.", "It struck out the sentences fate had written and wrote its own."], "key": []}
+}
