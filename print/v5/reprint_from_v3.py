@@ -119,7 +119,7 @@ def main():
         d = os.path.join(OUT, lang)
         plan = json.load(open(os.path.join(d, "press-plan.json")))
         z = os.path.join(ROOT, "Downloads", f"netherbloom-V5-reprint-from-V3.2-{lang}.zip")
-        root = f"netherbloom-V5-reprint-from-V3.2-{lang}"
+        root = f"netherbloom-reprint-{lang}"
         counts = {}
         with zipfile.ZipFile(z, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
             zf.writestr(f"{root}/README.txt", README[code])

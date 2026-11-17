@@ -42,7 +42,7 @@ def main():
                 z = os.path.join(DL, f"netherbloom-factory-{lang}-V5-{name}{suffix}.zip")
                 with zipfile.ZipFile(z, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
                     for f in ch:
-                        zf.write(os.path.join(base, f), os.path.join(f"netherbloom-factory-{lang}-V5", f))
+                        zf.write(os.path.join(base, f), os.path.join(f"netherbloom-factory-{lang}", f))
                 assert os.path.getsize(z) < 100 * 1000 * 1000, z
                 made.append(z)
                 print(os.path.basename(z), round(os.path.getsize(z) / 1e6, 1), "MB")

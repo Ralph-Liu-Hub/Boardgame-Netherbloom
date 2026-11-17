@@ -24,6 +24,7 @@ def html_of(path):
     src = open(os.path.join(ROOT, "docs", "rules", *path), encoding="utf-8").read()
     src = re.sub(r"^> (設計理由|This is the English edition).*?\n\n", "", src, flags=re.S | re.M)
     src = re.sub(r"```mermaid\n.*?```\n", "", src, flags=re.S)
+    src = re.sub(r"^(# .*?)\s+V\d+(\.\d+)?\s*$", r"\1", src, flags=re.M)     # the printed game carries no version number
     src = re.sub(r'src="(?:\.\./)+icons/([\w-]+)\.svg"', icon_src, src)
     h = markdown.markdown(src, extensions=["tables", "sane_lists", "toc", "md_in_html"], extension_configs={"toc": {"slugify": slug}})
     return h.replace("<img ", '<img class="tok" ')
