@@ -25,7 +25,7 @@ export const MIST_CARDS = {
   cold: M("cold", "寒風", "Cold Wind", 2, 1, "遺忘牌庫頂的 1 張。", "Forget the top card of the deck."),
   parts: M("parts", "迷霧散開", "The Mist Parts", 1, 0, "沒有任何效果。", "Nothing happens."),
   collapse: M("collapse", "崩岸", "Collapsing Bank", 0, 1, "亡魂前方最近的 1 個根被沖走，放回供應區。", "The nearest Root ahead is washed away."),
-  sever: M("sever", "迴響斷絕", "Echo Severed", 1, 1, "將迴響放回織機的沉默格。", "The Echo returns to the Loom's silent space."),
+  sever: M("sever", "迴響斷絕", "Echo Severed", 1, 1, "將迴響標記從織機上拿下，放在織機旁。", "Take the Echo marker off the Loom and put it beside the Loom."),
   undertow: M("undertow", "暗潮回湧", "Undertow Returns", 2, 2, "亡魂退回前一格；不能後退時，遺忘牌庫頂的 1 張。", "The soul steps back one space; if it cannot, forget the top card."),
   peel: M("peel", "記憶剝落", "Memory Peels", 1, 1, "當前頁面最新銘刻、未點亮的記憶移到遺忘堆。", "The newest unlit memory on this page is forgotten."),
   dim: M("dim", "熄燈", "Lights Out", 1, 1, "直到下一次迷霧前，不能點亮記憶。", "No memory can be lit until the next Mist."),

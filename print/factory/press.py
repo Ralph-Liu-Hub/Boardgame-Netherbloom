@@ -17,7 +17,7 @@ MARK = "netherbloom-press-v1"
 
 
 def to_cmyk(src, dst):
-    subprocess.run(["gs", "-q", "-dSAFER", "-dBATCH", "-dNOPAUSE", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.6",
+    subprocess.run(["gs", "-q", "-dSAFER", "-dBATCH", "-dNOPAUSE", "-sDEVICE=pdfwrite", "-dCompatibilityLevel=1.6", "-dAutoRotatePages=/None",
                     "-sColorConversionStrategy=CMYK", "-sProcessColorModel=DeviceCMYK", f"-sOutputICCProfile={PROFILE}",
                     "-dRenderIntent=1", "-dBlackPtComp=1", "-dEmbedAllFonts=true", "-dSubsetFonts=true",
                     "-dDownsampleColorImages=false", "-dDownsampleGrayImages=false", "-dAutoFilterColorImages=false",
