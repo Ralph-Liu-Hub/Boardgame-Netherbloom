@@ -156,14 +156,15 @@ def single(inner, bg, shade, bgpos="center"):
 
 
 def cover(L, soul):
+    """The Soul's portrait fills the cover; the words sit in the lower part, clear of the figure's head."""
     S = DATA["souls"][soul]
     p = S["prologue"][L.code]
     h = (f'<div class="a" style="{at(14, 14, PW - 28, PH - 28)}border:.5mm solid rgba(201,164,92,.7);border-radius:3mm"></div>'
-         f'<div class="a disp" style="{at(0, 26, PW)}text-align:center;font-size:{mm(13 if L.code == "zh" else 11)};color:#e6d3a3;letter-spacing:.2em">{E(L("憶念之書", "Book of Remembrance"))}</div>'
-         f'<div class="a" style="{at(0, 44, PW)}text-align:center;font-size:{mm(7)};color:#f2e8d5">{E(S["name"][L.code])}</div>'
-         f'<div class="a" style="{at(30, 236, PW - 60)}text-align:center;font-size:{mm(F14)};font-style:italic;color:#e6d3a3;line-height:1.5">{E(p["motto"])}</div>'
-         f'<div class="a disp" style="{at(0, 262, PW)}text-align:center;font-size:{mm(4)};color:#a29c93;letter-spacing:.3em">{E(L("彼岸花渡", "NETHERBLOOM"))}</div>')
-    return single(h, art(DATA["soulArt"][soul], 3000), "linear-gradient(rgba(14,12,17,.55),rgba(14,12,17,.05) 30%,rgba(14,12,17,.1) 70%,rgba(14,12,17,.8))", "center 20%")
+         f'<div class="a disp" style="{at(0, 196, PW)}text-align:center;font-size:{mm(12 if L.code == "zh" else 10)};color:#e6d3a3;letter-spacing:.2em">{E(L("憶念之書", "Book of Remembrance"))}</div>'
+         f'<div class="a" style="{at(0, 213, PW)}text-align:center;font-size:{mm(7)};color:#f2e8d5">{E(S["name"][L.code])}</div>'
+         f'<div class="a" style="{at(30, 230, PW - 60)}text-align:center;font-size:{mm(F14)};font-style:italic;color:#e6d3a3;line-height:1.5">{E(p["motto"])}</div>'
+         f'<div class="a disp" style="{at(0, 260, PW)}text-align:center;font-size:{mm(4)};color:#a29c93;letter-spacing:.3em">{E(L("彼岸花渡", "NETHERBLOOM"))}</div>')
+    return single(h, art(DATA["soulArt"][soul], 3000), "linear-gradient(rgba(14,12,17,.15),rgba(14,12,17,0) 40%,rgba(14,12,17,.55) 64%,rgba(14,12,17,.9) 78%,rgba(14,12,17,.95))", "center 12%")
 
 
 def how_to(L, soul):

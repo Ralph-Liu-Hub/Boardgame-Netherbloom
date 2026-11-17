@@ -57,7 +57,7 @@ table {{ border-collapse: collapse; width: 100%; font-size: 8.6pt; line-height: 
 th {{ background: #ece2cc; text-align: left }} th, td {{ border: .25mm solid #cbbd9f; padding: 1mm 1.5mm; vertical-align: top }}
 tr {{ break-inside: avoid }} code {{ font-size: .92em; word-break: break-all }} li {{ margin: .8mm 0 }}
 </style></head><body>
-<h1>{E(S("《彼岸花渡》Netherbloom V5 — 印刷生產手冊", "Netherbloom V5 — Production manual"))}</h1>
+<h1>{E(S("《彼岸花渡》Netherbloom — 印刷生產手冊", "Netherbloom — Production manual"))}</h1>
 <p>{E(S("這份手冊與印刷檔一起由同一份印刷計畫產生，張數、尺寸與檔名都與檔案一致。版本：正體中文。", "This manual is generated with the files from the same print plan, so its counts, sizes and file names match them. Edition: English."))}</p>
 <h2>1. {E(S("配件總表", "Bill of materials"))}</h2>
 <table><tr><th>{E(S("配件", "Component"))}</th><th>{E(S("數量", "Qty"))}</th><th>{E(S("成品尺寸（mm）", "Finished size (mm)"))}</th><th>{E(S("材質與加工", "Stock and finish"))}</th><th>{E(S("檔案", "File"))}</th></tr>{rows}</table>
@@ -69,7 +69,7 @@ tr {{ break-inside: avoid }} code {{ font-size: .92em; word-break: break-all }} 
 <li>{E(S("河岸板塊與指示物：正反面 PDF 頁序相同，背面不需鏡像（一頁一個）。指示物多為圓形，少數為圓角方形（見頁面標籤）。", "Bank tiles and tokens: fronts and backs share page order; backs need no mirroring (one piece per page). Most tokens are round, a few are rounded squares (see the page labels)."))}</li>
 <li>{E(S("憶念之書：12 頁，依閱讀順序；第 4–5、6–7、8–9、10–11 頁是跨頁，圖案跨過裝訂線，裝訂線兩側 10 mm 內沒有牌格與文字。", "Books of Remembrance: 12 pages in reading order; pages 4–5, 6–7, 8–9 and 10–11 are spreads whose art runs across the fold; nothing important lies within 10 mm of the fold."))}</li>
 <li>{E(S("規則書與單人規則書：騎馬釘，頁數已補到 4 的倍數（最後為筆記頁）。玩家輔助卡：A5 雙面。", "Rulebook and Solo Rulebook: saddle-stitched, padded with Notes pages to a multiple of 4. Player Aid: A5, two sides."))}</li>
-<li>{E(S("盒子：天地蓋沿用 V3.2 的尺寸；包紙為攤平的一整張（面＋四側＋反摺），刀模圖另附，不需印刷。", "Box: the V3.2 lid and base sizes are kept; each wrap is one flat sheet (face, four walls, turn-ins), with its die line in a separate file that is not printed."))}</li>
+<li>{E(S("盒子：天地蓋，盒蓋 300 × 300 × 75、盒底 296 × 296 × 73；包紙為攤平的一整張（面＋四側＋反摺），刀模圖另附，不需印刷。", "Box: lid 300 × 300 × 75, base 296 × 296 × 73; each wrap is one flat sheet (face, four walls, turn-ins), with its die line in a separate file that is not printed."))}</li>
 </ul>
 <h2>3. {E(S("檔案清單", "File list"))}</h2>
 <table><tr><th>{E(S("檔案", "File"))}</th><th>{E(S("頁數", "Pages"))}</th><th>{E(S("成品（mm）", "Trim (mm)"))}</th><th>{E(S("印刷說明", "How to print"))}</th></tr>{files}</table>
