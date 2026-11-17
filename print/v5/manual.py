@@ -16,7 +16,7 @@ def bom(L):
         (T("託付卡", "Commission cards"), 40, "63 × 88", T("310 g 黑芯紙、霧面、圓角 3 mm", "310 gsm black-core, matte, 3 mm corners"), "cards/commission-cards.pdf + card-backs-standard.pdf p.1"),
         (T("結局牌", "Ending cards"), 20, "63 × 88", T("同上；每張背面不同", "as above; every back differs"), "cards/ending-cards-fronts.pdf + ending-cards-backs.pdf"),
         (T("亡魂牌", "Soul cards"), 5, "63 × 88", T("同上", "as above"), "cards/soul-cards.pdf + card-backs-standard.pdf p.2"),
-        (T("稱號牌", "Mantle cards"), 5, "63 × 88", T("同上；背面是「已使用」面", "as above; the back is the spent side"), "cards/mantle-cards-fronts.pdf + mantle-cards-backs.pdf"),
+        (T("稱號牌", "Mantle cards"), 5, "63 × 88", T("同上；背面共用", "as above; one shared back"), "cards/mantle-cards.pdf + card-backs-standard.pdf p.4"),
         (T("幽靈牌（單人）", "Ghost cards (solo)"), 12, "63 × 88", T("同上", "as above"), "cards/ghost-cards.pdf + card-backs-standard.pdf p.3"),
         (T("河流圖板", "River boards"), 3, "256 × 124", T("2 mm 灰紙板裱褙、霧面、單面、圓角 3 mm", "2 mm greyboard, wrapped, matte, one side, 3 mm corners"), "boards/river-boards.pdf"),
         (T("命運織機", "Loom of the Fates"), 1, "262 × 138", T("同上", "as above"), "boards/loom-of-the-fates.pdf"),
@@ -65,7 +65,7 @@ tr {{ break-inside: avoid }} code {{ font-size: .92em; word-break: break-all }} 
 <ul>
 <li>{E(S("每一頁都是成品尺寸加四邊各 3 mm 出血；文字與重要圖案都在裁切線內 2.5 mm 以上。", "Every page is the finished size plus 3 mm bleed on each side; text and key art stay at least 2.5 mm inside the trim."))}</li>
 <li>{E(S("已轉為 CMYK（Coated FOGRA39，總墨量 330%），每頁外加 10 mm 出血外框，含裁切線、出血線、對位標記、色條與頁面標籤，並設定 TrimBox 與 BleedBox。請以貴廠的色彩設定打樣確認。", "Converted to CMYK (Coated FOGRA39, 330% total ink), with a 10 mm slug holding crop marks, bleed marks, registration targets, a colour bar and a page label; TrimBox and BleedBox are set. Please send a proof with your colour settings."))}</li>
-<li>{E(S("卡牌：一頁一張，依牌組順序。共用牌背的牌組，牌背在 card-backs-mini.pdf 或 card-backs-standard.pdf；牌背各不相同的牌組（迷霧牌、命運之霧、結局牌、稱號牌）另有一份背面 PDF，第 n 頁就是正面第 n 頁的背面。", "Cards: one per page, in deck order. Decks with one shared back have it in card-backs-mini.pdf or card-backs-standard.pdf; decks whose backs differ (Mist, Fate Mist, ending, Mantle) have a backs PDF whose page n is the back of front page n."))}</li>
+<li>{E(S("卡牌：一頁一張，依牌組順序。共用牌背的牌組，牌背在 card-backs-mini.pdf 或 card-backs-standard.pdf；牌背各不相同的牌組（迷霧牌、命運之霧、結局牌）另有一份背面 PDF，第 n 頁就是正面第 n 頁的背面。", "Cards: one per page, in deck order. Decks with one shared back have it in card-backs-mini.pdf or card-backs-standard.pdf; decks whose backs differ (Mist, Fate Mist, ending) have a backs PDF whose page n is the back of front page n."))}</li>
 <li>{E(S("河岸板塊與指示物：正反面 PDF 頁序相同，背面不需鏡像（一頁一個）。指示物多為圓形，少數為圓角方形（見頁面標籤）。", "Bank tiles and tokens: fronts and backs share page order; backs need no mirroring (one piece per page). Most tokens are round, a few are rounded squares (see the page labels)."))}</li>
 <li>{E(S("憶念之書：12 頁，依閱讀順序；第 4–5、6–7、8–9、10–11 頁是跨頁，圖案跨過裝訂線，裝訂線兩側 10 mm 內沒有牌格與文字。", "Books of Remembrance: 12 pages in reading order; pages 4–5, 6–7, 8–9 and 10–11 are spreads whose art runs across the fold; nothing important lies within 10 mm of the fold."))}</li>
 <li>{E(S("規則書與單人規則書：騎馬釘，頁數已補到 4 的倍數（最後為筆記頁）。玩家輔助卡：A5 雙面。", "Rulebook and Solo Rulebook: saddle-stitched, padded with Notes pages to a multiple of 4. Player Aid: A5, two sides."))}</li>

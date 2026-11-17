@@ -8,6 +8,8 @@ approved component design sketches. Card, Book and rule text come from the same 
 node print/v5/export_data.mjs        # card, tile and Book text from the web table's data -> print/v5/out/data.json
 python3 print/v5/build.py            # every component, both languages; --lang zh|en, --only boards,cards,... , --no-press
 python3 print/v5/manual.py           # MANUAL.pdf (production manual) from the print plan
+python3 print/v5/package.py          # the Downloads zips
+python3 print/v5/reprint_from_v3.py  # the least a V3.2 owner must print for V5, with what to keep from V3.2
 ```
 
 Needs Chromium with Playwright (pre-installed here), Python with Pillow, Markdown and PyMuPDF, and Ghostscript for the

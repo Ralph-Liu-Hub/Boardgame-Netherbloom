@@ -187,24 +187,40 @@ MART = {"weaver": ("card-mantle-weaver", False), "warden": ("card-mantle-warden"
         "breaker": ("card-mantle-breaker", False), "reaper": ("reaper", True)}
 
 
+def appendix_mantles(L):
+    """The Mantle texts as Appendix B of the Rulebook prints them: {name: (effect, when)}."""
+    import re
+    md = open(os.path.join(ROOT, "docs", "rules", *(("zh-TW", "V5", "Rulebook.md") if L.code == "zh" else ("en", "Rulebook.md"))), encoding="utf-8").read()
+    sec = md[md.index("### 稱號牌" if L.code == "zh" else "### Mantle cards"):]
+    sec = sec[:sec.index("\n### ", 5)]
+    out = {}
+    for row in re.findall(r"^\| \*\*(.+?)\*\*.*?\| (.+?) \| (.+?) \|$", sec, flags=re.M):
+        out[row[0]] = (row[1], row[2])
+    return out
+
+
 def mantle(L, m):
     z = L.code == "zh"
     th = m["th"]
     a, c = MART[m["key"]]
+    eff, when = appendix_mantles(L)[L(m["zh"], m["en"])]
+    tn = L(DATA["threads"][th]["zh"], DATA["threads"][th]["en"])
+    summon = L(f"召喚：支付 3 點光（國王的局 2 點），並棄 1 張{tn}手牌。", f"Summon: pay 3 Light (2 in the King's game) and discard 1 {tn} card from your hand.")
     body = (f'<div class="title disp" style="font-size:{mm(4 if z else 3.6)}">{sym(TSYM[th], TC[th], 4)}<span>{E(L(m["zh"], m["en"]))}</span></div>'
-            f'<div class="meta" style="font-size:{mm(2.5)};margin-top:.6mm">{E(L("稱號", "Mantle"))}<span style="margin-left:auto;color:{TC[th]}">{E(L(DATA["threads"][th]["zh"], DATA["threads"][th]["en"]))}</span></div>'
-            f'<div class="fit eff" data-min="2.2" data-id="mantle {m["key"]}" style="flex:1;font-size:{mm(3.1 if z else 2.8)};margin-top:2mm">{E(L(m["tz"], m["te"]))}</div>')
-    return card_page(STD, art(a, 1600, concept=c), 48, th, body)
+            f'<div class="meta" style="font-size:{mm(2.5)};margin-top:.6mm">{E(L("稱號", "Mantle"))}<span style="margin-left:auto;color:{TC[th]}">{E(tn)}</span></div>'
+            f'<div class="fit" data-min="2" data-id="mantle {m["key"]}" style="flex:1;display:flex;flex-direction:column;font-size:{mm(2.9 if z else 2.6)};margin-top:1.6mm;min-height:0">'
+            f'<div class="eff">{E(eff)}</div>'
+            f'<div style="color:#cfc6b2;font-size:.85em;margin-top:1mm"><b style="color:{TC[th]}">{E(L("時機", "When"))}</b> {E(when)}</div>'
+            f'<div class="res" style="margin-top:auto;padding-top:1mm;font-size:.88em">{E(summon)}</div></div>')
+    return card_page(STD, art(a, 1600, concept=c), 44, th, body)
 
 
-def mantle_back(L, m):
+def back_mantle(L):
+    """The Mantles' shared back (a used Mantle is turned sideways, not over)."""
     w, h = STD
-    a, c = MART[m["key"]]
-    return (f'<div class="back" style="background-image:url({art(a, 1600, concept=c)});filter:grayscale(1) brightness(.35)"></div>'
-            f'<div class="a" style="{at(BLEED + 2, BLEED + 2, w - 4, h - 4)}border:.4mm solid rgba(162,156,147,.6);border-radius:2.5mm"></div>'
-            f'<div class="backtxt disp" style="{at(BLEED, BLEED + 28, w, 30)}"><div style="font-size:{mm(5 if L.code == "zh" else 4.2)};color:#cfc6b2">{E(L(m["zh"], m["en"]))}</div>'
-            f'<div style="font-size:{mm(3.4)};color:#a29c93;margin-top:1.5mm;letter-spacing:.2em">{E(L("已使用", "Spent"))}</div>'
-            f'<div style="font-size:{mm(2.4)};color:#a29c93;margin-top:2mm">{E(L("使用後翻到這面；新一輪開始時翻回", "Turn it to this side once used; turn it back at the start of a new round"))}</div></div>')
+    return (f'<div class="back" style="background-image:url({art("card-mantle-warden", 1600)});filter:grayscale(.6) brightness(.38)"></div>'
+            f'<div class="a" style="{at(BLEED + 2, BLEED + 2, w - 4, h - 4)}border:.4mm solid rgba(201,164,92,.7);border-radius:2.5mm"></div>'
+            f'<div class="backtxt disp" style="{at(BLEED, BLEED + 32, w, 24)}"><div style="font-size:{mm(8 if L.code == "zh" else 6.5)};color:#e6d3a3;letter-spacing:.2em;text-shadow:0 0 2mm #000">{E(L("稱號", "Mantle"))}</div></div>')
 
 
 def ghost(L, g):
@@ -241,9 +257,9 @@ def build(L):
     out.append(("cards/ending-cards-fronts.pdf", *STD, [ending(L, s, b, e) for s, b, e in ends], [f'{s} ending {b}' for s, b, e in ends], "fronts; backs in ending-cards-backs.pdf, same order", CSS))
     out.append(("cards/ending-cards-backs.pdf", *STD, [ending_back(L, s, b, e) for s, b, e in ends], [f'{s} ending {b} back' for s, b, e in ends], "backs, same order", CSS))
     out.append(("cards/soul-cards.pdf", *STD, [soul_card(L, s) for s in D["soulOrder"]], [f"soul {s}" for s in D["soulOrder"]], "fronts; one shared back (card-backs-standard.pdf p.2)", CSS))
-    out.append(("cards/mantle-cards-fronts.pdf", *STD, [mantle(L, m) for m in D["mantles"]], [f'mantle {m["key"]}' for m in D["mantles"]], "fronts; backs (the spent side) in mantle-cards-backs.pdf", CSS))
-    out.append(("cards/mantle-cards-backs.pdf", *STD, [mantle_back(L, m) for m in D["mantles"]], [f'mantle {m["key"]} spent side' for m in D["mantles"]], "backs, same order", CSS))
+    out.append(("cards/mantle-cards.pdf", *STD, [mantle(L, m) for m in D["mantles"]], [f'mantle {m["key"]}' for m in D["mantles"]], "fronts; one shared back (card-backs-standard.pdf p.4)", CSS))
     out.append(("cards/ghost-cards.pdf", *STD, [ghost(L, g) for g in D["ghost"]], [f"ghost {i+1}" for i in range(len(D["ghost"]))], "fronts; one shared back (card-backs-standard.pdf p.3)", CSS))
-    out.append(("cards/card-backs-standard.pdf", *STD, [commission_back(L), back_soul(L), back_ghost(L)],
-                [L("託付卡背（40 張共用）", "Commission back (all 40)"), L("亡魂牌背（5 張共用）", "Soul back (all 5)"), L("幽靈牌背（12 張共用）", "Ghost back (all 12)")], "shared backs", CSS))
+    out.append(("cards/card-backs-standard.pdf", *STD, [commission_back(L), back_soul(L), back_ghost(L), back_mantle(L)],
+                [L("託付卡背（40 張共用）", "Commission back (all 40)"), L("亡魂牌背（5 張共用）", "Soul back (all 5)"), L("幽靈牌背（12 張共用）", "Ghost back (all 12)"),
+                 L("稱號牌背（5 張共用）", "Mantle back (all 5)")], "shared backs", CSS))
     return out
