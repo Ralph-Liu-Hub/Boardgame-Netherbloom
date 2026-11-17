@@ -573,7 +573,7 @@ function boardsHtml() {
     }
     h += `<div class="blash" style="left:${KX0 + KNOTS * KP + KW + 18}px;top:${y - 4}px">${D.BACKLASH[t].map((s, i) => `<div><b>${"ⅠⅡⅢ"[i]}</b>${esc(tr(s, D.BACKLASH_EN[t][i]))}</div>`).join("")}</div>`;
   }
-    <div class="note" style="left:96px;top:336px">${tr(`傷疤標記放在有顏色的格子：<b class="k-multi">紅色</b> 2–4 人（7／6／5）、<b class="k-solo">藍綠色</b> 單人（10／9／8）。這局從 ${th[0]} 開始，每道傷疤往左一格；結標記追上傷疤標記就打滿。霧痕：同絲線反噬升一級。`, `The Scar marker goes on a coloured cell: <b class="k-multi">red</b> 2–4 players (7 / 6 / 5), <b class="k-solo">teal</b> solo (10 / 9 / 8). This game it starts on ${th[0]} and moves one cell left for each Scar; a thread is full when its knot marker reaches the Scar marker. Mist scars raise that thread's Backlash one level.`)}</div></div>`;
+  h += `<div class="note" style="left:96px;top:336px">${tr(`傷疤標記放在有顏色的格子：<b class="k-multi">紅色</b> 2–4 人（7／6／5）、<b class="k-solo">藍綠色</b> 單人（10／9／8）。這局從 ${th[0]} 開始，每道傷疤往左一格；結標記追上傷疤標記就打滿。霧痕：同絲線反噬升一級。`, `The Scar marker goes on a coloured cell: <b class="k-multi">red</b> 2–4 players (7 / 6 / 5), <b class="k-solo">teal</b> solo (10 / 9 / 8). This game it starts on ${th[0]} and moves one cell left for each Scar; a thread is full when its knot marker reaches the Scar marker. Mist scars raise that thread's Backlash one level.`)}</div></div>`;
   // book: one open page; tabs flip through the chapters
   h += `<div class="board bookp" data-region="book" id="tt-book" style="left:${BOOK.x}px;top:${BOOK.y}px;width:${BOOK.w}px;height:${BOOK.h}px"></div>`;
   // ledger
