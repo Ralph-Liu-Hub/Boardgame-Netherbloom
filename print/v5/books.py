@@ -159,9 +159,9 @@ def cover(L, soul):
     S = DATA["souls"][soul]
     p = S["prologue"][L.code]
     h = (f'<div class="a" style="{at(14, 14, PW - 28, PH - 28)}border:.5mm solid rgba(201,164,92,.7);border-radius:3mm"></div>'
-         f'<div class="a disp" style="{at(0, 26, PW)}text-align:center;font-size:{mm(13 if L.code == "zh" else 11)};color:#e6d3a3;letter-spacing:.2em;text-shadow:0 0 3mm #000">{E(L("憶念之書", "Book of Remembrance"))}</div>'
-         f'<div class="a" style="{at(0, 44, PW)}text-align:center;font-size:{mm(7)};color:#f2e8d5;text-shadow:0 0 2mm #000">{E(S["name"][L.code])}</div>'
-         f'<div class="a" style="{at(30, 236, PW - 60)}text-align:center;font-size:{mm(F14)};font-style:italic;color:#e6d3a3;line-height:1.5;text-shadow:0 0 2mm #000">{E(p["motto"])}</div>'
+         f'<div class="a disp" style="{at(0, 26, PW)}text-align:center;font-size:{mm(13 if L.code == "zh" else 11)};color:#e6d3a3;letter-spacing:.2em">{E(L("憶念之書", "Book of Remembrance"))}</div>'
+         f'<div class="a" style="{at(0, 44, PW)}text-align:center;font-size:{mm(7)};color:#f2e8d5">{E(S["name"][L.code])}</div>'
+         f'<div class="a" style="{at(30, 236, PW - 60)}text-align:center;font-size:{mm(F14)};font-style:italic;color:#e6d3a3;line-height:1.5">{E(p["motto"])}</div>'
          f'<div class="a disp" style="{at(0, 262, PW)}text-align:center;font-size:{mm(4)};color:#a29c93;letter-spacing:.3em">{E(L("彼岸花渡", "NETHERBLOOM"))}</div>')
     return single(h, art(DATA["soulArt"][soul], 3000), "linear-gradient(rgba(14,12,17,.55),rgba(14,12,17,.05) 30%,rgba(14,12,17,.1) 70%,rgba(14,12,17,.8))", "center 20%")
 

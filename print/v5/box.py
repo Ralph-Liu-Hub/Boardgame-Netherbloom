@@ -36,9 +36,9 @@ def lid(L):
     title = L("彼岸花渡", "Netherbloom")
     h = (f'<div class="a" style="{at(x - 2, y - 2, fw + 4, fh + 4)}background-image:url({art("cover-f", 4000)});background-size:cover;background-position:center"></div>'
          f'<div class="a" style="{at(x, y, fw, fh)}background:linear-gradient(rgba(14,12,17,.55),rgba(14,12,17,0) 35%,rgba(14,12,17,0) 70%,rgba(14,12,17,.75))"></div>'
-         f'<div class="a disp" style="{at(x, y + 22, fw)}text-align:center;font-size:{mm(28 if L.code == "zh" else 24)};color:#e6d3a3;letter-spacing:.2em;text-shadow:0 0 4mm #000">{E(title)}</div>'
-         f'<div class="a" style="{at(x, y + 56, fw)}text-align:center;font-size:{mm(7)};color:#f2e8d5;text-shadow:0 0 2mm #000">{E(L("Netherbloom", "彼岸花渡"))}</div>'
-         f'<div class="a" style="{at(x, y + fh - 30, fw)}text-align:center;font-size:{mm(6)};font-style:italic;color:#e6d3a3;text-shadow:0 0 2mm #000">{E(L("讓亡魂渡過忘川，記得祂曾經是誰。", "Ferry the soul across the river of forgetting, and remember who it was."))}</div>'
+         f'<div class="a disp" style="{at(x, y + 22, fw)}text-align:center;font-size:{mm(28 if L.code == "zh" else 24)};color:#e6d3a3;letter-spacing:.2em">{E(title)}</div>'
+         f'<div class="a" style="{at(x, y + 56, fw)}text-align:center;font-size:{mm(7)};color:#f2e8d5">{E(L("Netherbloom", "彼岸花渡"))}</div>'
+         f'<div class="a" style="{at(x, y + fh - 30, fw)}text-align:center;font-size:{mm(6)};font-style:italic;color:#e6d3a3">{E(L("讓亡魂渡過忘川，記得祂曾經是誰。", "Ferry the soul across the river of forgetting, and remember who it was."))}</div>'
          f'<div class="a" style="{at(x, y + fh - 16, fw)}text-align:center;font-size:{mm(4.6)};color:#cfc6b2;letter-spacing:.1em">{E(facts(L))}</div>')
     for side, rot in (("top", 180), ("bottom", 0), ("left", 90), ("right", -90)):
         bx, by, bw, bh = w[side]
