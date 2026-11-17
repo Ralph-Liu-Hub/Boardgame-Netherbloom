@@ -56,10 +56,8 @@ img.tok {{ width: 1.25em; height: 1.25em; vertical-align: -.25em }}
 a {{ color: inherit; text-decoration: none }}
 hr {{ border: 0; border-top: .3mm solid #c9a45c; margin: 4mm 0 }}
 code {{ font-family: inherit }}
-.setupfig {{ break-before: page; text-align: center }}
-.setupfig .cap {{ font-family: {DISPLAY[L.code]}; font-size: 12pt; color: #7a1f2b; margin-bottom: 2.5mm; text-align: left }}
-.setupfig img {{ width: 100%; border-radius: 2mm; box-shadow: 0 .6mm 2mm rgba(0,0,0,.35) }}
-.legend {{ break-inside: avoid }} .legend h3 {{ margin-top: 4mm }}
+.legend {{ break-before: page; break-inside: avoid; margin-bottom: 6mm }} .legend h3 {{ margin-top: 0 }}
+.spreadmark {{ font-size: 1px; color: #f3e9d4; line-height: 0 }}
 table.lg td.n, table.lg th:first-child {{ width: 12mm; white-space: nowrap; text-align: center; font-weight: 700; color: #1a1410; background: #e9c46a }}
 table.lg td:nth-child(2) {{ width: 32mm }}
 """
@@ -70,8 +68,8 @@ def flow_doc(L, kind):
     body = html_of(SRC[L.code][kind])
     if kind == "rulebook":     # the set-up figure: the real table, numbered by step, with its legend
         import setup_table
-        img = setup_table.build_image(L)
-        body, n = re.subn(r'<div class="figure"><svg viewBox="0 0 720 470".*?</svg></div>', lambda m: setup_table.figure_html(L, img), body, count=1, flags=re.S)
+        setup_table.build_image(L)
+        body, n = re.subn(r'<div class="figure"><svg viewBox="0 0 720 470".*?</svg></div>', lambda m: setup_table.figure_html(L), body, count=1, flags=re.S)
         assert n == 1, "set-up figure not found"
     return f'<!doctype html><html lang="{L.dir}"><head><meta charset="utf-8">{FONTS}<style>{css(L, w, h, kind)}</style></head><body>{body}</body></html>'
 
@@ -103,6 +101,10 @@ def post(L, d, plan):
         path = os.path.join(d, p["path"])
         doc = pymupdf.open(path)
         w, h = p["trim"]
+        skip = set()
+        if p["path"].endswith("/rulebook.pdf"):
+            s0 = _setup_spread(doc, d, w, h)
+            skip = {s0, s0 + 1}
         for pg in doc:             # the page colour runs edge to edge (Chromium leaves the page margins white)
             pg.draw_rect(pg.rect, color=None, fill=PAPER, overlay=False)
         kind = "aid" if p["path"].endswith("player-aid.pdf") else "book"
@@ -120,7 +122,7 @@ def post(L, d, plan):
             pg.draw_rect(pg.rect, color=None, fill=PAPER)
         n = len(doc)
         for i, pg in enumerate(doc):
-            if i == 0 and kind == "book":
+            if (i == 0 and kind == "book") or i in skip:
                 continue
             s = str(i + 1)
             x = ((BLEED + w - 22) if i % 2 == 0 else (BLEED + 19)) * MMP
@@ -128,6 +130,23 @@ def post(L, d, plan):
         p["labels"] = [f"{p['path'].split('/')[-1]} page {i + 1} of {n}" for i in range(n)]
         doc.save(path + ".tmp", garbage=3, deflate=True); doc.close(); os.replace(path + ".tmp", path)
     return plan
+
+
+def _setup_spread(doc, d, w, h):
+    """Puts the set-up table on two facing pages (an even page and the odd page after it), next to its legend."""
+    import setup_table
+    MMP = 72 / 25.4
+    li = next(i for i, pg in enumerate(doc) if setup_table.MARK in pg.get_text())
+    at_ = li + 1 if (li + 1) % 2 == 1 else li          # 0-based index of the spread's left page must be odd (page number even)
+    img = os.path.join(d, "setup-table.jpg")
+    pw, ph = (w + 2 * BLEED) * MMP, (h + 2 * BLEED) * MMP
+    full = pymupdf.Rect(0, 0, (2 * w + 2 * BLEED) * MMP, ph)
+    xref = 0
+    for side in (0, 1):
+        pg = doc.new_page(at_ + side, width=pw, height=ph)
+        r = full + (-side * w * MMP, 0, -side * w * MMP, 0)
+        xref = pg.insert_image(r, filename=img, xref=xref) if not xref else pg.insert_image(r, xref=xref)
+    return at_
 
 
 def _font_file():

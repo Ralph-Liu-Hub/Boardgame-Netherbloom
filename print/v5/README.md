@@ -24,7 +24,7 @@ IM Fell English SC from Google Fonts. Output: `print/v5/out/<zh-TW|en>/`.
 | `tokens.py` | Tokens 50 + 11 | Ø18, Ø25 |
 | `box.py` | Lid and base wraps with die lines (V3.2 box kept) | 300 × 300 × 75, 296 × 296 × 73 |
 | `rulebooks.py` | Rulebook, Solo Rulebook (saddle-stitched, padded to 4n pages), Player Aid | 210 × 280, A5 |
-| `setup_table.py` | The Rulebook's set-up figure: the real table after set-up (2 players, The Child of the Last Flame, Gentle) drawn from the print files at true size, numbered by set-up step, with its legend | one page + legend |
+| `setup_table.py` | The Rulebook's set-up spread: the real table after set-up (2 players, The Child of the Last Flame, Gentle), drawn from the print files at true size with a slight camera angle, numbered by set-up step; rulebooks.py puts it on two facing pages next to its legend | two facing pages |
 
 Every page is the finished size plus 3 mm bleed. Text boxes marked `.fit` shrink only if their words would not fit,
 and the render reports any that still overflow (none do). `preview.py` and `sheet.py` save page images for a quick look.
