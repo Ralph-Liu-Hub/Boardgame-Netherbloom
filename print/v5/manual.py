@@ -30,8 +30,46 @@ def bom(L):
         (T("規則書", "Rulebook"), 1, "210 × 280", T("128 g 霧面銅版、騎馬釘", "128 gsm matte art paper, saddle-stitched"), "rulebook/rulebook.pdf"),
         (T("單人模式規則書", "Solo Rulebook"), 1, "210 × 280", T("同上", "as above"), "rulebook/solo-rulebook.pdf"),
         (T("玩家輔助卡", "Player Aid"), 4, "A5 148 × 210", T("300 g 卡紙、雙面", "300 gsm card, two sides"), "rulebook/player-aid.pdf"),
-        (T("盒子（天地蓋）", "Box (lid and base)"), 1, T("盒蓋 300 × 300 × 75；盒底 296 × 296 × 73", "lid 300 × 300 × 75; base 296 × 296 × 73"), T("灰紙板裱 157 g 銅版、霧面上光、反摺 15 mm", "greyboard wrapped in 157 gsm art paper, matte laminate, 15 mm turn-ins"), "box/box-lid-wrap.pdf, box-base-wrap.pdf, die lines"),
+        (T("盒子（天地蓋）", "Box (lid and base)"), 1, T("盒蓋 300 × 300 × 75；盒底 296 × 296 × 73", "lid 300 × 300 × 75; base 296 × 296 × 73"), T("灰紙板裱 157 g 銅版、霧面上光、反摺 15 mm", "greyboard wrapped in 157 gsm art paper, matte laminate, 15 mm turn-ins"), T("box/box-lid-wrap.pdf、box-base-wrap.pdf 與刀模圖", "box/box-lid-wrap.pdf, box-base-wrap.pdf, die lines")),
     ]
+
+
+# the "how to print" column in Traditional Chinese (the print plan keeps English notes for the press slug)
+SIDES_ZH = {
+    "12 pages, reader order, saddle-stitched": "12 頁，依閱讀順序排列，騎馬釘裝訂",
+    "A5, both sides; print 4 (one per player)": "A5 雙面印刷；印 4 份（每位玩家 1 份）",
+    "backs, same order": "背面，頁序與正面相同",
+    "backs, same order as the fronts": "背面，頁序與正面相同",
+    "base 296 x 296 x 73 mm": "盒底 296 × 296 × 73 mm",
+    "condition sides, same order": "條件面，頁序與事件面相同",
+    "cutting guide, do not print": "刀模圖，僅供裁切參考，不印刷",
+    "die-cut 18 mm (round, or rounded square where the label says), 2 mm greyboard; backs in tokens-18mm-backs.pdf, same order":
+        "模切 18 mm（圓形；頁面標籤註明者為圓角方形），2 mm 灰紙板；背面在 tokens-18mm-backs.pdf，頁序相同",
+    "die-cut 25 mm (round, or rounded square where the label says), 2 mm greyboard; backs in tokens-25mm-backs.pdf, same order":
+        "模切 25 mm（圓形；頁面標籤註明者為圓角方形），2 mm 灰紙板；背面在 tokens-25mm-backs.pdf，頁序相同",
+    "event sides; condition sides in fate-mist-condition-side.pdf, same order": "事件面；條件面在 fate-mist-condition-side.pdf，頁序相同",
+    "fog sides, same order as the fronts": "霧面（背面），頁序與正面相同",
+    "fronts; backs in ending-cards-backs.pdf, same order": "正面；背面在 ending-cards-backs.pdf，頁序相同",
+    "fronts; backs in mist-cards-backs.pdf, same order": "正面；背面在 mist-cards-backs.pdf，頁序相同",
+    "fronts; fog sides in bank-tiles-fog-side.pdf, same order; die-cut 40 x 40, 2 mm greyboard": "正面；霧面在 bank-tiles-fog-side.pdf，頁序相同；模切 40 × 40 mm，2 mm 灰紙板",
+    "fronts; one shared back (card-backs-mini.pdf p.1)": "正面；共用牌背為 card-backs-mini.pdf 第 1 頁",
+    "fronts; one shared back (card-backs-standard.pdf p.1)": "正面；共用牌背為 card-backs-standard.pdf 第 1 頁",
+    "fronts; one shared back (card-backs-standard.pdf p.2)": "正面；共用牌背為 card-backs-standard.pdf 第 2 頁",
+    "fronts; one shared back (card-backs-standard.pdf p.3)": "正面；共用牌背為 card-backs-standard.pdf 第 3 頁",
+    "fronts; one shared back (card-backs-standard.pdf p.4)": "正面；共用牌背為 card-backs-standard.pdf 第 4 頁",
+    "lid 300 x 300 x 75 mm": "盒蓋 300 × 300 × 75 mm",
+    "saddle-stitched, pages in reading order": "騎馬釘裝訂，頁面依閱讀順序排列",
+    "shared backs": "共用牌背",
+    "single-sided": "單面印刷",
+    "the Memory deck's back": "記憶牌背（72 張共用）",
+}
+
+
+def sides(L, s):
+    if L.code != "zh":
+        return s
+    assert s in SIDES_ZH, f"no Chinese for the printing note: {s}"
+    return SIDES_ZH[s]
 
 
 def page_count(d, f):
@@ -46,7 +84,7 @@ def manual(L):
     plan = json.load(open(os.path.join(d, "press-plan.json")))["files"]
     z = L.code == "zh"
     rows = "".join(f"<tr><td>{E(a)}</td><td>{b}</td><td>{E(c)}</td><td>{E(s)}</td><td><code>{E(f)}</code></td></tr>" for a, b, c, s, f in bom(L))
-    files = "".join(f"<tr><td><code>{E(p['path'])}</code></td><td>{page_count(d, p['path'])}</td><td>{p['trim'][0]} × {p['trim'][1]}</td><td>{E(p['sides'])}</td></tr>" for p in sorted(plan, key=lambda p: p["path"]))
+    files = "".join(f"<tr><td><code>{E(p['path'])}</code></td><td>{page_count(d, p['path'])}</td><td>{p['trim'][0]} × {p['trim'][1]}</td><td>{E(sides(L, p['sides']))}</td></tr>" for p in sorted(plan, key=lambda p: p["path"]))
     S = lambda zh, en: L(zh, en)
     html = f"""<!doctype html><html lang="{L.dir}"><head><meta charset="utf-8">{FONTS}<style>
 @page {{ size: A4; margin: 16mm 15mm 18mm }}
@@ -54,7 +92,7 @@ body {{ font-family: {FAMILY[L.code]}; font-size: 10pt; line-height: {1.6 if z e
 h1 {{ font-family: {DISPLAY[L.code]}; color: #7a1f2b; font-size: 20pt; margin: 0 0 2mm }}
 h2 {{ color: #7a1f2b; font-size: 13.5pt; border-bottom: .3mm solid #c9a45c; margin: 7mm 0 2.5mm; break-after: avoid }}
 table {{ border-collapse: collapse; width: 100%; font-size: 8.6pt; line-height: 1.35; margin: 2mm 0 }}
-th {{ background: #ece2cc; text-align: left }} th, td {{ border: .25mm solid #cbbd9f; padding: 1mm 1.5mm; vertical-align: top }}
+th {{ background: #ece2cc; text-align: left; white-space: nowrap }} th, td {{ border: .25mm solid #cbbd9f; padding: 1mm 1.5mm; vertical-align: top }}
 tr {{ break-inside: avoid }} code {{ font-size: .92em; word-break: break-all }} li {{ margin: .8mm 0 }}
 </style></head><body>
 <h1>{E(S("《彼岸花渡》Netherbloom — 印刷生產手冊", "Netherbloom — Production manual"))}</h1>
