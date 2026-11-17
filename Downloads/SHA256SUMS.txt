@@ -1,8 +1,8 @@
 8abcd96c626311d8f05076f6a34c1aefc880b49bdbe0a1cd1510781fe0ce525f  netherbloom-factory-zh-TW-V5-part1-cards-tiles-tokens.zip
 8ec9eca854952cdb0b7d462c2aa233ae78929ea564866c3ff71ebc7be6829350  netherbloom-factory-zh-TW-V5-part2-boards-box.zip
 2ebe833ef09b27f3c642126384af1071a1f23ea90542470abf2e9ee19acc8b5b  netherbloom-factory-zh-TW-V5-part3-books.zip
-7c2d36a1719333a4d5cec17e322a073485be27ffe64d741879a16d640322ecf7  netherbloom-factory-zh-TW-V5-part4-rulebooks.zip
+14c6c8c399e6bb781bf0c933a71bfc72092f07bc6052f3929c9a340eaa2a793f  netherbloom-factory-zh-TW-V5-part4-rulebooks.zip
 14a7ef3c228bf872b2dd111ab0c5d381d24c7925f42bebeb8155d4623fc06c09  netherbloom-factory-en-V5-part1-cards-tiles-tokens.zip
 c9f22e88ca2c472394adbaf3f85d8f7ab89b72c69b0118f875404283f6748cc9  netherbloom-factory-en-V5-part2-boards-box.zip
 eeb8323b41cc4e64ddf91b66a735b3ad143403a4c92d0b78b0dda678af2f9fb2  netherbloom-factory-en-V5-part3-books.zip
-25b0381e57bdb25c2fc48322048d2a23eb6781da8dcdf3c481930a88b7432467  netherbloom-factory-en-V5-part4-rulebooks.zip
+4cc23af06485723d0f818ca31a2eabfb01ef33f4eaa414a96c0f284a7372237b  netherbloom-factory-en-V5-part4-rulebooks.zip
