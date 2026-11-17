@@ -72,8 +72,8 @@ html, body { background: #0e0c11; color: var(--paper); -webkit-print-color-adjus
 .slot { position: absolute; border: .45mm dashed rgba(230,211,163,.8); border-radius: 2.5mm; overflow: hidden;
   background: rgba(14,12,17,.42); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center }
 .slot .fill { position: absolute; inset: 0; background-size: cover; background-position: center }
-.lab { position: absolute; color: var(--bone); text-shadow: 0 .2mm .4mm #000; line-height: 1.3 }
-.ttl { position: absolute; color: var(--gold); font-weight: 700; letter-spacing: .12em; text-shadow: 0 .2mm .6mm #000 }
+.lab { position: absolute; color: var(--bone); line-height: 1.3 }
+.ttl { position: absolute; color: var(--gold); font-weight: 700; letter-spacing: .12em }
 .cell { position: absolute; border-radius: 2.2mm; border: .4mm solid rgba(230,211,163,.55); background: rgba(14,12,17,.6);
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 1mm; color: var(--paper); line-height: 1 }
 .cell small { margin-bottom: auto; margin-top: 1.2mm; opacity: .9 }

@@ -133,8 +133,8 @@ def commission_back(L):
     w, h = STD
     return (f'<div class="back" style="background-image:url({art("card-wish", 1400)});filter:brightness(.55)"></div>'
             f'<div class="a" style="{at(BLEED + 2, BLEED + 2, w - 4, h - 4)}border:.4mm solid rgba(201,164,92,.75);border-radius:2.5mm"></div>'
-            f'<div class="backtxt disp" style="{at(BLEED, BLEED + 30, w, 28)}"><div style="font-size:{mm(8 if L.code == "zh" else 6.5)};color:#e6d3a3;letter-spacing:.2em;text-shadow:0 0 2mm #000">{E(L("託付", "Commission"))}</div>'
-            f'<div style="font-size:{mm(2.6)};color:#cfc6b2;margin-top:1.5mm;text-shadow:0 0 1mm #000">{E(L("面朝下放在你面前", "Keep it face down in front of you"))}</div></div>')
+            f'<div class="backtxt disp" style="{at(BLEED, BLEED + 30, w, 28)}"><div style="font-size:{mm(8 if L.code == "zh" else 6.5)};color:#e6d3a3;letter-spacing:.2em">{E(L("託付", "Commission"))}</div>'
+            f'<div style="font-size:{mm(2.6)};color:#cfc6b2;margin-top:1.5mm">{E(L("面朝下放在你面前", "Keep it face down in front of you"))}</div></div>')
 
 
 # ---------------------------------------------------------------- Endings (standard, every back different)
@@ -220,7 +220,7 @@ def back_mantle(L):
     w, h = STD
     return (f'<div class="back" style="background-image:url({art("card-mantle-warden", 1600)});filter:grayscale(.6) brightness(.38)"></div>'
             f'<div class="a" style="{at(BLEED + 2, BLEED + 2, w - 4, h - 4)}border:.4mm solid rgba(201,164,92,.7);border-radius:2.5mm"></div>'
-            f'<div class="backtxt disp" style="{at(BLEED, BLEED + 32, w, 24)}"><div style="font-size:{mm(8 if L.code == "zh" else 6.5)};color:#e6d3a3;letter-spacing:.2em;text-shadow:0 0 2mm #000">{E(L("稱號", "Mantle"))}</div></div>')
+            f'<div class="backtxt disp" style="{at(BLEED, BLEED + 32, w, 24)}"><div style="font-size:{mm(8 if L.code == "zh" else 6.5)};color:#e6d3a3;letter-spacing:.2em">{E(L("稱號", "Mantle"))}</div></div>')
 
 
 def ghost(L, g):
