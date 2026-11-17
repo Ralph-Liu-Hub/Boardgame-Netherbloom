@@ -81,7 +81,8 @@ def press(path, entry, bleed, slug, profile_name):
         # the label wraps inside the bottom slug, between the corner marks
         box = pymupdf.Rect(x0, y1 + b + 1.2 * MM, x1, H - 0.8 * MM)
         for fs in (5.5, 4.8, 4.2, 3.6):
-            if p.insert_textbox(box, text, fontsize=fs, fontname="helv", color=(0, 0, 0, 1)) >= 0:
+            font = "china-t" if any(ord(ch) > 127 for ch in text) else "helv"     # Chinese labels need a CJK font
+            if p.insert_textbox(box, text, fontsize=fs, fontname=font, color=(0, 0, 0, 1)) >= 0:
                 break
         p.set_mediabox(pymupdf.Rect(0, 0, W, H))
         p.set_bleedbox(pymupdf.Rect(x0 - b, y0 - b, x1 + b, y1 + b))

@@ -44,14 +44,13 @@ for f in plan["files"]:
         if (band.min(axis=1) > 245).mean() > .02:
             fails.append(f"{f['path']} p.{i+1}: paper white in the bleed"); break
 pairs = [("cards/mist-cards-fronts.pdf", "cards/mist-cards-backs.pdf"), ("cards/fate-mist-event-side.pdf", "cards/fate-mist-condition-side.pdf"),
-         ("cards/ending-cards-fronts.pdf", "cards/ending-cards-backs.pdf"), ("cards/mantle-cards-fronts.pdf", "cards/mantle-cards-backs.pdf"),
-         ("tiles/bank-tiles-fronts.pdf", "tiles/bank-tiles-fog-side.pdf"), ("tokens/tokens-18mm-fronts.pdf", "tokens/tokens-18mm-backs.pdf"),
+         ("cards/ending-cards-fronts.pdf", "cards/ending-cards-backs.pdf"),         ("tiles/bank-tiles-fronts.pdf", "tiles/bank-tiles-fog-side.pdf"), ("tokens/tokens-18mm-fronts.pdf", "tokens/tokens-18mm-backs.pdf"),
          ("tokens/tokens-25mm-fronts.pdf", "tokens/tokens-25mm-backs.pdf")]
 for a, b in pairs:
     if counts.get(a) != counts.get(b):
         fails.append(f"{a} has {counts.get(a)} pages, {b} has {counts.get(b)}")
 expect = {"cards/memory-cards.pdf": 72, "cards/mist-cards-fronts.pdf": 56, "cards/fate-mist-event-side.pdf": 60, "cards/commission-cards.pdf": 40,
-          "cards/ending-cards-fronts.pdf": 20, "cards/soul-cards.pdf": 5, "cards/mantle-cards-fronts.pdf": 5, "cards/ghost-cards.pdf": 12,
+          "cards/ending-cards-fronts.pdf": 20, "cards/soul-cards.pdf": 5, "cards/mantle-cards.pdf": 5, "cards/ghost-cards.pdf": 12,
           "tiles/bank-tiles-fronts.pdf": 37, "tokens/tokens-18mm-fronts.pdf": 50, "tokens/tokens-25mm-fronts.pdf": 11, "boards/river-boards.pdf": 3}
 for k, n in expect.items():
     if counts.get(k) != n:
