@@ -6,5 +6,5 @@ eff2d99ce8dfea337ab4599be4030ce46382b69ce614875d071b1980bc6786a2  netherbloom-fa
 f1f3e8417fddc226582bb7f09e361d629e9feecfa538eb2f0de0d462c2181a1e  netherbloom-factory-en-V5-part2-boards-box.zip
 37c90afe3be11f50d3a9b5bb8b86b3ce4bbefc6260b74170c3a713679eeb8094  netherbloom-factory-en-V5-part3-books.zip
 c50037b13c0d9b7c6acb5eb0b8f556f267b13f0118fa1f68f97bf8792c51e46d  netherbloom-factory-en-V5-part4-rulebooks.zip
-de0c8c2a9b674e4fac9a3c4280cf1154f7c9571d139a29c8e6c667509f897e84  netherbloom-V5-reprint-from-V3.2-en.zip
-95236de7c2311eb82b98da74c0135724dfa3f2724a3c83b2f5e784603de99991  netherbloom-V5-reprint-from-V3.2-zh-TW.zip
+d881b80b9f2d6c7d26003982bd7465ab7b3b0fbdd9b17eb34efbe491d493b528  netherbloom-V5-reprint-from-V3.2-en.zip
+a4e6f034d1b9b5a9be245fea2d29bef4060d0baf631cebde4e1973901934ddef  netherbloom-V5-reprint-from-V3.2-zh-TW.zip
