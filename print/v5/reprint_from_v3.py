@@ -10,7 +10,8 @@
 import io, json, os, sys, zipfile
 import pymupdf
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from common import OUT, ROOT
+from common import OUT, ROOT, Lang
+import reprint_manual
 
 ALL = "all"
 PICK = [  # (file, pages: ALL or 1-based page numbers or a label test)
@@ -36,7 +37,7 @@ README = {
 "zh": """《彼岸花渡》V5：已經印好 V3.2 時，最少要印的部分
 ================================================
 
-這個 zip 只放 V3.2 無法沿用、玩 V5 一定要重印的檔案（已轉 CMYK、含出血與裁切線，規格同完整版 MANUAL.pdf）。
+這個 zip 只放 V3.2 無法沿用、玩 V5 一定要新增或重印的檔案（已轉 CMYK、含出血與裁切線）。\nMANUAL.pdf 是重印手冊：逐項對照 V3.2 與 V5、判定原因、檔案規格與清單。
 其餘配件沿用你手上的 V3.2，或直接放桌上不必印。
 
 一、要印的（本 zip）
@@ -70,8 +71,8 @@ README = {
 "en": """Netherbloom V5: the least to print if you already own V3.2
 =========================================================
 
-This zip holds only the files V3.2 cannot replace: what you must print to play V5 (CMYK, bleed and crop marks, the
-same specification as the full MANUAL.pdf). Everything else comes from your V3.2 copy or can lie on the table unprinted.
+This zip holds only the files V3.2 cannot replace: what you must print new or again to play V5 (CMYK, bleed and crop
+marks). MANUAL.pdf is the reprint manual: V3.2 and V5 item by item, the reasons, the file spec and list. Everything else comes from your V3.2 copy or can lie on the table unprinted.
 
 1. Print (this zip)
 - Mini cards (41 x 63): Memory 72 (new size and effects; they go into the new Books), Mist 56, Fate Mist 60; the Memory back.
@@ -121,27 +122,35 @@ def main():
         z = os.path.join(ROOT, "Downloads", f"netherbloom-V5-reprint-from-V3.2-{lang}.zip")
         root = f"netherbloom-reprint-{lang}"
         counts = {}
+        parts = {}
+        for path, pages in PICK:
+            src = pymupdf.open(os.path.join(d, path))
+            if pages == ALL:
+                parts[path] = None
+                counts[path] = len(src)
+                continue
+            if callable(pages):
+                labs = labels_of(plan, path)
+                keep = [i for i, l in enumerate(labs) if pages(l)]
+            else:
+                keep = [p - 1 for p in pages]
+            out = pymupdf.open()
+            for i in keep:
+                out.insert_pdf(src, from_page=i, to_page=i)
+            out.set_metadata(src.metadata)
+            buf = io.BytesIO(); out.save(buf, garbage=3, deflate=True)
+            parts[path] = buf.getvalue()
+            counts[path] = len(keep)
+        man = os.path.join(d, "REPRINT-MANUAL.pdf")
+        reprint_manual.build(Lang(code), d, list(counts.items()), man)
         with zipfile.ZipFile(z, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
             zf.writestr(f"{root}/README.txt", README[code])
-            zf.write(os.path.join(d, "MANUAL.pdf"), f"{root}/MANUAL.pdf")
-            for path, pages in PICK:
-                src = pymupdf.open(os.path.join(d, path))
-                if pages == ALL:
+            zf.write(man, f"{root}/MANUAL.pdf")
+            for path, data in parts.items():
+                if data is None:
                     zf.write(os.path.join(d, path), f"{root}/{path}")
-                    counts[path] = len(src)
-                    continue
-                if callable(pages):
-                    labs = labels_of(plan, path)
-                    keep = [i for i, l in enumerate(labs) if pages(l)]
                 else:
-                    keep = [p - 1 for p in pages]
-                out = pymupdf.open()
-                for i in keep:
-                    out.insert_pdf(src, from_page=i, to_page=i)
-                out.set_metadata(src.metadata)
-                buf = io.BytesIO(); out.save(buf, garbage=3, deflate=True)
-                zf.writestr(f"{root}/{path}", buf.getvalue())
-                counts[path] = len(keep)
+                    zf.writestr(f"{root}/{path}", data)
         assert os.path.getsize(z) < 100 * 1000 * 1000
         print(os.path.basename(z), round(os.path.getsize(z) / 1e6, 1), "MB")
         for k, v in counts.items():
